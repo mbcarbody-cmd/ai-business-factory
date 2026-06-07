@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EV/Hybrid Auto Paieška Europoje</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#07090d;color:#f5f7fb;line-height:1.45}.wrap{max-width:1080px;margin:auto;padding:24px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start;padding-top:35px}.card{background:#111722;border:1px solid #273244;border-radius:20px;padding:22px}h1{font-size:46px;line-height:1.05;margin:10px 0 16px}h2{margin-top:0}.muted{color:#a8b3c4}.pill{display:inline-block;border:1px solid #3c4a61;border-radius:999px;padding:7px 11px;margin:4px;color:#cbd5e1;font-size:13px}.price{font-size:34px;font-weight:800;color:#69db7c;margin:18px 0 5px}a.btn{display:inline-block;background:#69db7c;color:#031006;text-decoration:none;padding:14px 18px;border-radius:12px;font-weight:800;margin-top:10px}label{display:block;margin-top:12px;font-weight:700}input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;border:1px solid #415067;background:#080d15;color:#fff;border-radius:12px;padding:12px;font-size:15px}textarea{min-height:105px}button{width:100%;margin-top:16px;border:0;background:#69db7c;color:#031006;font-weight:900;border-radius:12px;padding:15px;font-size:16px;cursor:pointer}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}.success{display:none;margin-top:12px;padding:12px;border:1px solid #2f9e44;background:#0c2715;border-radius:12px;color:#b2f2bb}footer{border-top:1px solid #273244;margin-top:28px;padding-top:18px;color:#a8b3c4}@media(max-width:850px){.hero,.grid{grid-template-columns:1fr}h1{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div><b>AI Business Factory</b><div class="muted">Pirmas realus lead-generation eksperimentas</div></div>
+<section class="hero">
+<div>
+<span class="pill">Daužti EV</span><span class="pill">Skendę hybrid</span><span class="pill">Europa</span><span class="pill">Pagal biudžetą</span>
+<h1>Rasime EV arba hybrid automobilį Europoje pigiau nei rinkos kaina</h1>
+<p class="muted" style="font-size:19px">Užpildyk užklausą: modelis, biudžetas, šalis, kokia žala tinka. Atrinksime variantus iš Europos rinkos.</p>
+<div class="price">0 € startas</div>
+<p class="muted">Pirma užklausa nemokama. Vėliau galima premium paieška / alertai / komisija už surastą variantą.</p>
+<a class="btn" href="#form">Pateikti užklausą</a>
+</div>
+<div class="card" id="form">
+<h2>Auto paieškos užklausa</h2>
+<p class="muted">Po pateikimo atsidarys el. laiškas su užklausa. Kitame etape prijungsime Tally/Supabase automatiniam lead rinkimui.</p>
+<form id="leadForm">
+<label>Vardas</label><input name="name" required placeholder="Jūsų vardas">
+<label>Telefonas / WhatsApp</label><input name="phone" required placeholder="+370...">
+<label>El. paštas</label><input name="email" type="email" placeholder="email@example.com">
+<label>Ko ieškote?</label><textarea name="request" required placeholder="Pvz. Hyundai Tucson Hybrid 2021+, skendęs arba daužtas, iki 9000 €, ne UK"></textarea>
+<label>Biudžetas</label><select name="budget"><option>iki 5 000 €</option><option>5 000–8 000 €</option><option>8 000–12 000 €</option><option>12 000–20 000 €</option><option>20 000 €+</option></select>
+<label>Šalys</label><input name="countries" placeholder="Vokietija, Olandija, Belgija, Prancūzija...">
+<button type="submit">Siųsti užklausą</button><div class="success" id="success">Užklausa paruošta. Atsidarys el. pašto langas.</div>
+</form>
+</div>
+</section>
+<section class="grid"><div class="card"><h2>1. Kriterijai</h2><p class="muted">Modelis, metai, biudžetas, žalos tipas, šalys, ar tinka defektai.</p></div><div class="card"><h2>2. Atranka</h2><p class="muted">Ieškome pigesnių, mažiau matomų ar įdomių pasiūlymų Europoje.</p></div><div class="card"><h2>3. Shortlist</h2><p class="muted">Pirmas testas nemokamas. Vėliau galima premium paieška ir mokami alertai.</p></div></section>
+<footer>Kontaktas: <a style="color:#b2f2bb" href="mailto:mbcarbody@gmail.com">mbcarbody@gmail.com</a></footer>
+</div>
+<script>
+document.getElementById('leadForm').addEventListener('submit', function(e){
+e.preventDefault();const d=new FormData(e.target);const body=['Nauja EV/Hybrid auto paieškos užklausa:','','Vardas: '+d.get('name'),'Telefonas: '+d.get('phone'),'Email: '+(d.get('email')||''),'Biudžetas: '+d.get('budget'),'Šalys: '+(d.get('countries')||''),'Užklausa: '+d.get('request')].join('\n');
+document.getElementById('success').style.display='block';window.location.href='mailto:mbcarbody@gmail.com?subject=EV/Hybrid auto paieskos uzklausa&body='+encodeURIComponent(body);
+});
+</script>
+</body>
+</html>
