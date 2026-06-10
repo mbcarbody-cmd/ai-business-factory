@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Agent Setup mažam verslui</title>
+  <style>
+    body{margin:0;font-family:Arial,system-ui,sans-serif;background:#07111f;color:#eaf2ff}
+    .wrap{max-width:1050px;margin:auto;padding:42px 20px}
+    .hero{padding:64px 0}.badge{display:inline-block;background:#14365f;border:1px solid #2b78d0;border-radius:99px;padding:8px 12px;color:#b8d7ff}
+    h1{font-size:48px;line-height:1.05;margin:18px 0}p{font-size:18px;line-height:1.6;color:#c6d5e8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:30px 0}
+    .card{background:#0f1b2d;border:1px solid #263b59;border-radius:18px;padding:22px}.price{font-size:42px;font-weight:800;color:#70ff9b}.btn{display:inline-block;background:#2ee66b;color:#02130a;text-decoration:none;padding:16px 22px;border-radius:14px;font-weight:800;margin-top:12px}
+    input,textarea,select{width:100%;box-sizing:border-box;margin:8px 0 14px;padding:13px;border-radius:12px;border:1px solid #33506e;background:#07111f;color:#fff}button{background:#2ee66b;color:#02130a;border:0;padding:15px 22px;border-radius:14px;font-weight:800;cursor:pointer}
+    .small{font-size:13px;color:#8ea6c4}hr{border:0;border-top:1px solid #263b59;margin:34px 0}
+  </style>
+</head>
+<body>
+  <div class="wrap hero">
+    <span class="badge">72h AI darbuotojo setupas</span>
+    <h1>Pastatome mažam verslui AI sistemą, kuri renka leadus, ruošia tekstus ir tvarko pardavimo veiksmus.</h1>
+    <p>Ne konsultacija ir ne teorija. Per 72 val. paruošiam veikiančią mini sistemą: landing page, lead formą, CRM logiką, outreach tekstus, reklamos tekstų generatorių ir pristatymo planą.</p>
+    <div class="price">299 € paid pilot</div>
+    <a class="btn" href="#lead">Noriu pilotinio setupo</a>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+      <div class="card"><h3>Lead sistema</h3><p>Mini puslapis ir forma, kad klientai paliktų užklausas vienoje vietoje.</p></div>
+      <div class="card"><h3>Sales pipeline</h3><p>Aiškus statusų kelias: naujas leadas, atsakyta, demo, sąskaita, uždaryta.</p></div>
+      <div class="card"><h3>AI tekstai</h3><p>Outreach, reklamos, produkto aprašymo ir follow-up tekstai pagal tavo nišą.</p></div>
+      <div class="card"><h3>72h pristatymas</h3><p>Per tris dienas gauni veikiantį setupą ir instrukciją, kaip jį naudoti.</p></div>
+    </div>
+
+    <hr />
+    <h2>Kam tinka?</h2>
+    <p>Auto dalių pardavėjams, servisams, detailing/plovykloms, mažoms e-commerce parduotuvėms, vietiniams paslaugų verslams ir agentūroms, kurios nori AI darbo proceso be savo programuotojo.</p>
+
+    <h2>Ką gauni už 299 €?</h2>
+    <div class="grid">
+      <div class="card">1 individualų AI lead puslapį</div>
+      <div class="card">1 CRM / pipeline struktūrą</div>
+      <div class="card">1 outreach kampanijos paketą</div>
+      <div class="card">1 reklamos tekstų paketą</div>
+      <div class="card">1 delivery SOP dokumentą</div>
+      <div class="card">1 mėnesinio palaikymo pasiūlymą</div>
+    </div>
+
+    <hr />
+    <h2 id="lead">Užklausa pilotui</h2>
+    <form onsubmit="saveLead(event)">
+      <input id="name" placeholder="Vardas / įmonė" required />
+      <input id="email" placeholder="El. paštas arba kontaktas" required />
+      <select id="segment">
+        <option>Auto dalys</option><option>Servisas</option><option>Detailing / plovykla</option><option>E-commerce</option><option>Agentūra</option><option>Kita</option>
+      </select>
+      <textarea id="problem" placeholder="Ką norėtum automatizuoti?" rows="4"></textarea>
+      <button>Paruošti pilotą</button>
+    </form>
+    <p id="ok" class="small"></p>
+  </div>
+<script>
+function saveLead(e){
+  e.preventDefault();
+  const lead={name:name.value,email:email.value,segment:segment.value,problem:problem.value,created:new Date().toISOString()};
+  const leads=JSON.parse(localStorage.getItem('pilot_leads')||'[]');leads.push(lead);localStorage.setItem('pilot_leads',JSON.stringify(leads));
+  ok.textContent='Užklausa išsaugota naršyklėje. Kitas žingsnis: susisiekti ir uždaryti 299 € pilotą.';e.target.reset();
+}
+</script>
+</body>
+</html>
