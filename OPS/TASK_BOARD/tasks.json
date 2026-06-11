@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "current_focus": "Parts Business OS",
+  "tasks": [
+    {
+      "id": "OPS-001",
+      "owner": "Lead",
+      "area": "operating_loop",
+      "title": "Create shared task board",
+      "reason": "Agents need one place to create and receive work.",
+      "status": "done",
+      "output_path": "OPS/TASK_BOARD/tasks.json",
+      "next_role": "Builder"
+    },
+    {
+      "id": "OPS-002",
+      "owner": "Builder",
+      "area": "deployment",
+      "title": "Prepare VPS deploy path for Parts Business OS demo",
+      "reason": "A product is not useful until it can be opened and tested.",
+      "status": "open",
+      "output_path": "products/parts-workforce-os/fullstack/README.md",
+      "next_role": "Review"
+    },
+    {
+      "id": "OPS-003",
+      "owner": "Research",
+      "area": "market",
+      "title": "Create competitor comparison for used parts systems and marketplace tools",
+      "reason": "Product must be shaped by market gaps, not guesses.",
+      "status": "open",
+      "output_path": "OPS/MARKET_INTELLIGENCE/competitors.md",
+      "next_role": "Product"
+    },
+    {
+      "id": "OPS-004",
+      "owner": "Growth",
+      "area": "sales",
+      "title": "Create public page for Parts Business OS",
+      "reason": "Need a simple page to show the offer.",
+      "status": "open",
+      "output_path": "website/parts-business-os.html",
+      "next_role": "Sales"
+    },
+    {
+      "id": "OPS-005",
+      "owner": "Sales",
+      "area": "revenue",
+      "title": "Create first 20 target list and contact messages",
+      "reason": "No contact activity means no market feedback.",
+      "status": "open",
+      "output_path": "OPS/REVENUE_OPS/pipeline.md",
+      "next_role": "Audit"
+    }
+  ]
+}
