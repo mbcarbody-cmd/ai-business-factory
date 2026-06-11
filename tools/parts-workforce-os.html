@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parts Workforce OS MVP</title>
+<style>
+body{font-family:Arial,system-ui;background:#07111f;color:#eaf2ff;margin:0;padding:18px}.wrap{max-width:1180px;margin:auto}h1{margin:10px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.card{background:#0f1b2d;border:1px solid #263b59;border-radius:18px;padding:16px;margin:12px 0}input,select,textarea{width:100%;box-sizing:border-box;padding:11px;border-radius:12px;border:1px solid #33506e;background:#07111f;color:#fff;margin:6px 0 10px}button{padding:12px 16px;border:0;border-radius:12px;background:#2ee66b;color:#02130a;font-weight:800;margin:4px;cursor:pointer}.danger{background:#ff6b6b}.muted{color:#93a9c7;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border-bottom:1px solid #263b59;padding:8px;text-align:left;font-size:14px}.label{background:#fff;color:#000;border:1px solid #000;padding:12px;width:260px;margin:8px 0;font-family:Arial}.big{font-size:28px;font-weight:900;color:#70ff9b}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Parts Workforce OS MVP</h1>
+<p class="muted">Darbo laikas, atliktos užduotys, prekių ID, lipdukai, foto statusai. Viskas saugoma naršyklėje. MVP demonstracijai ir pilotui.</p>
+<div class="grid">
+<div class="card"><h2>1. Darbuotojas</h2><input id="worker" placeholder="Darbuotojo vardas"><select id="role"><option>Ardymas</option><option>Sandėlis</option><option>Foto</option><option>Listing</option><option>Pakavimas</option><option>Vadovas</option></select><button onclick="clockIn()">Pradėti pamainą</button><button class="danger" onclick="clockOut()">Baigti pamainą</button><p id="clockStatus" class="muted"></p></div>
+<div class="card"><h2>2. Prekė / dalis</h2><input id="partId" placeholder="Prekės ID, pvz. P-000123"><button onclick="newPartId()">Generuoti ID</button><input id="oem" placeholder="OEM kodas"><input id="vehicle" placeholder="Auto modelis / donor VIN"><input id="shelf" placeholder="Lentyna / vieta"><select id="condition"><option>Gera</option><option>Reikia valyti</option><option>Defektas</option><option>Neaišku</option></select></div>
+<div class="card"><h2>3. Užduotis</h2><select id="task"><option>Nunešta į sandėlį</option><option>Įvesta dalis</option><option>Išardyta</option><option>Išvalyta</option><option>Nufotografuota</option><option>Foto redaguota</option><option>Paruoštas skelbimas</option><option>Kaina patikrinta</option><option>Lipdukas atspausdintas</option><option>Supakuota</option><option>Išsiųsta</option><option>Rastas defektas</option></select><textarea id="notes" placeholder="Pastabos" rows="3"></textarea><button onclick="addTask()">Įrašyti užduotį</button></div>
+</div>
+<div class="grid">
+<div class="card"><h2>Foto checklist</h2><label><input type="checkbox" id="photo1"> Bendra foto</label><br><label><input type="checkbox" id="photo2"> OEM / kodas</label><br><label><input type="checkbox" id="photo3"> Defektai</label><br><label><input type="checkbox" id="photo4"> Apkarpyta / šviesinta</label><br><label><input type="checkbox" id="photo5"> Paruošta įkelti</label><br><button onclick="savePhotoStatus()">Išsaugoti foto statusą</button></div>
+<div class="card"><h2>Lipdukas</h2><div class="label" id="labelBox"><b>PART ID</b><br><span>---</span><br><small>OEM / modelis / lentyna</small></div><button onclick="makeLabel()">Generuoti lipduką</button><button onclick="window.print()">Spausdinti</button></div>
+<div class="card"><h2>Dashboard</h2><div class="big" id="dashTasks">0 užduočių</div><p id="dashText" class="muted"></p><button onclick="render()">Atnaujinti</button><button onclick="exportCSV()">Eksportuoti CSV</button><button class="danger" onclick="clearAll()">Išvalyti demo</button></div>
+</div>
+<div class="card"><h2>Užduočių žurnalas</h2><table><thead><tr><th>Laikas</th><th>Darbuotojas</th><th>Rolė</th><th>Prekės ID</th><th>Užduotis</th><th>OEM</th><th>Auto</th><th>Vieta</th><th>Pastabos</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div>
+<script>
+const KEY='parts_workforce_os_tasks';
+function tasks(){return JSON.parse(localStorage.getItem(KEY)||'[]')}
+function save(x){localStorage.setItem(KEY,JSON.stringify(x))}
+function now(){return new Date().toISOString().replace('T',' ').slice(0,19)}
+function newPartId(){partId.value='P-'+String(Date.now()).slice(-7)}
+function clockIn(){localStorage.setItem('pwo_shift',JSON.stringify({worker:worker.value,role:role.value,start:now()}));clockStatus.textContent='Pamaina pradėta: '+now()}
+function clockOut(){let s=JSON.parse(localStorage.getItem('pwo_shift')||'{}');clockStatus.textContent='Pamaina baigta. Pradžia: '+(s.start||'-')+' pabaiga: '+now();localStorage.removeItem('pwo_shift')}
+function addTask(){let arr=tasks();arr.unshift({time:now(),worker:worker.value||'Darbuotojas',role:role.value,partId:partId.value,oem:oem.value,vehicle:vehicle.value,shelf:shelf.value,condition:condition.value,task:task.value,notes:notes.value});save(arr);notes.value='';render();makeLabel()}
+function savePhotoStatus(){task.value='Foto redaguota';notes.value='Foto statusas: '+[photo1,photo2,photo3,photo4,photo5].filter(x=>x.checked).length+'/5';addTask()}
+function makeLabel(){labelBox.innerHTML='<b>'+ (partId.value||'PART ID') +'</b><br>OEM: '+(oem.value||'-')+'<br>Auto: '+(vehicle.value||'-')+'<br>Vieta: '+(shelf.value||'-')+'<br>Būklė: '+condition.value}
+function render(){let arr=tasks();rows.innerHTML=arr.map(r=>`<tr><td>${r.time}</td><td>${r.worker}</td><td>${r.role}</td><td>${r.partId}</td><td>${r.task}</td><td>${r.oem}</td><td>${r.vehicle}</td><td>${r.shelf}</td><td>${r.notes}</td></tr>`).join('');dashTasks.textContent=arr.length+' užduočių';let by={};arr.forEach(r=>by[r.worker]=(by[r.worker]||0)+1);dashText.textContent=Object.entries(by).map(([k,v])=>k+': '+v).join(' | ')}
+function exportCSV(){let arr=tasks();let head=['time','worker','role','partId','task','oem','vehicle','shelf','condition','notes'];let csv=[head.join(',')].concat(arr.map(r=>head.map(k=>'"'+String(r[k]||'').replaceAll('"','""')+'"').join(','))).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='parts_workforce_tasks.csv';a.click()}
+function clearAll(){if(confirm('Išvalyti demo duomenis?')){localStorage.removeItem(KEY);render()}}
+render();
+</script>
+</body></html>
