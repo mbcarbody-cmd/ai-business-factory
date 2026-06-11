@@ -1,0 +1,11 @@
+{
+  "name": "parts-workforce-os",
+  "version": "1.0.0",
+  "description": "Used auto parts workforce, task, part ID, label and photo workflow system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["auto-parts", "warehouse", "workforce", "labels", "tasks"],
+  "license": "UNLICENSED"
+}
