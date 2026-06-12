@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CTO-3 Systems Reliability Breaker",
+  "severity_levels": ["critical", "high", "medium", "low"],
+  "statuses": ["open", "in_progress", "fixed", "accepted", "closed"],
+  "bugs": [],
+  "rules": [
+    "Open critical bug blocks deploy and sales.",
+    "High bug requires Judge approval before delivery.",
+    "Every bug must have product, workflow, severity, owner, expected, actual and next action."
+  ],
+  "bug_template": {
+    "id": "BUG-000",
+    "product": "",
+    "workflow": "",
+    "severity": "",
+    "status": "open",
+    "reported_by": "",
+    "owner": "",
+    "expected": "",
+    "actual": "",
+    "steps_to_reproduce": [],
+    "next_action": "",
+    "proof_path": ""
+  }
+}
