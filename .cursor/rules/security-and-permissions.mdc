@@ -1,0 +1,30 @@
+---
+description: "Security and permission rules for Cursor Agent in AI Business Factory"
+alwaysApply: true
+---
+
+# Security and Permission Rule
+
+Cursor Agent must not perform destructive actions without explicit human/Judge approval.
+
+Never run commands that:
+
+- delete production data,
+- delete backups,
+- delete environment files,
+- rotate or expose secrets,
+- deploy production,
+- modify payment logic,
+- send emails to clients,
+- publish public pricing changes,
+- force push to main,
+- remove audit or safety files.
+
+Before shell commands:
+
+1. Explain command purpose.
+2. Prefer read-only commands first.
+3. Ask for approval for destructive or external-impact commands.
+4. Record risk in summary.
+
+Use Git for permanent version control. Cursor checkpoints are local safety only, not a replacement for Git.
