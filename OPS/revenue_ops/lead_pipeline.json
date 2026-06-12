@@ -1,0 +1,34 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CRO-1 Pipeline Commander",
+  "statuses": ["target", "contacted", "replied", "demo_booked", "proposal_sent", "won", "lost", "follow_up"],
+  "invoice_statuses": ["not_applicable", "pending", "sent", "paid", "overdue"],
+  "minimum_daily_action": "Add or move at least one revenue item on active sales days.",
+  "leads": [],
+  "lead_template": {
+    "id": "LEAD-000",
+    "company": "",
+    "segment": "",
+    "contact_name": "",
+    "contact_channel": "email | linkedin | phone | referral | other",
+    "pain_guess": "",
+    "offer": "299 EUR pilot | maintenance | custom",
+    "status": "target",
+    "reply_state": "none | positive | objection | no_fit | no_reply",
+    "demo_state": "none | requested | booked | done | missed",
+    "proposal_state": "none | needed | sent | accepted | rejected",
+    "invoice_state": "not_applicable",
+    "next_action": "",
+    "owner": "CRO-1 Pipeline Commander",
+    "last_touch": "YYYY-MM-DD",
+    "notes": ""
+  },
+  "weekly_kpis": {
+    "targets_added": 0,
+    "messages_sent": 0,
+    "replies": 0,
+    "demos_booked": 0,
+    "proposals_sent": 0,
+    "paid_pilots": 0
+  }
+}
