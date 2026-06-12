@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CI-1 Market Spy Chief",
+  "review_cadence": "weekly",
+  "minimum_profiles": 20,
+  "schema": {
+    "id": "string",
+    "name": "string",
+    "segment": "AI automation agency | SMB automation | auto parts marketplace | inventory/WMS | e-commerce tooling",
+    "url": "string",
+    "offer": "string",
+    "price": "string",
+    "cta": "string",
+    "strength": "string",
+    "weakness": "string",
+    "gap_we_can_use": "string",
+    "action": "string",
+    "last_checked": "YYYY-MM-DD"
+  },
+  "competitors": [],
+  "next_actions": [
+    "Add first 20 competitors.",
+    "Fill price, CTA, weakness and exploitable gap for each.",
+    "Create at least 3 product/landing/sales tasks from gaps every week."
+  ]
+}
