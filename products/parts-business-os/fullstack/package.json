@@ -10,7 +10,8 @@
     "smoke": "node scripts/smoke-test.js",
     "test": "node scripts/smoke-test.js && node scripts/p0-api-tests.js && node scripts/permission-model-test.js",
     "test:p0": "node scripts/p0-api-tests.js",
-    "test:permissions": "node scripts/permission-model-test.js"
+    "test:permissions": "node scripts/permission-model-test.js",
+    "rc:status": "node scripts/rc-status.js"
   },
   "engines": {
     "node": ">=20"
