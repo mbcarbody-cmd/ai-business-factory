@@ -1,0 +1,98 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CEO / Master Agent",
+  "purpose": "Train every agent to operate with owner-level judgment, customer truth, money awareness, QA discipline and marketplace execution logic.",
+  "levels": ["L1-aware", "L2-applies", "L3-challenges", "L4-teaches"],
+  "modules": [
+    {
+      "id": "TRAIN-001",
+      "name": "Owner Thinking",
+      "missing_gap": "Agents execute narrow tasks but may not own the whole business outcome.",
+      "skill": "Think like the money, reputation and client outcome are yours.",
+      "practice": "For every task write: owner, money impact, risk, next action, proof.",
+      "proof_path": "OPS/task_board.json",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-002",
+      "name": "Customer Truth",
+      "missing_gap": "Too much building from assumptions, not enough buyer pain evidence.",
+      "skill": "Turn customer pain into offer, feature, delivery and sales message.",
+      "practice": "Write 5 customer questions and map answers to product gates.",
+      "proof_path": "OPS/revenue_ops/lead_pipeline.json",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-003",
+      "name": "Competitor Teardown",
+      "missing_gap": "Market reality is not yet enough inside daily decisions.",
+      "skill": "Compare offer, price, CTA, trust, delivery and gap.",
+      "practice": "Add competitor profile and create one gap action.",
+      "proof_path": "OPS/competitor_intelligence/competitors.json",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-004",
+      "name": "CFO Brain",
+      "missing_gap": "Features and offers can exist without cost, margin and break-even logic.",
+      "skill": "Estimate cost, time, margin, risk and price floor.",
+      "practice": "Do margin check before proposal or build expansion.",
+      "proof_path": "OPS/cfo/costs.json",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-005",
+      "name": "QA Breaker Brain",
+      "missing_gap": "Agents may submit outputs without trying to break them first.",
+      "skill": "Find failure modes before client sees them.",
+      "practice": "Run critic checklist and add bugs with severity.",
+      "proof_path": "OPS/qa/bug_board.json",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-006",
+      "name": "Delivery Realism",
+      "missing_gap": "A product can be sold before handoff and support are clear.",
+      "skill": "Convert promise into 72h scope, QA and handoff.",
+      "practice": "Create intake and handoff for every pilot.",
+      "proof_path": "OPS/delivery/72h_delivery_playbook.md",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-007",
+      "name": "Decision Quality",
+      "missing_gap": "Decisions can happen without assumptions, alternatives and kill criteria.",
+      "skill": "Write decisions that future agents can reuse and audit.",
+      "practice": "Record major decisions with why, risks, owner and review date.",
+      "proof_path": "OPS/agent_memory/decision_memory.md",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-008",
+      "name": "Marketplace Operator Thinking",
+      "missing_gap": "Marketplace vision can stay too abstract without data entities and workflows.",
+      "skill": "Think in seller, part, location, listing, reservation, order, shipment and return loops.",
+      "practice": "Update roadmap/data model with one concrete workflow slice.",
+      "proof_path": "OPS/marketplace/roadmap.md",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-009",
+      "name": "Inversion / Premortem",
+      "missing_gap": "Agents may over-focus on why an idea works and under-check why it fails.",
+      "skill": "Predict failure before wasting build time.",
+      "practice": "Write top 5 reasons this task/product/sale will fail and prevention actions.",
+      "proof_path": "OPS/product_gates/release_checklist.md",
+      "required_level": "L3-challenges"
+    },
+    {
+      "id": "TRAIN-010",
+      "name": "No Template Thinking",
+      "missing_gap": "Generic outputs can look useful but add no business value.",
+      "skill": "Produce context-specific, proof-backed work.",
+      "practice": "Every answer must include specific artifact, next action or measurable business impact.",
+      "proof_path": "OPS/agent_memory/weak_work_memory.md",
+      "required_level": "L4-teaches"
+    }
+  ]
+}
