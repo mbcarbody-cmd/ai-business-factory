@@ -1,0 +1,42 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CFO / Pricing Controller",
+  "currency": "EUR",
+  "rules": [
+    "Every offer must have price, estimated delivery cost, gross margin and break-even target.",
+    "No proposal can be sent without margin check.",
+    "Build time is a cost even when agents do the work."
+  ],
+  "packages": [
+    {
+      "id": "PKG-001",
+      "name": "72h AI Automation Pilot",
+      "price_eur": 299,
+      "estimated_direct_cost_eur": 0,
+      "estimated_human_hours": 2,
+      "target_gross_margin_percent": 80,
+      "break_even_paid_pilots_per_month": 1,
+      "notes": "Founder-led pilot. Track real delivery time after each project."
+    },
+    {
+      "id": "PKG-002",
+      "name": "Monthly Maintenance Basic",
+      "price_eur_min": 99,
+      "price_eur_max": 299,
+      "estimated_direct_cost_eur": 0,
+      "estimated_human_hours_per_month": 1,
+      "target_gross_margin_percent": 80,
+      "notes": "Use for monitoring, small changes and support."
+    }
+  ],
+  "cost_log": [],
+  "cost_entry_template": {
+    "date": "YYYY-MM-DD",
+    "product_or_client": "",
+    "category": "tool | ads | hosting | data | subcontractor | human_time | other",
+    "amount_eur": 0,
+    "reason": "",
+    "linked_revenue_id": "",
+    "owner": ""
+  }
+}
