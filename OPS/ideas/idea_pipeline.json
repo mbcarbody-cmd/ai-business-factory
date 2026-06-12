@@ -1,0 +1,66 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CEO / Master Agent",
+  "statuses": [
+    "captured",
+    "clarify_needed",
+    "scored",
+    "approved_for_test",
+    "converted_to_task",
+    "paused",
+    "completed",
+    "archived"
+  ],
+  "score_scale": "1-5",
+  "scoring_fields": [
+    "pain_strength",
+    "willingness_to_pay",
+    "speed_to_test",
+    "margin_potential",
+    "strategic_fit",
+    "marketplace_value",
+    "delivery_simplicity",
+    "learning_value"
+  ],
+  "ideas": [
+    {
+      "id": "IDEA-001",
+      "title": "Internal Parts Commerce OS MVP",
+      "one_sentence_value": "Create a usable internal workflow for part intake, location, pricing, listing and order state before building a public marketplace.",
+      "target_buyer_or_user": "used parts seller / internal warehouse operator",
+      "pain": "parts are hard to locate, price, list and control without a structured OS",
+      "revenue_path": "improves own inventory monetization first, later becomes seller software or marketplace foundation",
+      "margin_logic": "software asset and internal efficiency; direct cost low, build time must be tracked",
+      "first_test": "define data model and run 20 real parts through the workflow",
+      "owner": "MARKET-1 Marketplace General Manager",
+      "status": "approved_for_test",
+      "proof_path": "OPS/marketplace/roadmap.md"
+    },
+    {
+      "id": "IDEA-002",
+      "title": "External Model Review Layer",
+      "one_sentence_value": "Use Claude or other strong models as controlled second-opinion reviewers for architecture, code and product gates.",
+      "target_buyer_or_user": "internal agents and repo operators",
+      "pain": "single-model blind spots can miss issues, alternatives or architecture contradictions",
+      "revenue_path": "better quality and fewer mistakes before selling or delivering",
+      "margin_logic": "use only for high-value reviews, not every small task",
+      "first_test": "run one external review on product gates and task board, convert output into tasks",
+      "owner": "CTO-1 Product Factory Architect",
+      "status": "approved_for_test",
+      "proof_path": "OPS/model_council/EXTERNAL_MODEL_REVIEW_LAYER_LT.md"
+    },
+    {
+      "id": "IDEA-003",
+      "title": "Universal Growth Campaign Engine",
+      "one_sentence_value": "Create reusable campaign briefs for every product: target, pain, offer, CTA, budget, KPI and learning loop.",
+      "target_buyer_or_user": "CRO / growth agents",
+      "pain": "outreach and ads can become disconnected from product gates and CFO logic",
+      "revenue_path": "more structured lead generation and faster paid pilot testing",
+      "margin_logic": "small tests first, scale only after reply or conversion signal",
+      "first_test": "write first campaign brief for 299 EUR AI Automation Pilot",
+      "owner": "CRO-1 Pipeline Commander",
+      "status": "captured",
+      "proof_path": "OPS/growth/"
+    }
+  ]
+}
