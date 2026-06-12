@@ -1,0 +1,160 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CI-1 Market Spy Chief",
+  "purpose": "Track AI leaders, AI founders and AI wealth patterns, then convert public signals into monetization actions.",
+  "cadence": "weekly",
+  "leader_categories": [
+    "capital_allocator",
+    "foundation_model_leader",
+    "vertical_ai_founder",
+    "infrastructure_leader",
+    "distribution_leader",
+    "ai_tools_founder"
+  ],
+  "watchlist": [
+    {
+      "name": "Jensen Huang",
+      "company": "Nvidia",
+      "category": "infrastructure_leader",
+      "wealth_pattern": "picks_and_shovels: GPUs, networking, AI factories, software ecosystem",
+      "what_to_learn": "Control the scarce bottleneck and become infrastructure for everyone else.",
+      "our_small_version": "AI cost-per-task tracker, warehouse AI workflows, model routing and automation infrastructure.",
+      "signals_to_watch": ["GPU supply", "AI factory deals", "robotics", "healthcare AI", "enterprise partnerships"]
+    },
+    {
+      "name": "Sam Altman",
+      "company": "OpenAI",
+      "category": "foundation_model_leader",
+      "wealth_pattern": "model platform + subscriptions + API + enterprise + infrastructure partnerships",
+      "what_to_learn": "Turn frontier capability into simple products and developer platforms.",
+      "our_small_version": "Use best available models to create outcome-based SMB automations and parts commerce workflows.",
+      "signals_to_watch": ["agent tools", "API pricing", "apps/marketplace", "enterprise products", "Stargate/compute deals"]
+    },
+    {
+      "name": "Dario Amodei",
+      "company": "Anthropic",
+      "category": "foundation_model_leader",
+      "wealth_pattern": "trusted enterprise model + cloud partnerships + coding/workflow agents",
+      "what_to_learn": "Trust, safety, enterprise readiness and cloud distribution can be monetized.",
+      "our_small_version": "Sell reliable, scoped, QA-checked automations instead of vague AI experiments.",
+      "signals_to_watch": ["Claude Code", "AWS/Google/Microsoft partnerships", "enterprise tools", "agent connectors"]
+    },
+    {
+      "name": "Demis Hassabis",
+      "company": "Google DeepMind",
+      "category": "foundation_model_leader",
+      "wealth_pattern": "research advantage + Google distribution + multimodal models",
+      "what_to_learn": "Deep research becomes product advantage when tied to distribution.",
+      "our_small_version": "Research-heavy pricing and fitment logic packaged into practical listing/pricing tools.",
+      "signals_to_watch": ["Gemini", "agents", "search integration", "TPUs", "multimodal capabilities"]
+    },
+    {
+      "name": "Satya Nadella",
+      "company": "Microsoft",
+      "category": "distribution_leader",
+      "wealth_pattern": "bundle AI into existing enterprise distribution: Office, Azure, GitHub, Dynamics",
+      "what_to_learn": "Distribution beats pure technology when products are embedded into daily workflow.",
+      "our_small_version": "Embed AI into existing seller workflows: intake, pricing, listing, orders and follow-up.",
+      "signals_to_watch": ["Copilot", "Azure AI", "GitHub", "enterprise bundles", "pricing"]
+    },
+    {
+      "name": "Sundar Pichai",
+      "company": "Google / Alphabet",
+      "category": "distribution_leader",
+      "wealth_pattern": "AI inside search, ads, Android, Workspace, Cloud and TPUs",
+      "what_to_learn": "Own discovery and distribution, then AI becomes default behavior.",
+      "our_small_version": "Make parts data structured and discoverable for AI search/shopping agents.",
+      "signals_to_watch": ["AI search", "shopping agents", "Vertex AI", "TPU deals", "ads changes"]
+    },
+    {
+      "name": "Andy Jassy",
+      "company": "Amazon / AWS",
+      "category": "infrastructure_leader",
+      "wealth_pattern": "sell infrastructure, managed AI services and marketplace access",
+      "what_to_learn": "Be the reliable backend for many AI applications.",
+      "our_small_version": "Create backend workflows for sellers: inventory, pricing, listing, shipment and support.",
+      "signals_to_watch": ["AWS Bedrock", "Trainium", "marketplace", "SMB tooling", "enterprise AI"]
+    },
+    {
+      "name": "Mark Zuckerberg",
+      "company": "Meta",
+      "category": "capital_allocator",
+      "wealth_pattern": "open models + social distribution + talent acquisitions + data advantage",
+      "what_to_learn": "Distribution and talent can be bought, but product-market fit still matters.",
+      "our_small_version": "Use open models where enough, keep costs low, build domain data advantage.",
+      "signals_to_watch": ["Llama", "superintelligence lab", "Scale AI stake", "open-source AI", "ads AI"]
+    },
+    {
+      "name": "Elon Musk",
+      "company": "xAI / Tesla / SpaceX",
+      "category": "capital_allocator",
+      "wealth_pattern": "integrate AI with physical world, compute, robotics, vehicles, social data and infrastructure",
+      "what_to_learn": "Big systems compound when software, hardware, distribution and data feed each other.",
+      "our_small_version": "Parts warehouse OS should connect photos, barcodes, locations, pricing and future physical automation.",
+      "signals_to_watch": ["xAI compute", "Grok", "Tesla robotics", "data centers", "SpaceX/Starlink integration"]
+    },
+    {
+      "name": "Alexandr Wang",
+      "company": "Scale AI / Meta",
+      "category": "vertical_ai_founder",
+      "wealth_pattern": "data labeling, model evaluation, enterprise/government AI infrastructure",
+      "what_to_learn": "Unsexy data infrastructure can create huge value if it is mission-critical.",
+      "our_small_version": "Parts data normalization, fitment quality, pricing datasets, listing audits.",
+      "signals_to_watch": ["data labeling", "model eval", "government AI", "Meta AI strategy", "enterprise data quality"]
+    },
+    {
+      "name": "Michael Truell / Cursor founders",
+      "company": "Anysphere / Cursor",
+      "category": "ai_tools_founder",
+      "wealth_pattern": "AI coding IDE, seat subscriptions, usage monetization, developer workflow lock-in",
+      "what_to_learn": "Take one expensive expert workflow and make it 10x faster inside the tool where work happens.",
+      "our_small_version": "Use Cursor internally; later sell setup/service for coding-agent business automations.",
+      "signals_to_watch": ["AI IDE pricing", "Bugbot", "enterprise seats", "model usage cost", "developer workflows"]
+    },
+    {
+      "name": "Aravind Srinivas",
+      "company": "Perplexity",
+      "category": "ai_tools_founder",
+      "wealth_pattern": "AI answer/search engine, subscriptions, browser/agent distribution, possible commerce/search ads",
+      "what_to_learn": "Search can be rebuilt around answers and actions, not blue links.",
+      "our_small_version": "Parts market answer engine: find price, fitment, competitor supply and listing gaps.",
+      "signals_to_watch": ["AI search", "Comet browser", "publisher deals", "ads", "commerce/search agents"]
+    },
+    {
+      "name": "Mati Staniszewski / Piotr Dabkowski",
+      "company": "ElevenLabs",
+      "category": "ai_tools_founder",
+      "wealth_pattern": "voice generation, API, creator/pro enterprise subscriptions, localization and agents",
+      "what_to_learn": "A narrow media capability can become a platform if quality is high and API is easy.",
+      "our_small_version": "Voice/video listing descriptions, multilingual parts content, training SOP narration.",
+      "signals_to_watch": ["voice agents", "dubbing", "API pricing", "enterprise media", "licensing"]
+    },
+    {
+      "name": "Harvey founders",
+      "company": "Harvey",
+      "category": "vertical_ai_founder",
+      "wealth_pattern": "legal workflow AI, enterprise contracts, domain trust, high-value compliance workflows",
+      "what_to_learn": "Choose a high-value domain where time saved is worth a premium.",
+      "our_small_version": "Parts pricing/listing workflows where mistakes cost money and inventory turns matter.",
+      "signals_to_watch": ["legal AI", "enterprise adoption", "document workflows", "compliance"]
+    },
+    {
+      "name": "Abridge founders",
+      "company": "Abridge",
+      "category": "vertical_ai_founder",
+      "wealth_pattern": "clinical documentation, ambient workflow capture, healthcare system contracts",
+      "what_to_learn": "Capture messy real-world conversations and convert them into structured records.",
+      "our_small_version": "Capture messy part intake/photos/codes and convert to structured listing/location/pricing records.",
+      "signals_to_watch": ["ambient documentation", "healthcare AI", "workflow capture", "domain-specific models"]
+    }
+  ],
+  "weekly_output_contract": [
+    "Top 5 AI leader signals",
+    "Top 5 AI millionaire/founder patterns",
+    "3 monetization ideas for our business",
+    "1 offer to test this week",
+    "1 CFO/risk rule",
+    "1 marketplace workflow improvement",
+    "task board updates"
+  ]
+}
