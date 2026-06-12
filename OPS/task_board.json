@@ -1,0 +1,128 @@
+{
+  "updated_at": "2026-06-12",
+  "rule": "No owner, status, next_role, output_path and proof means not done.",
+  "statuses": ["backlog", "ready", "in_progress", "blocked", "review", "done"],
+  "priorities": ["P0-revenue-or-core-os", "P1-delivery", "P2-product", "P3-optional"],
+  "tasks": [
+    {
+      "id": "OPS-001",
+      "title": "Keep task board current",
+      "layer": "task_board",
+      "owner": "COO-1 Execution Architect",
+      "status": "in_progress",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "COO-2 Operations Controller",
+      "next_action": "Review all new work and add/close tasks with proof paths.",
+      "output_path": "OPS/task_board.json",
+      "done_proof": "Every active work item has owner/status/next_action/output_path."
+    },
+    {
+      "id": "OPS-002",
+      "title": "Maintain agent memory ledger",
+      "layer": "agent_memory",
+      "owner": "PMO-2 Memory Ledger Keeper",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "All agents",
+      "next_action": "Add important decisions, failed ideas, lessons and competitor findings after each work cycle.",
+      "output_path": "OPS/agent_memory/",
+      "done_proof": "Memory files contain dated entries and prevent repeated weak work."
+    },
+    {
+      "id": "OPS-003",
+      "title": "Build competitor intelligence database",
+      "layer": "competitor_intelligence",
+      "owner": "CI-1 Market Spy Chief",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CI-2 Pricing & Offer Analyst",
+      "next_action": "Add first 20 competitors with offer, price, CTA, weakness and exploitable gap.",
+      "output_path": "OPS/competitor_intelligence/competitors.json",
+      "done_proof": "At least 20 competitor profiles and 3 weekly gap actions."
+    },
+    {
+      "id": "OPS-004",
+      "title": "Enforce product maturity gates",
+      "layer": "product_gates",
+      "owner": "JUDGE-1 Release Gate Judge",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CTO-1 Product Factory Architect",
+      "next_action": "Assign stage to each product and block sell/deploy without checklist proof.",
+      "output_path": "OPS/product_gates/product_stages.json",
+      "done_proof": "Every product has stage, blocker list and next gate."
+    },
+    {
+      "id": "OPS-005",
+      "title": "Close deploy loop",
+      "layer": "deploy_loop",
+      "owner": "CTO-2 DevOps Commander",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CTO-3 Systems Reliability Breaker",
+      "next_action": "Add deploy command, health check, smoke test and rollback note for each deployed product.",
+      "output_path": "OPS/deploy_loop/deploy_sop.md",
+      "done_proof": "Product can be deployed, checked and rolled back from documented steps."
+    },
+    {
+      "id": "OPS-006",
+      "title": "Run QA critic layer",
+      "layer": "qa_critic",
+      "owner": "CTO-3 Systems Reliability Breaker",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "JUDGE-1 Release Gate Judge",
+      "next_action": "Break-test demo, record bugs and block release if critical failure exists.",
+      "output_path": "OPS/qa/bug_board.json",
+      "done_proof": "Bug board and critic checklist are updated before release."
+    },
+    {
+      "id": "OPS-007",
+      "title": "Operate revenue pipeline",
+      "layer": "revenue_operations",
+      "owner": "CRO-1 Pipeline Commander",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CRO-2 Outbound Conversion Director",
+      "next_action": "Add target leads, contact state, reply state, demo state and invoice state.",
+      "output_path": "OPS/revenue_ops/lead_pipeline.json",
+      "done_proof": "Pipeline shows movement from target to paid pilot."
+    },
+    {
+      "id": "OPS-008",
+      "title": "Track CFO economics",
+      "layer": "cfo",
+      "owner": "CFO / Pricing Controller",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CRO-3 Deal Desk & Follow-up Closer",
+      "next_action": "Track cost, build time, package price, margin and break-even target.",
+      "output_path": "OPS/cfo/costs.json",
+      "done_proof": "Every offer has price, cost, gross margin and break-even logic."
+    },
+    {
+      "id": "OPS-009",
+      "title": "Standardize 72h delivery",
+      "layer": "delivery",
+      "owner": "DELIVERY-2 72h Delivery Captain",
+      "status": "ready",
+      "priority": "P1-delivery",
+      "next_role": "DELIVERY-3 Customer Success Auditor",
+      "next_action": "Use intake form and 72h delivery playbook before taking paid pilots.",
+      "output_path": "OPS/delivery/72h_delivery_playbook.md",
+      "done_proof": "Pilot has intake, scope, delivery steps, QA and handoff."
+    },
+    {
+      "id": "OPS-010",
+      "title": "Map internal OS to marketplace roadmap",
+      "layer": "marketplace_roadmap",
+      "owner": "MARKET-1 Marketplace General Manager",
+      "status": "ready",
+      "priority": "P1-delivery",
+      "next_role": "MARKET-2 Warehouse Autonomy Director",
+      "next_action": "Convert internal inventory/location/pricing logic into seller, buyer, listing, order and search modules.",
+      "output_path": "OPS/marketplace/roadmap.md",
+      "done_proof": "Roadmap has modules, dependencies, data entities and first MVP slice."
+    }
+  ]
+}
