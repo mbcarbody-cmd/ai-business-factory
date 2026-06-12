@@ -1,0 +1,58 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "JUDGE-1 Release Gate Judge",
+  "stages": [
+    "idea",
+    "validated_problem",
+    "build_ready",
+    "demo_ready",
+    "qa_ready",
+    "deploy_ready",
+    "sell_ready",
+    "delivery_ready",
+    "maintenance_ready"
+  ],
+  "products": [
+    {
+      "id": "PRODUCT-001",
+      "name": "AI Agent Setup",
+      "current_stage": "sell_ready",
+      "next_gate": "delivery_ready",
+      "owner": "CTO-1 Product Factory Architect",
+      "buyer": "small business owner needing simple automation setup",
+      "value_proposition": "A 72h done-for-you business automation pilot with landing, intake, outreach and handoff.",
+      "required_before_next_gate": [
+        "delivery intake template completed",
+        "72h delivery playbook confirmed",
+        "QA critic checklist completed",
+        "CFO margin checked",
+        "offer pack aligned with sales messages"
+      ],
+      "proof_paths": [
+        "products/ai-agent-setup/",
+        "OPS/delivery/72h_delivery_playbook.md",
+        "OPS/revenue_ops/offer_pack.md",
+        "OPS/cfo/pricing_logic.md"
+      ]
+    },
+    {
+      "id": "PRODUCT-002",
+      "name": "Parts Commerce OS",
+      "current_stage": "idea",
+      "next_gate": "validated_problem",
+      "owner": "MARKET-1 Marketplace General Manager",
+      "buyer": "used parts seller/dismantler needing inventory, location, pricing and listing control",
+      "value_proposition": "Internal inventory and pricing OS that can later become a marketplace module stack.",
+      "required_before_next_gate": [
+        "seller workflow mapped",
+        "part/location/listing/order entities defined",
+        "first MVP slice selected",
+        "competitor gap checked"
+      ],
+      "proof_paths": [
+        "OPS/marketplace/roadmap.md",
+        "OPS/competitor_intelligence/gap_map.md"
+      ]
+    }
+  ]
+}
