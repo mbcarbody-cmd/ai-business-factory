@@ -1,0 +1,85 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CEO / Master Agent",
+  "purpose": "Define what each agent must prove before operating autonomously in a layer.",
+  "levels": ["L1-aware", "L2-applies", "L3-challenges", "L4-teaches"],
+  "gates": [
+    {
+      "gate_id": "GATE-OWNER",
+      "name": "Owner Thinking Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "task has owner/status/next_action/output_path",
+        "money or strategic impact is stated",
+        "risk or blocker is stated"
+      ],
+      "proof_path": "OPS/task_board.json"
+    },
+    {
+      "gate_id": "GATE-CUSTOMER",
+      "name": "Customer Truth Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "buyer/user named",
+        "pain named",
+        "first validation question or lead entered"
+      ],
+      "proof_path": "OPS/revenue_ops/lead_pipeline.json"
+    },
+    {
+      "gate_id": "GATE-CFO",
+      "name": "CFO Brain Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "price logic exists",
+        "cost/time estimate exists",
+        "margin or break-even note exists"
+      ],
+      "proof_path": "OPS/cfo/costs.json"
+    },
+    {
+      "gate_id": "GATE-QA",
+      "name": "QA Breaker Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "main failure modes checked",
+        "bugs recorded or no-bug note written",
+        "release blocker status clear"
+      ],
+      "proof_path": "OPS/qa/bug_board.json"
+    },
+    {
+      "gate_id": "GATE-DELIVERY",
+      "name": "Delivery Realism Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "intake exists",
+        "scope is clear",
+        "handoff/support note exists"
+      ],
+      "proof_path": "OPS/delivery/72h_delivery_playbook.md"
+    },
+    {
+      "gate_id": "GATE-MARKETPLACE",
+      "name": "Marketplace Operator Gate",
+      "minimum_level": "L3-challenges",
+      "proof_required": [
+        "workflow entity named",
+        "data model impact stated",
+        "seller/buyer/order/location effect stated"
+      ],
+      "proof_path": "OPS/marketplace/roadmap.md"
+    },
+    {
+      "gate_id": "GATE-EXTERNAL-REVIEW",
+      "name": "External Model Review Gate",
+      "minimum_level": "L2-applies",
+      "proof_required": [
+        "review question is clear",
+        "output contract is used",
+        "useful findings become tasks or memory"
+      ],
+      "proof_path": "OPS/model_council/EXTERNAL_MODEL_REVIEW_LAYER_LT.md"
+    }
+  ]
+}
