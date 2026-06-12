@@ -1,0 +1,19 @@
+[Unit]
+Description=Parts Business OS
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/parts-business-os/fullstack
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=3060
+User=partsos
+Group=partsos
+StandardOutput=append:/var/log/parts-business-os/app.log
+StandardError=append:/var/log/parts-business-os/error.log
+
+[Install]
+WantedBy=multi-user.target
