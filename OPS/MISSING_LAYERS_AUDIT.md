@@ -1,142 +1,61 @@
-# Missing Layers Audit
+# Missing Layers Audit — converted to active OPS layers
 
-This audit lists what is still missing for a serious autonomous product company system.
+Date: 2026-06-12
 
-## 1. True task board
+This audit originally listed what was missing for a serious autonomous product company system. The missing layers have now been converted into file-backed operating layers.
 
-Missing:
-- shared task database
-- task owner
-- task status
-- next role
-- output path
-- due priority
+## Why the layers were missing
 
-Needed next:
-- OPS task board in JSON or SQLite
-- dashboard view
-- daily open task report
+The repo had product direction and agent leadership definitions, but the agents did not yet have mandatory work surfaces. That created a gap between strategy and execution.
 
-## 2. Agent memory
+Root causes:
 
-Missing:
-- decision memory
-- failed idea memory
-- competitor findings memory
-- lessons learned
+1. Roles existed before workflows.
+2. Strategy documents existed before task state.
+3. Product ambition existed before deploy, QA, CFO, revenue and delivery gates.
+4. Agents had responsibilities, but not enough required output files.
+5. There was no hard operating rule that work is not done until it changes a tracked artifact.
 
-Needed next:
-- memory folder
-- reusable summaries
-- rules for not repeating weak work
+## Fixed layer map
 
-## 3. Competitor intelligence
+| Layer | Original missing item | Active file-backed layer |
+|---|---|---|
+| True task board | shared task database, owner, status, next role, output path, priority | `OPS/task_board.json` |
+| Agent memory | decisions, weak-work memory, competitor findings, lessons | `OPS/agent_memory/` |
+| Competitor intelligence | alternatives, price/features/positioning/gaps | `OPS/competitor_intelligence/` |
+| Product maturity gates | stages, release checklist, sell-ready checklist | `OPS/product_gates/` |
+| Real deployment loop | deploy, service status, health check, rollback | `OPS/deploy_loop/` |
+| QA and critic layer | breaker, missing feature report, unusable demo report | `OPS/qa/` |
+| Revenue operations | target, contact, reply, demo, invoice state | `OPS/revenue_ops/` |
+| CFO layer | cost, build time, price, margin, break-even | `OPS/cfo/` |
+| Customer delivery layer | intake, delivery SOP, handoff, support process | `OPS/delivery/` |
+| Marketplace vision map | internal OS to marketplace, seller/buyer/listing/payment/search | `OPS/marketplace/roadmap.md` |
 
-Missing:
-- list of alternatives
-- features comparison
-- pricing comparison
-- positioning comparison
-- gaps we can exploit
-
-Needed next:
-- competitor database
-- weekly research notes
-- feature gap map
-
-## 4. Product maturity gates
-
-Missing:
-- not ready / demo ready / sell ready / delivery ready stages
-- hard gate before new ideas
-
-Needed next:
-- product stage file
-- release checklist
-- ready to sell checklist
-
-## 5. Real deployment loop
-
-Missing:
-- automatic deploy from repo to server
-- service status report
-- health check
-- rollback note
-
-Needed next:
-- deploy script
-- service files
-- health endpoint
-
-## 6. QA and critic layer
-
-Missing:
-- agent that breaks the product
-- missing feature report
-- unusable demo report
-
-Needed next:
-- QA checklist
-- test notes
-- bug board
-
-## 7. Revenue operations
-
-Missing:
-- target list
-- contact state
-- reply state
-- demo state
-- invoice state
-
-Needed next:
-- lead pipeline
-- outreach log
-- offer pack
-
-## 8. CFO layer
-
-Missing:
-- cost tracking
-- build time tracking
-- price logic
-- margin logic
-
-Needed next:
-- cost file
-- package prices
-- break even target
-
-## 9. Customer delivery layer
-
-Missing:
-- intake form
-- delivery SOP
-- handoff docs
-- support process
-
-Needed next:
-- 72 hour delivery playbook
-- client checklist
-
-## 10. Marketplace vision map
-
-Missing:
-- path from internal OS to marketplace
-- seller module
-- buyer module
-- listing module
-- payment/order module
-- search module
-
-Needed next:
-- Parts Business OS roadmap
-- marketplace architecture
-
-## Immediate conclusion
-
-The biggest missing layer is not another product. It is the operating loop:
+## New operating loop
 
 research -> decide -> task -> build -> review -> deploy -> sell -> learn
 
-This must be implemented inside OPS before expanding product count.
+## Current status
+
+The layers are no longer just missing notes. They now exist as repo files and must be used by agents.
+
+Core control file: `OPS/CORE_OS_STATUS.md`
+
+Task control file: `OPS/task_board.json`
+
+## Remaining real work
+
+The structure is now created, but it must be populated and used:
+
+1. Add real competitors.
+2. Add real leads.
+3. Run product gate reviews.
+4. Add deploy commands and health checks for actual deployed products.
+5. Record QA bugs from real demos.
+6. Track real cost, time, margin and paid pilots.
+7. Use delivery intake on the first paid client.
+8. Convert marketplace roadmap into first MVP data model and workflow.
+
+## Hard rule from now on
+
+Agent output without an updated OPS file, product artifact, test proof, deploy proof, sales path or delivery proof is not counted as completed work.
