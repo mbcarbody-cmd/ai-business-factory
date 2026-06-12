@@ -1,0 +1,88 @@
+{
+  "updated_at": "2026-06-12",
+  "owner": "CISO / Security Judge",
+  "statuses": ["backlog", "ready", "in_progress", "blocked", "review", "done"],
+  "priorities": ["P0-critical", "P1-high", "P2-medium", "P3-low"],
+  "tasks": [
+    {
+      "id": "SEC-001",
+      "title": "Enable repository secret scanning and push protection",
+      "status": "ready",
+      "priority": "P0-critical",
+      "owner": "CISO / Security Judge",
+      "proof": "GitHub security settings show secret scanning and push protection enabled"
+    },
+    {
+      "id": "SEC-002",
+      "title": "Protect main branch",
+      "status": "ready",
+      "priority": "P0-critical",
+      "owner": "CTO-2 DevOps Commander",
+      "proof": "main requires PR, review, passing checks and no force push"
+    },
+    {
+      "id": "SEC-003",
+      "title": "Run CI secret and repo hygiene scan",
+      "status": "in_progress",
+      "priority": "P0-critical",
+      "owner": "CTO-3 Systems Reliability Breaker",
+      "proof": ".github/workflows/security-guard.yml exists and passes"
+    },
+    {
+      "id": "SEC-004",
+      "title": "Create incident response process",
+      "status": "done",
+      "priority": "P0-critical",
+      "owner": "CISO / Security Judge",
+      "proof": "OPS/security/INCIDENT_RESPONSE_PLAYBOOK_LT.md"
+    },
+    {
+      "id": "SEC-005",
+      "title": "Create AI agent permission policy",
+      "status": "done",
+      "priority": "P0-critical",
+      "owner": "CISO / Security Judge",
+      "proof": "OPS/security/AI_AGENT_SECURITY_POLICY_LT.md"
+    },
+    {
+      "id": "SEC-006",
+      "title": "Create threat model",
+      "status": "done",
+      "priority": "P0-critical",
+      "owner": "CISO / Security Judge",
+      "proof": "OPS/security/THREAT_MODEL_LT.md"
+    },
+    {
+      "id": "SEC-007",
+      "title": "Add PR security template",
+      "status": "in_progress",
+      "priority": "P0-critical",
+      "owner": "JUDGE-1 Release Gate Judge",
+      "proof": ".github/pull_request_template.md"
+    },
+    {
+      "id": "SEC-008",
+      "title": "Set up dependency updates and security alerts",
+      "status": "ready",
+      "priority": "P1-high",
+      "owner": "CTO-2 DevOps Commander",
+      "proof": ".github/dependabot.yml and GitHub Dependabot alerts enabled"
+    },
+    {
+      "id": "SEC-009",
+      "title": "Create data classification and privacy rules",
+      "status": "ready",
+      "priority": "P1-high",
+      "owner": "CISO / Security Judge",
+      "proof": "OPS/security/DATA_CLASSIFICATION_LT.md"
+    },
+    {
+      "id": "SEC-010",
+      "title": "Add security training for all agents",
+      "status": "ready",
+      "priority": "P1-high",
+      "owner": "Agent Academy",
+      "proof": "OPS/agent_training/security_training.md"
+    }
+  ]
+}
