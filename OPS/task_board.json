@@ -159,6 +159,30 @@
       "next_action": "Define how to track AI model cost per workflow, per product and per client so margins stay visible.",
       "output_path": "OPS/cfo/pricing_logic.md",
       "done_proof": "Pricing logic includes AI cost per task and model routing rule."
+    },
+    {
+      "id": "OPS-014",
+      "title": "Integrate Cursor as coding execution layer",
+      "layer": "model_council",
+      "owner": "CTO-1 Product Factory Architect",
+      "status": "in_progress",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "JUDGE-1 Release Gate Judge",
+      "next_action": "Use Cursor for coding/refactor/test/PR work under AGENTS.md, .cursor rules and Bugbot rules.",
+      "output_path": "OPS/model_council/CURSOR_INTEGRATION_PLAYBOOK_LT.md",
+      "done_proof": "Cursor playbook, AGENTS.md, .cursor rules and Bugbot rules exist."
+    },
+    {
+      "id": "OPS-015",
+      "title": "Create Cursor-first coding tasks",
+      "layer": "product_build",
+      "owner": "CTO-1 Product Factory Architect",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "Cursor Coding Operator",
+      "next_action": "Use Cursor to build first dashboard for OPS/task_board.json, then marketplace data model prototype and AI cost-per-task tracker.",
+      "output_path": "AGENTS.md",
+      "done_proof": "First Cursor-generated PR has task ID, tests/no-test reason, QA note and proof path."
     }
   ]
 }
