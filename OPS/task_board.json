@@ -123,6 +123,42 @@
       "next_action": "Convert internal inventory/location/pricing logic into seller, buyer, listing, order and search modules.",
       "output_path": "OPS/marketplace/roadmap.md",
       "done_proof": "Roadmap has modules, dependencies, data entities and first MVP slice."
+    },
+    {
+      "id": "OPS-011",
+      "title": "Operate strategic capital radar",
+      "layer": "strategic_capital_radar",
+      "owner": "CI-1 Market Spy Chief",
+      "status": "in_progress",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CFO / Pricing Controller",
+      "next_action": "Track weekly big tech investments, acquisitions, compute deals, chip deals, platform launches and translate each into monetization hypotheses.",
+      "output_path": "OPS/strategic_capital_radar/signal_registry.json",
+      "done_proof": "Every high-priority signal has small-business translation and our_action."
+    },
+    {
+      "id": "OPS-012",
+      "title": "Convert capital signals into monetization offers",
+      "layer": "strategic_capital_radar",
+      "owner": "CEO / Master Agent",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CRO-1 Pipeline Commander",
+      "next_action": "Turn compute, agents, cloud marketplace and vertical workflow signals into concrete offers and campaign briefs.",
+      "output_path": "OPS/growth/UNIVERSAL_GROWTH_ENGINE_LT.md",
+      "done_proof": "At least one signal becomes offer, campaign, product gate or marketplace task each week."
+    },
+    {
+      "id": "OPS-013",
+      "title": "Design AI cost per task metric",
+      "layer": "cfo",
+      "owner": "CFO / Pricing Controller",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CTO-1 Product Factory Architect",
+      "next_action": "Define how to track AI model cost per workflow, per product and per client so margins stay visible.",
+      "output_path": "OPS/cfo/pricing_logic.md",
+      "done_proof": "Pricing logic includes AI cost per task and model routing rule."
     }
   ]
 }
