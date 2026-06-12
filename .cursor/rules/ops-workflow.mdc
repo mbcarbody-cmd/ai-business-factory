@@ -1,0 +1,29 @@
+---
+description: "AI Business Factory OPS workflow rules for Cursor Agent"
+alwaysApply: true
+---
+
+# OPS Workflow Rule
+
+Before making changes:
+
+1. Read `OPS/task_board.json`.
+2. Connect work to an existing task or propose a new task.
+3. Read relevant OPS layer docs.
+4. Make the smallest useful change.
+5. Run or propose tests.
+6. Update proof path.
+
+Work is not complete unless it updates or creates one tracked artifact:
+
+- task board,
+- product gate,
+- QA bug/test proof,
+- deploy health/rollback note,
+- revenue pipeline,
+- CFO margin/cost check,
+- delivery handoff,
+- marketplace workflow/data model,
+- decision or lesson memory.
+
+Do not output generic plans without repo changes or task updates.
