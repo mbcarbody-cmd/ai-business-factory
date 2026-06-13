@@ -39,6 +39,21 @@ Create a path from internal operating system to a parts commerce marketplace.
 - location
 - status
 
+### Parts category tree / taxonomy module
+
+Primary file: `OPS/marketplace/parts_category_tree.json`
+
+Purpose:
+
+- canonical category IDs for every part,
+- LT/EN names and aliases for title/search/listing generation,
+- side and position normalization,
+- storage profile for location suggestion,
+- category/subcategory mapping for one-seller MVP,
+- stable IDs so analytics, warehouse logic and marketplace search do not depend on messy free text.
+
+MVP rule: every added part must map to `category_id`, `subcategory_id`, `side`, `position` and `storage_profile` before listing or location suggestion.
+
 ### Warehouse/location module
 
 - zone
@@ -92,11 +107,12 @@ Create a path from internal operating system to a parts commerce marketplace.
 Internal seller OS:
 
 1. Add part.
-2. Assign or suggest location.
-3. Add price and floor price.
-4. Generate listing status.
-5. Track reservation/order state.
-6. Track inventory ageing and dead-stock risk.
+2. Map part to category tree.
+3. Assign or suggest location from category/storage profile.
+4. Add price and floor price.
+5. Generate listing status.
+6. Track reservation/order state.
+7. Track inventory ageing and dead-stock risk.
 
 ## Data entities
 
@@ -104,6 +120,7 @@ Internal seller OS:
 - Warehouse
 - Location
 - Part
+- PartCategory
 - Vehicle
 - Listing
 - PriceRecord
@@ -120,6 +137,7 @@ Before build starts:
 
 - first workflow diagram exists,
 - data model exists,
+- category tree exists,
 - MVP slice accepted,
 - competitor gap checked,
 - CFO value case written,
