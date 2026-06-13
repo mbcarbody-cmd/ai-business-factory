@@ -1,0 +1,67 @@
+name: OPS CI Guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  ops-audit:
+    name: OPS audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Run OPS audit
+        run: python3 scripts/ops_audit.py
+      - name: Validate core JSON files
+        run: |
+          python3 -m json.tool OPS/task_board.json >/dev/null
+          python3 -m json.tool OPS/task_board_v2.json >/dev/null
+          python3 -m json.tool OPS/qa/bug_board.json >/dev/null
+          python3 -m json.tool OPS/product_gates/product_stages.json >/dev/null
+          python3 -m json.tool OPS/cfo/costs.json >/dev/null
+          python3 -m json.tool OPS/revenue_ops/lead_pipeline.json >/dev/null
+
+  static-smoke:
+    name: Static product smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Check required demo files exist
+        run: |
+          test -f website/index.html
+          test -f products/ceo-cockpit/index.html
+          test -f products/parts-seller-os/index.html
+      - name: Serve static repo
+        run: |
+          python3 -m http.server 4173 > /tmp/static-server.log 2>&1 &
+          echo $! > /tmp/static-server.pid
+          sleep 2
+      - name: Smoke test pages
+        run: |
+          curl -fsSI http://127.0.0.1:4173/website/index.html
+          curl -fsSI http://127.0.0.1:4173/products/ceo-cockpit/index.html
+          curl -fsSI http://127.0.0.1:4173/products/parts-seller-os/index.html
+      - name: Stop static server
+        if: always()
+        run: |
+          if [ -f /tmp/static-server.pid ]; then kill $(cat /tmp/static-server.pid) || true; fi
+
+  secret-scan:
+    name: Gitleaks secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
