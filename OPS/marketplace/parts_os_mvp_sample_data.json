@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "MARKET-2 Warehouse Autonomy Director",
+  "purpose": "Synthetic-safe sample records for the first one-seller Parts Seller OS prototype.",
+  "data_rule": "Use as UI/workflow fixture only. Replace with internal inventory export before customer proof.",
+  "seller": {
+    "id": "SELLER-001",
+    "name": "Internal demo seller",
+    "country": "LT",
+    "channels": ["internal", "marketplace_later"],
+    "status": "demo"
+  },
+  "locations": [
+    {"id": "LOC-A1", "zone": "A", "shelf": "1", "box_bin": "A1-01", "capacity_units": 20, "current_occupancy_percent": 70, "allowed_categories": ["electronics", "modules", "switches"]},
+    {"id": "LOC-B2", "zone": "B", "shelf": "2", "box_bin": "B2-04", "capacity_units": 12, "current_occupancy_percent": 85, "allowed_categories": ["body", "trim", "lights"]},
+    {"id": "LOC-C3", "zone": "C", "shelf": "3", "box_bin": "C3-02", "capacity_units": 8, "current_occupancy_percent": 40, "allowed_categories": ["mechanical", "cooling", "engine"]}
+  ],
+  "parts": [
+    {
+      "id": "PART-001",
+      "part_number": "TEST-8B081-AA",
+      "category": "cooling",
+      "side": "none",
+      "position": "front",
+      "condition": "used_good",
+      "photos": ["placeholder_1.jpg"],
+      "purchase_cost": 40,
+      "price": 130,
+      "floor_price": 90,
+      "location_id": "LOC-C3",
+      "status": "ready_to_publish",
+      "liquidity_score": 62,
+      "source_confidence": "synthetic"
+    },
+    {
+      "id": "PART-002",
+      "part_number": "TEST-F23200-AC",
+      "category": "electronics",
+      "side": "right",
+      "position": "front_door",
+      "condition": "used_good",
+      "photos": [],
+      "purchase_cost": 75,
+      "price": 250,
+      "floor_price": 180,
+      "location_id": "LOC-A1",
+      "status": "needs_photo",
+      "liquidity_score": 48,
+      "source_confidence": "synthetic"
+    },
+    {
+      "id": "PART-003",
+      "part_number": "TEST-50-351",
+      "category": "body",
+      "side": "left",
+      "position": "rear",
+      "condition": "used_scratched",
+      "photos": ["placeholder_3.jpg"],
+      "purchase_cost": 15,
+      "price": 80,
+      "floor_price": 45,
+      "location_id": "LOC-B2",
+      "status": "manual_pricing_review",
+      "liquidity_score": 35,
+      "source_confidence": "synthetic"
+    }
+  ],
+  "kpis": {
+    "parts_without_location": 0,
+    "locations_over_85_percent": 1,
+    "ready_to_publish_count": 1,
+    "manual_pricing_review_count": 1,
+    "reserved_parts": 0,
+    "dead_stock_risk_count": 0
+  }
+}
