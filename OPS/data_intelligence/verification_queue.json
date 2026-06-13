@@ -1,0 +1,60 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CI-2 Pricing & Offer Analyst",
+  "status": "active",
+  "rule": "Use only public, permitted business information and keep source proof.",
+  "items": [
+    {
+      "id": "DQ-001",
+      "priority": "P0-revenue-or-core-os",
+      "task": "Verify competitor pricing and call-to-action for first automation competitors",
+      "sources": ["SRC-001", "SRC-002", "SRC-003", "SRC-004"],
+      "method": "manual public-page verification",
+      "status": "ready",
+      "blocker": "none",
+      "fallback_next_task": "DQ-002",
+      "output_path": "OPS/competitor_intelligence/competitors.json",
+      "proof_status": "partial",
+      "next_action": "Record plan names, starting price, CTA, source URL and date checked."
+    },
+    {
+      "id": "DQ-002",
+      "priority": "P0-revenue-or-core-os",
+      "task": "Replace seed revenue rows with exact public company rows",
+      "sources": ["SRC-005"],
+      "method": "manual public website review",
+      "status": "ready",
+      "blocker": "default segment is Lithuanian auto, service and e-commerce SMBs until narrowed",
+      "fallback_next_task": "DQ-003",
+      "output_path": "OPS/revenue_ops/lead_pipeline.json",
+      "proof_status": "missing",
+      "next_action": "Create exact public company rows with channel, pain hypothesis and source URL."
+    },
+    {
+      "id": "DQ-003",
+      "priority": "P0-revenue-or-core-os",
+      "task": "Prepare Parts Seller OS sample records",
+      "sources": ["SRC-006"],
+      "method": "use internal inventory first; public examples only as low-confidence market signals",
+      "status": "ready",
+      "blocker": "real inventory export is not committed",
+      "fallback_next_task": "DQ-004",
+      "output_path": "OPS/marketplace/parts_os_mvp_sample_data.json",
+      "proof_status": "partial",
+      "next_action": "Create sample records and mark source/confidence for each row."
+    },
+    {
+      "id": "DQ-004",
+      "priority": "P1-delivery",
+      "task": "Use public data permission checklist before any scripted public-page retrieval",
+      "sources": ["SRC-001", "SRC-002", "SRC-003", "SRC-004", "SRC-005", "SRC-006"],
+      "method": "manual policy review",
+      "status": "ready",
+      "blocker": "none",
+      "fallback_next_task": "OPS-018",
+      "output_path": "OPS/data_intelligence/public_data_permission_checklist.md",
+      "proof_status": "repo_verified",
+      "next_action": "Use checklist before writing code that reads public pages."
+    }
+  ]
+}
