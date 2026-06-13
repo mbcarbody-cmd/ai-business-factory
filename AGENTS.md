@@ -29,6 +29,14 @@ No work is done unless it produces or updates a tracked artifact:
 8. Run or propose tests.
 9. Update proof path.
 
+## Mass scale routing rule
+
+The mass-scale directive is `OPS/org/mass_agent_scale_directive_2026_06_14.json` and the scale task manifest is `OPS/TASK_BOARD/mass_scale_tasks_2026_06_14.json`.
+
+Mass capacity units are not allowed to create parallel duplicate work. Each unit must attach to a tracked task, a single accountable owner, a canonical output path and proof. Extra units must become reviewers, testers, health checkers, researchers, documentation helpers or fallback workers.
+
+Revenue-related units may prepare verified public business records, offer drafts and pilot tracking only after review. They must not perform automated bulk messaging, private-data collection, consent bypass, platform-rule bypass or unreviewed claims.
+
 ## Hard gates
 
 Do not bypass:
@@ -94,6 +102,8 @@ A PR is blocked if:
 - `OPS/revenue_ops/lead_pipeline.json`
 - `OPS/delivery/72h_delivery_playbook.md`
 - `OPS/marketplace/roadmap.md`
+- `OPS/org/mass_agent_scale_directive_2026_06_14.json`
+- `OPS/TASK_BOARD/mass_scale_tasks_2026_06_14.json`
 - `OPS/model_council/CURSOR_INTEGRATION_PLAYBOOK_LT.md`
 - `OPS/security/SECURITY_FORTRESS_LT.md`
 - `OPS/security/AI_AGENT_SECURITY_POLICY_LT.md`
