@@ -1,11 +1,13 @@
 {
-  "updated_at": "2026-06-12",
+  "updated_at": "2026-06-13",
   "owner": "CFO / Pricing Controller",
   "currency": "EUR",
+  "mode": "P0 margin control",
   "rules": [
     "Every offer must have price, estimated delivery cost, gross margin and break-even target.",
     "No proposal can be sent without margin check.",
-    "Build time is a cost even when agents do the work."
+    "Build time is a cost even when agents do the work.",
+    "Any custom promise above the pilot scope must be quoted separately."
   ],
   "packages": [
     {
@@ -13,10 +15,12 @@
       "name": "72h AI Automation Pilot",
       "price_eur": 299,
       "estimated_direct_cost_eur": 0,
-      "estimated_human_hours": 2,
-      "target_gross_margin_percent": 80,
+      "estimated_operator_hours": 2,
+      "internal_hour_rate_eur": 35,
+      "estimated_internal_cost_eur": 70,
+      "target_gross_margin_percent": 75,
       "break_even_paid_pilots_per_month": 1,
-      "notes": "Founder-led pilot. Track real delivery time after each project."
+      "notes": "Scope must stay narrow: one useful automation, QA, handoff and maintenance CTA."
     },
     {
       "id": "PKG-002",
@@ -24,16 +28,54 @@
       "price_eur_min": 99,
       "price_eur_max": 299,
       "estimated_direct_cost_eur": 0,
-      "estimated_human_hours_per_month": 1,
-      "target_gross_margin_percent": 80,
+      "estimated_operator_hours_per_month": 1,
+      "internal_hour_rate_eur": 35,
+      "target_gross_margin_percent": 65,
       "notes": "Use for monitoring, small changes and support."
+    },
+    {
+      "id": "PKG-003",
+      "name": "Parts Seller OS MVP Audit",
+      "price_eur": 499,
+      "estimated_direct_cost_eur": 0,
+      "estimated_operator_hours": 4,
+      "internal_hour_rate_eur": 35,
+      "estimated_internal_cost_eur": 140,
+      "target_gross_margin_percent": 70,
+      "notes": "Inventory, location, pricing and listing workflow map plus first automation slice."
     }
   ],
-  "cost_log": [],
+  "sprint_financial_targets": {
+    "first_paid_pilot_target_eur": 299,
+    "three_pilot_target_eur": 897,
+    "first_maintenance_target_mrr_eur": 99,
+    "minimum_revenue_before_extra_feature_build_eur": 299,
+    "build_discipline_rule": "No extra feature build without either live demo proof or revenue pipeline movement."
+  },
+  "cost_log": [
+    {
+      "date": "2026-06-13",
+      "product_or_client": "P0 revenue war-room",
+      "category": "operator_time",
+      "amount_eur": 70,
+      "reason": "Budget reserved for first paid pilot delivery/checklist creation.",
+      "linked_revenue_id": "PKG-001",
+      "owner": "CFO / Pricing Controller"
+    },
+    {
+      "date": "2026-06-13",
+      "product_or_client": "CEO cockpit demo",
+      "category": "operator_time",
+      "amount_eur": 105,
+      "reason": "Capped dashboard/demo build before sales proof.",
+      "linked_revenue_id": "OPS-020",
+      "owner": "CTO-1 Product Factory Architect"
+    }
+  ],
   "cost_entry_template": {
     "date": "YYYY-MM-DD",
     "product_or_client": "",
-    "category": "tool | ads | hosting | data | subcontractor | human_time | other",
+    "category": "tool | ads | hosting | data | subcontractor | operator_time | other",
     "amount_eur": 0,
     "reason": "",
     "linked_revenue_id": "",
