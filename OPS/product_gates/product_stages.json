@@ -4,6 +4,8 @@
   "stages": ["idea", "validated_problem", "build_ready", "demo_ready", "qa_ready", "deploy_ready", "sell_ready", "delivery_ready", "maintenance_ready"],
   "gate_rules": [
     "No build without validated buyer pain and first MVP slice.",
+    "No product can advance to build_ready if basic foundational data, enums, rules or workflows are missing.",
+    "No marketplace or seller OS build without category tree, data model, workflow rules, location logic, listing status rules and pricing logic.",
     "No sell without offer, CFO margin check and delivery scope.",
     "No deploy without QA, health check and rollback note.",
     "No maintenance promise without support boundary and price.",
@@ -31,9 +33,30 @@
       "owner": "MARKET-1 Marketplace General Manager",
       "buyer": "used parts seller/dismantler needing inventory, location, pricing and listing control",
       "value_proposition": "Internal inventory and pricing OS that can later become a marketplace module stack.",
-      "gate_status": "build_allowed_only_for_first_seller_os_slice",
-      "required_before_next_gate": ["seller workflow mapped", "part/location/listing/order entities defined", "first MVP slice selected", "competitor gap checked", "CFO value case written", "internal dry-run selected"],
-      "proof_paths": ["OPS/marketplace/roadmap.md", "OPS/marketplace/parts_os_mvp_data_model.json", "OPS/competitor_intelligence/competitors.json", "OPS/cfo/costs.json"]
+      "gate_status": "blocked_from_build_ready_until_foundation_complete",
+      "required_before_next_gate": [
+        "seller workflow mapped",
+        "part/location/listing/order entities defined",
+        "parts category tree exists and is referenced by data model",
+        "workflow rules exist for add-part to ageing chain",
+        "location placement rules exist",
+        "listing status rules exist",
+        "pricing decision rules exist",
+        "vehicle fitment seed model exists",
+        "first MVP slice selected",
+        "competitor gap checked",
+        "CFO value case written",
+        "internal dry-run selected"
+      ],
+      "proof_paths": [
+        "OPS/marketplace/roadmap.md",
+        "OPS/marketplace/foundation_completeness_audit.md",
+        "OPS/marketplace/parts_category_tree.json",
+        "OPS/marketplace/parts_workflow_rules.json",
+        "OPS/marketplace/parts_os_mvp_data_model.json",
+        "OPS/competitor_intelligence/competitors.json",
+        "OPS/cfo/costs.json"
+      ]
     },
     {
       "id": "PRODUCT-003",
