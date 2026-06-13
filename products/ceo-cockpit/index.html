@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CEO Cockpit — AI Business Factory</title>
+  <style>
+    body{margin:0;background:#08111f;color:#eef5ff;font-family:Arial,system-ui,sans-serif}.wrap{max-width:1180px;margin:auto;padding:32px 18px}.badge{display:inline-block;border:1px solid #2b3e5f;border-radius:999px;padding:8px 12px;color:#9fb4d2;background:#101b2d}h1{font-size:42px;line-height:1.05;margin:18px 0 10px}.lead{color:#9fb4d2;font-size:17px;line-height:1.55;max-width:780px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0}.two{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}.card{background:#101b2d;border:1px solid #2b3e5f;border-radius:18px;padding:18px}.kpi{font-size:34px;font-weight:800}.small{color:#9fb4d2;font-size:13px;line-height:1.45}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:10px;border-bottom:1px solid #2b3e5f;text-align:left;vertical-align:top}th{color:#c7d9f5;font-size:12px;text-transform:uppercase}.pill{border-radius:99px;padding:5px 9px;font-size:12px;font-weight:700}.progress{background:#142b4d;color:#70a7ff}.done{background:#123923;color:#54e68b}.blocked{background:#421b24;color:#ff8a8a}.ready{background:#403214;color:#ffd166}@media(max-width:900px){.grid,.two,.three{grid-template-columns:1fr}h1{font-size:34px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">CEO Cockpit • local demo</span>
+    <h1>Taskai, blokatoriai, QA, revenue ir CFO viename ekrane.</h1>
+    <p class="lead">Šitas MVP paverčia OPS sluoksnius į valdymo ekraną. Jis dar statinis, bet jau parodo, kokius duomenis agentai turi laikyti gyvus: next action, proof status, blocker, fallback ir pinigų kelią.</p>
+
+    <section class="grid">
+      <div class="card"><div class="small">P0 focus</div><div class="kpi">core</div><div class="small">Revenue, deploy, QA, CFO, delivery</div></div>
+      <div class="card"><div class="small">Memory</div><div class="kpi">on</div><div class="small">Decision log and weak-work rules exist</div></div>
+      <div class="card"><div class="small">Demo</div><div class="kpi">local</div><div class="small">Public hosting still pending</div></div>
+      <div class="card"><div class="small">Rule</div><div class="kpi">move</div><div class="small">Blocked task must switch to fallback</div></div>
+    </section>
+
+    <section class="two">
+      <div class="card">
+        <h2>Core task control</h2>
+        <table>
+          <tr><th>ID</th><th>Layer</th><th>Status</th><th>Next action</th><th>Proof</th></tr>
+          <tr><td>OPS-002</td><td>Agent memory</td><td><span class="pill done">done</span></td><td>Use memory after every major decision</td><td>OPS/agent_memory/</td></tr>
+          <tr><td>OPS-016</td><td>Anti-stagnation</td><td><span class="pill done">done</span></td><td>Apply fallback rule to all active tasks</td><td>OPS/operating_loops/ANTI_STAGNATION_ENGINE.md</td></tr>
+          <tr><td>OPS-017</td><td>CEO Cockpit</td><td><span class="pill progress">in_progress</span></td><td>Add dynamic JSON loading after local MVP</td><td>products/ceo-cockpit/</td></tr>
+          <tr><td>OPS-007</td><td>Revenue</td><td><span class="pill blocked">blocked</span></td><td>Replace seed leads with exact contacts</td><td>OPS/revenue_ops/lead_pipeline.json</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Next best action</h2>
+        <p><b>Build public demo path or exact-contact revenue movement.</b></p>
+        <p class="small">If public hosting is blocked, switch to exact lead/contact research. If lead research is blocked, switch to marketplace one-seller OS prototype.</p>
+      </div>
+    </section>
+
+    <section class="three">
+      <div class="card"><h2>QA critic</h2><p><b>BUG-001:</b> local cockpit exists, public URL pending.</p><p><b>BUG-002:</b> seed targets are not exact leads.</p></div>
+      <div class="card"><h2>Revenue ops</h2><p>Active offer: <b>299 EUR 72h AI Automation Pilot</b>.</p><p class="small">Pipeline must show target → contacted → replied → demo → proposal → paid.</p></div>
+      <div class="card"><h2>CFO</h2><p>Base package: <b>299 EUR</b>.</p><p class="small">Operator time counts as cost. Extra custom scope must be priced separately.</p></div>
+    </section>
+  </main>
+</body>
+</html>
