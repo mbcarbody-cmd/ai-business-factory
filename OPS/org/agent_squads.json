@@ -1,0 +1,137 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CEO / Master Agent + COO-1 Execution Architect",
+  "status": "active",
+  "scale_factor": 4,
+  "rule": "Each CEO cell has its own mission, agents, proof paths and blockers. Opportunity work cannot consume P0 build capacity unless promoted by gate review.",
+  "cells": [
+    {
+      "id": "CEO-A",
+      "name": "Parts Seller OS",
+      "priority": "P0",
+      "mission": "Build the one-seller used parts operating system from part intake to sale.",
+      "resource_mode": "protected_primary_build_capacity",
+      "proof_paths": [
+        "OPS/marketplace/parts_category_tree.json",
+        "OPS/marketplace/parts_workflow_rules.json",
+        "OPS/marketplace/parts_os_mvp_data_model.json",
+        "products/parts-seller-os/"
+      ],
+      "agents": [
+        "CEO-A / Parts OS General Manager",
+        "Product PM-A1 / Parts Intake PM",
+        "Taxonomy Agent-A2 / Parts Category Tree Owner",
+        "Warehouse Agent-A3 / Location and Capacity Logic Owner",
+        "Pricing Agent-A4 / Used Parts Pricing Logic Owner",
+        "Listing Agent-A5 / Listing Readiness Owner",
+        "Fitment Agent-A6 / Vehicle Compatibility Owner",
+        "QA Agent-A7 / Real Part Workflow Tester",
+        "Data Agent-A8 / Sample Data and Import Mapping Owner",
+        "CFO Agent-A9 / Unit Economics Owner",
+        "Delivery Agent-A10 / Seller Onboarding Owner"
+      ],
+      "next_actions": [
+        "Create location_rules.json",
+        "Create listing_status_rules.json",
+        "Create pricing_rules.json",
+        "Create vehicle_fitment_seed.json",
+        "Build one-seller local prototype"
+      ]
+    },
+    {
+      "id": "CEO-B",
+      "name": "Revenue and Delivery",
+      "priority": "P0",
+      "mission": "Convert the product into exact leads, offers, pilots and delivery proof.",
+      "resource_mode": "parallel_revenue_capacity",
+      "proof_paths": [
+        "OPS/revenue_ops/lead_pipeline.json",
+        "OPS/revenue_ops/offer_pack.md",
+        "OPS/delivery/72h_delivery_playbook.md",
+        "OPS/cfo/costs.json"
+      ],
+      "agents": [
+        "CEO-B / Revenue General Manager",
+        "CRO-B1 / Pipeline Commander",
+        "Lead Research Agent-B2 / Exact Company Finder",
+        "Outbound Agent-B3 / Message and Follow-up Operator",
+        "Offer Agent-B4 / Offer Packaging Owner",
+        "Deal Desk Agent-B5 / Scope and Proposal Owner",
+        "Delivery Captain-B6 / 72h Pilot Execution Owner",
+        "Customer Success Agent-B7 / Handoff and Feedback Owner",
+        "CFO Agent-B8 / Pilot Margin Controller",
+        "CRM Agent-B9 / Lead State Owner",
+        "Proof Agent-B10 / Case Study Owner"
+      ],
+      "next_actions": [
+        "Replace seed leads with exact public company rows",
+        "Create offer variant for Parts Seller OS pilot",
+        "Create 72h pilot scope lock",
+        "Track first paid pilot path"
+      ]
+    },
+    {
+      "id": "CEO-C",
+      "name": "Build and Deploy Factory",
+      "priority": "P0/P1",
+      "mission": "Turn specs into local demos, public demos, tests, QA and deploy proof.",
+      "resource_mode": "build_factory_supporting_p0_first",
+      "proof_paths": [
+        "products/ceo-cockpit/",
+        "products/parts-seller-os/",
+        "OPS/deploy_loop/deploy_sop.md",
+        "OPS/qa/bug_board.json",
+        "scripts/ops_audit.py"
+      ],
+      "agents": [
+        "CEO-C / Build Factory General Manager",
+        "CTO-C1 / Architecture Owner",
+        "Frontend Agent-C2 / UI and Cockpit Builder",
+        "Backend Agent-C3 / Data Flow Owner",
+        "DevOps Agent-C4 / Hosting, Smoke Test and Rollback Owner",
+        "QA Critic-C5 / Break-Test Owner",
+        "Security Agent-C6 / Safe Data and Permissions Owner",
+        "Docs Agent-C7 / Runbook and Handoff Owner",
+        "Test Agent-C8 / Fixtures and Test Cases Owner",
+        "Bugfix Agent-C9 / Fix Queue Owner",
+        "Design Agent-C10 / Visual Trust and Conversion Owner"
+      ],
+      "next_actions": [
+        "Create Parts Seller OS local UI skeleton",
+        "Add smoke test path",
+        "Add public hosting path for CEO Cockpit",
+        "Run QA critic before done state"
+      ]
+    },
+    {
+      "id": "CEO-D",
+      "name": "Opportunity Lab",
+      "priority": "P2_until_promoted",
+      "mission": "Explore new business directions without blocking P0 execution.",
+      "resource_mode": "isolated_validation_only_until_gate_approval",
+      "proof_paths": [
+        "OPS/opportunity_lab/opportunity_backlog.json",
+        "OPS/product_gates/product_stages.json",
+        "OPS/cfo/costs.json"
+      ],
+      "agents": [
+        "CEO-D / Opportunity Lab General Manager",
+        "Market Radar Agent-D1 / New Opportunities Scout",
+        "Competitor Agent-D2 / Competitive Gap Analyst",
+        "Product Scout-D3 / New Product Candidate PM",
+        "Validation Agent-D4 / Pain and Buyer Proof Owner",
+        "CFO Agent-D5 / Value Case and Risk Owner",
+        "Risk Agent-D6 / Compliance Filter",
+        "Prototype Scout-D7 / Tiny Demo Feasibility Owner",
+        "Backlog Agent-D8 / Opportunity Parking Owner",
+        "Stop Agent-D9 / Stop Weak Ideas Owner",
+        "Handoff Agent-D10 / Move Proven Ideas to P0 Review"
+      ],
+      "next_actions": [
+        "Store new ideas in opportunity backlog",
+        "Score opportunities without consuming P0 build capacity",
+        "Promote only proven candidates through gate review"
+      ]
+    }
+  ]
+}
