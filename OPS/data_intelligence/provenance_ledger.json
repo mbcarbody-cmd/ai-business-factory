@@ -1,0 +1,62 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CI-2 Pricing & Offer Analyst + CISO / Security Judge",
+  "status": "schema_ready",
+  "purpose": "Track provenance for every collected public data row so agents do not use unverifiable or stale information.",
+  "required_fields": [
+    "row_id",
+    "data_type",
+    "entity_name",
+    "source_url",
+    "source_domain",
+    "collected_at",
+    "collection_method",
+    "permission_decision",
+    "confidence",
+    "dedupe_key",
+    "owner",
+    "output_path",
+    "next_review_at"
+  ],
+  "confidence_levels": ["high", "medium", "low", "rejected"],
+  "collection_methods": [
+    "manual_verified",
+    "official_api",
+    "rss_or_sitemap",
+    "allowed_low_rate_public_fetch",
+    "allowed_headless_public_render",
+    "third_party_provider",
+    "blocked"
+  ],
+  "permission_decisions": [
+    "allowed_api",
+    "allowed_manual",
+    "allowed_low_rate_public_fetch",
+    "allowed_headless_public_render",
+    "high_risk_requires_approval",
+    "blocked"
+  ],
+  "rows": [],
+  "row_template": {
+    "row_id": "PROV-YYYYMMDD-001",
+    "data_type": "competitor_price | lead | marketplace_signal | tool_price | ai_capability_signal",
+    "entity_name": "",
+    "source_url": "",
+    "source_domain": "",
+    "collected_at": "YYYY-MM-DDTHH:MM:SS+03:00",
+    "collection_method": "manual_verified",
+    "permission_decision": "allowed_manual",
+    "confidence": "medium",
+    "dedupe_key": "normalized-domain-or-entity-key",
+    "owner": "",
+    "output_path": "",
+    "next_review_at": "YYYY-MM-DD",
+    "notes": ""
+  },
+  "rules": [
+    "No collected data row may be used in sales, pricing, product or competitor analysis without source_url and confidence.",
+    "Rows older than staleness limit must be rechecked before proposal or pricing decision.",
+    "Rejected or blocked rows must not feed products or outreach.",
+    "Personal data rows require explicit risk classification."
+  ]
+}
