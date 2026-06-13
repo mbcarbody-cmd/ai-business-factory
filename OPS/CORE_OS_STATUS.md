@@ -34,6 +34,7 @@ Primary proof: `OPS/operating_loops/ANTI_STAGNATION_ENGINE.md`.
 | Task board | ACTIVE / MIGRATING TO V2 | `OPS/task_board.json`, `OPS/task_board_v2.json` | COO-1 Execution Architect |
 | Agent memory | ACTIVE / REPO VERIFIED | `OPS/agent_memory/` | PMO-2 Memory Ledger Keeper |
 | Competitor intelligence | ACTIVE / NEEDS VERIFICATION | `OPS/competitor_intelligence/` | CI-1 Market Spy Chief |
+| Public data intelligence | ACTIVE / NEW | `OPS/data_intelligence/` | CI-1 Market Spy Chief + CISO / Security Judge |
 | Product gates | ACTIVE / PARTIAL | `OPS/product_gates/` | JUDGE-1 Release Gate Judge |
 | Deploy loop | ACTIVE / LOCAL VERIFIED | `OPS/deploy_loop/` | CTO-2 DevOps Commander |
 | QA critic layer | ACTIVE / PARTIAL | `OPS/qa/` | CTO-3 Systems Reliability Breaker |
@@ -42,6 +43,8 @@ Primary proof: `OPS/operating_loops/ANTI_STAGNATION_ENGINE.md`.
 | Delivery layer | ACTIVE / WAITING FOR PILOT | `OPS/delivery/` | DELIVERY-2 72h Delivery Captain |
 | Marketplace roadmap | ACTIVE / BUILD NEXT | `OPS/marketplace/` | MARKET-1 Marketplace General Manager |
 | AI capability radar | ACTIVE / REPO VERIFIED | `OPS/model_council/AI_CAPABILITY_RADAR_2026.md` | CTO-1 Product Factory Architect |
+| Claude Code execution layer | ACTIVE / REPO CONFIGURED | `CLAUDE.md`, `.claude/`, `OPS/model_council/CLAUDE_CODE_EXECUTION_PLAYBOOK_LT.md` | CTO-1 Product Factory Architect |
+| OPS audit guardrail | ACTIVE / SCRIPT ADDED | `scripts/ops_audit.py` | CTO-3 Systems Reliability Breaker |
 
 ## New proof added on 2026-06-13
 
@@ -54,10 +57,20 @@ Primary proof: `OPS/operating_loops/ANTI_STAGNATION_ENGINE.md`.
 - AI capability radar created.
 - Task board v2 schema created for migration.
 - Task source-of-truth governance created.
+- Public data intelligence layer created.
+- Public source registry created.
+- Public data permission checklist created.
+- Data verification queue created.
+- Claude Code execution playbook created.
+- Root `CLAUDE.md` instructions created.
+- `.claude/settings.json` safety configuration created.
+- Claude skills created: `/ops-audit`, `/public-data-verify`, `/parts-os-build`.
+- Local `scripts/ops_audit.py` created.
+- Parts Seller OS sample data created.
 
 ## Current verdict
 
-The repo moved from documentation-only control toward execution control. The system is not fully complete yet because public demo hosting, exact revenue contacts, competitor price verification, dynamic cockpit data loading and the first Parts Seller OS prototype still need proof.
+The repo moved from documentation-only control toward execution control. The system is not fully complete yet because public demo hosting, exact revenue contacts, full competitor price verification, dynamic cockpit data loading and the first working Parts Seller OS prototype still need proof.
 
 ## Hard stop rules
 
@@ -67,3 +80,5 @@ The repo moved from documentation-only control toward execution control. The sys
 - New deploy cannot happen without test, health check and rollback note.
 - Agent output without task board or proof update is not counted as work.
 - Blocked task without fallback is not valid.
+- Claude Code output without task ID, test/no-test note, security note and proof path is not counted as completed work.
+- Public data cannot be used for outbound, CFO or product decisions without source URL, checked date and confidence.
