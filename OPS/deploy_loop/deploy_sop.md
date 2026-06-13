@@ -1,6 +1,7 @@
 # Deploy Loop SOP
 
 Owner: CTO-2 DevOps Commander
+Updated: 2026-06-13
 
 ## Purpose
 
@@ -33,10 +34,11 @@ Every product must have a repeatable path from repo to running system, with stat
 
 ## Product deploy registry
 
-| Product | Repo path | Status | Health check | Rollback | Owner |
-|---|---|---|---|---|---|
-| AI Agent Setup | `website/`, `products/ai-agent-setup/` | local_only | pending | pending | CTO-2 DevOps Commander |
-| Parts Commerce OS | `OPS/marketplace/roadmap.md` | not_configured | pending | pending | MARKET-1 Marketplace General Manager |
+| Product | Repo path | Status | Run / deploy command | Health check | Rollback | Owner |
+|---|---|---|---|---|---|---|
+| AI Agent Setup landing | `website/` | local_only | `python3 -m http.server 4173` then open `/website/index.html` | `curl -I http://localhost:4173/website/index.html` | revert `website/` changes | CTO-2 DevOps Commander |
+| CEO Cockpit Demo | `products/ceo-cockpit/` | local_only | `python3 -m http.server 4173` then open `/products/ceo-cockpit/index.html` | `curl -I http://localhost:4173/products/ceo-cockpit/index.html` | revert `products/ceo-cockpit/` changes | CTO-2 DevOps Commander |
+| Parts Commerce OS | `OPS/marketplace/roadmap.md` | not_configured | pending build prototype | pending | pending | MARKET-1 Marketplace General Manager |
 
 ## Pre-deploy checklist
 
@@ -46,6 +48,7 @@ Every product must have a repeatable path from repo to running system, with stat
 4. Health check exists.
 5. Rollback instruction exists.
 6. Release note exists.
+7. Security review exists for public/auth/data changes.
 
 ## Post-deploy checklist
 
@@ -53,15 +56,27 @@ Every product must have a repeatable path from repo to running system, with stat
 2. Run smoke test.
 3. Record deploy status.
 4. Notify Judge if failure.
-5. Create bug if smoke test fails.
+5. Create QA item if smoke test fails.
+
+## CEO Cockpit local smoke test
+
+- Start local static server from repository root.
+- Open `http://localhost:4173/products/ceo-cockpit/index.html`.
+- Confirm four KPI cards are visible.
+- Confirm task, QA, revenue and CFO sections are visible.
+- Confirm public-hosting limitation is documented.
+
+## Public deployment blocker
+
+The cockpit has a local demo path, but public hosting is still pending. Do not claim public demo proof until a hosted URL is recorded here.
 
 ## Rollback note template
 
 - Date:
 - Product:
-- Failed deploy version/commit:
+- Failed version/commit:
 - Last known good version/commit:
-- Rollback command/steps:
+- Rollback steps:
 - Data migration risk:
 - Owner:
 - Result:
