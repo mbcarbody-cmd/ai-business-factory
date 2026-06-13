@@ -38,7 +38,7 @@ Every product must have a repeatable path from repo to running system, with stat
 |---|---|---|---|---|---|---|
 | AI Agent Setup landing | `website/` | local_only | `python3 -m http.server 4173` then open `/website/index.html` | `curl -I http://localhost:4173/website/index.html` | revert `website/` changes | CTO-2 DevOps Commander |
 | CEO Cockpit Demo | `products/ceo-cockpit/` | local_only | `python3 -m http.server 4173` then open `/products/ceo-cockpit/index.html` | `curl -I http://localhost:4173/products/ceo-cockpit/index.html` | revert `products/ceo-cockpit/` changes | CTO-2 DevOps Commander |
-| Parts Commerce OS | `OPS/marketplace/roadmap.md` | not_configured | pending build prototype | pending | pending | MARKET-1 Marketplace General Manager |
+| Parts Seller OS Prototype | `products/parts-seller-os/` | local_only | `python3 -m http.server 4173` then open `/products/parts-seller-os/index.html` | `curl -I http://localhost:4173/products/parts-seller-os/index.html` | revert `products/parts-seller-os/` changes | MARKET-2 Warehouse Autonomy Director |
 
 ## Pre-deploy checklist
 
@@ -66,9 +66,17 @@ Every product must have a repeatable path from repo to running system, with stat
 - Confirm task, QA, revenue and CFO sections are visible.
 - Confirm public-hosting limitation is documented.
 
+## Parts Seller OS local smoke test
+
+- Start local static server from repository root.
+- Open `http://localhost:4173/products/parts-seller-os/index.html`.
+- Confirm six workflow steps are visible.
+- Confirm demo example table is visible.
+- Confirm full marketplace is explicitly blocked until one-seller workflow works.
+
 ## Public deployment blocker
 
-The cockpit has a local demo path, but public hosting is still pending. Do not claim public demo proof until a hosted URL is recorded here.
+The cockpit and seller OS prototype have local demo paths, but public hosting is still pending. Do not claim public demo proof until hosted URLs are recorded here.
 
 ## Rollback note template
 
