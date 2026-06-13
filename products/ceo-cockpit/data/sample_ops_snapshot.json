@@ -1,0 +1,20 @@
+{
+  "updated_at": "2026-06-13",
+  "mode": "fifth_gear",
+  "summary": {
+    "active_lanes": 8,
+    "blocked_lanes": 0,
+    "priority": "proof_outputs_first",
+    "next_best_action": "load this JSON into CEO Cockpit and show lane status"
+  },
+  "lanes": [
+    {"id":"FG-001","name":"Dashboard proof","owner":"CTO-1 Product Factory Architect","status":"active","output_path":"products/ceo-cockpit/","next_action":"Render OPS snapshot cards from JSON"},
+    {"id":"FG-002","name":"Data quality","owner":"CI-1 Market Spy Chief","status":"active","output_path":"OPS/data_intelligence/provenance_ledger.json","next_action":"Add sample provenance rows"},
+    {"id":"FG-003","name":"Seller workflow","owner":"MARKET-2 Warehouse Autonomy Director","status":"active","output_path":"OPS/marketplace/parts_os_mvp_sample_data.json","next_action":"Create one workflow from item intake to draft listing"},
+    {"id":"FG-004","name":"Creative factory","owner":"CREATIVE-1 AI Ads Director","status":"active","output_path":"OPS/monetization/ai_ads_factory_mvp.md","next_action":"Create reusable sample pack"},
+    {"id":"FG-005","name":"Mobile app","owner":"PRODUCT-APP-1 Mobile Product PM","status":"active","output_path":"OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md","next_action":"Define UI skeleton and local sample data"},
+    {"id":"FG-006","name":"Market validation","owner":"CRO-1 Pipeline Commander","status":"active","output_path":"OPS/revenue_ops/lead_pipeline.json","next_action":"Replace generic rows with exact public rows"},
+    {"id":"FG-007","name":"New product discovery","owner":"PMO-3 Strategic Prioritization Officer","status":"active","output_path":"OPS/product_discovery/NEEDED_PRODUCTS_RADAR_LT.md","next_action":"Keep build-now ideas linked to proof paths"},
+    {"id":"FG-008","name":"Quality gate","owner":"JUDGE-1 Release Gate Judge","status":"active","output_path":"OPS/qa/bug_board.json","next_action":"Require proof before done state"}
+  ]
+}
