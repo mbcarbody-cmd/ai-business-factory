@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CTO-1 Product Factory Architect + CI-1 Market Spy Chief + CISO / Security Judge",
+  "status": "active_gap_map",
+  "purpose": "Identify what is missing before the AI robot factory can safely collect useful public internet information at scale.",
+  "gaps": [
+    {
+      "id": "SCRAPE-GAP-001",
+      "gap": "No enforced permission checklist before automated collection",
+      "risk": "agents may collect from blocked or high-risk sources",
+      "fix": "Use OPS/data_intelligence/permission_checklist.md before any automation",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-002",
+      "gap": "Source registry has seed sources but not enough verified domains",
+      "risk": "competitor and lead intelligence remains unverified",
+      "fix": "Grow source_registry.json to 20 verified sources with method/rate/risk/output",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-003",
+      "gap": "No fetch queue / rate limiter implementation yet",
+      "risk": "manual rules exist but are not technically enforced",
+      "fix": "Build small local fetch queue with per-domain rate limits and robots/permission status field",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-004",
+      "gap": "No provenance ledger for collected rows",
+      "risk": "AI may use old, unverifiable or hallucinated data",
+      "fix": "Every row gets source_url, collected_at, method, confidence and owner",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-005",
+      "gap": "No duplicate detection across competitor, lead and marketplace data",
+      "risk": "agents repeat work and pollute pipeline",
+      "fix": "Add source hash, normalized domain, normalized company and data key",
+      "priority": "P1"
+    },
+    {
+      "id": "SCRAPE-GAP-006",
+      "gap": "No legal/privacy review trigger for personal data",
+      "risk": "GDPR/privacy exposure when collecting contacts or profiles",
+      "fix": "Mark personal-data fields and require CISO/Judge approval for high-risk collection",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-007",
+      "gap": "No model prompt-injection isolation for scraped pages",
+      "risk": "external pages can contain instructions that manipulate agents",
+      "fix": "Treat fetched content as untrusted data and strip/quote before model processing",
+      "priority": "P0"
+    },
+    {
+      "id": "SCRAPE-GAP-008",
+      "gap": "No paid data provider CFO rule",
+      "risk": "tool costs can exceed revenue before proof",
+      "fix": "CFO approval required for paid SERP, proxy, data or enrichment tools",
+      "priority": "P1"
+    }
+  ],
+  "minimum_safe_mvp_stack": {
+    "collection": ["manual verification", "allowed low-rate requests", "BeautifulSoup", "Playwright only for public JS rendering"],
+    "storage": ["JSON first", "SQLite/Postgres later"],
+    "controls": ["source_registry", "permission_checklist", "rate_limit", "provenance", "QA sampling"],
+    "blocked": ["captcha bypass", "paywall bypass", "login bypass", "anti-bot evasion", "unnecessary personal data"]
+  },
+  "next_actions": [
+    "Add task board P0 item for safe public-data crawler MVP.",
+    "Convert competitor verification queue into exact verified rows.",
+    "Replace seed leads with exact public companies only after permission checklist.",
+    "Connect collected data outputs to CEO Cockpit when JSON loading is ready."
+  ]
+}
