@@ -1,8 +1,8 @@
 {
   "updated_at": "2026-06-13",
   "owner": "CEO-D / Opportunity Lab General Manager",
-  "status": "active_backlog_only",
-  "rule": "New opportunities are captured and scored here. They do not become active build work until promoted by product gate, CFO value case and P0 impact review.",
+  "status": "active_validation_and_tiny_demo_lane",
+  "rule": "New opportunities are captured, researched, scored and may receive tiny-demo validation inside CEO-D resources. They do not consume CEO-A/CEO-C P0 build capacity unless promoted by product gate, CFO value case and P0 impact review.",
   "promotion_requirements": [
     "buyer_defined",
     "pain_defined",
@@ -12,37 +12,55 @@
     "cfo_value_case_defined",
     "p0_impact_reviewed"
   ],
-  "statuses": ["captured", "research", "validated", "promote_candidate", "rejected", "parked"],
+  "statuses": ["captured", "research", "validated", "tiny_demo", "promote_candidate", "rejected", "parked"],
+  "capacity_policy": {
+    "allowed": [
+      "market research",
+      "competitor scan",
+      "buyer pain validation",
+      "offer sketch",
+      "CFO value case",
+      "tiny demo spec",
+      "manual mock demo with sample data"
+    ],
+    "not_allowed_without_gate": [
+      "full product build",
+      "public launch",
+      "paid promise",
+      "using CEO-A Parts OS build resources",
+      "using CEO-C P0 build time unless explicitly approved"
+    ]
+  },
   "opportunities": [
     {
       "id": "OPP-001",
       "name": "AI Ads Factory",
-      "status": "parked",
+      "status": "research",
       "owner": "CEO-D / Opportunity Lab General Manager",
-      "reason": "Potential revenue product, but active build capacity remains focused on Parts Seller OS and first paid pilot.",
-      "next_action": "Keep as backlog until P0 prototype proof improves or CEO-B needs an offer variant.",
+      "reason": "Potential faster revenue product, but must be validated by CEO-D resources only.",
+      "next_action": "Create offer sketch and one tiny demo pack without using Parts OS build resources.",
       "proof_path": "OPS/monetization/ai_ads_factory_mvp.md",
       "p0_impact": "must not consume CEO-A build capacity"
     },
     {
       "id": "OPP-002",
       "name": "YouTube Content Engine",
-      "status": "parked",
+      "status": "captured",
       "owner": "CEO-D / Opportunity Lab General Manager",
-      "reason": "Longer monetization path; lower priority than direct paid pilot.",
-      "next_action": "Store ideas only; no active build until revenue loop works.",
+      "reason": "Longer monetization path; can be researched but not active full build.",
+      "next_action": "Validate only channel economics and content moat; no production schedule yet.",
       "proof_path": "OPS/monetization/youtube_content_engine.md",
       "p0_impact": "no active build allocation"
     },
     {
       "id": "OPP-003",
       "name": "Investment Advisor App",
-      "status": "parked",
+      "status": "captured",
       "owner": "CEO-D / Opportunity Lab General Manager",
-      "reason": "Requires careful data and risk wording; not first revenue path.",
-      "next_action": "Keep internal spec only; do not consume P0 build resources.",
+      "reason": "Requires careful data and risk wording; may remain internal validation only.",
+      "next_action": "Keep spec and risk review; no public advice product build.",
       "proof_path": "OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md",
-      "p0_impact": "blocked from active build until Parts Seller OS prototype exists"
+      "p0_impact": "blocked from active full build until Parts Seller OS prototype exists"
     }
   ]
 }
