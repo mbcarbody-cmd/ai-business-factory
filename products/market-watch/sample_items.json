@@ -1,0 +1,15 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "PRODUCT-APP-1",
+  "items": [
+    {"code":"XAU","name":"Gold","group":"commodity","status":"watch","note":"sample item"},
+    {"code":"WTI","name":"WTI Oil","group":"commodity","status":"watch","note":"sample item"},
+    {"code":"BRENT","name":"Brent Oil","group":"commodity","status":"watch","note":"sample item"},
+    {"code":"SP500-ETF","name":"S&P 500 ETF","group":"fund","status":"watch","note":"sample item"},
+    {"code":"TECH-ETF","name":"Technology ETF","group":"fund","status":"watch","note":"sample item"},
+    {"code":"SEMI-ETF","name":"Semiconductor ETF","group":"fund","status":"watch","note":"sample item"},
+    {"code":"WORLD-ETF","name":"World ETF","group":"fund","status":"watch","note":"sample item"},
+    {"code":"DIV-ETF","name":"Dividend ETF","group":"fund","status":"watch","note":"sample item"}
+  ],
+  "screen_seed": ["home","list","detail","notes","settings","data_status"]
+}
