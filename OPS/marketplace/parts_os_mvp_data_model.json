@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "MARKET-2 Warehouse Autonomy Director",
+  "product": "Parts Commerce OS",
+  "build_rule": "Build internal seller OS first. Do not build full marketplace until this workflow works for one seller.",
+  "first_mvp_slice": "add_part -> suggest_location -> set_price_and_floor -> generate_listing_status -> reserve_or_order -> ageing_dead_stock_signal",
+  "entities": {
+    "Seller": {"fields": ["id", "name", "country", "channels", "pricing_rules", "warehouse_ids", "status"]},
+    "Warehouse": {"fields": ["id", "seller_id", "name", "zones", "capacity_notes", "rules"]},
+    "Location": {"fields": ["id", "warehouse_id", "zone", "shelf", "box_bin", "capacity_units", "dimensions", "current_occupancy_percent", "allowed_categories", "blocked_categories"]},
+    "Vehicle": {"fields": ["id", "make", "model", "generation", "year_from", "year_to", "body", "engine", "fuel", "drive", "notes"]},
+    "Part": {"fields": ["id", "seller_id", "vehicle_id", "part_number", "alt_part_numbers", "category", "side", "position", "condition", "photos", "weight", "dimensions", "purchase_cost", "price", "floor_price", "location_id", "status", "liquidity_score", "created_at", "updated_at"]},
+    "PriceRecord": {"fields": ["id", "part_id", "source", "observed_price", "currency", "condition", "marketplace", "url", "observed_at", "confidence"]},
+    "Listing": {"fields": ["id", "part_id", "title", "description", "channel", "channel_status", "quality_warnings", "published_at", "unpublished_at"]},
+    "Reservation": {"fields": ["id", "part_id", "buyer_ref", "channel", "reserved_until", "status", "notes"]},
+    "Order": {"fields": ["id", "reservation_id", "part_id", "price", "shipping_price", "payment_state", "pick_state", "pack_state", "ship_state", "return_state", "margin"]},
+    "DemandSignal": {"fields": ["id", "part_id", "source", "signal_type", "strength", "notes", "created_at"]},
+    "CompetitorPrice": {"fields": ["id", "part_id", "competitor", "price", "currency", "url", "last_checked", "confidence"]}
+  },
+  "workflow_steps": [
+    {"step": 1, "name": "Add part", "input": ["part_number", "category", "vehicle", "side_position", "condition", "photos"], "output": ["Part draft"], "decision": "block if no category or no identifier"},
+    {"step": 2, "name": "Suggest location", "input": ["category", "dimensions", "weight", "allowed_categories", "occupancy"], "output": ["best_location_id", "fallback_location_id"], "decision": "if no location fits -> pending_location_queue"},
+    {"step": 3, "name": "Set price and floor", "input": ["part_number", "category", "condition", "competitor prices", "liquidity score", "purchase cost"], "output": ["price", "floor_price", "pricing_reason"], "decision": "if rare/no comps -> manual review"},
+    {"step": 4, "name": "Generate listing status", "input": ["photos", "title", "description", "price", "location"], "output": ["ready_to_publish", "needs_data", "hold"], "decision": "block if missing photo/title/price"},
+    {"step": 5, "name": "Reserve/order", "input": ["buyer_ref", "channel", "price", "shipping"], "output": ["reservation/order state"], "decision": "reservation expires or becomes paid order"},
+    {"step": 6, "name": "Ageing and dead-stock risk", "input": ["days_in_stock", "views", "inquiries", "price_changes"], "output": ["keep", "discount", "promote", "review"], "decision": "low liquidity goes to action queue"}
+  ],
+  "first_demo_kpis": ["parts_without_location", "locations_over_85_percent", "ready_to_publish_count", "manual_pricing_review_count", "reserved_parts", "dead_stock_risk_count"],
+  "gate_to_build": ["data model exists", "first workflow accepted", "CFO value case exists", "competitor gap checked", "internal dry-run selected"]
+}
