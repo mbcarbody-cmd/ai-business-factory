@@ -7,7 +7,8 @@
     "Every offer must have price, estimated delivery cost, gross margin and break-even target.",
     "No proposal can be sent without margin check.",
     "Build time is a cost even when agents do the work.",
-    "Any custom promise above the pilot scope must be quoted separately."
+    "Any custom promise above the pilot scope must be quoted separately.",
+    "Paid data, SERP, proxy, video, voice or ads tools require CFO approval before spend."
   ],
   "packages": [
     {
@@ -43,11 +44,49 @@
       "estimated_internal_cost_eur": 140,
       "target_gross_margin_percent": 70,
       "notes": "Inventory, location, pricing and listing workflow map plus first automation slice."
+    },
+    {
+      "id": "PKG-004",
+      "name": "72h AI Ads Factory Sprint",
+      "price_eur_min": 199,
+      "price_eur_max": 399,
+      "estimated_direct_cost_eur": 0,
+      "estimated_operator_hours": 2.5,
+      "internal_hour_rate_eur": 35,
+      "estimated_internal_cost_eur": 87.5,
+      "target_gross_margin_percent": 70,
+      "break_even_paid_sprints_per_month": 1,
+      "notes": "Deliver 10 ad variants, hooks, CTA, scripts, prompt set, QA and next-test recommendation. Tool spend must stay zero until first paid sprint or CFO approval."
+    },
+    {
+      "id": "PKG-005",
+      "name": "Creative Iteration Retainer",
+      "price_eur_min": 299,
+      "price_eur_max": 999,
+      "estimated_direct_cost_eur": 0,
+      "estimated_operator_hours_per_month_min": 2,
+      "estimated_operator_hours_per_month_max": 6,
+      "internal_hour_rate_eur": 35,
+      "target_gross_margin_percent": 65,
+      "notes": "Monthly ad/content variants, QA, landing copy refresh and learning loop."
+    },
+    {
+      "id": "PKG-006",
+      "name": "Data Intelligence Monitoring",
+      "price_eur_min": 499,
+      "price_eur_max": 1499,
+      "estimated_direct_cost_eur": 0,
+      "estimated_operator_hours_per_month_min": 3,
+      "estimated_operator_hours_per_month_max": 10,
+      "internal_hour_rate_eur": 35,
+      "target_gross_margin_percent": 65,
+      "notes": "Competitor, price or lead monitoring using allowed public sources with provenance and QA. Paid data providers require CFO approval."
     }
   ],
   "sprint_financial_targets": {
     "first_paid_pilot_target_eur": 299,
     "three_pilot_target_eur": 897,
+    "first_ads_sprint_target_eur": 199,
     "first_maintenance_target_mrr_eur": 99,
     "minimum_revenue_before_extra_feature_build_eur": 299,
     "build_discipline_rule": "No extra feature build without either live demo proof or revenue pipeline movement."
@@ -70,6 +109,15 @@
       "reason": "Capped dashboard/demo build before sales proof.",
       "linked_revenue_id": "OPS-020",
       "owner": "CTO-1 Product Factory Architect"
+    },
+    {
+      "date": "2026-06-13",
+      "product_or_client": "AI Ads Factory MVP",
+      "category": "operator_time",
+      "amount_eur": 87.5,
+      "reason": "Budget cap for first sample creative sprint before paid ads/tool spend.",
+      "linked_revenue_id": "PKG-004",
+      "owner": "CREATIVE-1 AI Ads Director"
     }
   ],
   "cost_entry_template": {
