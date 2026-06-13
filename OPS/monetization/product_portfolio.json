@@ -1,0 +1,128 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "PMO-3 Strategic Prioritization Officer + CFO / Pricing Controller",
+  "purpose": "Prioritize monetizable AI robot factory products by revenue speed, feasibility, risk and reusable value.",
+  "scoring": {
+    "scale": "0-5 per field",
+    "fields": ["speed_to_demo", "speed_to_first_euro", "pain_intensity", "buyer_reach", "delivery_complexity_inverse", "margin", "legal_safety_inverse", "reusable_asset_value", "internal_usefulness", "humanity_value"],
+    "decision_rules": {
+      "p0_build_sell": ">=38",
+      "p1_validate": "30-37",
+      "backlog": "20-29",
+      "reject_or_archive": "<20"
+    }
+  },
+  "products": [
+    {
+      "id": "MON-001",
+      "name": "72h AI Automation Pilot",
+      "type": "done-for-you service",
+      "buyer": "small business owner with one painful manual workflow",
+      "offer": "One useful automation in 72h for 299 EUR",
+      "score": 43,
+      "priority": "P0 build/sell now",
+      "next_action": "Move exact public targets into lead pipeline and send 5 scoped outreach messages.",
+      "proof_path": "OPS/revenue_ops/lead_pipeline.json"
+    },
+    {
+      "id": "MON-002",
+      "name": "AI Ads Factory Sprint",
+      "type": "creative service + repeatable workflow",
+      "buyer": "SMB, e-commerce seller, local service business, creator, marketplace seller",
+      "offer": "10 short ad variants, 3 hooks, 3 CTA, QA and delivery pack in 72h",
+      "score": 42,
+      "priority": "P0 build/sell now",
+      "next_action": "Build sample ad pack using one internal product and one generic SMB scenario.",
+      "proof_path": "OPS/monetization/ai_ads_factory_mvp.md"
+    },
+    {
+      "id": "MON-003",
+      "name": "Parts Seller OS MVP",
+      "type": "vertical SaaS / internal OS",
+      "buyer": "used parts seller or dismantler",
+      "offer": "Inventory, location, pricing and listing control for one seller workflow",
+      "score": 41,
+      "priority": "P0 build prototype",
+      "next_action": "Build one-seller prototype from sample data and connect to CEO Cockpit.",
+      "proof_path": "OPS/marketplace/parts_os_mvp_sample_data.json"
+    },
+    {
+      "id": "MON-004",
+      "name": "Marketplace Listing Publisher",
+      "type": "workflow automation",
+      "buyer": "online seller with many listings",
+      "offer": "Title, description, category, price check and publishing checklist automation",
+      "score": 38,
+      "priority": "P0 after first pilot signal",
+      "next_action": "Create listing draft template and QA checklist.",
+      "proof_path": "OPS/marketplace/roadmap.md"
+    },
+    {
+      "id": "MON-005",
+      "name": "Rare Part Price Intelligence Agent",
+      "type": "data assistant",
+      "buyer": "auto parts seller pricing rare or premium parts",
+      "offer": "Public-market price scan, confidence score and suggested listing price",
+      "score": 36,
+      "priority": "P1 validate",
+      "next_action": "Define legal public-source-only workflow and confidence rules.",
+      "proof_path": "OPS/data_intelligence/"
+    },
+    {
+      "id": "MON-006",
+      "name": "YouTube Content Engine",
+      "type": "media asset + lead generation",
+      "buyer": "internal first, later creators/SMBs needing content system",
+      "offer": "Topic research, script, thumbnail concept, short clips and publishing calendar",
+      "score": 34,
+      "priority": "P1 validate as internal proof",
+      "next_action": "Create 3 channel concepts with original value and no AI slop risk.",
+      "proof_path": "OPS/monetization/youtube_content_engine.md"
+    },
+    {
+      "id": "MON-007",
+      "name": "Local Business Review/SEO Autopilot",
+      "type": "SMB automation",
+      "buyer": "local service business wanting more reviews and better local search presence",
+      "offer": "Review request flow, FAQ content, local landing copy and reporting",
+      "score": 33,
+      "priority": "P1 validate",
+      "next_action": "Create one-page offer and find 10 local SMB targets.",
+      "proof_path": "OPS/revenue_ops/creative_services_offer_pack.md"
+    },
+    {
+      "id": "MON-008",
+      "name": "Rental Fleet OS Lite",
+      "type": "workflow OS",
+      "buyer": "small vehicle/equipment rental operator",
+      "offer": "Booking intake, availability, handoff messages, deposits and reminders",
+      "score": 32,
+      "priority": "P1 validate",
+      "next_action": "Map workflow using rental target segment.",
+      "proof_path": "OPS/marketplace/roadmap.md"
+    },
+    {
+      "id": "MON-009",
+      "name": "Email-to-Order Assistant",
+      "type": "B2B workflow automation",
+      "buyer": "wholesaler or small manufacturer receiving orders by email",
+      "offer": "Extract order details, draft reply, update sheet/task board",
+      "score": 35,
+      "priority": "P1 validate",
+      "next_action": "Build template workflow with fake sample emails.",
+      "proof_path": "products/"
+    },
+    {
+      "id": "MON-010",
+      "name": "AI Product Page Builder",
+      "type": "e-commerce content automation",
+      "buyer": "seller with many products and weak descriptions",
+      "offer": "SEO title, description, FAQ, image alt text and marketplace copy variants",
+      "score": 37,
+      "priority": "P1 validate near P0",
+      "next_action": "Create sample before/after page pack and price at 99-199 EUR starter.",
+      "proof_path": "OPS/monetization/ai_ads_factory_mvp.md"
+    }
+  ],
+  "portfolio_rule": "Never run 1000 weak projects. Run many candidates through gates, but only scale products with proof: demo, lead movement, margin and delivery capacity."
+}
