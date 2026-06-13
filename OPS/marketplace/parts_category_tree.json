@@ -1,0 +1,284 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "MARKET-2 Warehouse Autonomy Director",
+  "purpose": "Reusable vehicle parts category tree for Parts Seller OS inventory, location, listing, search and analytics workflows.",
+  "status": "v0_1_seed_tree",
+  "usage_rules": [
+    "Every part should receive category_id, optional subcategory_id, side, position and vehicle_fitment.",
+    "Do not use free-text category names as source of truth when category_id exists.",
+    "Marketplace titles may use aliases, but inventory and analytics must use canonical ids.",
+    "Warehouse placement rules can use storage_profile and allowed_categories from locations.",
+    "This tree is a starter taxonomy; extend only by adding stable ids, not renaming existing ids."
+  ],
+  "required_part_fields_linked_to_tree": [
+    "category_id",
+    "subcategory_id",
+    "part_number",
+    "vehicle_make",
+    "vehicle_model",
+    "vehicle_year_from",
+    "vehicle_year_to",
+    "side",
+    "position",
+    "condition",
+    "price",
+    "floor_price",
+    "location_id",
+    "status"
+  ],
+  "side_values": ["none", "left", "right", "front", "rear", "pair", "set"],
+  "position_values": ["front", "rear", "upper", "lower", "inner", "outer", "dashboard", "engine_bay", "boot", "roof", "underbody", "door", "seat", "axle", "center"],
+  "storage_profiles": {
+    "small_bin": "Small shelf/bin item: modules, switches, sensors, trims, handles.",
+    "medium_shelf": "Medium shelf item: lights, mirrors, pumps, brackets, small body trims.",
+    "large_rack": "Large rack item: bumpers, doors, wings, bonnets, dashboards, seats.",
+    "heavy_floor": "Heavy floor/pallet item: engines, gearboxes, axles, battery packs.",
+    "fragile_vertical": "Fragile item stored upright/protected: glass, screens, lamps, panels.",
+    "hazard_safe": "Requires safety handling: airbags, pyrotechnic belts, high-voltage EV parts, fuel parts."
+  },
+  "categories": [
+    {
+      "id": "body_exterior",
+      "lt_name": "Kėbulas ir išorė",
+      "en_name": "Body exterior",
+      "storage_profile": "large_rack",
+      "aliases_lt": ["kebulas", "isorines dalys", "skardos", "plastikai"],
+      "children": [
+        {"id": "bumper_front", "lt_name": "Priekinis bamperis", "aliases_lt": ["priekinis buferis", "bamperis priekinis"]},
+        {"id": "bumper_rear", "lt_name": "Galinis bamperis", "aliases_lt": ["galinis buferis", "bamperis galinis"]},
+        {"id": "bonnet", "lt_name": "Kapotas", "aliases_lt": ["variklio dangtis"]},
+        {"id": "wing_front", "lt_name": "Priekinis sparnas", "aliases_lt": ["sparnas priekinis"]},
+        {"id": "wing_rear", "lt_name": "Galinis sparnas / ketvirtis", "aliases_lt": ["galinis ketvirtis", "sparnas galinis"]},
+        {"id": "door_front", "lt_name": "Priekinės durys", "aliases_lt": ["durys priekines"]},
+        {"id": "door_rear", "lt_name": "Galinės durys", "aliases_lt": ["durys galines"]},
+        {"id": "tailgate_bootlid", "lt_name": "Bagažinės dangtis / galinis dangtis", "aliases_lt": ["bagazines dangtis", "galinis dangtis"]},
+        {"id": "sill_rocker", "lt_name": "Slenkstis", "aliases_lt": ["plastikinis slenkstis", "slenkscio apdaila"]},
+        {"id": "undertray_shield", "lt_name": "Apsauga / dugno plastikas", "aliases_lt": ["variklio apsauga", "dugno apsauga"]}
+      ]
+    },
+    {
+      "id": "lighting",
+      "lt_name": "Žibintai ir apšvietimas",
+      "en_name": "Lighting",
+      "storage_profile": "fragile_vertical",
+      "aliases_lt": ["zibintai", "lempos", "apsvietimas"],
+      "children": [
+        {"id": "headlight", "lt_name": "Priekinis žibintas", "aliases_lt": ["fara", "priekine lempa"]},
+        {"id": "tail_light", "lt_name": "Galinis žibintas", "aliases_lt": ["galine lempa"]},
+        {"id": "fog_light", "lt_name": "Rūko žibintas", "aliases_lt": ["priesrukine lempa"]},
+        {"id": "daytime_running_light", "lt_name": "Dienos šviesos žibintas", "aliases_lt": ["DRL"]},
+        {"id": "indicator_repeater", "lt_name": "Posūkio žibintas / kartotuvas", "aliases_lt": ["posukis", "kartotuvas"]},
+        {"id": "interior_light", "lt_name": "Salono apšvietimas", "aliases_lt": ["plafonas", "vidaus lempa"]}
+      ]
+    },
+    {
+      "id": "mirrors_glass",
+      "lt_name": "Veidrodžiai ir stiklai",
+      "en_name": "Mirrors and glass",
+      "storage_profile": "fragile_vertical",
+      "aliases_lt": ["veidrodeliai", "stiklai", "langai"],
+      "children": [
+        {"id": "mirror_outer", "lt_name": "Išorinis veidrodėlis", "aliases_lt": ["soninis veidrodelis"]},
+        {"id": "mirror_glass", "lt_name": "Veidrodėlio stiklas", "aliases_lt": ["veidrodelio stikliukas"]},
+        {"id": "windscreen", "lt_name": "Priekinis stiklas", "aliases_lt": ["lango stiklas priekinis"]},
+        {"id": "door_glass", "lt_name": "Durų stiklas", "aliases_lt": ["soninis stiklas"]},
+        {"id": "quarter_glass", "lt_name": "Ketvirčio stiklas", "aliases_lt": ["fortke"]},
+        {"id": "rear_window", "lt_name": "Galinis stiklas", "aliases_lt": ["bagazines stiklas"]}
+      ]
+    },
+    {
+      "id": "interior_trim",
+      "lt_name": "Salonas ir apdailos",
+      "en_name": "Interior and trim",
+      "storage_profile": "large_rack",
+      "aliases_lt": ["salonas", "apdaila", "paneles", "plastikai"],
+      "children": [
+        {"id": "dashboard", "lt_name": "Panelė / torpeda", "aliases_lt": ["torpeda", "prietaisu panele"]},
+        {"id": "door_card", "lt_name": "Durų apmušimas", "aliases_lt": ["durų obshivke", "durų apdaila"]},
+        {"id": "center_console", "lt_name": "Centrinė konsolė", "aliases_lt": ["konsole"]},
+        {"id": "trim_panel", "lt_name": "Apdailos detalė", "aliases_lt": ["plastikas", "apdaila"]},
+        {"id": "carpet_floor", "lt_name": "Kilimas / grindų danga", "aliases_lt": ["salono kilimas"]},
+        {"id": "roof_lining", "lt_name": "Stogo apmušalas", "aliases_lt": ["lubos", "lubų apdaila"]}
+      ]
+    },
+    {
+      "id": "seats_belts_safety",
+      "lt_name": "Sėdynės, diržai ir sauga",
+      "en_name": "Seats, belts and safety",
+      "storage_profile": "hazard_safe",
+      "aliases_lt": ["sedynes", "dirzai", "airbag", "oro pagalves", "sauga"],
+      "children": [
+        {"id": "seat_front", "lt_name": "Priekinė sėdynė", "aliases_lt": ["vairuotojo sedyne", "keleivio sedyne"]},
+        {"id": "seat_rear", "lt_name": "Galinė sėdynė", "aliases_lt": ["galinis suolas"]},
+        {"id": "seatbelt_front", "lt_name": "Priekinis saugos diržas", "aliases_lt": ["dirzas priekinis"]},
+        {"id": "seatbelt_rear", "lt_name": "Galinis saugos diržas", "aliases_lt": ["dirzas galinis"]},
+        {"id": "airbag_driver", "lt_name": "Vairuotojo oro pagalvė", "aliases_lt": ["vairo airbag"]},
+        {"id": "airbag_passenger", "lt_name": "Keleivio oro pagalvė", "aliases_lt": ["paneles airbag"]},
+        {"id": "airbag_seat", "lt_name": "Sėdynės oro pagalvė", "aliases_lt": ["sedynes airbag"]},
+        {"id": "airbag_curtain", "lt_name": "Užuolaidinė oro pagalvė", "aliases_lt": ["stogo airbag"]}
+      ]
+    },
+    {
+      "id": "electronics_modules",
+      "lt_name": "Elektronika ir moduliai",
+      "en_name": "Electronics and modules",
+      "storage_profile": "small_bin",
+      "aliases_lt": ["elektronika", "blokai", "moduliai", "kompiuteriai"],
+      "children": [
+        {"id": "ecu_engine", "lt_name": "Variklio valdymo blokas", "aliases_lt": ["ECU", "variklio kompiuteris"]},
+        {"id": "bcm_body", "lt_name": "Kėbulo valdymo blokas", "aliases_lt": ["BCM", "komforto blokas"]},
+        {"id": "abs_module", "lt_name": "ABS blokas", "aliases_lt": ["abs pompa", "abs valdymo blokas"]},
+        {"id": "infotainment_screen", "lt_name": "Multimedijos ekranas", "aliases_lt": ["ekranas", "display"]},
+        {"id": "instrument_cluster", "lt_name": "Spidometras / skydelis", "aliases_lt": ["prietaisu skydelis"]},
+        {"id": "switch_button", "lt_name": "Jungiklis / mygtukas", "aliases_lt": ["mygtukas", "jungtukas"]},
+        {"id": "camera_radar_sensor", "lt_name": "Kamera / radaras / sensorius", "aliases_lt": ["kamera", "radaras", "daviklis"]}
+      ]
+    },
+    {
+      "id": "engine",
+      "lt_name": "Variklis ir jo dalys",
+      "en_name": "Engine",
+      "storage_profile": "heavy_floor",
+      "aliases_lt": ["variklis", "motoras"],
+      "children": [
+        {"id": "engine_complete", "lt_name": "Pilnas variklis", "aliases_lt": ["motoras pilnas"]},
+        {"id": "cylinder_head", "lt_name": "Cilindrų galvutė", "aliases_lt": ["galva"]},
+        {"id": "engine_block", "lt_name": "Variklio blokas", "aliases_lt": ["blokas"]},
+        {"id": "turbocharger", "lt_name": "Turbina", "aliases_lt": ["turbo"]},
+        {"id": "injector", "lt_name": "Purkštukas", "aliases_lt": ["forsunke"]},
+        {"id": "starter_alternator", "lt_name": "Starteris / generatorius", "aliases_lt": ["starteris", "generatorius"]},
+        {"id": "engine_mount", "lt_name": "Variklio pagalvė", "aliases_lt": ["motoro pagalve"]}
+      ]
+    },
+    {
+      "id": "cooling_hvac",
+      "lt_name": "Aušinimas, šildymas ir kondicionavimas",
+      "en_name": "Cooling, heating and HVAC",
+      "storage_profile": "medium_shelf",
+      "aliases_lt": ["ausinimas", "sildymas", "kondicionierius", "radiatorius"],
+      "children": [
+        {"id": "radiator_coolant", "lt_name": "Aušinimo radiatorius", "aliases_lt": ["vandens radiatorius"]},
+        {"id": "intercooler", "lt_name": "Interkuleris", "aliases_lt": ["tarpinis radiatorius"]},
+        {"id": "ac_condenser", "lt_name": "Kondicionieriaus radiatorius", "aliases_lt": ["ac radiatorius"]},
+        {"id": "coolant_tank", "lt_name": "Išsiplėtimo bakelis", "aliases_lt": ["ausinimo bakelis"]},
+        {"id": "fan_shroud", "lt_name": "Ventiliatorius / difuzorius", "aliases_lt": ["ventiliatorius"]},
+        {"id": "heater_box", "lt_name": "Pečiukas / šildymo blokas", "aliases_lt": ["peciukas"]},
+        {"id": "ac_compressor", "lt_name": "Kondicionieriaus kompresorius", "aliases_lt": ["ac kompresorius"]}
+      ]
+    },
+    {
+      "id": "fuel_exhaust_emissions",
+      "lt_name": "Kuras, išmetimas ir emisijos",
+      "en_name": "Fuel, exhaust and emissions",
+      "storage_profile": "hazard_safe",
+      "aliases_lt": ["kuro sistema", "ismetimas", "dpf", "egr"],
+      "children": [
+        {"id": "fuel_pump", "lt_name": "Kuro siurblys", "aliases_lt": ["siurblys kuro"]},
+        {"id": "fuel_tank", "lt_name": "Kuro bakas", "aliases_lt": ["bakas"]},
+        {"id": "exhaust_pipe", "lt_name": "Išmetimo vamzdis", "aliases_lt": ["duslintuvo vamzdis"]},
+        {"id": "catalyst", "lt_name": "Katalizatorius", "aliases_lt": ["katalikas"]},
+        {"id": "dpf_filter", "lt_name": "DPF filtras", "aliases_lt": ["suodziu filtras"]},
+        {"id": "egr_valve", "lt_name": "EGR vožtuvas", "aliases_lt": ["egr"]},
+        {"id": "adblue_part", "lt_name": "AdBlue dalis", "aliases_lt": ["adblue bakas", "adblue purkstukas"]}
+      ]
+    },
+    {
+      "id": "transmission_drivetrain",
+      "lt_name": "Pavarų dėžė ir transmisija",
+      "en_name": "Transmission and drivetrain",
+      "storage_profile": "heavy_floor",
+      "aliases_lt": ["pavaru deze", "transmisija", "reduktorius", "kardanai"],
+      "children": [
+        {"id": "gearbox_manual", "lt_name": "Mechaninė pavarų dėžė", "aliases_lt": ["mechanine deze"]},
+        {"id": "gearbox_auto", "lt_name": "Automatinė pavarų dėžė", "aliases_lt": ["automatas", "automatine deze"]},
+        {"id": "transfer_case", "lt_name": "Paskirstymo dėžė", "aliases_lt": ["razdatke"]},
+        {"id": "differential", "lt_name": "Reduktorius / diferencialas", "aliases_lt": ["reduktorius", "diferencialas"]},
+        {"id": "driveshaft", "lt_name": "Pusašis", "aliases_lt": ["pusasis"]},
+        {"id": "propshaft", "lt_name": "Kardanas", "aliases_lt": ["kardaninis velenas"]},
+        {"id": "clutch_flywheel", "lt_name": "Sankaba / smagratis", "aliases_lt": ["sankaba", "smagratis"]}
+      ]
+    },
+    {
+      "id": "suspension_steering",
+      "lt_name": "Pakaba ir vairavimas",
+      "en_name": "Suspension and steering",
+      "storage_profile": "medium_shelf",
+      "aliases_lt": ["pakaba", "vairo mechanizmas", "sakes", "amortizatoriai"],
+      "children": [
+        {"id": "control_arm", "lt_name": "Šakė", "aliases_lt": ["pakabos sake"]},
+        {"id": "shock_absorber", "lt_name": "Amortizatorius", "aliases_lt": ["amortikas"]},
+        {"id": "spring", "lt_name": "Spyruoklė", "aliases_lt": ["spyruokle"]},
+        {"id": "steering_rack", "lt_name": "Vairo kolonėlė / traukė", "aliases_lt": ["vairo trauke", "kolonele"]},
+        {"id": "subframe", "lt_name": "Balkis / traversas", "aliases_lt": ["balkis", "traversas"]},
+        {"id": "hub_knuckle", "lt_name": "Stebulė / kelmas", "aliases_lt": ["stebule", "kelmas"]},
+        {"id": "antiroll_bar", "lt_name": "Stabilizatorius", "aliases_lt": ["stabilizatoriaus trauke"]}
+      ]
+    },
+    {
+      "id": "brakes_wheels",
+      "lt_name": "Stabdžiai, ratai ir padangos",
+      "en_name": "Brakes, wheels and tyres",
+      "storage_profile": "medium_shelf",
+      "aliases_lt": ["stabdziai", "ratai", "ratlankiai", "padangos"],
+      "children": [
+        {"id": "brake_caliper", "lt_name": "Stabdžių suportas", "aliases_lt": ["suportas"]},
+        {"id": "brake_disc", "lt_name": "Stabdžių diskas", "aliases_lt": ["diskas"]},
+        {"id": "brake_servo_master", "lt_name": "Stabdžių stiprintuvas / cilindras", "aliases_lt": ["vakumas", "pagrindinis cilindras"]},
+        {"id": "wheel_rim", "lt_name": "Ratlankis", "aliases_lt": ["ratlankis", "ratas"]},
+        {"id": "wheel_cap", "lt_name": "Ratlankio dangtelis", "aliases_lt": ["centrinis dangtelis", "kauselis"]},
+        {"id": "tyre", "lt_name": "Padanga", "aliases_lt": ["padangos"]}
+      ]
+    },
+    {
+      "id": "doors_windows_locks",
+      "lt_name": "Durys, langai ir užraktai",
+      "en_name": "Doors, windows and locks",
+      "storage_profile": "small_bin",
+      "aliases_lt": ["durys", "langai", "spynos", "rankeneles"],
+      "children": [
+        {"id": "window_regulator", "lt_name": "Lango pakėlėjas", "aliases_lt": ["stiklo pakelejas", "lango mechanizmas"]},
+        {"id": "door_lock", "lt_name": "Durų spyna", "aliases_lt": ["spyna"]},
+        {"id": "door_handle_outer", "lt_name": "Išorinė durų rankenėlė", "aliases_lt": ["lauko rankenele"]},
+        {"id": "door_handle_inner", "lt_name": "Vidinė durų rankenėlė", "aliases_lt": ["vidaus rankenele"]},
+        {"id": "hinge_checkstrap", "lt_name": "Vyris / ribotuvas", "aliases_lt": ["durų vyris", "ribotuvas"]},
+        {"id": "wiper_motor_linkage", "lt_name": "Valytuvų varikliukas / mechanizmas", "aliases_lt": ["valytuvai", "valytuvu mechanizmas"]}
+      ]
+    },
+    {
+      "id": "hybrid_ev_high_voltage",
+      "lt_name": "Hybrid/EV aukštos įtampos dalys",
+      "en_name": "Hybrid/EV high voltage",
+      "storage_profile": "hazard_safe",
+      "aliases_lt": ["elektromobilis", "hybrid", "auksta itampa", "baterija", "inverteris"],
+      "children": [
+        {"id": "hv_battery_pack", "lt_name": "Aukštos įtampos baterija", "aliases_lt": ["ev baterija", "hibrido baterija"]},
+        {"id": "battery_module", "lt_name": "Baterijos modulis", "aliases_lt": ["celiu modulis"]},
+        {"id": "inverter_converter", "lt_name": "Inverteris / konverteris", "aliases_lt": ["inverteris", "dc dc"]},
+        {"id": "electric_motor", "lt_name": "Elektros variklis", "aliases_lt": ["e-motoras"]},
+        {"id": "charger_obc", "lt_name": "Įkroviklis OBC", "aliases_lt": ["on-board charger"]},
+        {"id": "charge_port", "lt_name": "Įkrovimo lizdas", "aliases_lt": ["krovimo jungtis"]},
+        {"id": "hv_cable", "lt_name": "Aukštos įtampos kabelis", "aliases_lt": ["oranžinis kabelis", "hv laidas"]}
+      ]
+    },
+    {
+      "id": "wiring_connectors_fasteners",
+      "lt_name": "Laidai, jungtys ir tvirtinimai",
+      "en_name": "Wiring, connectors and fasteners",
+      "storage_profile": "small_bin",
+      "aliases_lt": ["laidai", "fiskes", "jungtys", "laikikliai", "kronsteinai"],
+      "children": [
+        {"id": "wiring_harness", "lt_name": "Laidų pynė", "aliases_lt": ["pravodke", "laidynas"]},
+        {"id": "connector_plug", "lt_name": "Jungtis / fiškė", "aliases_lt": ["fiske", "jungtis"]},
+        {"id": "bracket_mount", "lt_name": "Laikiklis / kronšteinas", "aliases_lt": ["laikiklis", "kronsteinas"]},
+        {"id": "bolt_clip_fastener", "lt_name": "Varžtas / klipsas / tvirtinimas", "aliases_lt": ["varztas", "klipsas"]},
+        {"id": "hose_pipe", "lt_name": "Žarna / vamzdelis", "aliases_lt": ["slanga", "vamzdelis"]}
+      ]
+    }
+  ],
+  "mvp_mapping_examples": [
+    {"input_text": "priekinis desinys stiklo pakelejas su varikliuku", "category_id": "doors_windows_locks", "subcategory_id": "window_regulator", "side": "right", "position": "front_door", "storage_profile": "small_bin"},
+    {"input_text": "Aston Martin DBX issipletimo bakelis", "category_id": "cooling_hvac", "subcategory_id": "coolant_tank", "side": "none", "position": "engine_bay", "storage_profile": "medium_shelf"},
+    {"input_text": "galinis kairys purvasaugis", "category_id": "body_exterior", "subcategory_id": "wing_rear", "side": "left", "position": "rear", "storage_profile": "large_rack"},
+    {"input_text": "HV baterija Hyundai hybrid", "category_id": "hybrid_ev_high_voltage", "subcategory_id": "hv_battery_pack", "side": "none", "position": "underbody", "storage_profile": "hazard_safe"}
+  ]
+}
