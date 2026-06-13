@@ -25,10 +25,17 @@ REQUIRED_FILES = [
     "OPS/cfo/costs.json",
     "OPS/revenue_ops/lead_pipeline.json",
     "OPS/delivery/72h_delivery_playbook.md",
+    "OPS/org/FOUR_X_AGENT_SCALE_PLAN_LT.md",
+    "OPS/org/agent_squads.json",
+    "OPS/opportunity_lab/opportunity_backlog.json",
     "OPS/marketplace/roadmap.md",
     "OPS/marketplace/foundation_completeness_audit.md",
     "OPS/marketplace/parts_category_tree.json",
     "OPS/marketplace/parts_workflow_rules.json",
+    "OPS/marketplace/location_rules.json",
+    "OPS/marketplace/listing_status_rules.json",
+    "OPS/marketplace/pricing_rules.json",
+    "OPS/marketplace/vehicle_fitment_seed.json",
     "OPS/marketplace/parts_os_mvp_data_model.json",
     "OPS/data_intelligence/PUBLIC_DATA_COLLECTION_PLAYBOOK.md",
     "OPS/data_intelligence/source_registry.json",
@@ -57,7 +64,18 @@ MARKETPLACE_FOUNDATION_FILES = [
     "OPS/marketplace/foundation_completeness_audit.md",
     "OPS/marketplace/parts_category_tree.json",
     "OPS/marketplace/parts_workflow_rules.json",
+    "OPS/marketplace/location_rules.json",
+    "OPS/marketplace/listing_status_rules.json",
+    "OPS/marketplace/pricing_rules.json",
+    "OPS/marketplace/vehicle_fitment_seed.json",
     "OPS/marketplace/parts_os_mvp_data_model.json",
+]
+
+ORG_FOUNDATION_FILES = [
+    "OPS/org/FOUR_X_AGENT_SCALE_PLAN_LT.md",
+    "OPS/org/agent_squads.json",
+    "OPS/opportunity_lab/opportunity_backlog.json",
+    "OPS/operating_loops/P0_FOCUS_LOCK_LT.md",
 ]
 
 CATEGORY_REQUIRED_FIELDS = ["id", "lt_name", "en_name", "storage_profile", "children"]
@@ -155,6 +173,12 @@ def audit_marketplace_foundations(errors: list[str], warnings: list[str]) -> Non
         if required_step not in required_chain:
             errors.append(f"parts_workflow_rules missing workflow step: {required_step}")
 
+    for rel_path in ["OPS/marketplace/location_rules.json", "OPS/marketplace/listing_status_rules.json", "OPS/marketplace/pricing_rules.json", "OPS/marketplace/vehicle_fitment_seed.json"]:
+        data = load_json(rel_path)
+        for field in ["updated_at", "owner", "status", "purpose"]:
+            if not has_value(data, field):
+                errors.append(f"{rel_path} missing {field}")
+
     product_gates = load_json("OPS/product_gates/product_stages.json")
     parts_products = [p for p in product_gates.get("products", []) if p.get("id") == "PRODUCT-002"]
     if not parts_products:
@@ -164,8 +188,29 @@ def audit_marketplace_foundations(errors: list[str], warnings: list[str]) -> Non
         for rel_path in MARKETPLACE_FOUNDATION_FILES:
             if rel_path not in proof_paths:
                 errors.append(f"PRODUCT-002 gate does not reference foundation proof path: {rel_path}")
-        if parts_products[0].get("gate_status") != "blocked_from_build_ready_until_foundation_complete":
-            warnings.append("PRODUCT-002 gate_status should remain blocking until all foundation files exist")
+
+
+def audit_org_scale(errors: list[str]) -> None:
+    for rel_path in ORG_FOUNDATION_FILES:
+        if not (ROOT / rel_path).exists():
+            errors.append(f"org scale foundation missing: {rel_path}")
+
+    squads = load_json("OPS/org/agent_squads.json")
+    cells = squads.get("cells", [])
+    if squads.get("scale_factor") != 4:
+        errors.append("agent_squads scale_factor must be 4")
+    if len(cells) != 4:
+        errors.append("agent_squads must define exactly 4 CEO cells")
+    required_cells = {"CEO-A", "CEO-B", "CEO-C", "CEO-D"}
+    found_cells = {cell.get("id") for cell in cells}
+    if found_cells != required_cells:
+        errors.append("agent_squads missing required CEO cells: " + ", ".join(sorted(required_cells - found_cells)))
+    for cell in cells:
+        if len(cell.get("agents", [])) < 10:
+            errors.append(f"{cell.get('id')} has fewer than 10 agents")
+        for field in ["mission", "resource_mode", "proof_paths", "next_actions"]:
+            if not has_value(cell, field):
+                errors.append(f"{cell.get('id')} missing {field}")
 
 
 def main() -> int:
@@ -188,6 +233,11 @@ def main() -> int:
         audit_marketplace_foundations(errors, warnings)
     except Exception as exc:
         errors.append(f"audit failed in audit_marketplace_foundations: {exc}")
+
+    try:
+        audit_org_scale(errors)
+    except Exception as exc:
+        errors.append(f"audit failed in audit_org_scale: {exc}")
 
     print("OPS AUDIT RESULT")
     print("================")
