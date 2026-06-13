@@ -7,7 +7,8 @@
     "No sell without offer, CFO margin check and delivery scope.",
     "No deploy without QA, health check and rollback note.",
     "No maintenance promise without support boundary and price.",
-    "No stage may advance on documents alone when a demo proof can be created."
+    "No stage may advance on documents alone when a demo proof can be created.",
+    "No public financial guidance product without legal/compliance review and risk wording guardrails."
   ],
   "products": [
     {
@@ -45,6 +46,18 @@
       "gate_status": "local_demo_ready_public_hosting_pending",
       "required_before_next_gate": ["dynamic OPS JSON loading", "manual QA pass", "public hosting path", "screenshot or recording proof", "Judge review"],
       "proof_paths": ["products/ceo-cockpit/index.html", "products/ceo-cockpit/README.md", "OPS/deploy_loop/deploy_sop.md", "OPS/qa/ops_audit_checklist.md"]
+    },
+    {
+      "id": "PRODUCT-004",
+      "name": "Android Market Advisor App",
+      "current_stage": "validated_problem",
+      "next_gate": "build_ready",
+      "owner": "PRODUCT-INVEST-1 Market Intelligence PM + CTO-1 Product Factory Architect",
+      "buyer": "internal investor needing structured market monitoring, risk states, scenario planning and alerts",
+      "value_proposition": "Android app that watches gold, ETF, oil and macro indicators, explains market states, keeps a decision journal and sends review alerts without executing trades.",
+      "gate_status": "internal_build_allowed_only_no_public_advice_no_execution",
+      "required_before_next_gate": ["MVP screens defined", "sample watchlist defined", "data source plan written", "risk wording guardrails approved", "no broker execution confirmed", "CFO data cost estimate written", "first UI prototype task created"],
+      "proof_paths": ["OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md", "OPS/cfo/costs.json", "OPS/security/AI_AGENT_SECURITY_POLICY_LT.md", "products/investment-advisor-app/"]
     }
   ]
 }
