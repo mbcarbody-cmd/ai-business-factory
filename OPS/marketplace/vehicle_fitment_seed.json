@@ -1,0 +1,29 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "Fitment Agent-A6 / Vehicle Compatibility Owner",
+  "status": "v0_1_seed_foundation",
+  "purpose": "Seed model for vehicle compatibility so fitment is not uncontrolled free text.",
+  "required_vehicle_fields": ["make", "model", "generation", "year_from", "year_to", "body", "engine", "fuel", "drive", "transmission", "rhd_lhd_specific"],
+  "fitment_confidence_values": ["high", "medium", "low", "manual_review"],
+  "rhd_lhd_rules": [
+    "dashboard, steering, pedals, some lights, mirrors, door modules and wiper parts may be RHD/LHD specific",
+    "safety parts require side and market verification",
+    "body panels are usually less RHD/LHD sensitive but still require side/position check"
+  ],
+  "seed_vehicles": [
+    {"id": "VEH-001", "make": "Aston Martin", "model": "DBX", "generation": "DBX 1", "year_from": 2020, "year_to": null, "body": "SUV", "engine": "4.0 petrol", "fuel": "petrol", "drive": "AWD", "transmission": "automatic", "rhd_lhd_specific": "some_parts"},
+    {"id": "VEH-002", "make": "Mazda", "model": "MX-5", "generation": "ND", "year_from": 2015, "year_to": null, "body": "roadster", "engine": "petrol", "fuel": "petrol", "drive": "RWD", "transmission": "manual_or_auto", "rhd_lhd_specific": "some_parts"},
+    {"id": "VEH-003", "make": "Hyundai", "model": "Tucson", "generation": "NX4", "year_from": 2021, "year_to": null, "body": "SUV", "engine": "1.6 hybrid", "fuel": "hybrid", "drive": "FWD_or_AWD", "transmission": "automatic", "rhd_lhd_specific": "some_parts"},
+    {"id": "VEH-004", "make": "Genesis", "model": "GV70", "generation": "JK1", "year_from": 2021, "year_to": null, "body": "SUV", "engine": "petrol_diesel_ev", "fuel": "mixed", "drive": "RWD_or_AWD", "transmission": "automatic", "rhd_lhd_specific": "some_parts"}
+  ],
+  "manual_review_triggers": [
+    "generation_unknown",
+    "year_conflict",
+    "part_number_prefix_conflict",
+    "rhd_lhd_specific_unknown",
+    "facelift_unclear",
+    "hybrid_ev_variant_unclear",
+    "side_or_position_conflict"
+  ],
+  "outputs": ["vehicle_id", "fitment_text", "fitment_confidence", "manual_review_reason"]
+}
