@@ -17,6 +17,7 @@ REQUIRED_FILES = [
     "OPS/CORE_OS_STATUS.md",
     "OPS/task_board.json",
     "OPS/task_board_v2.json",
+    "OPS/TASK_BOARD/mass_scale_tasks_2026_06_14.json",
     "OPS/agent_memory/README.md",
     "OPS/competitor_intelligence/competitors.json",
     "OPS/product_gates/product_stages.json",
@@ -27,6 +28,7 @@ REQUIRED_FILES = [
     "OPS/delivery/72h_delivery_playbook.md",
     "OPS/org/FOUR_X_AGENT_SCALE_PLAN_LT.md",
     "OPS/org/agent_squads.json",
+    "OPS/org/mass_agent_scale_directive_2026_06_14.json",
     "OPS/opportunity_lab/opportunity_backlog.json",
     "OPS/marketplace/roadmap.md",
     "OPS/marketplace/foundation_completeness_audit.md",
@@ -45,19 +47,19 @@ REQUIRED_FILES = [
 
 TASK_REQUIRED_FIELDS = [
     "id", "title", "layer", "owner", "status", "priority",
-    "next_role", "next_action", "output_path", "done_proof"
+    "next_role", "next_action", "output_path", "done_proof",
 ]
 
 TASK_V2_REQUIRED_FIELDS = [
     "id", "title", "layer", "owner", "status", "priority", "deadline",
     "money_path_or_strategic_reason", "next_role", "next_action", "blocker",
     "fallback_next_task", "output_path", "done_proof", "proof_status",
-    "proof_verified_by"
+    "proof_verified_by",
 ]
 
 BUG_REQUIRED_FIELDS = [
     "id", "product", "workflow", "severity", "status", "owner",
-    "expected", "actual", "next_action", "proof_path"
+    "expected", "actual", "next_action", "proof_path",
 ]
 
 MARKETPLACE_FOUNDATION_FILES = [
@@ -74,6 +76,8 @@ MARKETPLACE_FOUNDATION_FILES = [
 ORG_FOUNDATION_FILES = [
     "OPS/org/FOUR_X_AGENT_SCALE_PLAN_LT.md",
     "OPS/org/agent_squads.json",
+    "OPS/org/mass_agent_scale_directive_2026_06_14.json",
+    "OPS/TASK_BOARD/mass_scale_tasks_2026_06_14.json",
     "OPS/opportunity_lab/opportunity_backlog.json",
     "OPS/operating_loops/P0_FOCUS_LOCK_LT.md",
 ]
@@ -81,7 +85,7 @@ ORG_FOUNDATION_FILES = [
 CATEGORY_REQUIRED_FIELDS = ["id", "lt_name", "en_name", "storage_profile", "children"]
 PART_REQUIRED_FIELDS_AFTER_FOUNDATION = [
     "category_id", "subcategory_id", "storage_profile", "listing_status",
-    "pricing_confidence", "pricing_reason", "fitment_confidence"
+    "pricing_confidence", "pricing_reason", "fitment_confidence",
 ]
 
 
@@ -173,7 +177,12 @@ def audit_marketplace_foundations(errors: list[str], warnings: list[str]) -> Non
         if required_step not in required_chain:
             errors.append(f"parts_workflow_rules missing workflow step: {required_step}")
 
-    for rel_path in ["OPS/marketplace/location_rules.json", "OPS/marketplace/listing_status_rules.json", "OPS/marketplace/pricing_rules.json", "OPS/marketplace/vehicle_fitment_seed.json"]:
+    for rel_path in [
+        "OPS/marketplace/location_rules.json",
+        "OPS/marketplace/listing_status_rules.json",
+        "OPS/marketplace/pricing_rules.json",
+        "OPS/marketplace/vehicle_fitment_seed.json",
+    ]:
         data = load_json(rel_path)
         for field in ["updated_at", "owner", "status", "purpose"]:
             if not has_value(data, field):
@@ -213,9 +222,37 @@ def audit_org_scale(errors: list[str]) -> None:
                 errors.append(f"{cell.get('id')} missing {field}")
 
 
+def audit_mass_scale(errors: list[str]) -> None:
+    directive = load_json("OPS/org/mass_agent_scale_directive_2026_06_14.json")
+    cohorts = directive.get("requested_cohorts", [])
+    total = sum(int(cohort.get("requested_increment", 0)) for cohort in cohorts)
+    if directive.get("status") != "active":
+        errors.append("mass scale directive must be active")
+    if directive.get("total_requested_increment") != 4009:
+        errors.append("mass scale directive total_requested_increment must be 4009")
+    if total != 4009:
+        errors.append(f"mass scale cohort sum must be 4009, got {total}")
+    if len(cohorts) != 8:
+        errors.append("mass scale directive must define exactly 8 requested cohorts")
+    for cohort in cohorts:
+        for field in ["id", "layer", "requested_increment", "role_mix", "routing", "success_metric"]:
+            if not has_value(cohort, field):
+                errors.append(f"mass scale cohort {cohort.get('id', '<unknown>')} missing {field}")
+
+    manifest = load_json("OPS/TASK_BOARD/mass_scale_tasks_2026_06_14.json")
+    tasks = manifest.get("tasks", [])
+    if len(tasks) != 8:
+        errors.append("mass scale task manifest must define 8 scale tasks")
+    for task in tasks:
+        missing = [field for field in TASK_REQUIRED_FIELDS if not has_value(task, field)]
+        if missing:
+            errors.append(f"mass scale task {task.get('id', '<unknown>')} missing fields: {', '.join(missing)}")
+
+
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
+
     audit_required_files(errors)
 
     for fn in (audit_task_board, audit_bug_board):
@@ -224,20 +261,16 @@ def main() -> int:
         except Exception as exc:
             errors.append(f"audit failed in {fn.__name__}: {exc}")
 
-    try:
-        audit_task_board_v2(errors)
-    except Exception as exc:
-        errors.append(f"audit failed in audit_task_board_v2: {exc}")
+    for fn in (audit_task_board_v2, audit_org_scale, audit_mass_scale):
+        try:
+            fn(errors)
+        except Exception as exc:
+            errors.append(f"audit failed in {fn.__name__}: {exc}")
 
     try:
         audit_marketplace_foundations(errors, warnings)
     except Exception as exc:
         errors.append(f"audit failed in audit_marketplace_foundations: {exc}")
-
-    try:
-        audit_org_scale(errors)
-    except Exception as exc:
-        errors.append(f"audit failed in audit_org_scale: {exc}")
 
     print("OPS AUDIT RESULT")
     print("================")
