@@ -1,0 +1,32 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "Warehouse Agent-A3 / Location and Capacity Logic Owner",
+  "status": "v0_1_foundation",
+  "purpose": "Rules for suggesting where a used part should be stored after intake and category mapping.",
+  "inputs_required": ["category_id", "subcategory_id", "storage_profile", "dimensions", "weight", "hazard_flag", "current_occupancy_percent", "allowed_category_ids", "allowed_storage_profiles"],
+  "storage_profile_rules": {
+    "small_bin": {"preferred_location_type": "shelf_bin", "max_occupancy_percent": 90, "fallback": "pending_small_bin"},
+    "medium_shelf": {"preferred_location_type": "shelf", "max_occupancy_percent": 85, "fallback": "pending_medium_shelf"},
+    "large_rack": {"preferred_location_type": "rack", "max_occupancy_percent": 80, "fallback": "pending_large_rack"},
+    "heavy_floor": {"preferred_location_type": "floor_or_pallet", "max_occupancy_percent": 75, "fallback": "pending_heavy_floor"},
+    "fragile_vertical": {"preferred_location_type": "protected_vertical", "max_occupancy_percent": 70, "fallback": "pending_fragile"},
+    "hazard_safe": {"preferred_location_type": "safe_zone", "max_occupancy_percent": 70, "fallback": "pending_safe_review"}
+  },
+  "decision_order": [
+    "match allowed_storage_profiles",
+    "match allowed_category_ids",
+    "exclude blocked_category_ids",
+    "exclude over capacity locations",
+    "prefer lowest occupancy",
+    "prefer same zone for same vehicle when available",
+    "return suggested_location_id and fallback_location_id",
+    "send to pending_location_queue if no safe match"
+  ],
+  "blockers": [
+    "missing_category_id",
+    "missing_storage_profile",
+    "hazard_part_without_safe_zone",
+    "all_matching_locations_over_capacity"
+  ],
+  "outputs": ["suggested_location_id", "fallback_location_id", "location_reason", "pending_location_reason"]
+}
