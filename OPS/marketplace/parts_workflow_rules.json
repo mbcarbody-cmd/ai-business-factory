@@ -1,0 +1,75 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "MARKET-2 Warehouse Autonomy Director",
+  "status": "v0_1_required_foundation",
+  "purpose": "Explicit rules for the first Parts Seller OS workflow so agents do not treat documents as working product proof.",
+  "workflow_chain": [
+    "part_intake",
+    "category_mapping",
+    "vehicle_fitment",
+    "side_position_condition",
+    "location_suggestion",
+    "pricing_decision",
+    "listing_readiness",
+    "reservation_or_order",
+    "ageing_dead_stock_action"
+  ],
+  "rules": {
+    "part_intake": {
+      "required_inputs": ["part_number_or_clear_description", "vehicle_make", "vehicle_model", "condition", "photos_or_no_photo_reason"],
+      "block_if_missing": ["part_number_or_clear_description", "condition"],
+      "output": "part_draft"
+    },
+    "category_mapping": {
+      "source_of_truth": "OPS/marketplace/parts_category_tree.json",
+      "required_outputs": ["category_id", "subcategory_id", "storage_profile"],
+      "block_if_missing": ["category_id"],
+      "manual_review_if": ["no_subcategory_match", "ambiguous_description"]
+    },
+    "vehicle_fitment": {
+      "required_outputs": ["vehicle_id_or_fitment_text", "fitment_confidence"],
+      "manual_review_if": ["generation_unknown", "model_year_conflict", "rhd_lhd_specific_part"]
+    },
+    "side_position_condition": {
+      "required_outputs": ["side", "position", "condition_grade"],
+      "allowed_side_values_file": "OPS/marketplace/parts_category_tree.json",
+      "manual_review_if": ["side_conflict", "position_conflict", "condition_unclear"]
+    },
+    "location_suggestion": {
+      "inputs": ["storage_profile", "dimensions", "weight", "allowed_categories", "occupancy_percent"],
+      "required_outputs": ["suggested_location_id", "fallback_location_id", "location_reason"],
+      "send_to_pending_if": ["no_matching_location", "location_over_capacity", "hazard_safe_without_safe_zone"]
+    },
+    "pricing_decision": {
+      "inputs": ["purchase_cost", "part_number", "category_id", "condition_grade", "competitor_prices", "rarity_signal"],
+      "required_outputs": ["price", "floor_price", "pricing_confidence", "pricing_reason"],
+      "manual_review_if": ["no_comps", "rare_part", "price_below_floor", "high_value_part"]
+    },
+    "listing_readiness": {
+      "required_outputs": ["listing_status", "quality_warnings"],
+      "ready_to_publish_if": ["title_exists", "price_exists", "category_id_exists", "location_or_pending_exception_exists", "photo_exists_or_allowed_no_photo_exception"],
+      "block_if": ["no_price", "no_category_id", "no_title", "missing_photo_without_exception"]
+    },
+    "reservation_or_order": {
+      "required_outputs": ["reservation_status", "reserved_until_or_order_id"],
+      "block_if": ["part_already_reserved", "part_sold", "location_unknown_for_pick"]
+    },
+    "ageing_dead_stock_action": {
+      "inputs": ["created_at", "views", "inquiries", "price_changes", "liquidity_score"],
+      "required_outputs": ["ageing_action"],
+      "allowed_actions": ["keep", "discount", "promote", "bundle", "manual_review", "scrap_or_clearance"]
+    }
+  },
+  "proof_required_for_done": {
+    "minimum_demo_records": 3,
+    "must_show": [
+      "one ready_to_publish part",
+      "one needs_photo part",
+      "one manual_pricing_review part",
+      "one suggested location",
+      "one pending-location fallback",
+      "one pricing reason",
+      "one ageing action"
+    ]
+  }
+}
