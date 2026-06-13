@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "Listing Agent-A5 / Listing Readiness Owner",
+  "status": "v0_1_foundation",
+  "purpose": "Rules that decide whether a part can be listed, needs more data, needs photo, needs pricing review or must be held.",
+  "statuses": ["draft", "needs_category", "needs_photo", "needs_price", "manual_pricing_review", "pending_location", "ready_to_publish", "reserved", "sold", "hold"],
+  "required_for_ready_to_publish": [
+    "part_number_or_clear_description",
+    "category_id",
+    "subcategory_id",
+    "side_or_none",
+    "position_or_none",
+    "condition_grade",
+    "price",
+    "floor_price",
+    "location_id_or_pending_exception",
+    "photo_or_allowed_no_photo_exception",
+    "title"
+  ],
+  "decision_rules": [
+    {"if_missing": "category_id", "status": "needs_category", "reason": "Cannot publish without canonical category."},
+    {"if_missing": "photo", "status": "needs_photo", "reason": "Photo required unless no-photo exception is approved."},
+    {"if_missing": "price", "status": "needs_price", "reason": "Listing requires visible price."},
+    {"if": "pricing_confidence_low_or_rare_part", "status": "manual_pricing_review", "reason": "Rare or uncertain price requires review."},
+    {"if_missing": "location_id", "status": "pending_location", "reason": "Part cannot be picked reliably without location."},
+    {"if": "all_required_fields_present", "status": "ready_to_publish", "reason": "Ready for channel listing."}
+  ],
+  "quality_warnings": ["missing_alt_part_numbers", "weak_title", "no_vehicle_generation", "rhd_lhd_unclear", "condition_unclear", "price_above_market", "price_below_floor"],
+  "outputs": ["listing_status", "quality_warnings", "listing_blocker", "next_action"]
+}
