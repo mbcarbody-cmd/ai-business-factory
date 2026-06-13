@@ -6,7 +6,8 @@
     "No build without validated buyer pain and first MVP slice.",
     "No sell without offer, CFO margin check and delivery scope.",
     "No deploy without QA, health check and rollback note.",
-    "No maintenance promise without support boundary and price."
+    "No maintenance promise without support boundary and price.",
+    "No stage may advance on documents alone when a demo proof can be created."
   ],
   "products": [
     {
@@ -19,7 +20,7 @@
       "value_proposition": "A 72h done-for-you business automation pilot with landing, intake, helper workflow, QA and handoff.",
       "gate_status": "allowed_to_sell_with_scope_lock",
       "required_before_next_gate": ["delivery intake template completed", "72h delivery playbook confirmed", "QA critic checklist completed", "CFO margin checked", "offer pack aligned with sales messages", "one dry-run or first paid-pilot handoff saved"],
-      "proof_paths": ["products/ai-agent-setup/", "OPS/delivery/72h_delivery_playbook.md", "OPS/revenue_ops/offer_pack.md", "OPS/cfo/costs.json", "OPS/qa/bug_board.json"]
+      "proof_paths": ["website/", "OPS/delivery/72h_delivery_playbook.md", "OPS/revenue_ops/offer_pack.md", "OPS/cfo/costs.json", "OPS/qa/bug_board.json"]
     },
     {
       "id": "PRODUCT-002",
@@ -36,14 +37,14 @@
     {
       "id": "PRODUCT-003",
       "name": "CEO Cockpit Demo",
-      "current_stage": "build_ready",
-      "next_gate": "demo_ready",
+      "current_stage": "demo_ready",
+      "next_gate": "qa_ready",
       "owner": "CTO-1 Product Factory Architect",
       "buyer": "internal operator and future SMB buyer who needs visible control of tasks, leads, cost and blockers",
-      "value_proposition": "A simple dashboard showing task board, revenue pipeline, CFO cost controls and QA blockers.",
-      "gate_status": "must_build_next",
-      "required_before_next_gate": ["read task_board.json", "read lead_pipeline.json", "read costs.json", "read bug_board.json", "show four KPI cards", "document run command and smoke test"],
-      "proof_paths": ["products/ceo-cockpit/", "OPS/task_board.json", "OPS/revenue_ops/lead_pipeline.json", "OPS/cfo/costs.json", "OPS/qa/bug_board.json", "OPS/deploy_loop/deploy_sop.md"]
+      "value_proposition": "A simple dashboard showing task control, QA, revenue, CFO and next actions.",
+      "gate_status": "local_demo_ready_public_hosting_pending",
+      "required_before_next_gate": ["dynamic OPS JSON loading", "manual QA pass", "public hosting path", "screenshot or recording proof", "Judge review"],
+      "proof_paths": ["products/ceo-cockpit/index.html", "products/ceo-cockpit/README.md", "OPS/deploy_loop/deploy_sop.md", "OPS/qa/ops_audit_checklist.md"]
     }
   ]
 }
