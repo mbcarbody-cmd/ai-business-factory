@@ -1,0 +1,35 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "Pricing Agent-A4 / Used Parts Pricing Logic Owner",
+  "status": "v0_1_foundation",
+  "purpose": "Rules for used parts price, floor price, confidence and manual review decisions.",
+  "inputs_required": ["purchase_cost", "part_number", "category_id", "subcategory_id", "condition_grade", "competitor_prices", "rarity_signal", "liquidity_score"],
+  "condition_multipliers": {
+    "new_other": 1.0,
+    "used_excellent": 0.85,
+    "used_good": 0.7,
+    "used_scratched": 0.55,
+    "damaged_repairable": 0.35,
+    "unknown": 0.45
+  },
+  "floor_price_rules": [
+    "floor_price must be above purchase_cost unless clearance approved",
+    "floor_price must include minimum margin target when known",
+    "high-value parts require manual review before floor reduction"
+  ],
+  "pricing_confidence_rules": {
+    "high": "3 or more relevant competitor prices and clear condition match",
+    "medium": "1-2 competitor prices or similar category match",
+    "low": "no direct comps, rare part, unclear condition or conflicting fitment"
+  },
+  "manual_review_triggers": [
+    "pricing_confidence_low",
+    "rare_part",
+    "price_below_floor",
+    "price_above_2x_market_median",
+    "purchase_cost_missing",
+    "luxury_or_ev_high_value_part",
+    "airbag_or_high_voltage_part"
+  ],
+  "outputs": ["price", "floor_price", "pricing_confidence", "pricing_reason", "manual_review_reason"]
+}
