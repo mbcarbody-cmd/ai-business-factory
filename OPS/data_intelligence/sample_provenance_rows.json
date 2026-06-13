@@ -1,0 +1,29 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CI-1 Market Spy Chief",
+  "rows": [
+    {
+      "row_id": "SRC-SAMPLE-001",
+      "data_type": "tool_page",
+      "entity": "workflow tool sample",
+      "source_url": "https://example.com/sample",
+      "collected_at": "2026-06-13T11:00:00+03:00",
+      "method": "manual_sample",
+      "confidence": "sample_only",
+      "target_path": "OPS/competitor_intelligence/competitors.json",
+      "next_action": "replace with verified public source"
+    },
+    {
+      "row_id": "SRC-SAMPLE-002",
+      "data_type": "company_page",
+      "entity": "local service sample",
+      "source_url": "https://example.com/company",
+      "collected_at": "2026-06-13T11:00:00+03:00",
+      "method": "manual_sample",
+      "confidence": "sample_only",
+      "target_path": "OPS/revenue_ops/lead_pipeline.json",
+      "next_action": "replace with exact public company row"
+    }
+  ],
+  "done_proof": "Rows demonstrate required provenance fields before real collection."
+}
