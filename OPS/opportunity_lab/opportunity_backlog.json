@@ -1,0 +1,48 @@
+{
+  "updated_at": "2026-06-13",
+  "owner": "CEO-D / Opportunity Lab General Manager",
+  "status": "active_backlog_only",
+  "rule": "New opportunities are captured and scored here. They do not become active build work until promoted by product gate, CFO value case and P0 impact review.",
+  "promotion_requirements": [
+    "buyer_defined",
+    "pain_defined",
+    "72h_mvp_defined",
+    "money_path_defined",
+    "proof_path_defined",
+    "cfo_value_case_defined",
+    "p0_impact_reviewed"
+  ],
+  "statuses": ["captured", "research", "validated", "promote_candidate", "rejected", "parked"],
+  "opportunities": [
+    {
+      "id": "OPP-001",
+      "name": "AI Ads Factory",
+      "status": "parked",
+      "owner": "CEO-D / Opportunity Lab General Manager",
+      "reason": "Potential revenue product, but active build capacity remains focused on Parts Seller OS and first paid pilot.",
+      "next_action": "Keep as backlog until P0 prototype proof improves or CEO-B needs an offer variant.",
+      "proof_path": "OPS/monetization/ai_ads_factory_mvp.md",
+      "p0_impact": "must not consume CEO-A build capacity"
+    },
+    {
+      "id": "OPP-002",
+      "name": "YouTube Content Engine",
+      "status": "parked",
+      "owner": "CEO-D / Opportunity Lab General Manager",
+      "reason": "Longer monetization path; lower priority than direct paid pilot.",
+      "next_action": "Store ideas only; no active build until revenue loop works.",
+      "proof_path": "OPS/monetization/youtube_content_engine.md",
+      "p0_impact": "no active build allocation"
+    },
+    {
+      "id": "OPP-003",
+      "name": "Investment Advisor App",
+      "status": "parked",
+      "owner": "CEO-D / Opportunity Lab General Manager",
+      "reason": "Requires careful data and risk wording; not first revenue path.",
+      "next_action": "Keep internal spec only; do not consume P0 build resources.",
+      "proof_path": "OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md",
+      "p0_impact": "blocked from active build until Parts Seller OS prototype exists"
+    }
+  ]
+}
