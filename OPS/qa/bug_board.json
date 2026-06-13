@@ -1,13 +1,64 @@
 {
-  "updated_at": "2026-06-12",
+  "updated_at": "2026-06-13",
   "owner": "CTO-3 Systems Reliability Breaker",
   "severity_levels": ["critical", "high", "medium", "low"],
   "statuses": ["open", "in_progress", "fixed", "accepted", "closed"],
-  "bugs": [],
+  "release_block_rule": "Critical items block deploy. High items require Judge approval before delivery.",
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "product": "CEO cockpit / AI Agent Setup",
+      "workflow": "demo and sales proof",
+      "severity": "high",
+      "status": "open",
+      "owner": "CTO-2 DevOps Commander",
+      "expected": "A working cockpit shows tasks, leads, costs and blockers.",
+      "actual": "No public demo path is recorded yet.",
+      "next_action": "Build CEO cockpit demo and add health check, smoke test and rollback notes.",
+      "proof_path": "OPS/deploy_loop/deploy_sop.md"
+    },
+    {
+      "id": "BUG-002",
+      "product": "Revenue operations",
+      "workflow": "lead pipeline",
+      "severity": "high",
+      "status": "open",
+      "owner": "CRO-2 Outbound Conversion Director",
+      "expected": "Pipeline has exact companies, contacts, outreach state and follow-up dates.",
+      "actual": "Pipeline has 30 seed targets but exact contact data is still missing.",
+      "next_action": "Replace seed targets with exact companies/contact channels and send first messages.",
+      "proof_path": "OPS/revenue_ops/lead_pipeline.json"
+    },
+    {
+      "id": "BUG-003",
+      "product": "Competitor intelligence",
+      "workflow": "market teardown",
+      "severity": "medium",
+      "status": "open",
+      "owner": "CI-2 Pricing & Offer Analyst",
+      "expected": "20 competitors have verified public offer, price, CTA, weakness and exploitable gap.",
+      "actual": "20 seed competitor rows exist, but pricing/CTA verification is still required.",
+      "next_action": "Verify public pages/prices and change validation_status to verified or stale.",
+      "proof_path": "OPS/competitor_intelligence/competitors.json"
+    },
+    {
+      "id": "BUG-004",
+      "product": "Parts Seller OS",
+      "workflow": "MVP build gate",
+      "severity": "medium",
+      "status": "open",
+      "owner": "MARKET-2 Warehouse Autonomy Director",
+      "expected": "Seller OS has data model and first workflow before build starts.",
+      "actual": "Roadmap exists; data model file must be used as build contract.",
+      "next_action": "Use parts_os_mvp_data_model.json as the first build contract.",
+      "proof_path": "OPS/marketplace/parts_os_mvp_data_model.json"
+    }
+  ],
   "rules": [
-    "Open critical bug blocks deploy and sales.",
-    "High bug requires Judge approval before delivery.",
-    "Every bug must have product, workflow, severity, owner, expected, actual and next action."
+    "Open critical item blocks deploy and sales.",
+    "High item requires Judge approval before delivery.",
+    "Every item must have product, workflow, severity, owner, expected, actual and next action.",
+    "Operational blockers count as real QA when they block revenue, delivery or deploy."
   ],
   "bug_template": {
     "id": "BUG-000",
@@ -15,11 +66,9 @@
     "workflow": "",
     "severity": "",
     "status": "open",
-    "reported_by": "",
     "owner": "",
     "expected": "",
     "actual": "",
-    "steps_to_reproduce": [],
     "next_action": "",
     "proof_path": ""
   }
