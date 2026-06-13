@@ -1,16 +1,12 @@
 {
-  "updated_at": "2026-06-12",
+  "updated_at": "2026-06-13",
   "owner": "JUDGE-1 Release Gate Judge",
-  "stages": [
-    "idea",
-    "validated_problem",
-    "build_ready",
-    "demo_ready",
-    "qa_ready",
-    "deploy_ready",
-    "sell_ready",
-    "delivery_ready",
-    "maintenance_ready"
+  "stages": ["idea", "validated_problem", "build_ready", "demo_ready", "qa_ready", "deploy_ready", "sell_ready", "delivery_ready", "maintenance_ready"],
+  "gate_rules": [
+    "No build without validated buyer pain and first MVP slice.",
+    "No sell without offer, CFO margin check and delivery scope.",
+    "No deploy without QA, health check and rollback note.",
+    "No maintenance promise without support boundary and price."
   ],
   "products": [
     {
@@ -19,40 +15,35 @@
       "current_stage": "sell_ready",
       "next_gate": "delivery_ready",
       "owner": "CTO-1 Product Factory Architect",
-      "buyer": "small business owner needing simple automation setup",
-      "value_proposition": "A 72h done-for-you business automation pilot with landing, intake, outreach and handoff.",
-      "required_before_next_gate": [
-        "delivery intake template completed",
-        "72h delivery playbook confirmed",
-        "QA critic checklist completed",
-        "CFO margin checked",
-        "offer pack aligned with sales messages"
-      ],
-      "proof_paths": [
-        "products/ai-agent-setup/",
-        "OPS/delivery/72h_delivery_playbook.md",
-        "OPS/revenue_ops/offer_pack.md",
-        "OPS/cfo/pricing_logic.md"
-      ]
+      "buyer": "small business owner needing one simple automation setup",
+      "value_proposition": "A 72h done-for-you business automation pilot with landing, intake, helper workflow, QA and handoff.",
+      "gate_status": "allowed_to_sell_with_scope_lock",
+      "required_before_next_gate": ["delivery intake template completed", "72h delivery playbook confirmed", "QA critic checklist completed", "CFO margin checked", "offer pack aligned with sales messages", "one dry-run or first paid-pilot handoff saved"],
+      "proof_paths": ["products/ai-agent-setup/", "OPS/delivery/72h_delivery_playbook.md", "OPS/revenue_ops/offer_pack.md", "OPS/cfo/costs.json", "OPS/qa/bug_board.json"]
     },
     {
       "id": "PRODUCT-002",
       "name": "Parts Commerce OS",
-      "current_stage": "idea",
-      "next_gate": "validated_problem",
+      "current_stage": "validated_problem",
+      "next_gate": "build_ready",
       "owner": "MARKET-1 Marketplace General Manager",
       "buyer": "used parts seller/dismantler needing inventory, location, pricing and listing control",
       "value_proposition": "Internal inventory and pricing OS that can later become a marketplace module stack.",
-      "required_before_next_gate": [
-        "seller workflow mapped",
-        "part/location/listing/order entities defined",
-        "first MVP slice selected",
-        "competitor gap checked"
-      ],
-      "proof_paths": [
-        "OPS/marketplace/roadmap.md",
-        "OPS/competitor_intelligence/gap_map.md"
-      ]
+      "gate_status": "build_allowed_only_for_first_seller_os_slice",
+      "required_before_next_gate": ["seller workflow mapped", "part/location/listing/order entities defined", "first MVP slice selected", "competitor gap checked", "CFO value case written", "internal dry-run selected"],
+      "proof_paths": ["OPS/marketplace/roadmap.md", "OPS/marketplace/parts_os_mvp_data_model.json", "OPS/competitor_intelligence/competitors.json", "OPS/cfo/costs.json"]
+    },
+    {
+      "id": "PRODUCT-003",
+      "name": "CEO Cockpit Demo",
+      "current_stage": "build_ready",
+      "next_gate": "demo_ready",
+      "owner": "CTO-1 Product Factory Architect",
+      "buyer": "internal operator and future SMB buyer who needs visible control of tasks, leads, cost and blockers",
+      "value_proposition": "A simple dashboard showing task board, revenue pipeline, CFO cost controls and QA blockers.",
+      "gate_status": "must_build_next",
+      "required_before_next_gate": ["read task_board.json", "read lead_pipeline.json", "read costs.json", "read bug_board.json", "show four KPI cards", "document run command and smoke test"],
+      "proof_paths": ["products/ceo-cockpit/", "OPS/task_board.json", "OPS/revenue_ops/lead_pipeline.json", "OPS/cfo/costs.json", "OPS/qa/bug_board.json", "OPS/deploy_loop/deploy_sop.md"]
     }
   ]
 }
