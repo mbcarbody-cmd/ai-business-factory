@@ -22,7 +22,7 @@
     "ai_master_candidate_reviewed": true,
     "ai_master_status": "parked_due_paywall",
     "paid_ai_tools_blocked_without_benchmark": true,
-    "working_micro_app_prototypes_shipped_today": 3,
+    "working_micro_app_prototypes_shipped_today": 4,
     "product_factory_accountability_note_created": true,
     "android_wrapper_candidate_selected": "products/auto-parts-title-generator-pwa/",
     "service_worker_file_created_for_android_candidate": true,
@@ -74,7 +74,7 @@
     "EU seller coverage target is defined but not fully populated to 50 rows yet."
   ],
   "next_best_actions": [
-    "Host Date Spark, Market Pulse and Auto Parts Title Generator as static demos.",
+    "Host Date Spark, Market Pulse, Auto Parts Title Generator and Auto Parts Price Check as static demos.",
     "Apply SERVICE_WORKER_REGISTRATION_PATCH.md to Auto Parts Title Generator index.html and test Android Chrome install flow.",
     "Package first APK/TWA for Auto Parts Title Generator.",
     "Move 5 queued injections to synced by updating target project artifacts.",
