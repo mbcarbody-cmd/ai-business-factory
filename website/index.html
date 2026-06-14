@@ -3,68 +3,196 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Agent Setup mažam verslui</title>
+  <title>Parts Seller OS — autodalių pardavimo sistema</title>
   <style>
-    body{margin:0;font-family:Arial,system-ui,sans-serif;background:#07111f;color:#eaf2ff}
-    .wrap{max-width:1050px;margin:auto;padding:42px 20px}
-    .hero{padding:64px 0}.badge{display:inline-block;background:#14365f;border:1px solid #2b78d0;border-radius:99px;padding:8px 12px;color:#b8d7ff}
-    h1{font-size:48px;line-height:1.05;margin:18px 0}p{font-size:18px;line-height:1.6;color:#c6d5e8}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:30px 0}
-    .card{background:#0f1b2d;border:1px solid #263b59;border-radius:18px;padding:22px}.price{font-size:42px;font-weight:800;color:#70ff9b}.btn{display:inline-block;background:#2ee66b;color:#02130a;text-decoration:none;padding:16px 22px;border-radius:14px;font-weight:800;margin-top:12px}
-    input,textarea,select{width:100%;box-sizing:border-box;margin:8px 0 14px;padding:13px;border-radius:12px;border:1px solid #33506e;background:#07111f;color:#fff}button{background:#2ee66b;color:#02130a;border:0;padding:15px 22px;border-radius:14px;font-weight:800;cursor:pointer}
-    .small{font-size:13px;color:#8ea6c4}hr{border:0;border-top:1px solid #263b59;margin:34px 0}
+    :root{--bg:#07111f;--panel:#0e1b2e;--panel2:#12243d;--line:#263d5e;--txt:#edf5ff;--muted:#9fb4ce;--ok:#3cff8f;--warn:#ffd166;--bad:#ff6b6b;--blue:#6cb6ff}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,system-ui,sans-serif;background:radial-gradient(circle at top left,#15365f,#07111f 45%);color:var(--txt)}
+    .wrap{max-width:1280px;margin:auto;padding:28px 18px}.top{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--ok),var(--blue));box-shadow:0 0 30px #3cff8f55}.badge{border:1px solid var(--line);background:#0b1728cc;border-radius:999px;padding:9px 13px;color:#bcd4ee;font-size:13px}.hero{padding:46px 0 28px}.hero h1{font-size:clamp(34px,5vw,68px);line-height:.98;margin:16px 0;letter-spacing:-1.5px}.hero p{max-width:920px;font-size:19px;line-height:1.55;color:#c7d8ec}.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:850;cursor:pointer;background:var(--ok);color:#03130b;text-decoration:none;display:inline-flex;align-items:center;gap:8px}.btn.secondary{background:#132742;color:#dcecff;border:1px solid var(--line)}
+    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0}.card,.panel{background:linear-gradient(180deg,#102039,#0c1829);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 40px #0005}.card strong{font-size:28px;display:block}.card span,.muted{color:var(--muted);font-size:14px}.panel h2{margin:0 0 14px;font-size:22px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block;font-size:13px;color:#b8cbe4;margin:8px 0 6px}input,select,textarea{width:100%;border:1px solid #335274;background:#07111f;color:#fff;border-radius:12px;padding:12px;font:inherit}textarea{min-height:80px;resize:vertical}.full{grid-column:1/-1}.mini{font-size:12px;color:#8aa4c2}.result{display:grid;gap:10px}.pill{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:12px;color:#cde0f5;background:#0b1728}.pill.ok{border-color:#2c9f5c;color:#a8ffc9}.pill.warn{border-color:#9f7e2c;color:#ffe49a}.pill.bad{border-color:#9f3b3b;color:#ffc3c3}.kpi{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #1f3553;padding:9px 0}.kpi b{text-align:right}.table{width:100%;border-collapse:collapse;overflow:hidden}.table th,.table td{border-bottom:1px solid #203757;text-align:left;padding:10px;font-size:13px;vertical-align:top}.table th{color:#b7cce5;background:#0a1525;position:sticky;top:0}.table-wrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:16px}.status{font-weight:800}.oktxt{color:var(--ok)}.warntxt{color:var(--warn)}.badtxt{color:var(--bad)}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.tab{padding:10px 12px;border:1px solid var(--line);background:#0b1728;color:#cfe0f3;border-radius:999px;cursor:pointer}.tab.active{background:#18385f;color:#fff;border-color:#4588d8}.section{display:none}.section.active{display:block}.agent-log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;background:#06101c;border:1px solid #203757;border-radius:16px;padding:14px;color:#b9d4ee;max-height:300px;overflow:auto}.split{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.channel{padding:12px;border:1px solid var(--line);border-radius:16px;background:#081627}.footer{padding:32px 0;color:#8ba5c3;font-size:13px}@media(max-width:900px){.grid,.row,.split{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
-  <div class="wrap hero">
-    <span class="badge">72h AI darbuotojo setupas</span>
-    <h1>Pastatome mažam verslui AI sistemą, kuri renka leadus, ruošia tekstus ir tvarko pardavimo veiksmus.</h1>
-    <p>Ne konsultacija ir ne teorija. Per 72 val. paruošiam veikiančią mini sistemą: landing page, lead formą, CRM logiką, outreach tekstus, reklamos tekstų generatorių ir pristatymo planą.</p>
-    <div class="price">299 € paid pilot</div>
-    <a class="btn" href="#lead">Noriu pilotinio setupo</a>
-  </div>
-
   <div class="wrap">
-    <div class="grid">
-      <div class="card"><h3>Lead sistema</h3><p>Mini puslapis ir forma, kad klientai paliktų užklausas vienoje vietoje.</p></div>
-      <div class="card"><h3>Sales pipeline</h3><p>Aiškus statusų kelias: naujas leadas, atsakyta, demo, sąskaita, uždaryta.</p></div>
-      <div class="card"><h3>AI tekstai</h3><p>Outreach, reklamos, produkto aprašymo ir follow-up tekstai pagal tavo nišą.</p></div>
-      <div class="card"><h3>72h pristatymas</h3><p>Per tris dienas gauni veikiantį setupą ir instrukciją, kaip jį naudoti.</p></div>
+    <div class="top">
+      <div class="brand"><div class="logo"></div><div><b>Parts Seller OS</b><div class="mini">vieno autodalių pardavėjo valdymo prototipas</div></div></div>
+      <span class="badge">Ne agento reklama. Darbo sistema: dalis → kaina → lokacija → skelbimas → užsakymas.</span>
     </div>
 
-    <hr />
-    <h2>Kam tinka?</h2>
-    <p>Auto dalių pardavėjams, servisams, detailing/plovykloms, mažoms e-commerce parduotuvėms, vietiniams paslaugų verslams ir agentūroms, kurios nori AI darbo proceso be savo programuotojo.</p>
+    <section class="hero">
+      <span class="badge">MVP tikslas: parduoti daugiau dalių be chaoso sandėlyje</span>
+      <h1>Autodalių prekybos sistema, kuri galvoja kaip kainų analitikas, sandėlininkas ir pardavimų vadovas.</h1>
+      <p>Įvedi naudotą dalį. Sistema iš karto parenka kategoriją, įvertina kainos logiką, siūlo sandėlio vietą, patikrina ar skelbimas paruoštas, suformuoja marketplace eksportą ir rodo ką reikia daryti toliau.</p>
+      <div class="cta"><button class="btn" onclick="showTab('intake')">Įvesti dalį</button><button class="btn secondary" onclick="seedDemo()">Užkrauti demo sandėlį</button><button class="btn secondary" onclick="exportCsv()">Eksportuoti CSV</button></div>
+    </section>
 
-    <h2>Ką gauni už 299 €?</h2>
-    <div class="grid">
-      <div class="card">1 individualų AI lead puslapį</div>
-      <div class="card">1 CRM / pipeline struktūrą</div>
-      <div class="card">1 outreach kampanijos paketą</div>
-      <div class="card">1 reklamos tekstų paketą</div>
-      <div class="card">1 delivery SOP dokumentą</div>
-      <div class="card">1 mėnesinio palaikymo pasiūlymą</div>
+    <section class="cards">
+      <div class="card"><strong id="kParts">0</strong><span>Dalių sistemoje</span></div>
+      <div class="card"><strong id="kValue">0 €</strong><span>Skelbimų vertė</span></div>
+      <div class="card"><strong id="kReady">0</strong><span>Ready to publish</span></div>
+      <div class="card"><strong id="kBlocked">0</strong><span>Reikia veiksmo</span></div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="intake" onclick="showTab('intake')">1. Dalies įvedimas</button>
+      <button class="tab" data-tab="inventory" onclick="showTab('inventory')">2. Sandėlis</button>
+      <button class="tab" data-tab="marketplace" onclick="showTab('marketplace')">3. Marketplace</button>
+      <button class="tab" data-tab="ops" onclick="showTab('ops')">4. Agentų sprendimai</button>
     </div>
 
-    <hr />
-    <h2 id="lead">Užklausa pilotui</h2>
-    <form onsubmit="saveLead(event)">
-      <input id="name" placeholder="Vardas / įmonė" required />
-      <input id="email" placeholder="El. paštas arba kontaktas" required />
-      <select id="segment">
-        <option>Auto dalys</option><option>Servisas</option><option>Detailing / plovykla</option><option>E-commerce</option><option>Agentūra</option><option>Kita</option>
-      </select>
-      <textarea id="problem" placeholder="Ką norėtum automatizuoti?" rows="4"></textarea>
-      <button>Paruošti pilotą</button>
-    </form>
-    <p id="ok" class="small"></p>
+    <section id="intake" class="section active">
+      <div class="grid">
+        <div class="panel">
+          <h2>Nauja naudota autodalis</h2>
+          <div class="row">
+            <div><label>OEM / dalies kodas</label><input id="partNumber" placeholder="pvz. MY83-F23200-AC" /></div>
+            <div><label>Dalies pavadinimas</label><input id="partName" placeholder="pvz. priekinis dešinys langų pakėlėjas su varikliuku" /></div>
+            <div><label>Automobilis</label><input id="vehicle" placeholder="pvz. Aston Martin DBX 2024 4.0" /></div>
+            <div><label>RHD / LHD</label><select id="drive"><option>LHD arba nesvarbu</option><option>RHD</option><option>Reikia tikrinti</option></select></div>
+            <div><label>Būklė</label><select id="condition"><option value="used_good">Naudota gera</option><option value="used_excellent">Naudota labai gera</option><option value="used_scratched">Su pabraižymais</option><option value="damaged_repairable">Remontuotina</option><option value="new_other">Nauja / sandėlio likutis</option><option value="unknown">Neaiški</option></select></div>
+            <div><label>Savikaina, €</label><input id="purchaseCost" type="number" min="0" step="1" placeholder="pvz. 120" /></div>
+            <div><label>Konkurentų kainos, €</label><input id="competitorPrices" placeholder="pvz. 330, 390, 450" /></div>
+            <div><label>Retumas</label><select id="rarity"><option value="medium">Vidutinis</option><option value="high">Reta / premium / EV</option><option value="low">Dažna dalis</option></select></div>
+            <div><label>Likvidumas</label><select id="liquidity"><option value="medium">Vidutinis</option><option value="high">Greitai perkama</option><option value="low">Lėtai perkama</option></select></div>
+            <div><label>Foto yra?</label><select id="photo"><option value="yes">Taip</option><option value="no">Ne</option></select></div>
+            <div class="full"><label>Pastabos / defektai / komplektacija</label><textarea id="notes" placeholder="pvz. su varikliuku, pilna komplektacija, nulūžęs vienas laikiklis"></textarea></div>
+          </div>
+          <div class="cta"><button class="btn" onclick="addPart()">Pridėti į sistemą</button><button class="btn secondary" onclick="clearForm()">Išvalyti</button></div>
+        </div>
+
+        <div class="panel">
+          <h2>Sprendimas prieš dedant į skelbimą</h2>
+          <div id="preview" class="result">
+            <div class="kpi"><span>Kategorija</span><b>laukiama įvedimo</b></div>
+            <div class="kpi"><span>Kainos siūlymas</span><b>—</b></div>
+            <div class="kpi"><span>Sandėlio vieta</span><b>—</b></div>
+            <div class="kpi"><span>Skelbimo statusas</span><b>—</b></div>
+          </div>
+          <p class="muted">Sistema neskirta gražiai prezentacijai. Šitas blokas turi tapti kasdieniu darbo ekranu žmogui, kuris įveda dalis ir nori iš karto žinoti kainą, vietą ir ką daryti toliau.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="inventory" class="section">
+      <div class="panel">
+        <h2>Sandėlio ir kainodaros lentelė</h2>
+        <div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Dalis</th><th>Auto</th><th>Kategorija</th><th>Kaina</th><th>Floor</th><th>Lokacija</th><th>Statusas</th><th>Veiksmas</th></tr></thead><tbody id="partsTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="marketplace" class="section">
+      <div class="split">
+        <div class="channel"><h3>RRR / Ovoko eksportas</h3><p class="muted">Paruošti pavadinimą, kainą, OEM, būklę, auto informaciją, lokaciją ir foto statusą.</p><button class="btn secondary" onclick="exportJson('rrr')">Kopijuoti JSON</button></div>
+        <div class="channel"><h3>Allegro / eBay draft</h3><p class="muted">Skelbimo tekstas turi išeiti iš tų pačių duomenų, kad nereiktų rašyti ranka.</p><button class="btn secondary" onclick="exportJson('marketplace')">Kopijuoti JSON</button></div>
+        <div class="channel"><h3>Užsakymo rezervacija</h3><p class="muted">Parduota / rezervuota dalis turi iškart keisti sandėlio ir skelbimo būseną.</p><button class="btn secondary" onclick="reserveFirstReady()">Rezervuoti pirmą ready</button></div>
+      </div>
+      <div class="panel" style="margin-top:14px"><h2>Marketplace feed</h2><pre id="feed" class="agent-log">Paspausk eksportą arba pridėk dalių.</pre></div>
+    </section>
+
+    <section id="ops" class="section">
+      <div class="grid">
+        <div class="panel"><h2>Agentų darbo logika</h2><div id="agentLog" class="agent-log"></div></div>
+        <div class="panel"><h2>Kas dar nebaigta iki pilno produkto</h2><div class="result">
+          <div class="kpi"><span>Realūs RRR / eBay API arba scraperiai</span><b class="warntxt">neprijungta</b></div>
+          <div class="kpi"><span>Nuotraukų importas iš Recar / telefono</span><b class="warntxt">neprijungta</b></div>
+          <div class="kpi"><span>Tikras DB ir vartotojai</span><b class="warntxt">neprijungta</b></div>
+          <div class="kpi"><span>Šitas prototipas naršyklėje</span><b class="oktxt">veikia lokaliai</b></div>
+        </div><p class="muted">Tai yra pirmas realus ekranas, nuo kurio galima statyti pilną autodalių pardavimo sistemą. Ne galutinis marketplace.</p></div>
+      </div>
+    </section>
+
+    <div class="footer">Parts Seller OS MVP. Duomenys šiame prototipe saugomi naršyklės localStorage, todėl tinka darbo logikai pamatyti, bet dar nėra production sistema.</div>
   </div>
+
 <script>
-function saveLead(e){
-  e.preventDefault();
-  const lead={name:name.value,email:email.value,segment:segment.value,problem:problem.value,created:new Date().toISOString()};
-  const leads=JSON.parse(localStorage.getItem('pilot_leads')||'[]');leads.push(lead);localStorage.setItem('pilot_leads',JSON.stringify(leads));
-  ok.textContent='Užklausa išsaugota naršyklėje. Kitas žingsnis: susisiekti ir uždaryti 299 € pilotą.';e.target.reset();
+const $ = id => document.getElementById(id);
+const money = n => (Math.round(Number(n)||0)).toLocaleString('lt-LT') + ' €';
+const round5 = n => Math.max(0, Math.round((Number(n)||0)/5)*5);
+let parts = JSON.parse(localStorage.getItem('parts_seller_os_parts') || '[]');
+
+const categories = [
+  {id:'body_bumper', words:['bamper','bufer','spoiler'], label:'Kėbulas / bamperiai', profile:'large_rack'},
+  {id:'body_door', words:['durys','duru','door'], label:'Kėbulas / durys', profile:'large_rack'},
+  {id:'lighting_headlight', words:['žibint','zibint','headlight','far','lemp'], label:'Apšvietimas / žibintai', profile:'fragile_vertical'},
+  {id:'glass_regulator', words:['langų pakėl','langu pakel','regulator','window'], label:'Durys / langų pakėlėjai', profile:'medium_shelf'},
+  {id:'interior_airbag', words:['airbag','oro pagalv','saugos'], label:'Saugumas / airbag-diržai', profile:'hazard_safe'},
+  {id:'engine', words:['variklis','engine','motor'], label:'Varikliai', profile:'heavy_floor'},
+  {id:'battery_hv', words:['baterij','battery','akumuliator','hybrid','ev'], label:'EV/Hybrid / baterijos', profile:'hazard_safe'},
+  {id:'interior_trim', words:['apdaila','panele','panelė','salonas','slenkstis'], label:'Interjeras / apdailos', profile:'medium_shelf'},
+  {id:'wheel', words:['ratas','ratlank','wheel'], label:'Ratai / ratlankiai', profile:'large_rack'},
+  {id:'mirror', words:['veidro','mirror'], label:'Veidrodėliai', profile:'medium_shelf'}
+];
+const locations = [
+  {id:'A1-SM-01', type:'shelf_bin', profiles:['small_bin'], occupancy:55},
+  {id:'B2-MS-04', type:'shelf', profiles:['medium_shelf'], occupancy:63},
+  {id:'C1-LR-02', type:'rack', profiles:['large_rack'], occupancy:71},
+  {id:'D1-FRAG-01', type:'protected_vertical', profiles:['fragile_vertical'], occupancy:45},
+  {id:'E1-HV-LOCK', type:'safe_zone', profiles:['hazard_safe'], occupancy:58},
+  {id:'F1-FLOOR-03', type:'floor_or_pallet', profiles:['heavy_floor'], occupancy:50}
+];
+const conditionMultipliers = {new_other:1,used_excellent:.85,used_good:.7,used_scratched:.55,damaged_repairable:.35,unknown:.45};
+
+function parsePrices(raw){return String(raw||'').split(',').map(x=>Number(String(x).trim())).filter(n=>n>0).sort((a,b)=>a-b)}
+function median(arr){if(!arr.length)return 0;const m=Math.floor(arr.length/2);return arr.length%2?arr[m]:(arr[m-1]+arr[m])/2}
+function detectCategory(name, number){const hay=(name+' '+number).toLowerCase();return categories.find(c=>c.words.some(w=>hay.includes(w))) || {id:'unknown',label:'Neaiški kategorija',profile:'medium_shelf'};}
+function suggestLocation(profile){const candidates=locations.filter(l=>l.profiles.includes(profile) && l.occupancy<85).sort((a,b)=>a.occupancy-b.occupancy);return candidates[0] || {id:'PENDING-'+profile.toUpperCase(), type:'pending', occupancy:100};}
+function pricePart({purchaseCost, competitorPrices, condition, rarity, liquidity}){
+  const comps=parsePrices(competitorPrices);const med=median(comps);const cost=Number(purchaseCost)||0;
+  let base=med || (cost ? cost*2.4 : 100);
+  let price=base*(conditionMultipliers[condition]||.45);
+  if(rarity==='high') price*=1.25;if(rarity==='low') price*=.93;if(liquidity==='high') price*=1.10;if(liquidity==='low') price*=.88;
+  const floor=round5(Math.max(cost*1.35, cost+25, price*.65));
+  price=round5(Math.max(price,floor));
+  const confidence=comps.length>=3?'high':comps.length>=1?'medium':'low';
+  const warnings=[];if(confidence==='low')warnings.push('manual_pricing_review');if(rarity==='high')warnings.push('rare_part');if(cost===0)warnings.push('purchase_cost_missing');if(price<floor)warnings.push('price_below_floor');
+  return {price,floor,confidence,marketMedian:med,warnings};
 }
+function titleFor(p){return [p.vehicle,p.partName,p.partNumber].filter(Boolean).join(' | ')}
+function statusFor(p){
+  if(!p.category || p.category.id==='unknown') return {status:'needs_category', class:'bad', next:'Patikslinti kategoriją'};
+  if(!p.price) return {status:'needs_price', class:'bad', next:'Patvirtinti kainą'};
+  if(p.pricingConfidence==='low' || p.pricingWarnings.includes('rare_part')) return {status:'manual_pricing_review', class:'warn', next:'Peržiūrėti kainą rankiniu būdu'};
+  if(!p.location || p.location.startsWith('PENDING')) return {status:'pending_location', class:'warn', next:'Priskirti fizinę lokaciją'};
+  if(p.photo==='no') return {status:'needs_photo', class:'warn', next:'Padaryti / įkelti foto'};
+  if(p.reserved) return {status:'reserved', class:'warn', next:'Laukti apmokėjimo arba atlaisvinti'};
+  return {status:'ready_to_publish', class:'ok', next:'Publikuoti į kanalus'};
+}
+function buildPartFromForm(){
+  const category=detectCategory($('partName').value,$('partNumber').value);const loc=suggestLocation(category.profile);const priced=pricePart({purchaseCost:$('purchaseCost').value,competitorPrices:$('competitorPrices').value,condition:$('condition').value,rarity:$('rarity').value,liquidity:$('liquidity').value});
+  const p={id:'P'+String(Date.now()).slice(-6),partNumber:$('partNumber').value.trim(),partName:$('partName').value.trim(),vehicle:$('vehicle').value.trim(),drive:$('drive').value,condition:$('condition').value,purchaseCost:Number($('purchaseCost').value)||0,competitorPrices:$('competitorPrices').value,rarity:$('rarity').value,liquidity:$('liquidity').value,photo:$('photo').value,notes:$('notes').value.trim(),category,location:loc.id,price:priced.price,floor:priced.floor,pricingConfidence:priced.confidence,marketMedian:priced.marketMedian,pricingWarnings:priced.warnings,created:new Date().toISOString(),reserved:false};
+  p.title=titleFor(p);p.listing=statusFor(p);return p;
+}
+function updatePreview(){
+  const hasInput=$('partName').value || $('partNumber').value || $('vehicle').value;
+  if(!hasInput){$('preview').innerHTML='<div class="kpi"><span>Kategorija</span><b>laukiama įvedimo</b></div><div class="kpi"><span>Kainos siūlymas</span><b>—</b></div><div class="kpi"><span>Sandėlio vieta</span><b>—</b></div><div class="kpi"><span>Skelbimo statusas</span><b>—</b></div>';return;}
+  const p=buildPartFromForm();$('preview').innerHTML=`<div class="kpi"><span>Kategorija</span><b>${p.category.label}</b></div><div class="kpi"><span>Kainos siūlymas</span><b>${money(p.price)} <span class="mini">floor ${money(p.floor)}, ${p.pricingConfidence}</span></b></div><div class="kpi"><span>Sandėlio vieta</span><b>${p.location}</b></div><div class="kpi"><span>Skelbimo statusas</span><b><span class="pill ${p.listing.class}">${p.listing.status}</span></b></div><div class="kpi"><span>Kitas veiksmas</span><b>${p.listing.next}</b></div>`;
+}
+function addPart(){const p=buildPartFromForm();if(!p.partName && !p.partNumber){alert('Įvesk bent dalies pavadinimą arba kodą.');return}parts.unshift(p);save();clearForm();showTab('inventory');}
+function clearForm(){['partNumber','partName','vehicle','purchaseCost','competitorPrices','notes'].forEach(id=>$(id).value='');$('condition').value='used_good';$('rarity').value='medium';$('liquidity').value='medium';$('photo').value='yes';updatePreview();}
+function save(){localStorage.setItem('parts_seller_os_parts',JSON.stringify(parts));render();}
+function render(){
+  const ready=parts.filter(p=>statusFor(p).status==='ready_to_publish').length;const blocked=parts.length-ready;const value=parts.reduce((s,p)=>s+(Number(p.price)||0),0);
+  $('kParts').textContent=parts.length;$('kValue').textContent=money(value);$('kReady').textContent=ready;$('kBlocked').textContent=blocked;
+  $('partsTable').innerHTML=parts.map(p=>{p.listing=statusFor(p);return `<tr><td>${p.id}</td><td><b>${p.partName||'—'}</b><br><span class="mini">${p.partNumber||'be kodo'}</span></td><td>${p.vehicle||'—'}<br><span class="mini">${p.drive}</span></td><td>${p.category.label}</td><td><b>${money(p.price)}</b><br><span class="mini">conf: ${p.pricingConfidence}</span></td><td>${money(p.floor)}</td><td>${p.location}</td><td><span class="pill ${p.listing.class}">${p.listing.status}</span></td><td>${p.listing.next}</td></tr>`}).join('') || '<tr><td colspan="9" class="muted">Dar nėra dalių. Įvesk dalį arba užkrauk demo sandėlį.</td></tr>';
+  $('agentLog').textContent=buildLog();
+}
+function buildLog(){
+  if(!parts.length)return 'Agentai laukia pirmos įvestos dalies. Pirma užduotis: įvesti realią dalį ir patikrinti ar sistema duoda kainą, lokaciją ir listing statusą.';
+  return parts.slice(0,8).map(p=>{const s=statusFor(p);return `[${p.id}] Pricing Agent: ${money(p.price)} / floor ${money(p.floor)} / confidence ${p.pricingConfidence}\n[${p.id}] Warehouse Agent: ${p.location} pagal ${p.category.profile}\n[${p.id}] Listing Agent: ${s.status} → ${s.next}\n[${p.id}] CFO check: savikaina ${money(p.purchaseCost)}, teorinis gross ${money((p.price||0)-(p.purchaseCost||0))}`}).join('\n\n');
+}
+function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));$(id).classList.add('active');}
+function seedDemo(){
+  parts=[
+    {id:'P1001',partNumber:'MY83-F23200-AC',partName:'Priekinis dešinys langų pakėlėjas su varikliuku',vehicle:'Aston Martin DBX 2024 4.0',drive:'LHD arba nesvarbu',condition:'used_good',purchaseCost:120,competitorPrices:'330,390,450',rarity:'high',liquidity:'medium',photo:'yes',notes:'su varikliuku',category:detectCategory('langų pakėlėjas','MY83-F23200-AC'),location:'B2-MS-04',price:390,floor:220,pricingConfidence:'high',marketMedian:390,pricingWarnings:['rare_part'],created:new Date().toISOString(),reserved:false},
+    {id:'P1002',partNumber:'6G33-TBD2-AA',partName:'Išsiplėtimo bakelis',vehicle:'Aston Martin DBX 2022',drive:'LHD arba nesvarbu',condition:'used_good',purchaseCost:45,competitorPrices:'120,160',rarity:'high',liquidity:'low',photo:'yes',notes:'patikrinti laikiklius',category:detectCategory('bakelis','6G33-TBD2-AA'),location:'B2-MS-04',price:125,floor:70,pricingConfidence:'medium',marketMedian:140,pricingWarnings:['rare_part'],created:new Date().toISOString(),reserved:false},
+    {id:'P1003',partNumber:'N243-51-P51',partName:'Kairys plastikinis slenkstis',vehicle:'Mazda MX-5 ND',drive:'LHD arba nesvarbu',condition:'used_scratched',purchaseCost:35,competitorPrices:'180,220,250',rarity:'medium',liquidity:'medium',photo:'no',notes:'reikia foto',category:detectCategory('slenkstis plastikinis','N243-51-P51'),location:'B2-MS-04',price:130,floor:60,pricingConfidence:'high',marketMedian:220,pricingWarnings:[],created:new Date().toISOString(),reserved:false}
+  ];parts.forEach(p=>{p.title=titleFor(p);p.listing=statusFor(p)});save();showTab('inventory');
+}
+function feedRows(channel){return parts.map(p=>({channel,id:p.id,title:p.title,part_number:p.partNumber,vehicle:p.vehicle,condition:p.condition,price_eur:p.price,floor_price_eur:p.floor,location:p.location,status:statusFor(p).status,next_action:statusFor(p).next,notes:p.notes}))}
+function exportJson(channel){const data=feedRows(channel);$('feed').textContent=JSON.stringify(data,null,2);navigator.clipboard?.writeText(JSON.stringify(data,null,2));showTab('marketplace');}
+function exportCsv(){const rows=feedRows('csv');const headers=Object.keys(rows[0]||{id:'',title:'',price_eur:'',location:'',status:''});const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');$('feed').textContent=csv || 'Nėra ką eksportuoti.';navigator.clipboard?.writeText(csv);showTab('marketplace');}
+function reserveFirstReady(){const p=parts.find(x=>statusFor(x).status==='ready_to_publish');if(!p){$('feed').textContent='Nėra ready_to_publish dalių rezervacijai.';showTab('marketplace');return}p.reserved=true;p.listing=statusFor(p);save();$('feed').textContent=`Rezervuota ${p.id}: ${p.title}\nLokacija: ${p.location}\nKaina: ${money(p.price)}`;showTab('marketplace');}
+['partNumber','partName','vehicle','drive','condition','purchaseCost','competitorPrices','rarity','liquidity','photo','notes'].forEach(id=>$(id).addEventListener('input',updatePreview));
+render();updatePreview();
 </script>
 </body>
 </html>
