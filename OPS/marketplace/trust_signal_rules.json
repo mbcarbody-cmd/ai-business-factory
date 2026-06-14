@@ -1,0 +1,73 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Trust/Warranty Analysts + QA Critic-C5",
+  "status": "active_seed",
+  "purpose": "Normalize EU marketplace trust, return, warranty, tested and delivery signals into reusable Parts Seller OS listing readiness rules.",
+  "principle": "Learn trust mechanics from marketplaces. Do not copy wording, design or protected seller data.",
+  "rules": [
+    {
+      "id": "TRUST-001",
+      "signal": "return_window_visible",
+      "learned_from": ["RRR/Ovoko public page"],
+      "pattern": "Buyer sees return guarantee before or near buying path.",
+      "parts_os_rule": "Listing readiness must store return_window_days or return_policy_state before external publishing.",
+      "fields_required": ["return_policy_state", "return_window_days", "source_or_seller_policy"],
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "TRUST-002",
+      "signal": "warranty_visible",
+      "learned_from": ["RRR/Ovoko public page", "Opisto public page"],
+      "pattern": "Used parts marketplaces present warranty/guarantee as buyer trust proof.",
+      "parts_os_rule": "Price confidence increases only if warranty_state is known; unknown warranty forces manual review for high-value parts.",
+      "fields_required": ["warranty_state", "warranty_duration", "tested_state"],
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "TRUST-003",
+      "signal": "tested_part_state",
+      "learned_from": ["Opisto public page"],
+      "pattern": "Marketplace can state that parts are tested by partner dismantlers before guarantee.",
+      "parts_os_rule": "Mechanical/electrical parts need tested_state before being sell_ready; if untested, listing status becomes hold_or_manual_review.",
+      "fields_required": ["tested_state", "test_note", "condition_grade"],
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "TRUST-004",
+      "signal": "delivery_region_visible",
+      "learned_from": ["RRR/Ovoko public page", "Opisto public page"],
+      "pattern": "Delivery country or destination selector is visible in marketplace flow.",
+      "parts_os_rule": "Listing cannot be cross_border_ready until package profile and delivery region are known.",
+      "fields_required": ["shipping_profile", "delivery_region", "oversize_flag"],
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "TRUST-005",
+      "signal": "seller_or_network_scale",
+      "learned_from": ["RRR/Ovoko public page", "Opisto public page"],
+      "pattern": "Marketplace shows network scale or partner sellers to create buyer trust and inventory breadth.",
+      "parts_os_rule": "Future marketplace roadmap needs seller trust card; one-seller OS needs internal stock quality card instead.",
+      "fields_required": ["seller_identity", "stock_count", "policy_profile"],
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "TRUST-006",
+      "signal": "bad_listing_title_penalty",
+      "learned_from": ["RRR seed examples", "general marketplace observation"],
+      "pattern": "Vague listing titles can exist but reduce buyer confidence.",
+      "parts_os_rule": "QA blocks external publish if title is vague, side is missing where required, or OEM/code is missing for code-sensitive parts.",
+      "fields_required": ["title_quality_score", "side_position", "oem_codes", "category_id"],
+      "confidence": "product_rule_seed"
+    }
+  ],
+  "listing_readiness_impacts": {
+    "ready": ["clear title", "category_id", "price", "photo_state", "return_policy_state", "shipping_profile"],
+    "manual_review": ["unknown warranty on high-value part", "untested electrical/mechanical part", "rare part without comps"],
+    "blocked": ["no source for price claim", "vague part title", "missing side for side-sensitive part", "no category mapping"]
+  },
+  "next_actions": [
+    "Verify B-Parts and Autoparts24 trust/warranty/delivery signals.",
+    "Add 20 more trust rules across EU sellers.",
+    "Wire rules into Parts Seller OS listing readiness UI."
+  ]
+}
