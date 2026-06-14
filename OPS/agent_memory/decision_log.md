@@ -73,3 +73,17 @@ Affected OPS layer: competitor intelligence, agent memory, revenue operations, c
 Enforcement rule: Every captured content pattern must record audience, pain/contrast, dream outcome, visual pattern, CTA, risk, reusable formula, our converted variants and output paths.
 
 Proof path: `OPS/competitor_intelligence/content_funnel_patterns.md`, `OPS/agent_memory/competitor_findings.md`.
+
+## 2026-06-14 — AI tool stack listicles reduce buyer confusion
+
+Trigger: User provided a Facebook sponsored screenshot where an AI course/certificate funnel used a long list of AI tools under a strong identity headline.
+
+Decision: Treat long AI tool-stack listicles as a separate reusable content pattern. The system should use them to sell clarity, not generic hype: tool chaos -> categorized stack -> one concrete workflow/result.
+
+Reason: Beginners and business owners often do not know which AI tools matter. A clear stack list can create instant perceived value and move the buyer toward a checklist, audit, demo or 72h implementation offer.
+
+Affected OPS layer: competitor intelligence, content factory, revenue operations, delivery, marketplace roadmap.
+
+Enforcement rule: Every AI stack post must connect tools/categories to a concrete business workflow, not a vague claim of becoming unstoppable.
+
+Proof path: `OPS/competitor_intelligence/content_funnel_patterns.md`, `OPS/agent_memory/competitor_findings.md`, `OPS/task_board_v2.json`.
