@@ -1,0 +1,77 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Taxonomy Mappers + CEO-A Parts OS General Manager",
+  "status": "active_seed",
+  "purpose": "Map repeated EU seller marketplace category patterns into canonical Parts Seller OS categories without copying any platform taxonomy verbatim.",
+  "principle": "External labels are learning signals. Canonical categories are our own normalized operational categories.",
+  "category_patterns": [
+    {
+      "id": "CAT-LEARN-001",
+      "external_pattern_group": "lighting / lights / feux / headlight / tail light",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "lighting",
+      "required_attributes": ["front_rear", "left_right", "main_secondary", "lamp_type", "oem_code"],
+      "qa_rule": "Block listing when side or front/rear position is missing for side-sensitive lamps.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-002",
+      "external_pattern_group": "engine / moteur / turbo / starter / alternator",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "engine_and_engine_accessories",
+      "required_attributes": ["engine_code", "fuel_type", "tested_state", "condition_note", "warranty_state"],
+      "qa_rule": "Mechanical engine parts require condition/test note before publish.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-003",
+      "external_pattern_group": "body / bumper / bonnet / fender / door / exterior body",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "body_exterior",
+      "required_attributes": ["front_rear", "left_right", "paint_code_optional", "damage_note", "oversize_flag"],
+      "qa_rule": "Block vague 'other body part' style listing until exact part function is named.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-004",
+      "external_pattern_group": "electronics / control unit / sensors / switches / wiring",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "electronics_and_modules",
+      "required_attributes": ["oem_code", "connector_note", "tested_state", "programming_required", "vehicle_fitment"],
+      "qa_rule": "Code-sensitive electronics cannot be sell_ready without OEM/code and fitment confidence.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-005",
+      "external_pattern_group": "interior / seats / dashboard / belts / airbags / trim",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "interior_and_safety",
+      "required_attributes": ["left_right", "front_rear", "color_material", "safety_part_flag", "condition_note"],
+      "qa_rule": "Safety parts require stronger condition and compatibility notes.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-006",
+      "external_pattern_group": "brake / ABS / brake booster / parking brake",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "brake_system",
+      "required_attributes": ["front_rear", "left_right", "oem_code", "tested_state"],
+      "qa_rule": "ABS/brake sensors and modules need code/position confirmation before publish.",
+      "confidence": "verified_public_seed"
+    },
+    {
+      "id": "CAT-LEARN-007",
+      "external_pattern_group": "cooling / radiator / fan / heating / air conditioning",
+      "seen_in_sources": ["RRR/Ovoko", "Opisto"],
+      "canonical_parts_os_category": "cooling_heating_ac",
+      "required_attributes": ["system_type", "leak_test_state", "damage_note", "vehicle_fitment"],
+      "qa_rule": "Radiators and AC components need leak/condition notes before high-confidence listing.",
+      "confidence": "verified_public_seed"
+    }
+  ],
+  "next_actions": [
+    "Add mappings from B-Parts and Autoparts24 once verified.",
+    "Add language aliases for PL, DE, FR, ES, IT, NL and LT seller sources.",
+    "Wire category QA rules into Parts Seller OS add-part workflow."
+  ]
+}
