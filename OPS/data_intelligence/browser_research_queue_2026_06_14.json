@@ -1,0 +1,130 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "CI-2 Pricing & Offer Analyst",
+  "status": "active",
+  "purpose": "Queue for human-browser style public research agents. Each row is a different query/source task with provenance requirements.",
+  "rules": [
+    "No URL = no fact.",
+    "No checked_at = stale.",
+    "No confidence = cannot be used for pricing, CFO or product decisions.",
+    "Search snippets alone are weak signals and cannot set final prices.",
+    "Respect source terms; do not mass scrape or bypass protections.",
+    "Prefer seller-owned export/API/permission for production data."
+  ],
+  "required_output_fields": [
+    "source_url",
+    "checked_at",
+    "query_used",
+    "extracted_fields",
+    "confidence",
+    "dedupe_key",
+    "allowed_use",
+    "next_action"
+  ],
+  "queue": [
+    {
+      "id": "HBQ-001",
+      "cohort": "RRR/Ovoko public signal researchers",
+      "query_used": "Open RRR public homepage and record marketplace-size/trust signals",
+      "source_url": "https://rrr.lt/",
+      "status": "done_seeded",
+      "output_path": "OPS/marketplace/rrr_public_seed_samples_2026_06_14.json",
+      "confidence": "public_page_verified",
+      "next_action": "Use only as market context; do not copy catalog."
+    },
+    {
+      "id": "HBQ-002",
+      "cohort": "RRR/Ovoko public signal researchers",
+      "query_used": "site:rrr.lt Hyundai Tucson NX4 used part price",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/marketplace/rrr_public_seed_samples_2026_06_14.json",
+      "confidence": "missing",
+      "next_action": "Find public model/category page or mark blocked."
+    },
+    {
+      "id": "HBQ-003",
+      "cohort": "RRR/Ovoko public signal researchers",
+      "query_used": "site:rrr.lt Mazda MX-5 ND used part price",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/marketplace/rrr_public_seed_samples_2026_06_14.json",
+      "confidence": "missing",
+      "next_action": "Find public model/category page or mark blocked."
+    },
+    {
+      "id": "HBQ-004",
+      "cohort": "OEM/code price query agents",
+      "query_used": "MY83-F23200-AC Aston Martin DBX front window regulator price used",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/marketplace/rare_part_price_signals.json",
+      "confidence": "missing",
+      "next_action": "Search public sources and record URLs, not guessed prices."
+    },
+    {
+      "id": "HBQ-005",
+      "cohort": "OEM/code price query agents",
+      "query_used": "N243-50-351 Mazda MX-5 ND rear mudguard price used",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/marketplace/rare_part_price_signals.json",
+      "confidence": "missing",
+      "next_action": "Search public sources and record URLs, not guessed prices."
+    },
+    {
+      "id": "HBQ-006",
+      "cohort": "Competitor price verifiers",
+      "query_used": "Zapier pricing public CTA current plan price",
+      "source_url": "https://zapier.com/pricing",
+      "status": "ready",
+      "output_path": "OPS/competitor_intelligence/competitors.json",
+      "confidence": "needs_recheck",
+      "next_action": "Verify current plan names and CTA."
+    },
+    {
+      "id": "HBQ-007",
+      "cohort": "Competitor price verifiers",
+      "query_used": "Make pricing public CTA current plan price",
+      "source_url": "https://www.make.com/en/pricing",
+      "status": "ready",
+      "output_path": "OPS/competitor_intelligence/competitors.json",
+      "confidence": "needs_recheck",
+      "next_action": "Verify current plan names and CTA."
+    },
+    {
+      "id": "HBQ-008",
+      "cohort": "Lead company finders",
+      "query_used": "naudotos auto dalys ardomi automobiliai kontaktai Lietuva",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/revenue_ops/lead_pipeline.json",
+      "confidence": "missing",
+      "next_action": "Replace seed lead rows with exact public company rows."
+    },
+    {
+      "id": "HBQ-009",
+      "cohort": "Lead company finders",
+      "query_used": "automobiliu ardymas naudotos dalys kontaktai Kaunas",
+      "source_url": "pending",
+      "status": "ready",
+      "output_path": "OPS/revenue_ops/lead_pipeline.json",
+      "confidence": "missing",
+      "next_action": "Find exact company name, website/contact channel and pain hypothesis."
+    },
+    {
+      "id": "HBQ-010",
+      "cohort": "QA provenance auditors",
+      "query_used": "Audit all new public data rows for source_url checked_at confidence dedupe_key",
+      "source_url": "repo_internal",
+      "status": "ready",
+      "output_path": "OPS/qa/bug_board.json",
+      "confidence": "repo_verified_when_run",
+      "next_action": "Open bug for every row that lacks provenance."
+    }
+  ],
+  "dedupe_rule": {
+    "dedupe_key_format": "normalized_source_domain + normalized_oem_or_query + normalized_brand_model + part_category",
+    "merge_rule": "If two rows point to same item/source, keep latest checked_at and preserve previous source as alternative_source_url."
+  }
+}
