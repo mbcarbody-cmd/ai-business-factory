@@ -25,6 +25,7 @@
     "working_micro_app_prototypes_shipped_today": 3,
     "android_wrapper_candidate_selected": "products/auto-parts-title-generator-pwa/",
     "service_worker_file_created_for_android_candidate": true,
+    "service_worker_registration_patch_created": true,
     "service_worker_registration_in_html": "blocked_by_sha_conflict_not_counted_done",
     "shipped_micro_apps_index_created": true,
     "product_shipping_protocol_created": true,
@@ -61,7 +62,7 @@
   ],
   "not_yet_done": [
     "Working micro-app prototypes exist, but public hosting URLs are still missing.",
-    "Android wrapper/APK is still missing; only first wrapper candidate and service worker file exist.",
+    "Android wrapper/APK is still missing; only first wrapper candidate, service worker file and patch note exist.",
     "Service worker registration in index.html is not done due SHA conflict during fast commits.",
     "Learning audit script exists and now checks propagation files, but it has not been run in a checked CI/local result in this response.",
     "Project injection map has 20 actions and 4 synced actions, but 16 actions still need project artifact updates.",
@@ -71,8 +72,8 @@
   ],
   "next_best_actions": [
     "Host Date Spark, Market Pulse and Auto Parts Title Generator as static demos.",
-    "Register service worker in Auto Parts Title Generator index.html and test Android Chrome install flow.",
-    "Create Android wrapper checklist and package first APK/TWA for Auto Parts Title Generator.",
+    "Apply SERVICE_WORKER_REGISTRATION_PATCH.md to Auto Parts Title Generator index.html and test Android Chrome install flow.",
+    "Package first APK/TWA for Auto Parts Title Generator.",
     "Move 5 queued injections to synced by updating target project artifacts.",
     "Update CEO Cockpit to display shipped micro apps and learning sync metrics."
   ]
