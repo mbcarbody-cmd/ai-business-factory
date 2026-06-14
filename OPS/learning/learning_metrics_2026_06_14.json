@@ -19,6 +19,9 @@
     "knowledge_sync_bus_created": true,
     "parts_seller_os_training_matrix_created": true,
     "learning_task_manifest_created": true,
+    "ai_master_candidate_reviewed": true,
+    "ai_master_status": "parked_due_paywall",
+    "paid_ai_tools_blocked_without_benchmark": true,
     "reusable_rules_seeded": 5,
     "project_injection_actions_created": 20,
     "project_injection_actions_synced": 4,
@@ -44,6 +47,7 @@
     "Project learning injection map sends lessons to revenue, CFO, delivery, design, data, QA, deploy and opportunity projects.",
     "Parts Seller OS workflow modules have training rules and test cases.",
     "Revenue, CFO and design training matrices now exist for cross-project knowledge transfer.",
+    "Paid AI tools are not purchased without benchmark proof.",
     "10 000 capacity is routed into proof-based tasks, not duplicate documents.",
     "Learning layer has an audit script that can fail missing or inconsistent training artifacts."
   ],
