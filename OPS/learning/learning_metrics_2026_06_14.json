@@ -1,0 +1,45 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "PMO-3 Strategic Prioritization Officer + Chief Learning Officer",
+  "status": "active_seed",
+  "purpose": "Measure whether the 10000 learning units create a visible system jump instead of vanity scale.",
+  "metrics": {
+    "virtual_learning_units_added": 10000,
+    "new_learning_files_created": 6,
+    "global_knowledge_core_created": true,
+    "learning_academy_created": true,
+    "worker_exam_matrix_created": true,
+    "knowledge_sync_bus_created": true,
+    "parts_seller_os_training_matrix_created": true,
+    "learning_task_manifest_created": true,
+    "reusable_rules_seeded": 5,
+    "parts_seller_workflow_modules_trained": 8,
+    "exam_modules_created": 10,
+    "learning_tasks_created": 7,
+    "seller_coverage_target_rows": 50,
+    "seller_coverage_target_countries": 15,
+    "reusable_rules_target": 100,
+    "minimum_exam_score": 85,
+    "teacher_exam_score": 90
+  },
+  "visible_jump_definition": [
+    "Every worker has the same Global Knowledge Core.",
+    "Every worker must pass exams before closing work or teaching others.",
+    "EU seller learning becomes reusable rules, not copied data.",
+    "Reusable lessons flow through knowledge_sync_bus to all affected projects.",
+    "Parts Seller OS workflow modules have training rules and test cases.",
+    "10 000 capacity is routed into proof-based tasks, not duplicate documents."
+  ],
+  "not_yet_done": [
+    "Exam scoring is defined but not automated as a script yet.",
+    "Knowledge sync bus has queued lessons, but product UI/workflow still needs to consume them.",
+    "Parts Seller OS still needs actual UI/rules-engine integration and QA test proof.",
+    "EU seller coverage target is defined but not fully populated to 50 rows yet."
+  ],
+  "next_best_actions": [
+    "Wire OPS/learning/parts_seller_os_training_matrix.json into products/parts-seller-os UI/workflow.",
+    "Create a simple scripts/learning_audit.py to check required learning files and exam matrix.",
+    "Move at least one knowledge_sync_bus lesson from queued_for_sync to synced after product rule change.",
+    "Add 10 exact EU/Baltic seller research rows with source_url, checked_at and confidence."
+  ]
+}
