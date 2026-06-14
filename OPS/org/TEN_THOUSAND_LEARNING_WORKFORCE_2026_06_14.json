@@ -1,0 +1,114 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "CEO / Master Agent + Chief Learning Officer",
+  "status": "active",
+  "purpose": "Add 10000 virtual learning capacity units that teach the whole AI Business Factory system and keep knowledge equal across projects.",
+  "important_note": "These are virtual role-capacity units, not independent human employees. They may not create duplicate build streams. Every unit must attach to a task id, one owner, one output path and proof.",
+  "global_rule": "All workers share one canonical knowledge core. Specialized workers may know extra domain details, but no worker may operate against the shared rules.",
+  "knowledge_sync_rule": "A lesson learned by one project must be turned into a reusable rule, added to the knowledge core, and then pushed into all active project playbooks before it is counted as system learning.",
+  "total_units": 10000,
+  "allocation": [
+    {
+      "cohort_id": "LEARN-001",
+      "name": "Global Knowledge Core Teachers",
+      "units": 1200,
+      "mission": "Teach every agent the non-negotiable operating doctrine: no proof no done, Parts Seller OS priority, public-data safety, CEO-level thinking, CFO awareness and delivery discipline.",
+      "canonical_output_path": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+      "attached_tasks": ["OPS-001", "OPS-002", "OPS-016", "OPS-027"],
+      "done_proof": "Every project playbook references the global knowledge core and every worker exam uses it."
+    },
+    {
+      "cohort_id": "LEARN-002",
+      "name": "EU Seller Market Learning Analysts",
+      "units": 1600,
+      "mission": "Study EU used-auto-parts sellers and marketplaces to extract reusable rules without copying catalogues, designs, images or protected data.",
+      "canonical_output_path": "OPS/marketplace/EU_SELLER_LEARNING_ENGINE_LT.md",
+      "attached_tasks": ["OPS-003", "OPS-019", "OPS-022"],
+      "done_proof": "50 seller/platform rows, 15 countries and 100 reusable rules feed Parts Seller OS."
+    },
+    {
+      "cohort_id": "LEARN-003",
+      "name": "Parts Seller OS Rule Trainers",
+      "units": 1600,
+      "mission": "Convert market learning into workflow rules for add_part, suggest_location, pricing, listing readiness, reservation/order and dead-stock signals.",
+      "canonical_output_path": "OPS/learning/parts_seller_os_training_matrix.json",
+      "attached_tasks": ["OPS-010", "OPS-022", "OPS-029", "OPS-033", "OPS-034", "OPS-035", "OPS-036"],
+      "done_proof": "Every Parts Seller OS rule has trigger, required fields, output, QA block and test case."
+    },
+    {
+      "cohort_id": "LEARN-004",
+      "name": "Revenue and Buyer-Pain Teachers",
+      "units": 1000,
+      "mission": "Teach all workers how products become revenue: exact lead, buyer pain, offer, price, message, demo, proposal, invoice, paid pilot and maintenance upsell.",
+      "canonical_output_path": "OPS/learning/revenue_training_matrix.json",
+      "attached_tasks": ["OPS-007", "OPS-008", "OPS-009", "OPS-023"],
+      "done_proof": "Every product has a revenue path and every revenue row has source, contact channel, offer, stage and next action."
+    },
+    {
+      "cohort_id": "LEARN-005",
+      "name": "CFO Margin and Cost Teachers",
+      "units": 700,
+      "mission": "Teach every worker that time, AI calls, hosting, data, delivery and support are costs; no promise without margin and break-even logic.",
+      "canonical_output_path": "OPS/learning/cfo_training_matrix.json",
+      "attached_tasks": ["OPS-008", "OPS-013"],
+      "done_proof": "Every offer and product rule includes cost, price, gross margin, break-even and low-value-part handling logic."
+    },
+    {
+      "cohort_id": "LEARN-006",
+      "name": "QA, Judge and Proof Examiners",
+      "units": 1000,
+      "mission": "Test whether work is real: file, URL, product, test, deploy proof, sales path or delivery proof. Block weak work and record bugs.",
+      "canonical_output_path": "OPS/learning/qa_exam_matrix.json",
+      "attached_tasks": ["OPS-004", "OPS-006", "OPS-018", "OPS-038"],
+      "done_proof": "Every active task has proof_status and weak outputs generate QA bugs."
+    },
+    {
+      "cohort_id": "LEARN-007",
+      "name": "Data Provenance and Safe Browser Teachers",
+      "units": 1000,
+      "mission": "Teach allowed public-data research: source URL, checked date, confidence, allowed use, dedupe and no mass scraping/bypass.",
+      "canonical_output_path": "OPS/data_intelligence/HUMAN_BROWSER_SWARM_PLAYBOOK_LT.md",
+      "attached_tasks": ["OPS-019", "OPS-026", "OPS-028"],
+      "done_proof": "No data row can influence price, CFO, revenue or product decisions without provenance and confidence."
+    },
+    {
+      "cohort_id": "LEARN-008",
+      "name": "Cross-Project Knowledge Sync Operators",
+      "units": 1200,
+      "mission": "Move lessons between projects so all workers share the same strategic and operational knowledge, while each project keeps its specific execution lane.",
+      "canonical_output_path": "OPS/learning/knowledge_sync_bus.json",
+      "attached_tasks": ["OPS-001", "OPS-002", "OPS-023", "OPS-032"],
+      "done_proof": "Every major lesson has source_project, reusable_rule, affected_projects, sync_status and proof path."
+    },
+    {
+      "cohort_id": "LEARN-009",
+      "name": "Design, Trust and Conversion Teachers",
+      "units": 700,
+      "mission": "Teach page beauty, clarity, trust, layout and conversion standards without wasting time on over-polished product photos.",
+      "canonical_output_path": "OPS/learning/design_conversion_training_matrix.json",
+      "attached_tasks": ["OPS-017", "OPS-022"],
+      "done_proof": "Every public/demo page has clear hero, trust signals, CTA, proof, mobile layout and no confusing generic AI positioning."
+    },
+    {
+      "cohort_id": "LEARN-010",
+      "name": "Anti-Duplication and Bottleneck Breakers",
+      "units": 1000,
+      "mission": "Prevent 10000 workers from creating 10000 duplicate documents. Route them to review, QA, research, test, normalize, dedupe and unblock existing P0 tasks.",
+      "canonical_output_path": "OPS/operating_loops/ANTI_STAGNATION_ENGINE.md",
+      "attached_tasks": ["OPS-001", "OPS-016"],
+      "done_proof": "Blocked tasks have fallback, duplicate tasks are merged, and new work enters only through task board and proof path."
+    }
+  ],
+  "shared_exam_required": true,
+  "minimum_passing_score": 85,
+  "failure_action": "Worker cannot mark work complete; output goes to QA/Judge for correction and retraining.",
+  "promotion_rule": "A learning unit may become a builder only after passing global knowledge, project-specific, CFO, QA and data-provenance exams.",
+  "anti_vanity_rule": "The 10000-unit count is not success. Success is measured by verified rules, working prototype proof, public demo URL, verified revenue rows, paid pilot movement and reduced duplicate work.",
+  "next_actions": [
+    "Create global knowledge core.",
+    "Create learning academy curriculum.",
+    "Create knowledge sync bus.",
+    "Create exam matrix for all active project workers.",
+    "Attach this directive to task board as learning layer proof."
+  ]
+}
