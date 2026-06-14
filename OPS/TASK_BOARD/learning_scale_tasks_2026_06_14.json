@@ -88,6 +88,18 @@
       "next_action": "Track reusable_rules_created, synced_lessons, QA blocks, data rows with provenance, prototype rule changes and revenue movement.",
       "output_path": "OPS/learning/learning_metrics_2026_06_14.json",
       "done_proof": "Metrics show product behavior changed, not just more documents."
+    },
+    {
+      "id": "LEARN-TASK-008",
+      "title": "Propagate learning into all projects",
+      "layer": "cross_project_learning_propagation",
+      "owner": "Cross-Project Knowledge Sync Operators + All Project Owners",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "QA Critic-C5 + PMO-3 Strategic Prioritization Officer",
+      "next_action": "Use project_learning_injection_map to push each reusable lesson into target project artifacts and move injection statuses from queued to synced.",
+      "output_path": "OPS/learning/project_learning_injection_map.json",
+      "done_proof": "At least 20 injection actions cover 10+ projects and synced actions prove lessons changed target artifacts."
     }
   ],
   "anti_vanity_note": "10 000 is capacity, not proof. Proof is measured by rules synced, workflows changed, QA closed, public demo proof, exact leads and paid-pilot movement."
