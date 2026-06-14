@@ -1,0 +1,94 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Chief Learning Officer + COO-1 Execution Architect",
+  "status": "active",
+  "purpose": "Task-board manifest for the 10000 learning workforce. It routes learning capacity into proof-based execution instead of duplicate work.",
+  "rule": "Each learning task has one owner, one canonical output path, proof and a sync target. Learning is not counted unless it changes a reusable rule, product behavior, QA result, revenue path or delivery/deploy proof.",
+  "tasks": [
+    {
+      "id": "LEARN-TASK-001",
+      "title": "Teach global knowledge core to all workers",
+      "layer": "learning_core",
+      "owner": "Chief Learning Officer",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "QA Critic-C5",
+      "next_action": "Use Global Knowledge Core as mandatory reference for every worker exam and project playbook.",
+      "output_path": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+      "done_proof": "Every active project training matrix references Global Knowledge Core."
+    },
+    {
+      "id": "LEARN-TASK-002",
+      "title": "Certify 10000 workers through exam matrix",
+      "layer": "learning_exam",
+      "owner": "QA Critic-C5 + Chief Learning Officer",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PMO-2 Memory Ledger Keeper",
+      "next_action": "Require exam modules before workers can close work, teach or change rules.",
+      "output_path": "OPS/learning/worker_exam_matrix.json",
+      "done_proof": "Exam matrix exists and pass/fail requirements are tied to cohorts."
+    },
+    {
+      "id": "LEARN-TASK-003",
+      "title": "Sync lessons across all projects",
+      "layer": "knowledge_sync",
+      "owner": "Cross-Project Knowledge Sync Operators",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "All project owners",
+      "next_action": "Move every reusable lesson through knowledge_sync_bus with affected_projects and proof path.",
+      "output_path": "OPS/learning/knowledge_sync_bus.json",
+      "done_proof": "Lessons have source_project, reusable_rule, affected_projects, sync_status and next_action."
+    },
+    {
+      "id": "LEARN-TASK-004",
+      "title": "Train Parts Seller OS rules from market learning",
+      "layer": "parts_seller_os_training",
+      "owner": "Parts Seller OS Rule Trainers + CEO-A Parts OS General Manager",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "Frontend Agent-C2 / UI and Cockpit Builder",
+      "next_action": "Wire training matrix into one-seller UI/workflow and sample data tests.",
+      "output_path": "OPS/learning/parts_seller_os_training_matrix.json",
+      "done_proof": "Each workflow module has rules_to_apply, test_case and QA path."
+    },
+    {
+      "id": "LEARN-TASK-005",
+      "title": "Expand EU seller learning coverage",
+      "layer": "eu_seller_learning",
+      "owner": "EU Seller Scouts + Rule Extractors",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "Taxonomy Mappers + Trust/Warranty Analysts",
+      "next_action": "Grow seller target matrix toward 50 rows, 15 countries and 100 reusable rules.",
+      "output_path": "OPS/data_intelligence/eu_seller_research_targets_2026_06_14.json",
+      "done_proof": "Verified rows include source_url, checked_at, confidence and rules_to_extract."
+    },
+    {
+      "id": "LEARN-TASK-006",
+      "title": "Block duplicate learning work",
+      "layer": "anti_duplication",
+      "owner": "Anti-Duplication and Bottleneck Breakers",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "COO-2 Operations Controller",
+      "next_action": "Merge duplicate research, route capacity into review/QA/dedupe/unblock tasks, and prevent new unowned docs.",
+      "output_path": "OPS/operating_loops/ANTI_STAGNATION_ENGINE.md",
+      "done_proof": "Duplicate tasks are merged and all learning work has canonical output path."
+    },
+    {
+      "id": "LEARN-TASK-007",
+      "title": "Measure visible learning jump",
+      "layer": "learning_metrics",
+      "owner": "PMO-3 Strategic Prioritization Officer",
+      "status": "active",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "CEO / Master Agent",
+      "next_action": "Track reusable_rules_created, synced_lessons, QA blocks, data rows with provenance, prototype rule changes and revenue movement.",
+      "output_path": "OPS/learning/learning_metrics_2026_06_14.json",
+      "done_proof": "Metrics show product behavior changed, not just more documents."
+    }
+  ],
+  "anti_vanity_note": "10 000 is capacity, not proof. Proof is measured by rules synced, workflows changed, QA closed, public demo proof, exact leads and paid-pilot movement."
+}
