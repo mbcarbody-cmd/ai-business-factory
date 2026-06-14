@@ -1,0 +1,101 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Cross-Project Knowledge Sync Operators + PMO-2 Memory Ledger Keeper",
+  "status": "active_seed",
+  "purpose": "Canonical bus that moves lessons from one project or agent cohort into every affected project so worker knowledge stays equal.",
+  "rule": "A lesson is not system knowledge until it is normalized, assigned to affected projects, has a proof path, and is marked synced or blocked with fallback.",
+  "sync_statuses": ["observed", "normalized", "queued_for_sync", "synced", "blocked", "deprecated"],
+  "lesson_schema": {
+    "id": "string",
+    "source_project": "string",
+    "source_output_path": "string",
+    "lesson_type": "market_rule | qa_rule | cfo_rule | revenue_rule | design_rule | data_rule | delivery_rule | deploy_rule | anti_duplication_rule",
+    "lesson": "string",
+    "reusable_rule": "string",
+    "affected_projects": ["string"],
+    "owner": "string",
+    "sync_status": "string",
+    "proof_path": "string",
+    "qa_check": "string",
+    "next_action": "string"
+  },
+  "lessons": [
+    {
+      "id": "KSB-001",
+      "source_project": "EU Seller Learning Engine",
+      "source_output_path": "OPS/marketplace/EU_SELLER_LEARNING_ENGINE_LT.md",
+      "lesson_type": "market_rule",
+      "lesson": "EU sellers share the same market grammar even when templates differ: buyer intent, vehicle/part identification, listing quality, price confidence, trust, delivery, return/warranty and seller workflow.",
+      "reusable_rule": "Do not copy sellers. Extract repeated workflow rules and convert them into Parts Seller OS decisions.",
+      "affected_projects": ["Parts Seller OS", "Revenue Operations", "Design Conversion", "Marketplace Roadmap", "QA Critic"],
+      "owner": "CEO-A Parts OS General Manager",
+      "sync_status": "queued_for_sync",
+      "proof_path": "OPS/marketplace/EU_SELLER_LEARNING_ENGINE_LT.md",
+      "qa_check": "QA must verify no copied catalogue/design/text dependency.",
+      "next_action": "Wire learned fields into Parts Seller OS listing readiness and pricing confidence."
+    },
+    {
+      "id": "KSB-002",
+      "source_project": "RRR public seed research",
+      "source_output_path": "OPS/marketplace/rrr_public_seed_samples_2026_06_14.json",
+      "lesson_type": "data_rule",
+      "lesson": "Small public seed rows can teach pricing/listing logic only when source_url, checked_at and confidence exist.",
+      "reusable_rule": "No source_url + checked_at + confidence means no price/product/revenue decision.",
+      "affected_projects": ["Parts Seller OS", "Competitor Intelligence", "Revenue Operations", "CFO", "QA Critic"],
+      "owner": "CI-2 Pricing & Offer Analyst",
+      "sync_status": "queued_for_sync",
+      "proof_path": "OPS/marketplace/rrr_public_seed_samples_2026_06_14.json",
+      "qa_check": "QA blocks unsourced price claims.",
+      "next_action": "Add provenance validation to public-data crawler and Parts Seller OS sample table."
+    },
+    {
+      "id": "KSB-003",
+      "source_project": "Trust Signal Rules",
+      "source_output_path": "OPS/marketplace/trust_signal_rules.json",
+      "lesson_type": "qa_rule",
+      "lesson": "Return, warranty, tested state and shipping readiness change buyer trust and price confidence.",
+      "reusable_rule": "High-value or risk-sensitive parts without warranty/tested/shipping state require manual review or block.",
+      "affected_projects": ["Parts Seller OS", "CFO", "Delivery", "Design Conversion", "QA Critic"],
+      "owner": "Trust/Warranty Analysts + QA Critic-C5",
+      "sync_status": "queued_for_sync",
+      "proof_path": "OPS/marketplace/trust_signal_rules.json",
+      "qa_check": "QA must check listing readiness uses trust states before publish.",
+      "next_action": "Create UI readiness badges for warranty/tested/shipping states."
+    },
+    {
+      "id": "KSB-004",
+      "source_project": "Category Learning Map",
+      "source_output_path": "OPS/marketplace/category_learning_map.json",
+      "lesson_type": "market_rule",
+      "lesson": "EU sellers converge around repeatable category groups: lighting, engine, body, electronics, interior/safety, brakes and cooling/HVAC.",
+      "reusable_rule": "Every item must map to a canonical category and required attributes before listing.",
+      "affected_projects": ["Parts Seller OS", "Marketplace Roadmap", "QA Critic", "Design Conversion"],
+      "owner": "Taxonomy Mappers + CEO-A Parts OS General Manager",
+      "sync_status": "queued_for_sync",
+      "proof_path": "OPS/marketplace/category_learning_map.json",
+      "qa_check": "QA blocks listing when category or required attributes are missing.",
+      "next_action": "Wire category rules into add_part workflow and title/listing generator."
+    },
+    {
+      "id": "KSB-005",
+      "source_project": "Core OS bottleneck review",
+      "source_output_path": "OPS/CORE_OS_STATUS.md",
+      "lesson_type": "anti_duplication_rule",
+      "lesson": "More workers do not help when they create duplicate streams. Capacity must attach to owner, task id, output path and proof.",
+      "reusable_rule": "Extra capacity becomes review, QA, research, normalization, dedupe or unblock support unless a product gate assigns build ownership.",
+      "affected_projects": ["All projects"],
+      "owner": "COO-1 Execution Architect",
+      "sync_status": "queued_for_sync",
+      "proof_path": "OPS/org/TEN_THOUSAND_LEARNING_WORKFORCE_2026_06_14.json",
+      "qa_check": "QA checks for duplicate tasks and vague work outputs.",
+      "next_action": "Apply dedupe check to all new learning tasks."
+    }
+  ],
+  "metrics": {
+    "lessons_total": 5,
+    "synced": 0,
+    "queued_for_sync": 5,
+    "blocked": 0,
+    "target_next": "Convert queued lessons into Parts Seller OS workflow rules and task-board updates."
+  }
+}
