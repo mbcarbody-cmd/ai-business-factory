@@ -52,3 +52,23 @@ Weakness/risk: screenshot source is not independently verified; do not copy exac
 Gap we can use: our content should sell mechanisms and outcomes, not vague AI hype. Use audience-native visuals such as code, dashboards, inventory cards, pricing notes and seller workflows.
 
 Action created: `OPS/competitor_intelligence/content_funnel_patterns.md` with reusable formula and converted variants for AI product factory, Parts Seller OS and AI visibility audit.
+
+## 2026-06-14 — AI tool stack listicle ad
+
+Source pattern: user-provided Facebook sponsored screenshot showing an AI course/certificate funnel with a long list of AI tools.
+
+Segment: AI course, beginner AI adoption, certificate funnel, productivity upskilling.
+
+Offer/funnel: the ad sells a guided AI journey by showing many tools and positioning the training as the map through tool chaos.
+
+Price: not shown.
+
+CTA: Start Now / Learn more.
+
+Strength: strong listicle headline, instant perceived value, broad tool coverage, low cognitive load, clear click CTA. The ad makes the buyer feel that learning the stack saves research time and makes them more capable.
+
+Weakness/risk: generic AI tool lists can become hype; exact sponsor/ad claims are not independently verified; do not copy the brand, image or tool-order structure directly.
+
+Gap we can use: convert the listicle mechanism into operational stacks tied to a concrete result: one built workflow, seller OS audit, pricing workflow, content engine or AI visibility audit.
+
+Action created: `OPS/competitor_intelligence/content_funnel_patterns.md` now includes AI business factory stack, Parts Seller OS stack and AI visibility audit stack variants.
