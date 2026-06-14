@@ -1,0 +1,83 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "CFO Margin and Cost Teachers + CFO / Pricing Controller",
+  "status": "active_seed",
+  "purpose": "Make CFO logic shared across all projects so workers understand cost, margin, risk and break-even before promising or building.",
+  "source_core": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+  "universal_cfo_rules": [
+    {
+      "id": "CFO-TRAIN-001",
+      "rule": "Build time is a cost even when AI agents do the work.",
+      "applies_to": ["all products", "all demos", "all research tasks"],
+      "qa_block": "No product gate advance without expected cost or no-cost reason."
+    },
+    {
+      "id": "CFO-TRAIN-002",
+      "rule": "No margin assumption without source/confidence.",
+      "applies_to": ["parts pricing", "competitor pricing", "data monitoring", "offer pricing"],
+      "qa_block": "Price claims with no source_url, checked_at and confidence become manual_review."
+    },
+    {
+      "id": "CFO-TRAIN-003",
+      "rule": "Low-value parts need handling-cost logic.",
+      "applies_to": ["Parts Seller OS", "Marketplace Roadmap"],
+      "qa_block": "15-25 EUR parts must be automated, bundled, skipped or justified by demand."
+    },
+    {
+      "id": "CFO-TRAIN-004",
+      "rule": "Paid tools require CFO approval before spend.",
+      "applies_to": ["data providers", "SERP", "proxies", "ads", "hosting", "video", "voice", "AI models"],
+      "qa_block": "No paid external cost without approval, linked revenue path and cap."
+    },
+    {
+      "id": "CFO-TRAIN-005",
+      "rule": "Optional projects must show P0 impact and break-even before promotion.",
+      "applies_to": ["AI Ads Factory", "YouTube Content Engine", "Advisor App", "Opportunity Lab"],
+      "qa_block": "Optional project cannot consume P0 build capacity without CFO value case."
+    }
+  ],
+  "project_cost_models": [
+    {
+      "project": "Parts Seller OS",
+      "cost_drivers": ["build time", "data verification", "warehouse logic", "QA", "support", "future hosting"],
+      "margin_logic": "Sell audit/pilot first; full marketplace only after one-seller proof and revenue signal.",
+      "break_even_signal": "First paid audit or 72h pilot."
+    },
+    {
+      "project": "AI Agent Setup 72h Pilot",
+      "cost_drivers": ["operator hours", "QA", "handoff", "small support"],
+      "margin_logic": "Scope stays narrow; custom promises quoted separately.",
+      "break_even_signal": "One paid 299 EUR pilot covers first sprint validation."
+    },
+    {
+      "project": "Data Intelligence Monitoring",
+      "cost_drivers": ["source verification", "data provider/API", "model calls", "monitoring cadence", "QA"],
+      "margin_logic": "No paid data/provider spend until revenue or CFO approval.",
+      "break_even_signal": "One paid monitoring client or approved internal value case."
+    },
+    {
+      "project": "AI Ads Factory",
+      "cost_drivers": ["creative time", "model/video/tool calls", "QA", "client revisions"],
+      "margin_logic": "Start with zero-tool-spend sample sprint; paid tools only after paid sprint.",
+      "break_even_signal": "One 199-399 EUR paid creative sprint."
+    },
+    {
+      "project": "YouTube Content Engine",
+      "cost_drivers": ["scripts", "voice/video", "editing", "review", "slow monetization"],
+      "margin_logic": "Keep parked until channel moat and monetization path justify cost.",
+      "break_even_signal": "Validated audience + low-cost production loop + revenue path."
+    },
+    {
+      "project": "Android Market Advisor / Investment Advisor App",
+      "cost_drivers": ["data feeds", "app build", "risk wording", "maintenance", "compliance"],
+      "margin_logic": "Internal tool only until risk/compliance and data cost plan exists.",
+      "break_even_signal": "Internal decision value or safe paid product gate."
+    }
+  ],
+  "done_proof": [
+    "Every offer has price, expected cost, margin and break-even target.",
+    "Every paid data/tool idea has approval rule.",
+    "Low-value part handling exists in Parts Seller OS rules.",
+    "Optional projects stay gated until CFO value case exists."
+  ]
+}
