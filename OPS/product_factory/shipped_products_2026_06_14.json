@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "CEO / Master Agent + Product Shipping Cell",
+  "status": "active",
+  "purpose": "Track actual shipped product prototypes so the factory does not only produce training/docs.",
+  "shipping_rule": "Every day must produce at least one working product artifact, public demo proof, lead/proposal movement, or closed QA/deploy proof. Docs alone do not count unless they directly unblock a product artifact.",
+  "products_shipped_today": [
+    {
+      "id": "SHIP-2026-06-14-001",
+      "name": "Date Spark PWA",
+      "category": "dating / social utility",
+      "path": "products/date-spark-pwa/index.html",
+      "manifest": "products/date-spark-pwa/manifest.json",
+      "status": "working_static_pwa_prototype",
+      "what_works": [
+        "local profile intake",
+        "AI-style bio rewrite logic",
+        "sample match compatibility scoring",
+        "icebreaker generation",
+        "date idea generation",
+        "safety checklist",
+        "monetization hypothesis"
+      ],
+      "what_is_not_done": [
+        "real user accounts",
+        "backend database",
+        "real matching network",
+        "chat",
+        "moderation/report/block backend",
+        "Android APK wrapper",
+        "public hosted URL"
+      ],
+      "monetization_path": "Start as dating profile optimizer / icebreaker pack / local date ideas subscription before attempting full dating network.",
+      "next_action": "Host static demo and wrap with Capacitor/TWA if product gate passes."
+    },
+    {
+      "id": "SHIP-2026-06-14-002",
+      "name": "Market Pulse PWA",
+      "category": "Android-friendly market decision journal",
+      "path": "products/market-pulse-pwa/index.html",
+      "manifest": "products/market-pulse-pwa/manifest.json",
+      "status": "working_static_pwa_prototype",
+      "what_works": [
+        "watchlist",
+        "manual plan storage",
+        "risk checklist",
+        "signal discipline score",
+        "decision journal",
+        "monetization hypothesis"
+      ],
+      "what_is_not_done": [
+        "live market data API",
+        "notifications",
+        "user login",
+        "Android APK wrapper",
+        "public hosted URL",
+        "legal/compliance review for public financial product"
+      ],
+      "monetization_path": "Free watchlist/journal, premium alerts/export/AI second opinion; keep as education and decision discipline tool, not broker or financial advice.",
+      "next_action": "Host static demo, add allowed data source plan, then wrapper if gate passes."
+    }
+  ],
+  "blocked_or_reframed": [
+    {
+      "name": "Full dating app in a few days",
+      "decision": "Reframed to useful PWA MVP first.",
+      "reason": "Full real dating network needs accounts, chat, moderation, privacy, abuse handling and growth loop. Prototype can ship now; full app needs gates."
+    }
+  ],
+  "next_48h_shipping_queue": [
+    "Host Date Spark and Market Pulse static demos.",
+    "Create Android wrapper plan for both using Capacitor or Trusted Web Activity.",
+    "Ship one monetizable micro tool per day: profile optimizer, supplier scout, price-check mini app, ad hook generator, lead-to-offer generator.",
+    "Update CEO Cockpit to show shipped products, not just OPS status."
+  ]
+}
