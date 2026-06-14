@@ -1,61 +1,75 @@
 # AI Master Intake and Benchmark
 
 Date: 2026-06-14
-Owner: Model Council + CTO-1 AI Systems Architect + QA Critic-C5
-Status: active_intake
+Owner: Model Council + CTO-1 AI Systems Architect + QA Critic-C5 + CFO Controller
+Status: parked_due_paywall
+Candidate: aimaster.me
+User decision: do not buy now
 
-## Kodėl sukurtas
+## Kodėl statusas pakeistas
 
-Vartotojas nurodė, kad atsirado „AI Master“ tipo įrankis/modelis, kurį labai giria. Kadangi pavadinimas bendrinis ir be oficialios nuorodos nėra vienareikšmiškai identifikuotas, sistema turi jį išnaudoti per saugų benchmarką, o ne aklai prijungti prie duomenų, repo, klientų ar mokėjimų.
+Vartotojas pateikė screenshotą iš `aimaster.me`. Puslapis rodo AI Master kaip all-in-one AI subscription produktą su `Start now` ir mokamu Starter planu. Vartotojas patvirtino, kad įrankio nepirks, nes neįmanoma normaliai paklausti ar patikrinti jo neapmokėjus.
 
-## Pagrindinis principas
+Sprendimas: įrankis lieka modelių tarybos stebėjimo sąraše, bet nėra perkamas ir nėra integruojamas į aktyvų workflow.
 
-Giriamas AI įrankis nėra automatiškai geras mūsų verslui.
+## CFO verdict
 
-Jis tampa naudingas tik tada, kai realiai pagerina bent vieną iš šių rodiklių:
+Nepirkti dabar.
 
-- Parts Seller OS workflow sprendimą,
-- EU seller learning rules extraction,
-- public data provenance kokybę,
-- revenue lead/offer kokybę,
-- CFO/margin skaičiavimą,
-- QA klaidų radimą,
-- UI/conversion kokybę,
-- deploy/delivery patikimumą,
-- darbo greitį be proof kokybės kritimo.
+Priežastys:
 
-## Saugumo statusas
+- nėra įrodymo, kad AI Master geresnis už turimus modelius,
+- nėra atlikto benchmark prieš GPT / Claude / Gemini / Grok,
+- paywall blokuoja realų testą prieš mokėjimą,
+- metinis ar mėnesinis planas be realaus output comparison būtų vanity spend,
+- dabartinis P0 poreikis yra Parts Seller OS proof, public demo, revenue leads ir QA closure, ne dar vienas mokamas AI wrapperis.
 
-Kol AI Master neidentifikuotas oficialiu URL / tiekėju / terms / data policy:
+## Leidžiama ateityje
 
-- negalima duoti privačių klientų duomenų,
-- negalima duoti secrets, API keys, cookies, .env,
-- negalima duoti full repo write access,
-- negalima leisti automatinio bulk messaging,
-- negalima leisti mokėjimų, deploy į production ar destruktyvių veiksmų,
-- negalima naudoti kaip vienintelio sprendimo priėmėjo.
+AI Master gali būti peržiūrėtas tik jei atsiranda:
 
-Leidžiama:
+1. nemokamas testas,
+2. draugo/komandos realus output pavyzdys,
+3. aiški funkcija, kurios neturime,
+4. benchmark rezultatas, kuris aplenkia mūsų modelių tarybą,
+5. CFO patvirtinta nauda.
 
-- naudoti kaip research / critique / second-opinion modelį,
-- duoti anonimizuotus sample tasks,
-- lyginti outputą su GPT, Claude, Gemini, Grok ar kitais modeliais,
-- naudoti idėjų generavimui, QA kontrargumentams, UI copy variantams,
-- naudoti tik per human/model council review.
+## Dabartinis veiksmas
 
-## AI Master benchmark vartai
+Nenaudoti biudžeto AI Master.
 
-Įrankis pereina vartus tik jei:
+Vietoje to tęsti:
 
-1. Yra oficialus source URL arba vartotojo pateiktas screenshot/link.
-2. Aiškūs data/privacy/terms signalai.
-3. Yra testų rezultatai prieš bent 3 alternatyvas.
-4. Output turi proof, ne vien gražų tekstą.
-5. QA/Judge neranda hallucination ar unsafe automation rizikos.
-6. CFO patvirtina kainą/naudą, jeigu įrankis mokamas.
-7. Model Council priskiria leidžiamą rolę.
+- GPT-first execution,
+- multi-model comparison kai nemokamai/prieinama,
+- Parts Seller OS workflow build,
+- EU Seller Learning Engine,
+- Human Browser Research Swarm,
+- cross-project knowledge propagation,
+- revenue offer and lead validation,
+- QA/Judge proof closure.
 
-## Test suite
+## Jei ateityje bandysime
+
+AI Master būtų leidžiamas tik kaip siauras second-opinion worker:
+
+- prompt reviewer,
+- UI copy variant generator,
+- revenue message critic,
+- QA critique helper,
+- research scout.
+
+Draudžiamos rolės be papildomo patvirtinimo:
+
+- autonomous repo writer,
+- customer data processor,
+- payment operator,
+- production deployer,
+- sole CFO/pricing authority,
+- scraper without permission,
+- final legal/financial advisor.
+
+## Test suite lieka ateičiai
 
 ### Test 1 — Parts pricing reasoning
 
@@ -132,7 +146,7 @@ Vertinimas:
 - ar saugo secrets/security,
 - ar duoda test/no-test reason.
 
-## Scorecard
+## Scorecard ateičiai
 
 | Criterion | Weight |
 |---|---:|
@@ -151,45 +165,6 @@ Passing score:
 - 60-74 — research only
 - <60 — do not integrate
 
-## Leidžiamos rolės po benchmark
-
-| Role | Kada leidžiama |
-|---|---|
-| Research Scout | jei gerai ieško idėjų, bet reikia fact-check |
-| QA Critic | jei gerai randa klaidas ir rizikas |
-| Pricing Second Opinion | jei gerai struktūruoja kainodarą, bet reikalauja source check |
-| UI Copy Variants | jei gerai rašo aiškias landing versijas |
-| Revenue Message Critic | jei pagerina offer/message kokybę |
-| Code Reviewer | tik jei saugiai veikia su mažais diffais |
-
-## Draudžiamos rolės be papildomo patvirtinimo
-
-- autonomous repo writer,
-- customer data processor,
-- payment operator,
-- bulk email sender,
-- production deployer,
-- sole CFO/pricing authority,
-- scraper without permission,
-- legal/financial final advisor.
-
-## Pirmas naudojimas mūsų sistemoje
-
-Kol AI Master nėra pilnai identifikuotas, jis naudojamas taip:
-
-1. Sukuriamas anonimizuotas test promptas.
-2. Tas pats promptas duodamas GPT, Claude/Gemini/Grok ir AI Master.
-3. Outputs lyginami per scorecard.
-4. Geriausi rules įrašomi į knowledge_sync_bus.
-5. Jei AI Master laimi konkrečioje srityje, jam priskiriama tik ta siaura rolė.
-
 ## Done proof
 
-Šis intake laikomas aktyviai panaudotu tik kai yra:
-
-- `OPS/model_council/ai_master_evaluation_queue.json`,
-- bent 6 benchmark tasks,
-- bent 1 realus output comparison row,
-- QA/Judge verdict,
-- CFO verdict jei mokamas,
-- project injection actions, jeigu output gerina kitus projektus.
+Šis įrankis laikomas neaktyviu, kol nėra bent vieno realaus output comparison row ir CFO/Judge sprendimo, kad jis duoda daugiau naudos negu kainuoja.
