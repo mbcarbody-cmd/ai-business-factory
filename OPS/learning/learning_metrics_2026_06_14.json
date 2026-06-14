@@ -5,9 +5,14 @@
   "purpose": "Measure whether the 10000 learning units create a visible system jump instead of vanity scale.",
   "metrics": {
     "virtual_learning_units_added": 10000,
-    "new_learning_files_created": 8,
+    "learning_control_files_created": 13,
     "agent_instruction_file_updated": true,
     "learning_audit_script_created": true,
+    "cross_project_propagation_engine_created": true,
+    "project_learning_injection_map_created": true,
+    "revenue_training_matrix_created": true,
+    "cfo_training_matrix_created": true,
+    "design_conversion_training_matrix_created": true,
     "global_knowledge_core_created": true,
     "learning_academy_created": true,
     "worker_exam_matrix_created": true,
@@ -15,7 +20,14 @@
     "parts_seller_os_training_matrix_created": true,
     "learning_task_manifest_created": true,
     "reusable_rules_seeded": 5,
+    "project_injection_actions_created": 20,
+    "project_injection_actions_synced": 4,
+    "project_injection_actions_queued": 16,
+    "projects_or_layers_covered_by_injection_map": 18,
     "parts_seller_workflow_modules_trained": 8,
+    "revenue_training_rules_created": 5,
+    "cfo_training_rules_created": 5,
+    "design_training_rules_created": 5,
     "exam_modules_created": 10,
     "learning_tasks_created": 7,
     "seller_coverage_target_rows": 50,
@@ -29,20 +41,24 @@
     "Every worker must pass exams before closing work or teaching others.",
     "EU seller learning becomes reusable rules, not copied data.",
     "Reusable lessons flow through knowledge_sync_bus to all affected projects.",
+    "Project learning injection map sends lessons to revenue, CFO, delivery, design, data, QA, deploy and opportunity projects.",
     "Parts Seller OS workflow modules have training rules and test cases.",
+    "Revenue, CFO and design training matrices now exist for cross-project knowledge transfer.",
     "10 000 capacity is routed into proof-based tasks, not duplicate documents.",
     "Learning layer has an audit script that can fail missing or inconsistent training artifacts."
   ],
   "not_yet_done": [
-    "Learning audit script exists, but it has not been run in a checked CI/local result in this response.",
-    "Knowledge sync bus has queued lessons, but product UI/workflow still needs to consume them.",
+    "Learning audit script exists and now checks propagation files, but it has not been run in a checked CI/local result in this response.",
+    "Project injection map has 20 actions and 4 synced actions, but 16 actions still need project artifact updates.",
+    "Knowledge sync bus still needs more lessons moved from queued_for_sync into synced after project artifacts change.",
     "Parts Seller OS still needs actual UI/rules-engine integration and QA test proof.",
     "EU seller coverage target is defined but not fully populated to 50 rows yet."
   ],
   "next_best_actions": [
     "Run python3 scripts/learning_audit.py and record result.",
+    "Move 5 queued injections to synced by updating target project artifacts.",
     "Wire OPS/learning/parts_seller_os_training_matrix.json into products/parts-seller-os UI/workflow.",
-    "Move at least one knowledge_sync_bus lesson from queued_for_sync to synced after product rule change.",
-    "Add 10 exact EU/Baltic seller research rows with source_url, checked_at and confidence."
+    "Add 10 exact EU/Baltic seller research rows with source_url, checked_at and confidence.",
+    "Update CEO Cockpit to display learning sync metrics."
   ]
 }
