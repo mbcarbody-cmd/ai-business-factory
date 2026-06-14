@@ -1,0 +1,126 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Parts Seller OS Rule Trainers + CEO-A Parts OS General Manager",
+  "status": "active_seed",
+  "purpose": "Convert shared worker learning into concrete Parts Seller OS workflow rules and test cases.",
+  "source_core": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+  "source_market_learning": "OPS/marketplace/EU_SELLER_LEARNING_ENGINE_LT.md",
+  "workflow_modules": [
+    {
+      "module": "add_part",
+      "what_workers_must_know": [
+        "A part cannot be useful without part name, category, vehicle fitment, code confidence and condition state.",
+        "Vague titles reduce conversion and must trigger QA warning or block.",
+        "Side/position is mandatory for lamps, mirrors, doors, safety parts and many body parts."
+      ],
+      "rules_to_apply": [
+        "If title is vague, listing_status = blocked.",
+        "If side-sensitive category lacks side_position, listing_status = needs_data.",
+        "If OEM/code exists, store normalized_oem_codes and aliases."
+      ],
+      "test_case": "Hyundai Santa Fe 'kita kėbulo dalis' must be blocked until exact part function is named."
+    },
+    {
+      "module": "categorize",
+      "what_workers_must_know": [
+        "EU sellers converge around repeatable categories but labels vary by language/template.",
+        "We use our canonical category tree, not copied external taxonomy."
+      ],
+      "rules_to_apply": [
+        "Map external pattern groups to canonical category_id.",
+        "Add required_attributes by category before listing readiness."
+      ],
+      "test_case": "Rear bumper lamp maps to lighting and requires left/right/front/rear context."
+    },
+    {
+      "module": "fitment",
+      "what_workers_must_know": [
+        "Buyer searches by uncertainty: code, model, category or visible part name.",
+        "Vehicle generation, year range, engine, gearbox, body and LHD/RHD can change compatibility."
+      ],
+      "rules_to_apply": [
+        "If fitment is incomplete, compatibility_confidence = low or manual_review.",
+        "Code-sensitive electronics require OEM/code match before sell_ready."
+      ],
+      "test_case": "Aston DBX window regulator code MY83-F23200-AC must not be priced/listed as generic regulator without fitment confidence."
+    },
+    {
+      "module": "suggest_location",
+      "what_workers_must_know": [
+        "Seller OS must reduce warehouse labor, not only create listings.",
+        "Location suggestion depends on storage profile, dimensions, fragility, weight, frequency and occupancy."
+      ],
+      "rules_to_apply": [
+        "Fragile lighting gets protected shelf/bin profile.",
+        "Oversize body parts require oversize zone and shipping warning.",
+        "If location occupancy > threshold, suggest fallback/pending queue."
+      ],
+      "test_case": "Rear lamp cannot go to heavy/dirty mechanical bin."
+    },
+    {
+      "module": "set_price_and_floor",
+      "what_workers_must_know": [
+        "Price signal is not final price unless source, date and confidence exist.",
+        "Warranty/tested/condition/shipping risk affects confidence.",
+        "Low-value parts may be skip/bundle/auto-list if handling cost destroys margin."
+      ],
+      "rules_to_apply": [
+        "If no source_url + checked_at + confidence, price_confidence = missing.",
+        "If high-value part and no comps, manual_review.",
+        "If price < handling threshold, mark bundle_or_skip unless automation makes it profitable."
+      ],
+      "test_case": "15-25 EUR low-value public seed parts must trigger handling-cost review."
+    },
+    {
+      "module": "listing_readiness",
+      "what_workers_must_know": [
+        "Listing readiness is a business gate, not a cosmetic label.",
+        "Trust/warranty/return/shipping states affect buyer confidence."
+      ],
+      "rules_to_apply": [
+        "ready requires clear title, category, price, photo_state, return_policy_state and shipping_profile.",
+        "manual_review for unknown warranty on high-value or risk-sensitive parts.",
+        "blocked for vague title, missing side where required or missing category mapping."
+      ],
+      "test_case": "Hyundai Terracan turbo needs condition/test notes before publish."
+    },
+    {
+      "module": "reserve_order_delivery",
+      "what_workers_must_know": [
+        "A sold part creates operational work: reserve, pick, pack, ship, support and possible return.",
+        "Delivery layer must know scope and handoff before paid pilot or external promise."
+      ],
+      "rules_to_apply": [
+        "Paid/reserved status blocks duplicate sale.",
+        "Oversize/fragile shipping requires delivery warning.",
+        "Return/warranty state follows order record."
+      ],
+      "test_case": "Reserved part cannot remain listed as available without warning."
+    },
+    {
+      "module": "ageing_dead_stock",
+      "what_workers_must_know": [
+        "Stock that does not move costs space and money.",
+        "Ageing decisions must consider price, demand, storage cost, category and rare-part value."
+      ],
+      "rules_to_apply": [
+        "Old low-value bulky item -> discount/bundle/scrap review.",
+        "Rare expensive item -> promote/price review, not automatic discount.",
+        "Repeated views without sale -> title/photo/price review."
+      ],
+      "test_case": "Rare DBX part should not be auto-discounted like common low-value part."
+    }
+  ],
+  "training_done_proof": [
+    "Each workflow module has rules_to_apply and test_case.",
+    "At least 3 sample parts pass full workflow.",
+    "QA bug board records failures.",
+    "CFO layer validates low-value handling and premium rare-part logic.",
+    "UI shows readiness/confidence states clearly."
+  ],
+  "next_actions": [
+    "Wire these module rules into products/parts-seller-os UI and sample data.",
+    "Create 3 sample parts test run from RRR seed and internal rare-part examples.",
+    "Record QA results in OPS/qa/bug_board.json."
+  ]
+}
