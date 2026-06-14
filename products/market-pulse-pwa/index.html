@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Market Pulse — decision journal MVP</title>
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root{--bg:#0b1020;--card:#111a2e;--line:#293550;--text:#edf4ff;--muted:#a9b8d6;--accent:#38bdf8;--good:#6ee7b7;--warn:#facc15;--bad:#fb7185}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0f172a,#0b1020);font-family:Inter,Arial,sans-serif;color:var(--text)}.wrap{max-width:1060px;margin:auto;padding:22px 14px 92px}.badge{display:inline-block;border:1px solid var(--line);background:#0b1224;border-radius:999px;padding:7px 11px;color:var(--muted);font-size:13px}h1{font-size:34px;line-height:1.05;margin:18px 0 8px}.lead{color:var(--muted);line-height:1.55;max-width:760px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.card{background:rgba(17,26,46,.94);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.25)}label{display:block;color:var(--muted);font-size:13px;margin:10px 0 6px}input,select,textarea{width:100%;background:#0b1224;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:15px}textarea{min-height:86px}.btn{background:linear-gradient(90deg,#0284c7,#22c55e);border:0;border-radius:14px;color:white;padding:12px 14px;font-weight:800;cursor:pointer}.btn.secondary{background:#1f2937;border:1px solid var(--line)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pill{border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--muted);font-size:13px}.small{color:var(--muted);font-size:13px;line-height:1.45}.score{font-size:42px;font-weight:900}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}th{font-size:12px;color:var(--muted);text-transform:uppercase}.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,16,32,.96);border-top:1px solid var(--line);padding:10px;display:flex;justify-content:center;gap:8px}.nav button{background:#111827;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:9px 10px}.hidden{display:none}@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:30px}.score{font-size:34px}table{font-size:13px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Market Pulse • Android-friendly PWA • no broker execution</span>
+  <h1>Ne „pirk/parduok“ botas. Pirma — sprendimų žurnalas, rizikos taisyklės ir signalų disciplina.</h1>
+  <p class="lead">Veikiantis MVP investicijų stebėjimui: watchlist, rizikos checklist, signal score, pirkimo plano logika, sprendimų žurnalas. Tai nėra finansinis patarimas ir nevykdo sandorių.</p>
+
+  <section id="screen-watch" class="screen grid">
+    <div class="card">
+      <h2>1. Pridėti stebimą instrumentą</h2>
+      <label>Pavadinimas</label><input id="asset" placeholder="Gold ETF, BTC, S&P 500 ETF, Oil, EUR/USD" />
+      <label>Tipas</label><select id="type"><option>ETF</option><option>Crypto</option><option>Commodity</option><option>FX</option><option>Stock</option><option>Other</option></select>
+      <label>Tavo planas</label><textarea id="plan" placeholder="Kodėl stebiu, kada svarstyčiau pirkimą, kada neliesčiau"></textarea>
+      <label>Rizikos lygis</label><select id="risk"><option>Žemas</option><option>Vidutinis</option><option>Aukštas</option></select>
+      <div class="row"><button class="btn" onclick="addAsset()">Pridėti</button><button class="btn secondary" onclick="seedDemo()">Demo sąrašas</button></div>
+    </div>
+    <div class="card">
+      <h2>Watchlist</h2>
+      <div id="watchlist">Kol kas tuščia.</div>
+    </div>
+  </section>
+
+  <section id="screen-signal" class="screen grid hidden">
+    <div class="card">
+      <h2>2. Signal score</h2>
+      <label>Instrumentas</label><select id="assetSelect"></select>
+      <label>Kaina vs tavo planas</label><select id="priceState"><option>Dar per brangu / ne mano zona</option><option>Arti plano zonos</option><option>Plano zonoje</option></select>
+      <label>Trend / momentum</label><select id="trend"><option>Neaiškus</option><option>Silpnėja</option><option>Stiprėja</option></select>
+      <label>Naujienų / makro rizika</label><select id="macro"><option>Rami</option><option>Vidutinė</option><option>Didelė</option></select>
+      <label>Ar turi aiškų stop / invalidation?</label><select id="stop"><option>Ne</option><option>Taip</option></select>
+      <div class="row"><button class="btn" onclick="scoreSignal()">Įvertinti</button></div>
+    </div>
+    <div class="card">
+      <h2>Verdiktas</h2>
+      <div id="signalOut">Įvesk signalus.</div>
+      <p class="small">App niekada nesako „pirk dabar“. Ji sako: ar sprendimas drausmingas pagal tavo paties planą.</p>
+    </div>
+  </section>
+
+  <section id="screen-journal" class="screen grid hidden">
+    <div class="card">
+      <h2>3. Sprendimo žurnalas</h2>
+      <label>Įrašas</label><textarea id="note" placeholder="Ką nusprendei ir kodėl? Kas turi įvykti, kad pakeistum nuomonę?"></textarea>
+      <div class="row"><button class="btn" onclick="addNote()">Išsaugoti įrašą</button><button class="btn secondary" onclick="clearJournal()">Valyti</button></div>
+    </div>
+    <div class="card">
+      <h2>Journal</h2>
+      <div id="journal">Tuščia.</div>
+    </div>
+  </section>
+
+  <section id="screen-monetize" class="screen grid hidden">
+    <div class="card">
+      <h2>Monetizacija</h2>
+      <p class="small"><b>Nemokamas MVP:</b> watchlist + journal + risk checklist. <br><b>Premium:</b> alert templates, portfolio rules, export, weekly review, AI second opinion. <br><b>B2B:</b> signal dashboard mažiems investavimo content kūrėjams / newsletteriams.</p>
+      <div class="row"><span class="pill">No broker</span><span class="pill">No execution</span><span class="pill">Decision discipline</span></div>
+    </div>
+    <div class="card">
+      <h2>Next build</h2>
+      <p class="small">Kitas veiksmas: prijungti public market data per leidžiamą API arba rankinį importą, pridėti notifications ir eksportą į CSV. Android wrapper: Capacitor/TWA po public demo URL.</p>
+    </div>
+  </section>
+</main>
+<nav class="nav"><button onclick="show('watch')">Watch</button><button onclick="show('signal')">Signal</button><button onclick="show('journal')">Journal</button><button onclick="show('monetize')">€</button></nav>
+<script>
+function load(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function assets(){return load('mpAssets',[])}
+function notes(){return load('mpNotes',[])}
+function addAsset(){let a={asset:asset.value||'Unnamed',type:type.value,plan:plan.value||'No plan yet',risk:risk.value,created:new Date().toLocaleString()};let arr=assets();arr.unshift(a);save('mpAssets',arr);asset.value='';plan.value='';render()}
+function seedDemo(){save('mpAssets',[{asset:'Gold ETF',type:'ETF',plan:'Svarstyti tik korekcijoje, ne FOMO. Tik jei aiškus stop ir pozicijos dydis.',risk:'Vidutinis',created:new Date().toLocaleString()},{asset:'BTC',type:'Crypto',plan:'Tik mažas dydis, po stiprių kritimų arba aiškaus plano zonoje.',risk:'Aukštas',created:new Date().toLocaleString()},{asset:'S&P 500 ETF',type:'ETF',plan:'DCA arba korekcijos. Tik ilgalaikei daliai.',risk:'Vidutinis',created:new Date().toLocaleString()}]);render()}
+function render(){let arr=assets();watchlist.innerHTML=arr.length?`<table><tr><th>Asset</th><th>Plan</th><th>Risk</th></tr>${arr.map(x=>`<tr><td><b>${x.asset}</b><br><span class="small">${x.type}</span></td><td>${x.plan}</td><td>${x.risk}</td></tr>`).join('')}</table>`:'Kol kas tuščia.';assetSelect.innerHTML=arr.map((x,i)=>`<option value="${i}">${x.asset}</option>`).join('')||'<option>Nėra</option>';journal.innerHTML=notes().length?notes().map(n=>`<div class="card" style="background:#0b1224;margin:8px 0"><b>${n.time}</b><br>${n.text}</div>`).join(''):'Tuščia.'}
+function scoreSignal(){let pts=0;pts+=priceState.value==='Plano zonoje'?30:priceState.value==='Arti plano zonos'?15:0;pts+=trend.value==='Stiprėja'?20:trend.value==='Silpnėja'?10:0;pts+=macro.value==='Rami'?20:macro.value==='Vidutinė'?10:-10;pts+=stop.value==='Taip'?20:-20;pts=Math.max(0,Math.min(100,pts));let cls=pts>70?'good':pts>45?'warn':'bad';let label=pts>70?'Plan-ready, bet dar patikrink dydį ir riziką':pts>45?'Manual review — neskubėti':'Block / wait — per daug neaiškumo';signalOut.innerHTML=`<div class="score ${cls}">${pts}/100</div><h3>${label}</h3><p class="small">Tai nėra rekomendacija pirkti/parduoti. Tai tavo plano disciplinos patikra.</p>`}
+function addNote(){let arr=notes();arr.unshift({time:new Date().toLocaleString(),text:note.value||'Empty note'});save('mpNotes',arr);note.value='';render()}
+function clearJournal(){save('mpNotes',[]);render()}
+function show(s){document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));document.getElementById('screen-'+s).classList.remove('hidden');render()}
+render();
+</script>
+</body>
+</html>
