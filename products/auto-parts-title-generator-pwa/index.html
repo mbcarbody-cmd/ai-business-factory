@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parts Title Generator — MVP</title>
+  <style>
+    body{margin:0;background:#0b1020;color:#edf4ff;font-family:Arial,sans-serif}.wrap{max-width:900px;margin:auto;padding:24px 14px}.card{background:#121a2d;border:1px solid #293550;border-radius:18px;padding:16px;margin:12px 0}input,select,textarea{width:100%;background:#0b1224;color:#edf4ff;border:1px solid #293550;border-radius:12px;padding:11px;margin:6px 0 12px;font-size:15px}button{background:linear-gradient(90deg,#2563eb,#22c55e);border:0;border-radius:14px;color:white;padding:12px 14px;font-weight:800}.small{color:#a9b8d6;font-size:13px;line-height:1.45}.out{background:#0b1224;border:1px solid #293550;border-radius:14px;padding:14px;margin-top:10px}label{color:#a9b8d6;font-size:13px}h1{font-size:34px;line-height:1.05}.pill{display:inline-block;border:1px solid #293550;border-radius:999px;padding:6px 9px;color:#a9b8d6;font-size:13px;margin:2px}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="pill">Auto parts listing title generator • working MVP</span>
+  <h1>Geresnis autodalių skelbimo title per 10 sekundžių.</h1>
+  <p class="small">Šitas mini app’as sprendžia vieną aiškų darbą: iš OEM, automobilio, kategorijos, pusės ir būklės sugeneruoja geresnius skelbimų pavadinimus ir QA blokavimo priežastis.</p>
+  <section class="card">
+    <label>Detalės pavadinimas</label><input id="part" placeholder="pvz. priekinis dešinys stiklo pakelėjas" />
+    <label>OEM / kodas</label><input id="code" placeholder="pvz. MY83-F23200-AC" />
+    <label>Auto modelis</label><input id="vehicle" placeholder="pvz. Aston Martin DBX 2022" />
+    <label>Pusė / pozicija</label><select id="side"><option>Nežinoma</option><option>Kairė</option><option>Dešinė</option><option>Priekis</option><option>Galas</option><option>Priekinė dešinė</option><option>Priekinė kairė</option><option>Galinė dešinė</option><option>Galinė kairė</option></select>
+    <label>Būklė</label><select id="condition"><option>Naudota, patikrinta</option><option>Naudota, netikrinta</option><option>Defektuota</option><option>Reikia foto/būklės</option></select>
+    <label>Kalba</label><select id="lang"><option>LT</option><option>EN</option><option>PL</option></select>
+    <button onclick="generate()">Generuoti title</button>
+  </section>
+  <section class="card"><h2>Rezultatas</h2><div id="result" class="out">Įvesk duomenis.</div></section>
+</main>
+<script>
+function val(id){return document.getElementById(id).value.trim()}
+function generate(){let p=val('part'),c=val('code'),v=val('vehicle'),s=val('side'),cond=val('condition'),l=val('lang');let missing=[];if(!p)missing.push('detalės pavadinimas');if(!v)missing.push('auto modelis');if(!c)missing.push('OEM/kodas');if(s==='Nežinoma')missing.push('pusė/pozicija');let lt=`${v} ${s!=='Nežinoma'?s+' ':''}${p} ${c}`.replace(/\s+/g,' ').trim();let en=`${v} ${s!=='Nežinoma'?s+' ':''}${p} ${c} used OEM`.replace(/\s+/g,' ').trim();let pl=`${v} ${s!=='Nežinoma'?s+' ':''}${p} ${c} używany OEM`.replace(/\s+/g,' ').trim();let title=l==='EN'?en:l==='PL'?pl:lt;let qa=missing.length?`BLOCK / needs data: trūksta ${missing.join(', ')}.`:'READY: title turi modelį, dalį, poziciją ir kodą.';let confidence=missing.length?'Low':'High';result.innerHTML=`<b>Title:</b><br>${title}<br><br><b>Alternative:</b><br>${lt}<br>${en}<br>${pl}<br><br><b>QA:</b> ${qa}<br><b>Confidence:</b> ${confidence}<br><b>Condition note:</b> ${cond}`}
+</script>
+</body>
+</html>
