@@ -146,6 +146,98 @@ CTA: Get a 72h AI visibility audit.
 
 Offer path: revenue operations must validate pricing, target companies and delivery proof before outreach.
 
+## Pattern 2026-06-14 — AI tool stack listicle ad
+
+Source type: user-provided screenshot from Facebook sponsored feed.  
+Source status: user_provided; original ad and sponsor claim not independently verified in repo.  
+Segment: AI course / AI certificate / beginner AI adoption funnel.
+
+### What works
+
+Audience: beginners, employees, freelancers, managers and creators who feel behind on AI and want a simple path to become more capable.
+
+Pain or contrast: the world has too many AI tools and the buyer does not know what to learn first; the ad reframes the chaos as a simple tool stack that can make the person "unstoppable".
+
+Dream outcome: learn the key AI tool categories, feel modern and competent, get a certificate/training path.
+
+Visual pattern: large bold headline plus long categorized-looking bullet list. The list creates perceived completeness and makes the buyer think the course saves research time.
+
+CTA: Start Now / Learn more.
+
+### Reusable formula
+
+```
+[Category] tools that make you [desired identity]
+
+- Tool 1 — simple role
+- Tool 2 — simple role
+- Tool 3 — simple role
+...
+
+Learn to use the whole stack -> [offer / checklist / certificate / audit]
+```
+
+### Why this matters for our system
+
+This pattern sells by reducing confusion. It does not need deep product proof in the ad; it wins the click by saying: "Here is the map of the AI world, and we can guide you through it." Our version should not sell a generic course. It should sell an operational stack connected to a concrete result: seller OS, pricing workflow, lead workflow, content pack or 72h automation pilot.
+
+## Our converted listicle variants
+
+### Variant D — AI business factory stack
+
+Hook: AI tools that make a small business owner dangerous.
+
+List structure:
+
+- ChatGPT / Claude / Gemini — thinking, writing and planning
+- Perplexity — sourced research
+- n8n / Make / Zapier — workflow automation
+- Cursor / GitHub Copilot — coding execution
+- Canva / Gamma — sales assets
+- Sora / Runway / Pika — short video tests
+- Notion / Airtable — operating memory
+- Fireflies / Otter — meeting and call memory
+
+CTA: Get one useful AI workflow built in 72h.
+
+Offer path: `OPS/revenue_ops/offer_pack.md` — 299 EUR 72h AI Automation Pilot.
+
+### Variant E — Parts Seller OS stack
+
+Hook: Tools a used parts seller needs before scaling listings.
+
+List structure:
+
+- Inventory table — every part has a record
+- OE/code field — searchable identity
+- Location rule — zone, shelf, box or large item slot
+- Pricing note — manual price, suggested price, confidence
+- Listing status — ready, needs photo, needs price, hold
+- Fitment note — vehicle compatibility confidence
+- Export feed — prepared marketplace data
+- Lead log — buyer questions and follow-up
+
+CTA: Request the Parts Seller OS MVP audit.
+
+Offer path: `OPS/revenue_ops/offer_pack.md` — 499 EUR Parts Seller OS MVP Audit.
+
+### Variant F — AI visibility audit stack
+
+Hook: AI visibility checks that make your business easier to recommend.
+
+List structure:
+
+- Prompt matrix — what buyers ask AI
+- Competitor mention map — who AI names first
+- Trust signal audit — proof, reviews, author, schema
+- Content gap map — missing comparison and answer pages
+- Local/business data check — consistency across profiles
+- 30-day action plan — what to fix first
+
+CTA: Get a 72h AI visibility audit.
+
+Offer path: revenue operations must validate price, targets and delivery proof before outreach.
+
 ## Weekly conversion requirements
 
 Every week CI-4 must convert at least:
@@ -166,8 +258,8 @@ Every week CI-4 must convert at least:
 
 ## Immediate next actions
 
-1. Add this pattern into competitor findings memory.
-2. Use pseudo-code contrast format for 10 Parts Seller OS posts.
-3. Use pseudo-code contrast format for 10 AI Automation / AI Ads Factory posts.
-4. Add one task to the proof-based task board for CI-4 daily content intelligence capture.
+1. Convert the micro-SaaS pseudo-code contrast pattern into 10 Parts Seller OS posts.
+2. Convert the AI tool stack listicle pattern into 10 stack/list posts for Parts Seller OS and AI Automation offers.
+3. Create 3 landing hero sections using listicle proof: "from AI chaos to one working workflow".
+4. Create 3 short video scripts using the long-list visual pattern.
 5. Connect best hooks to lead pipeline once verified public target companies exist.
