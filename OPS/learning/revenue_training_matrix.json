@@ -1,0 +1,105 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Revenue and Buyer-Pain Teachers + CEO-B Revenue General Manager",
+  "status": "active_seed",
+  "purpose": "Make revenue knowledge shared across all projects so every product has a money path, not only technical tasks.",
+  "source_core": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+  "applies_to_projects": [
+    "Parts Seller OS",
+    "AI Agent Setup 72h Pilot",
+    "Data Intelligence Monitoring",
+    "AI Ads Factory",
+    "YouTube Content Engine",
+    "Android Market Advisor / Investment Advisor App",
+    "Opportunity Lab"
+  ],
+  "universal_revenue_path": [
+    "exact_lead",
+    "buyer_pain",
+    "offer",
+    "price",
+    "message",
+    "demo",
+    "proposal",
+    "invoice",
+    "paid_pilot",
+    "delivery",
+    "maintenance_upsell"
+  ],
+  "rules": [
+    {
+      "id": "REV-TRAIN-001",
+      "rule": "Seed target is not a lead.",
+      "required_fields": ["exact_company", "source_url", "contact_channel", "pain_hypothesis", "offer", "stage", "next_action"],
+      "qa_block": "If exact company/contact channel is missing, revenue row cannot count as pipeline movement."
+    },
+    {
+      "id": "REV-TRAIN-002",
+      "rule": "Every product must sell a narrow outcome before scaling features.",
+      "required_fields": ["buyer", "pain", "72h_mvp", "deliverable", "not_included", "price", "maintenance_cta"],
+      "qa_block": "Broad generic AI promises are blocked until scoped by Judge and CFO."
+    },
+    {
+      "id": "REV-TRAIN-003",
+      "rule": "Parts Seller OS revenue message focuses on seller workflow pain.",
+      "required_fields": ["pricing_pain", "location_pain", "listing_pain", "stock_memory_pain", "manual_followup_pain"],
+      "qa_block": "Do not send generic automation message when vertical seller pain is known."
+    },
+    {
+      "id": "REV-TRAIN-004",
+      "rule": "Optional projects may research and tiny-demo, but cannot consume P0 capacity without promotion gate.",
+      "required_fields": ["buyer_defined", "pain_defined", "money_path_defined", "cfo_value_case", "p0_impact_review"],
+      "qa_block": "Opportunity Lab project cannot become active build without promotion requirements."
+    },
+    {
+      "id": "REV-TRAIN-005",
+      "rule": "Every demo must connect to next commercial action.",
+      "required_fields": ["demo_output", "who_buys", "price", "next_message", "handoff", "upsell"],
+      "qa_block": "Demo without CTA or sales path does not count as revenue progress."
+    }
+  ],
+  "project_specific_training": [
+    {
+      "project": "Parts Seller OS",
+      "money_path": "299/499 EUR audit or 72h seller workflow pilot, then maintenance.",
+      "buyer_pain": ["manual pricing", "wrong/missing locations", "weak listings", "stock memory", "dead-stock"],
+      "next_required_proof": "At least 5 exact used-parts seller leads with source_url and pain hypothesis."
+    },
+    {
+      "project": "AI Agent Setup 72h Pilot",
+      "money_path": "299 EUR narrow workflow implementation, maintenance 99-299 EUR/month.",
+      "buyer_pain": ["manual admin", "lost leads", "slow replies", "no follow-up"],
+      "next_required_proof": "Offer pack with scope, not-included list, QA and handoff."
+    },
+    {
+      "project": "Data Intelligence Monitoring",
+      "money_path": "499-1499 EUR/month monitoring with provenance and CFO-approved data costs.",
+      "buyer_pain": ["prices change", "competitors unknown", "manual search", "no alerts"],
+      "next_required_proof": "Source registry, confidence model and no paid data spend without approval."
+    },
+    {
+      "project": "AI Ads Factory",
+      "money_path": "199-399 EUR creative sprint, then retainer.",
+      "buyer_pain": ["needs hooks", "slow content testing", "weak CTA", "no iteration loop"],
+      "next_required_proof": "Tiny demo pack from brief to variants to QA."
+    },
+    {
+      "project": "YouTube Content Engine",
+      "money_path": "Not active until audience, moat, cost and monetization path validated.",
+      "buyer_pain": ["content consistency", "idea generation", "production cost", "monetization delay"],
+      "next_required_proof": "Channel economics validation, not production build."
+    },
+    {
+      "project": "Android Market Advisor / Investment Advisor App",
+      "money_path": "Internal validation only until risk wording and compliance guardrails exist.",
+      "buyer_pain": ["market noise", "decision journal", "watchlist alerts", "scenario planning"],
+      "next_required_proof": "No broker execution, risk wording and source plan."
+    }
+  ],
+  "done_proof": [
+    "Every active product has buyer, pain, offer, price or validation reason.",
+    "Seed targets are separated from exact leads.",
+    "Optional projects cannot steal P0 resources without gate.",
+    "Revenue lessons sync into design, CFO, delivery and QA."
+  ]
+}
