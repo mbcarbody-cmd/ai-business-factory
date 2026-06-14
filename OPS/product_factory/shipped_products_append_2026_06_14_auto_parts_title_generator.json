@@ -1,0 +1,29 @@
+{
+  "updated_at": "2026-06-14",
+  "append_to": "OPS/product_factory/shipped_products_2026_06_14.json",
+  "product": {
+    "id": "SHIP-2026-06-14-003",
+    "name": "Auto Parts Title Generator PWA",
+    "category": "used auto parts seller micro tool",
+    "path": "products/auto-parts-title-generator-pwa/index.html",
+    "manifest": "products/auto-parts-title-generator-pwa/manifest.json",
+    "status": "working_static_pwa_prototype",
+    "what_works": [
+      "part title generation",
+      "OEM/code inclusion",
+      "side/position check",
+      "vehicle model inclusion",
+      "language variants",
+      "QA ready/block verdict"
+    ],
+    "what_is_not_done": [
+      "public hosted URL",
+      "Android APK wrapper",
+      "bulk CSV import",
+      "marketplace API publishing"
+    ],
+    "monetization_path": "Free lead magnet, 299 EUR seller audit module, or Parts Seller OS module.",
+    "next_action": "Host static demo and connect to Parts Seller OS listing readiness rules."
+  },
+  "reason_for_append_file": "Direct update of the main shipped-products manifest hit a GitHub SHA conflict during fast commits. This append file keeps proof of the third shipped product without blocking progress."
+}
