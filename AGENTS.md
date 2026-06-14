@@ -25,11 +25,15 @@ Every agent, CEO cell, reviewer, builder, researcher and future worker must read
 - `OPS/learning/AI_BUSINESS_FACTORY_LEARNING_ACADEMY_LT.md`
 - `OPS/learning/worker_exam_matrix.json`
 - `OPS/learning/knowledge_sync_bus.json`
+- `OPS/learning/CROSS_PROJECT_KNOWLEDGE_PROPAGATION_ENGINE_LT.md`
+- `OPS/learning/project_learning_injection_map.json`
 - `OPS/org/TEN_THOUSAND_LEARNING_WORKFORCE_2026_06_14.json`
 
 Specialists may know more in their domain, but no worker may contradict the shared core.
 
 A worker cannot mark work complete, teach other workers or change product rules unless the required exam modules in `OPS/learning/worker_exam_matrix.json` are passed or explicitly marked as pending with QA review.
+
+A lesson cannot be counted as system knowledge unless it is routed through `OPS/learning/knowledge_sync_bus.json` and, when it affects more than one project, through `OPS/learning/project_learning_injection_map.json`.
 
 ## Before changing code
 
@@ -44,6 +48,7 @@ A worker cannot mark work complete, teach other workers or change product rules 
 9. Run or propose tests.
 10. Update proof path.
 11. Record reusable lessons in `OPS/learning/knowledge_sync_bus.json` when the change teaches more than one project.
+12. Add or update project-specific injection actions in `OPS/learning/project_learning_injection_map.json` when a lesson must move across projects.
 
 ## 10 000 learning workforce routing rule
 
@@ -61,6 +66,7 @@ Learning capacity must become one of:
 - Parts Seller OS workflow training,
 - revenue/CFO/delivery training,
 - design/conversion review,
+- project learning injection,
 - dedupe/normalization,
 - blocked-task fallback support.
 
@@ -87,7 +93,8 @@ Do not bypass:
 - AI agent permission policy,
 - Global Knowledge Core,
 - worker exam matrix,
-- knowledge sync bus.
+- knowledge sync bus,
+- project learning injection map.
 
 ## Do not do
 
@@ -103,6 +110,7 @@ Do not bypass:
 - Do not copy catalogues, protected data, images, branding, layout or text from EU sellers/marketplaces.
 - Do not treat seed targets as real leads.
 - Do not treat search snippets as price proof.
+- Do not let a project keep stale rules after a global lesson is synced.
 
 ## Security rules
 
@@ -124,7 +132,8 @@ A PR is blocked if:
 - AI agent made broad changes without scope,
 - public endpoint lacks auth/rate-limit review,
 - public data lacks source_url, checked_at, confidence and allowed_use,
-- worker output violates Global Knowledge Core.
+- worker output violates Global Knowledge Core,
+- cross-project lessons are not routed to affected projects.
 
 ## Preferred execution style
 
@@ -159,7 +168,12 @@ A PR is blocked if:
 - `OPS/learning/AI_BUSINESS_FACTORY_LEARNING_ACADEMY_LT.md`
 - `OPS/learning/worker_exam_matrix.json`
 - `OPS/learning/knowledge_sync_bus.json`
+- `OPS/learning/CROSS_PROJECT_KNOWLEDGE_PROPAGATION_ENGINE_LT.md`
+- `OPS/learning/project_learning_injection_map.json`
 - `OPS/learning/parts_seller_os_training_matrix.json`
+- `OPS/learning/revenue_training_matrix.json`
+- `OPS/learning/cfo_training_matrix.json`
+- `OPS/learning/design_conversion_training_matrix.json`
 - `OPS/learning/learning_metrics_2026_06_14.json`
 - `OPS/model_council/CURSOR_INTEGRATION_PLAYBOOK_LT.md`
 - `OPS/security/SECURITY_FORTRESS_LT.md`
