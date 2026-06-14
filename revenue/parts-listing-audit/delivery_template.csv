@@ -1,0 +1,4 @@
+part_id,part_name,oem_code,vehicle,listing_url,current_title,current_price_eur,title_quality,missing_data,price_confidence,recommended_title,recommended_action,priority
+1,Example front right window regulator,MY83-F23200-AC,Aston Martin DBX 2022,,Priekinis stiklo pakelėjas,0,weak,side/vehicle/OEM unclear,manual_review,Aston Martin DBX 2022 priekinis dešinys stiklo pakelėjas MY83-F23200-AC,Add OEM vehicle side and price check,P1
+2,Example rear bumper lamp,92406G4500,Hyundai i30 2013,,Galinis žibintas,25,medium,side unclear,medium,Hyundai i30 2013 galinis žibintas bamperyje 92406G4500,Confirm left/right side before publish,P2
+3,Example vague body part,715402B200,Hyundai Santa Fe 2009,,Kita kėbulo dalis,20,bad,exact part name missing,low,Hyundai Santa Fe 2009 kėbulo detalė 715402B200 - patikslinti pavadinimą,Block until exact part function is named,P1
