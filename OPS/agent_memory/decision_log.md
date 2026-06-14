@@ -2,7 +2,7 @@
 
 Owner: PMO-2 Documentation & Memory Keeper
 Status: active
-Updated: 2026-06-13
+Updated: 2026-06-14
 
 ## 2026-06-13 — Core OS must never stagnate
 
@@ -59,3 +59,17 @@ Affected OPS layer: product gates, deploy loop, QA, revenue operations, CFO.
 Enforcement rule: Product maturity cannot advance on documents alone when a demo is possible.
 
 Proof path: `products/ceo-cockpit/`.
+
+## 2026-06-14 — Content intelligence must turn winning ads into our own mechanisms
+
+Trigger: User provided a social screenshot where a micro-SaaS Telegram funnel used a developer-native pseudo-code post to sell the idea that small SaaS can beat job hopping.
+
+Decision: Competitor intelligence expands from company/price tracking into content-funnel intelligence. Agents must collect strong ads, posts and funnels, deconstruct the mechanism, and convert it into our own hooks, page copy, short videos, outreach and product UX ideas.
+
+Reason: Good social posts are not random content; they are sales mechanisms. The system must learn the formula and create revenue-linked variants without copying protected assets.
+
+Affected OPS layer: competitor intelligence, agent memory, revenue operations, content factory, marketplace roadmap.
+
+Enforcement rule: Every captured content pattern must record audience, pain/contrast, dream outcome, visual pattern, CTA, risk, reusable formula, our converted variants and output paths.
+
+Proof path: `OPS/competitor_intelligence/content_funnel_patterns.md`, `OPS/agent_memory/competitor_findings.md`.
