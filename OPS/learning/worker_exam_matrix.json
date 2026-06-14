@@ -1,0 +1,166 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "QA Critic-C5 + Chief Learning Officer",
+  "status": "active_seed",
+  "purpose": "Exam matrix for every virtual worker before they can close work, teach others or change product rules.",
+  "minimum_passing_score": 85,
+  "teacher_passing_score": 90,
+  "exam_statuses": ["not_taken", "passed", "failed", "needs_retrain", "teacher_certified"],
+  "global_exam_modules": [
+    {
+      "module_id": "EXAM-001",
+      "name": "Global Knowledge Core",
+      "required_for": "all_workers",
+      "source": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+      "pass_condition": "Understands no proof no done, Parts Seller OS direction, public data safety, revenue/CFO/QA and anti-stagnation."
+    },
+    {
+      "module_id": "EXAM-002",
+      "name": "Proof-Based Execution",
+      "required_for": "all_workers",
+      "source": "OPS/task_board.json",
+      "pass_condition": "Can define owner, status, next_action, blocker, fallback, output_path and done_proof."
+    },
+    {
+      "module_id": "EXAM-003",
+      "name": "Parts Seller OS Workflow",
+      "required_for": "all_workers",
+      "source": "OPS/product_gates/product_stages.json",
+      "pass_condition": "Can explain add_part -> location -> price/floor -> listing status -> reserve/order -> ageing/dead-stock."
+    },
+    {
+      "module_id": "EXAM-004",
+      "name": "Public Data Provenance",
+      "required_for": "all_workers_using_external_data",
+      "source": "OPS/data_intelligence/HUMAN_BROWSER_SWARM_PLAYBOOK_LT.md",
+      "pass_condition": "Knows source_url, checked_at, confidence, allowed_use, dedupe and no mass scraping/bypass."
+    },
+    {
+      "module_id": "EXAM-005",
+      "name": "EU Seller Learning",
+      "required_for": "marketplace_and_research_workers",
+      "source": "OPS/marketplace/EU_SELLER_LEARNING_ENGINE_LT.md",
+      "pass_condition": "Can extract reusable rules without copying content, catalogue, design or protected data."
+    },
+    {
+      "module_id": "EXAM-006",
+      "name": "Revenue Path",
+      "required_for": "product_revenue_delivery_workers",
+      "source": "OPS/revenue_ops/lead_pipeline.json",
+      "pass_condition": "Knows seed target is not a lead; exact company/contact/offer/stage/next_action required."
+    },
+    {
+      "module_id": "EXAM-007",
+      "name": "CFO Margin Logic",
+      "required_for": "all_product_and_revenue_workers",
+      "source": "OPS/cfo/costs.json",
+      "pass_condition": "Knows cost, build time, AI cost, delivery cost, price, gross margin and break-even."
+    },
+    {
+      "module_id": "EXAM-008",
+      "name": "QA/Judge Blocking",
+      "required_for": "all_workers",
+      "source": "OPS/qa/bug_board.json",
+      "pass_condition": "Can identify weak work, missing proof, bad listing readiness and release blockers."
+    },
+    {
+      "module_id": "EXAM-009",
+      "name": "Knowledge Sync",
+      "required_for": "all_teachers_and_leads",
+      "source": "OPS/learning/knowledge_sync_bus.json",
+      "pass_condition": "Can turn one project lesson into reusable rule and sync it to affected projects."
+    },
+    {
+      "module_id": "EXAM-010",
+      "name": "Anti-Duplication",
+      "required_for": "all_workers",
+      "source": "OPS/operating_loops/ANTI_STAGNATION_ENGINE.md",
+      "pass_condition": "Does not create duplicate roadmap/docs; routes work to existing task and proof path."
+    }
+  ],
+  "cohort_exam_requirements": [
+    {
+      "cohort_id": "LEARN-001",
+      "required_modules": ["EXAM-001", "EXAM-002", "EXAM-008", "EXAM-009", "EXAM-010"],
+      "minimum_score": 90
+    },
+    {
+      "cohort_id": "LEARN-002",
+      "required_modules": ["EXAM-001", "EXAM-004", "EXAM-005", "EXAM-008", "EXAM-010"],
+      "minimum_score": 85
+    },
+    {
+      "cohort_id": "LEARN-003",
+      "required_modules": ["EXAM-001", "EXAM-003", "EXAM-005", "EXAM-007", "EXAM-008", "EXAM-010"],
+      "minimum_score": 85
+    },
+    {
+      "cohort_id": "LEARN-004",
+      "required_modules": ["EXAM-001", "EXAM-006", "EXAM-007", "EXAM-008", "EXAM-010"],
+      "minimum_score": 85
+    },
+    {
+      "cohort_id": "LEARN-005",
+      "required_modules": ["EXAM-001", "EXAM-007", "EXAM-008", "EXAM-010"],
+      "minimum_score": 85
+    },
+    {
+      "cohort_id": "LEARN-006",
+      "required_modules": ["EXAM-001", "EXAM-002", "EXAM-003", "EXAM-004", "EXAM-008", "EXAM-010"],
+      "minimum_score": 90
+    },
+    {
+      "cohort_id": "LEARN-007",
+      "required_modules": ["EXAM-001", "EXAM-004", "EXAM-008", "EXAM-010"],
+      "minimum_score": 90
+    },
+    {
+      "cohort_id": "LEARN-008",
+      "required_modules": ["EXAM-001", "EXAM-002", "EXAM-009", "EXAM-010"],
+      "minimum_score": 90
+    },
+    {
+      "cohort_id": "LEARN-009",
+      "required_modules": ["EXAM-001", "EXAM-003", "EXAM-006", "EXAM-008", "EXAM-010"],
+      "minimum_score": 85
+    },
+    {
+      "cohort_id": "LEARN-010",
+      "required_modules": ["EXAM-001", "EXAM-002", "EXAM-008", "EXAM-009", "EXAM-010"],
+      "minimum_score": 90
+    }
+  ],
+  "sample_questions": [
+    {
+      "id": "Q-001",
+      "question": "Can a worker mark a task done without a proof path?",
+      "correct_answer": "No. No proof path means not done."
+    },
+    {
+      "id": "Q-002",
+      "question": "Can EU seller research copy catalogues or designs?",
+      "correct_answer": "No. It can only extract reusable rules and patterns with source and confidence."
+    },
+    {
+      "id": "Q-003",
+      "question": "What is the core Parts Seller OS flow?",
+      "correct_answer": "dalis -> kaina -> lokacija -> skelbimas -> užsakymas, with QA, CFO, delivery and learning feedback."
+    },
+    {
+      "id": "Q-004",
+      "question": "When can a data row influence pricing?",
+      "correct_answer": "Only when it has source_url, checked_at, confidence and allowed_use."
+    },
+    {
+      "id": "Q-005",
+      "question": "What happens when 10000 workers find the same issue?",
+      "correct_answer": "They dedupe into one canonical task/output path and attach review, QA or unblock support."
+    }
+  ],
+  "first_exam_rollout": {
+    "target_workers": 10000,
+    "required_before_closing_tasks": true,
+    "manual_status": "exam_matrix_created; execution scoring script not yet implemented",
+    "next_action": "Create simple scoring/checklist script or integrate with OPS audit."
+  }
+}
