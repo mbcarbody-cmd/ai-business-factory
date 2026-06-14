@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-13",
+  "updated_at": "2026-06-14",
   "owner": "CEO-D / Opportunity Lab General Manager",
   "status": "active_validation_and_tiny_demo_lane",
   "rule": "New opportunities are captured, researched, scored and may receive tiny-demo validation inside CEO-D resources. They do not consume CEO-A/CEO-C P0 build capacity unless promoted by product gate, CFO value case and P0 impact review.",
@@ -61,6 +61,16 @@
       "next_action": "Keep spec and risk review; no public advice product build.",
       "proof_path": "OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md",
       "p0_impact": "blocked from active full build until Parts Seller OS prototype exists"
+    },
+    {
+      "id": "OPP-004",
+      "name": "AI GEO / SEO Visibility Audit + Trust Autopilot",
+      "status": "promote_candidate",
+      "owner": "CEO-D / Opportunity Lab General Manager + CEO-B / Revenue General Manager",
+      "reason": "AutoSEO-style market signal shows demand for getting found in ChatGPT, Perplexity and Google; fastest safe path is a paid 72h audit and content/trust action plan, not a full SaaS build first.",
+      "next_action": "Validate one 72h AI Visibility & Trust Audit tiny demo, create CFO price sheet and first exact buyer list; block unsafe manipulation and unsupported ranking claims.",
+      "proof_path": "OPS/opportunity_lab/AI_GEO_SEO_AUTOSEO_RESEARCH_LT.md",
+      "p0_impact": "may use CEO-D research and CEO-B revenue capacity; no full build allocation until product gate and CFO proof"
     }
   ]
 }
