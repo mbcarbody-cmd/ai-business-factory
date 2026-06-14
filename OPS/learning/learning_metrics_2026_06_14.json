@@ -5,7 +5,9 @@
   "purpose": "Measure whether the 10000 learning units create a visible system jump instead of vanity scale.",
   "metrics": {
     "virtual_learning_units_added": 10000,
-    "new_learning_files_created": 6,
+    "new_learning_files_created": 8,
+    "agent_instruction_file_updated": true,
+    "learning_audit_script_created": true,
     "global_knowledge_core_created": true,
     "learning_academy_created": true,
     "worker_exam_matrix_created": true,
@@ -28,17 +30,18 @@
     "EU seller learning becomes reusable rules, not copied data.",
     "Reusable lessons flow through knowledge_sync_bus to all affected projects.",
     "Parts Seller OS workflow modules have training rules and test cases.",
-    "10 000 capacity is routed into proof-based tasks, not duplicate documents."
+    "10 000 capacity is routed into proof-based tasks, not duplicate documents.",
+    "Learning layer has an audit script that can fail missing or inconsistent training artifacts."
   ],
   "not_yet_done": [
-    "Exam scoring is defined but not automated as a script yet.",
+    "Learning audit script exists, but it has not been run in a checked CI/local result in this response.",
     "Knowledge sync bus has queued lessons, but product UI/workflow still needs to consume them.",
     "Parts Seller OS still needs actual UI/rules-engine integration and QA test proof.",
     "EU seller coverage target is defined but not fully populated to 50 rows yet."
   ],
   "next_best_actions": [
+    "Run python3 scripts/learning_audit.py and record result.",
     "Wire OPS/learning/parts_seller_os_training_matrix.json into products/parts-seller-os UI/workflow.",
-    "Create a simple scripts/learning_audit.py to check required learning files and exam matrix.",
     "Move at least one knowledge_sync_bus lesson from queued_for_sync to synced after product rule change.",
     "Add 10 exact EU/Baltic seller research rows with source_url, checked_at and confidence."
   ]
