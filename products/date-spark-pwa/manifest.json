@@ -1,0 +1,9 @@
+{
+  "name": "Date Spark",
+  "short_name": "DateSpark",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#111827",
+  "description": "Mobile-first dating profile, match score, icebreaker and date idea MVP."
+}
