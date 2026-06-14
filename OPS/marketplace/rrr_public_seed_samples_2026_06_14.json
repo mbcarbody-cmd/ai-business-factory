@@ -1,0 +1,272 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "CI-2 Pricing & Offer Analyst + CEO-A Parts OS General Manager",
+  "purpose": "Feed Parts Seller OS with manually verified public RRR/Ovoko-style market seed rows so agents stop working from empty theory.",
+  "source_policy": {
+    "method": "manual public-page sampling only",
+    "allowed_use": "small seed examples for product logic, pricing confidence states, category mapping and provenance testing",
+    "not_allowed": "mass scraping, copying full catalog, automated harvesting, bypassing protections, or redistributing site content",
+    "scale_requirement": "For production ingestion use seller-owned export/API/permissioned integration or explicit data-provider permission. Every row must keep source_url, checked_at and confidence."
+  },
+  "market_context": {
+    "source": "RRR public home page",
+    "checked_at": "2026-06-14",
+    "seller_count_public_claim": 7004,
+    "parts_count_public_claim": 41694768,
+    "buyer_trust_signals": ["14 day return", "EU delivery", "selected parts 1 year warranty"],
+    "use_in_product": "Use as marketplace-size and trust-context signal, not as exact inventory export."
+  },
+  "model_taxonomy_signals": [
+    {
+      "brand": "Mazda",
+      "model": "MX-5 ND",
+      "years": "2016-",
+      "source_url": "https://rrr.lt/naudotos-autodalys/mazda--hn7d",
+      "checked_at": "2026-06-14",
+      "use_in_product": "Fitment seed confirms RRR model naming pattern for Mazda MX-5 ND."
+    },
+    {
+      "brand": "Hyundai",
+      "model": "Tucson IV NX4",
+      "years": "2020-",
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "use_in_product": "Fitment seed confirms RRR model naming pattern for Hyundai Tucson NX4."
+    }
+  ],
+  "public_seed_rows": [
+    {
+      "id": "RRR-SEED-001",
+      "brand": "Mazda",
+      "model": "Mazda 6",
+      "year": 2004,
+      "part_name_lt": "Galinis žibintas dangtyje",
+      "oem_or_listing_code": "22661980R",
+      "listing_ref": "ovp202947",
+      "category_guess": "lighting/rear_lamp_lid",
+      "price_eur_vat_included": 15.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/mazda--hn7d",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "ready_if_photo_title_location_present",
+        "pricing_signal": "low_value_common_part",
+        "floor_price_rule": "manual floor not needed unless shipping exceeds margin"
+      }
+    },
+    {
+      "id": "RRR-SEED-002",
+      "brand": "Mazda",
+      "model": "Mazda 6",
+      "year": 2006,
+      "part_name_lt": "Priekinis stabdžių ABS daviklis",
+      "oem_or_listing_code": "GJ6A4373XA 61221",
+      "listing_ref": "ovp202701",
+      "category_guess": "brakes/abs_sensor/front",
+      "price_eur_vat_included": 65.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/mazda--hn7d",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "ready_if_code_and_side_position_confirmed",
+        "pricing_signal": "code-sensitive electrical/brake part",
+        "floor_price_rule": "hold below 35 EUR unless multiple comps confirm"
+      }
+    },
+    {
+      "id": "RRR-SEED-003",
+      "brand": "Mazda",
+      "model": "Mazda 3 I",
+      "year": 2005,
+      "part_name_lt": "Žibintų apiplovimo purkštukas (-ai)",
+      "oem_or_listing_code": "BP4K518H1B",
+      "listing_ref": "ovp202563",
+      "category_guess": "wash_wipe/headlight_washer_nozzle",
+      "price_eur_vat_included": 38.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/mazda--hn7d",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_side_position_if_applicable",
+        "pricing_signal": "small coded exterior/electrical accessory",
+        "floor_price_rule": "manual review if pair/single unclear"
+      }
+    },
+    {
+      "id": "RRR-SEED-004",
+      "brand": "Hyundai",
+      "model": "Terracan",
+      "year": 2003,
+      "part_name_lt": "Turbina",
+      "oem_or_listing_code": "KHF52B 282004X400",
+      "listing_ref": "ovp205156",
+      "category_guess": "engine/turbocharger",
+      "price_eur_vat_included": 70.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_condition_notes_before_publish",
+        "pricing_signal": "condition-critical mechanical part",
+        "floor_price_rule": "require defect/shaft/play/warranty status before floor"
+      }
+    },
+    {
+      "id": "RRR-SEED-005",
+      "brand": "Hyundai",
+      "model": "i30",
+      "year": 2013,
+      "part_name_lt": "Galinis žibintas bamperyje",
+      "oem_or_listing_code": "92406G4500",
+      "listing_ref": "ovp203017",
+      "category_guess": "lighting/rear_bumper_lamp",
+      "price_eur_vat_included": 25.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_side_left_right_confirmation",
+        "pricing_signal": "side-sensitive lighting part",
+        "floor_price_rule": "do not publish without side/part number check"
+      }
+    },
+    {
+      "id": "RRR-SEED-006",
+      "brand": "Hyundai",
+      "model": "Getz",
+      "year": 2004,
+      "part_name_lt": "Žarna (-os)/ vamzdis (-džiai)",
+      "oem_or_listing_code": "282101C051 190010F680",
+      "listing_ref": "ovp203011",
+      "category_guess": "engine/air_or_cooling_hose",
+      "price_eur_vat_included": 20.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_photo_and_exact_system",
+        "pricing_signal": "low_value_hose_pipe_part",
+        "floor_price_rule": "bundle or skip if handling cost too high"
+      }
+    },
+    {
+      "id": "RRR-SEED-007",
+      "brand": "Hyundai",
+      "model": "Coupe",
+      "year": 2002,
+      "part_name_lt": "Žibintų aukščio reguliavimo varikliukas",
+      "oem_or_listing_code": "31G56B 9213029060",
+      "listing_ref": "ovp202965",
+      "category_guess": "lighting/headlight_leveling_motor",
+      "price_eur_vat_included": 79.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "ready_if_fitment_and_connector_confirmed",
+        "pricing_signal": "small coded electrical actuator",
+        "floor_price_rule": "protect margin; buyer searches by code"
+      }
+    },
+    {
+      "id": "RRR-SEED-008",
+      "brand": "Hyundai",
+      "model": "i20 GB IB",
+      "year": 2017,
+      "part_name_lt": "Veidrodėlio stiklas",
+      "oem_or_listing_code": "30182081",
+      "listing_ref": "ovp202858",
+      "category_guess": "mirrors/mirror_glass",
+      "price_eur_vat_included": 25.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_side_and_features_heated_blindspot",
+        "pricing_signal": "feature-sensitive exterior glass",
+        "floor_price_rule": "manual review if heated/blindspot present"
+      }
+    },
+    {
+      "id": "RRR-SEED-009",
+      "brand": "Hyundai",
+      "model": "Santa Fe",
+      "year": 2009,
+      "part_name_lt": "Kita kėbulo dalis",
+      "oem_or_listing_code": "715402B200",
+      "listing_ref": "ovp202818",
+      "category_guess": "body/other_body_part",
+      "price_eur_vat_included": 20.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "needs_clear_part_name_before_publish",
+        "pricing_signal": "bad title risk",
+        "floor_price_rule": "block listing until category/name corrected"
+      }
+    },
+    {
+      "id": "RRR-SEED-010",
+      "brand": "Hyundai",
+      "model": "Santa Fe",
+      "year": 2010,
+      "part_name_lt": "Alkūninio veleno padėties daviklis",
+      "oem_or_listing_code": "SS10896 3918037150",
+      "listing_ref": "ovp202725",
+      "category_guess": "engine/crankshaft_position_sensor",
+      "price_eur_vat_included": 23.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "ready_if_code_matches",
+        "pricing_signal": "code-driven sensor",
+        "floor_price_rule": "low margin; publish only if handling cost acceptable"
+      }
+    },
+    {
+      "id": "RRR-SEED-011",
+      "brand": "Hyundai",
+      "model": "Santa Fe",
+      "year": 2009,
+      "part_name_lt": "Aukštos įtampos ritė / babyna",
+      "oem_or_listing_code": "273013E100",
+      "listing_ref": "ovp202717",
+      "category_guess": "ignition/coil",
+      "price_eur_vat_included": 35.0,
+      "source_url": "https://rrr.lt/naudotos-autodalys/hyundai--samx",
+      "checked_at": "2026-06-14",
+      "confidence": "public_page_verified",
+      "prototype_decision": {
+        "listing_status": "ready_if_tested_or_condition_noted",
+        "pricing_signal": "low-medium electrical part",
+        "floor_price_rule": "manual review if sold as set vs single"
+      }
+    }
+  ],
+  "prototype_use_cases": [
+    "Use public_seed_rows as competitor/market examples in pricing confidence workflow.",
+    "Use category_guess and prototype_decision to train Parts Seller OS listing readiness rules.",
+    "Use low-value examples to test CFO rule: do not waste handling time on tiny-margin items.",
+    "Use bad-title example RRR-SEED-009 to train QA critic to block vague listing titles.",
+    "Use model_taxonomy_signals to align fitment naming for MX-5 ND and Tucson NX4."
+  ],
+  "next_agent_actions": [
+    {
+      "task_id": "OPS-022",
+      "owner": "Frontend Agent-C2 / UI and Cockpit Builder",
+      "action": "Load this file into the Parts Seller OS prototype as the first external market seed table."
+    },
+    {
+      "task_id": "OPS-019",
+      "owner": "CI-2 Pricing & Offer Analyst",
+      "action": "Add row-level source_url, checked_at and confidence to any future competitor or RRR-style data."
+    },
+    {
+      "task_id": "OPS-006",
+      "owner": "QA Critic-C5 / Break-Test Owner",
+      "action": "Fail any pricing/listing claim that has no source_url, checked_at and confidence."
+    }
+  ]
+}
