@@ -1,0 +1,9 @@
+{
+  "name": "Parts Price Check",
+  "short_name": "PriceCheck",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "description": "Used auto parts price sanity-check MVP."
+}
