@@ -16,7 +16,12 @@ REQUIRED_LEARNING_FILES = [
     "OPS/learning/AI_BUSINESS_FACTORY_LEARNING_ACADEMY_LT.md",
     "OPS/learning/worker_exam_matrix.json",
     "OPS/learning/knowledge_sync_bus.json",
+    "OPS/learning/CROSS_PROJECT_KNOWLEDGE_PROPAGATION_ENGINE_LT.md",
+    "OPS/learning/project_learning_injection_map.json",
     "OPS/learning/parts_seller_os_training_matrix.json",
+    "OPS/learning/revenue_training_matrix.json",
+    "OPS/learning/cfo_training_matrix.json",
+    "OPS/learning/design_conversion_training_matrix.json",
     "OPS/learning/learning_metrics_2026_06_14.json",
     "OPS/TASK_BOARD/learning_scale_tasks_2026_06_14.json",
 ]
@@ -89,6 +94,26 @@ def audit_knowledge_sync(errors: list[str], warnings: list[str]) -> None:
         warnings.append("no lessons are queued_for_sync or synced")
 
 
+def audit_project_injection_map(errors: list[str], warnings: list[str]) -> None:
+    injection_map = load_json("OPS/learning/project_learning_injection_map.json")
+    actions = injection_map.get("injection_actions", [])
+    if len(actions) < 20:
+        errors.append(f"project injection map must define at least 20 actions, got {len(actions)}")
+    projects = {action.get("target_project") for action in actions if has_value(action, "target_project")}
+    if len(projects) < 10:
+        errors.append(f"project injection map must cover at least 10 projects/layers, got {len(projects)}")
+    if not any(action.get("status") == "synced" for action in actions):
+        warnings.append("project injection map has no synced actions")
+    for action in actions:
+        for field in [
+            "id", "lesson_id", "target_project", "injection_type", "reusable_rule",
+            "concrete_change", "owner", "output_path", "status", "proof_required",
+            "fallback_next_action",
+        ]:
+            if not has_value(action, field):
+                errors.append(f"injection action {action.get('id', '<unknown>')} missing {field}")
+
+
 def audit_parts_training(errors: list[str], warnings: list[str]) -> None:
     matrix = load_json("OPS/learning/parts_seller_os_training_matrix.json")
     modules = matrix.get("workflow_modules", [])
@@ -112,6 +137,26 @@ def audit_parts_training(errors: list[str], warnings: list[str]) -> None:
                 errors.append(f"parts training module {module.get('module', '<unknown>')} missing {field}")
 
 
+def audit_cross_project_training_matrices(errors: list[str], warnings: list[str]) -> None:
+    revenue = load_json("OPS/learning/revenue_training_matrix.json")
+    if len(revenue.get("rules", [])) < 5:
+        errors.append("revenue training matrix must define at least 5 rules")
+    if len(revenue.get("project_specific_training", [])) < 5:
+        errors.append("revenue training matrix must cover at least 5 projects")
+
+    cfo = load_json("OPS/learning/cfo_training_matrix.json")
+    if len(cfo.get("universal_cfo_rules", [])) < 5:
+        errors.append("cfo training matrix must define at least 5 universal CFO rules")
+    if len(cfo.get("project_cost_models", [])) < 5:
+        errors.append("cfo training matrix must cover at least 5 projects")
+
+    design = load_json("OPS/learning/design_conversion_training_matrix.json")
+    if len(design.get("global_design_rules", [])) < 5:
+        errors.append("design conversion training matrix must define at least 5 global design rules")
+    if len(design.get("project_specific_design_rules", [])) < 5:
+        errors.append("design conversion training matrix must cover at least 5 projects")
+
+
 def audit_learning_task_manifest(errors: list[str]) -> None:
     manifest = load_json("OPS/TASK_BOARD/learning_scale_tasks_2026_06_14.json")
     tasks = manifest.get("tasks", [])
@@ -128,7 +173,14 @@ def main() -> int:
     warnings: list[str] = []
 
     audit_required_files(errors)
-    for fn in (audit_workforce_directive, audit_exam_matrix, audit_knowledge_sync, audit_parts_training):
+    for fn in (
+        audit_workforce_directive,
+        audit_exam_matrix,
+        audit_knowledge_sync,
+        audit_project_injection_map,
+        audit_parts_training,
+        audit_cross_project_training_matrices,
+    ):
         try:
             fn(errors, warnings)
         except Exception as exc:
