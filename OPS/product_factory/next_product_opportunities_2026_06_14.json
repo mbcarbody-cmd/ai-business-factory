@@ -1,0 +1,75 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Product Shipping Cell + Opportunity Lab",
+  "status": "active",
+  "purpose": "Keep new monetization opportunities moving as product artifacts, not forgotten ideas.",
+  "selection_rule": "Prefer products that can ship as PWA/static MVP, have a clear buyer, no heavy regulated dependency, and can create a lead or demo within 72 hours.",
+  "opportunities": [
+    {
+      "id": "NPO-001",
+      "name": "Auto Parts Price Check Mini App",
+      "buyer": "used auto parts seller",
+      "mvp": "paste OEM + vehicle + condition, get pricing confidence checklist and manual review reasons",
+      "monetization": "299 EUR audit or monthly seller tool",
+      "priority": "P0"
+    },
+    {
+      "id": "NPO-002",
+      "name": "Auto Parts Listing Title Generator",
+      "buyer": "used auto parts seller / dismantler",
+      "mvp": "generate better listing title from OEM, category, side, vehicle, features and language",
+      "monetization": "freemium + seller workflow pilot",
+      "priority": "P0"
+    },
+    {
+      "id": "NPO-003",
+      "name": "Supplier Scout Board",
+      "buyer": "small reseller",
+      "mvp": "track public supplier leads, country, contact, category, trust and next action",
+      "monetization": "paid sourcing report / monitoring subscription",
+      "priority": "P1"
+    },
+    {
+      "id": "NPO-004",
+      "name": "Date Spark Profile Optimizer",
+      "buyer": "dating app users",
+      "mvp": "profile bio, icebreakers and date ideas",
+      "monetization": "3-9 EUR premium pack / profile audit",
+      "priority": "P1"
+    },
+    {
+      "id": "NPO-005",
+      "name": "Market Pulse Decision Journal",
+      "buyer": "retail investor / finance creator audience",
+      "mvp": "watchlist, signal discipline score, decision journal",
+      "monetization": "premium alerts/export/templates after compliance/data checks",
+      "priority": "P1"
+    },
+    {
+      "id": "NPO-006",
+      "name": "AI Ads Hook Factory",
+      "buyer": "small business / creator",
+      "mvp": "brief -> hooks -> 5 ad variants -> CTA -> QA score",
+      "monetization": "199-399 EUR creative sprint",
+      "priority": "P2"
+    },
+    {
+      "id": "NPO-007",
+      "name": "Lead-to-Offer Generator",
+      "buyer": "service business / agency",
+      "mvp": "company pain -> offer -> outreach -> follow-up -> proposal outline",
+      "monetization": "299 EUR setup / monthly ops",
+      "priority": "P1"
+    },
+    {
+      "id": "NPO-008",
+      "name": "Local Rental Calculator",
+      "buyer": "tool/equipment/car rental microbusiness",
+      "mvp": "asset cost, daily price, utilization, break-even, booking checklist",
+      "monetization": "template/app sale + consulting",
+      "priority": "P2"
+    }
+  ],
+  "next_ship_order": ["NPO-001", "NPO-002", "NPO-007", "NPO-006"],
+  "anti_stagnation_rule": "When one product blocks, ship the next smallest useful PWA/tool without waiting."
+}
