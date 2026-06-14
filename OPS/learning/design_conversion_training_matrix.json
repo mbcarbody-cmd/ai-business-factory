@@ -1,0 +1,83 @@
+{
+  "updated_at": "2026-06-14",
+  "owner": "Design, Trust and Conversion Teachers + CEO-C Build Factory General Manager",
+  "status": "active_seed",
+  "purpose": "Make design, trust and conversion rules shared across all public/demo pages and monetization projects.",
+  "source_core": "OPS/learning/GLOBAL_KNOWLEDGE_CORE_LT.md",
+  "global_design_rules": [
+    {
+      "id": "DESIGN-TRAIN-001",
+      "rule": "First screen must explain what the product does, for whom and why it matters in 10 seconds.",
+      "applies_to": ["website", "CEO Cockpit", "Parts Seller OS", "AI Ads Factory", "Data Monitoring"],
+      "qa_block": "Generic AI slogans without specific outcome are blocked."
+    },
+    {
+      "id": "DESIGN-TRAIN-002",
+      "rule": "Trust signals must be visible before CTA.",
+      "applies_to": ["landing pages", "seller demos", "paid pilots", "marketplace roadmap"],
+      "qa_block": "Page cannot sell a paid pilot without proof, scope, limits and handoff path."
+    },
+    {
+      "id": "DESIGN-TRAIN-003",
+      "rule": "Demo page must show workflow, not just explanation.",
+      "applies_to": ["Parts Seller OS", "CEO Cockpit", "AI Agent Setup Landing"],
+      "qa_block": "Static text-only demo is insufficient when table/rules/workflow proof can be shown."
+    },
+    {
+      "id": "DESIGN-TRAIN-004",
+      "rule": "Photos are lower priority than page clarity and operational trust for this product family.",
+      "applies_to": ["Parts Seller OS", "Marketplace Roadmap"],
+      "qa_block": "Do not delay workflow proof because product photos are inconsistent."
+    },
+    {
+      "id": "DESIGN-TRAIN-005",
+      "rule": "Every page needs one primary CTA and one next proof action.",
+      "applies_to": ["all monetization projects"],
+      "qa_block": "Page with no CTA, no next action and no proof path cannot be sell_ready."
+    }
+  ],
+  "project_specific_design_rules": [
+    {
+      "project": "Parts Seller OS",
+      "page_goal": "Show seller workflow: add part, category, location, price/floor, listing status, order, dead-stock.",
+      "must_show": ["workflow cards", "sample part table", "readiness/confidence badges", "QA/manual-review blocks"],
+      "primary_cta": "Book / run 72h seller workflow audit"
+    },
+    {
+      "project": "CEO Cockpit",
+      "page_goal": "Show operating system control: tasks, blockers, QA, revenue, CFO, delivery and learning sync.",
+      "must_show": ["task status", "bug status", "lead pipeline", "cost/margin", "learning sync metrics"],
+      "primary_cta": "Open next highest-value action"
+    },
+    {
+      "project": "AI Agent Setup Landing",
+      "page_goal": "Sell one narrow 72h automation outcome, not a generic AI agency.",
+      "must_show": ["buyer pain", "72h deliverable", "not-included list", "QA/handoff", "maintenance CTA"],
+      "primary_cta": "Request 299 EUR pilot"
+    },
+    {
+      "project": "Data Intelligence Monitoring",
+      "page_goal": "Show monitored signals with provenance, confidence and action recommendations.",
+      "must_show": ["source_url", "checked_at", "confidence", "alert type", "recommended action"],
+      "primary_cta": "Request monitoring setup"
+    },
+    {
+      "project": "AI Ads Factory",
+      "page_goal": "Show brief-to-variants workflow with QA and next-test recommendation.",
+      "must_show": ["brief", "hooks", "variants", "CTA", "QA score", "next test"],
+      "primary_cta": "Order creative sprint"
+    },
+    {
+      "project": "YouTube Content Engine",
+      "page_goal": "Stay validation-first: audience, moat, cost and monetization path before production.",
+      "must_show": ["audience", "content moat", "production cost", "monetization path", "gate status"],
+      "primary_cta": "Validate channel economics"
+    }
+  ],
+  "done_proof": [
+    "Every demo/landing page has hero, outcome, trust, proof and CTA.",
+    "Generic AI wording is replaced by project-specific workflow language.",
+    "CEO Cockpit and Parts Seller OS show learning sync/workflow evidence.",
+    "Optional projects remain validation-first unless promoted by gates."
+  ]
+}
