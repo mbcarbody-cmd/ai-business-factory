@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Parts Price Check — MVP</title>
+<style>
+body{margin:0;background:#0b1020;color:#edf4ff;font-family:Arial,sans-serif}.wrap{max-width:900px;margin:auto;padding:24px 14px}.card{background:#121a2d;border:1px solid #293550;border-radius:18px;padding:16px;margin:12px 0}input,select,textarea{width:100%;background:#0b1224;color:#edf4ff;border:1px solid #293550;border-radius:12px;padding:11px;margin:6px 0 12px;font-size:15px}button{background:linear-gradient(90deg,#7c3aed,#22c55e);border:0;border-radius:14px;color:white;padding:12px 14px;font-weight:800}.small{color:#a9b8d6;font-size:13px;line-height:1.45}.out{background:#0b1224;border:1px solid #293550;border-radius:14px;padding:14px;margin-top:10px}.score{font-size:38px;font-weight:900}.pill{display:inline-block;border:1px solid #293550;border-radius:999px;padding:6px 9px;color:#a9b8d6;font-size:13px;margin:2px}.good{color:#6ee7b7}.warn{color:#facc15}.bad{color:#fb7185}
+</style>
+</head>
+<body>
+<main class="wrap">
+<span class="pill">Parts Price Check • working MVP</span>
+<h1>Naudotos detalės kainos sanity-check per minutę.</h1>
+<p class="small">Mini įrankis pardavėjui: suveda naujos dalies kainą, retumą, būklę, paklausą ir gauna ask/floor/manual-review logiką. Tai nėra galutinė rinkos kaina be šaltinių.</p>
+<section class="card">
+<label>Detalė</label><input id="part" placeholder="pvz. Aston Martin DBX stiklo pakelėjas"/>
+<label>OEM/kodas</label><input id="code" placeholder="MY83-F23200-AC"/>
+<label>Naujos dalies signalas, EUR</label><input id="newPrice" type="number" placeholder="pvz. 850"/>
+<label>Būklė</label><select id="condition"><option>gera / patikrinta</option><option>gera, bet netikrinta</option><option>su defektu</option></select>
+<label>Retumas</label><select id="rarity"><option>dažna</option><option>vidutinė</option><option>reta</option><option>labai reta / premium</option></select>
+<label>Paklausa</label><select id="demand"><option>neaiški</option><option>žema</option><option>vidutinė</option><option>aukšta</option></select>
+<button onclick="calc()">Skaičiuoti</button>
+</section>
+<section class="card"><h2>Rezultatas</h2><div id="out" class="out">Įvesk duomenis.</div></section>
+</main>
+<script>
+function v(id){return document.getElementById(id).value}
+function calc(){let np=Number(v('newPrice')||0);let r=v('rarity'),d=v('demand'),c=v('condition');let base=r.includes('premium')?.75:r==='reta'?.6:r==='vidutinė'?.45:.3; if(c.includes('netikrinta'))base-=.1;if(c.includes('defektu'))base-=.25;if(d==='aukšta')base+=.1;if(d==='žema')base-=.1;if(d==='neaiški')base-=.05;base=Math.max(.12,Math.min(.85,base));let ask=np?Math.round(np*base):0;let floor=np?Math.round(ask*.72):0;let missing=[];if(!v('part'))missing.push('detalės pavadinimas');if(!v('code'))missing.push('OEM/kodas');if(!np)missing.push('naujos kainos signalas');let confidence=missing.length?'LOW':(r.includes('premium')||d==='neaiški')?'MEDIUM':'HIGH';let cls=confidence==='HIGH'?'good':confidence==='MEDIUM'?'warn':'bad';let action=missing.length?'BLOCK: trūksta duomenų':confidence==='MEDIUM'?'MANUAL REVIEW: reta/neaiški dalis':'READY: galima testuoti kainą';out.innerHTML=`<div class="score ${cls}">${confidence}</div><b>Ask:</b> ${ask||'n/a'} EUR<br><b>Floor:</b> ${floor||'n/a'} EUR<br><b>Action:</b> ${action}<br><b>Missing:</b> ${missing.join(', ')||'nėra'}<br><p class="small">Rule: kaina yra hipotezė. Be viešų comps/source_url ji negali būti galutinis faktas.</p>`}
+</script>
+</body>
+</html>
