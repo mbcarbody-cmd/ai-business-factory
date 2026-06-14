@@ -1,0 +1,9 @@
+{
+  "name": "Market Pulse",
+  "short_name": "MarketPulse",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0f172a",
+  "description": "Mobile-first market watchlist, risk checklist and decision journal MVP."
+}
