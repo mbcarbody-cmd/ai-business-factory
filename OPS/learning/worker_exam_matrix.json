@@ -160,7 +160,7 @@
   "first_exam_rollout": {
     "target_workers": 10000,
     "required_before_closing_tasks": true,
-    "manual_status": "exam_matrix_created; execution scoring script not yet implemented",
-    "next_action": "Create simple scoring/checklist script or integrate with OPS audit."
+    "manual_status": "exam_matrix_created; learning audit script created at scripts/learning_audit.py; CI/local execution result not yet recorded",
+    "next_action": "Run python3 scripts/learning_audit.py and record result in learning metrics or QA board."
   }
 }
