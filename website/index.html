@@ -3,171 +3,137 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Pilot OS — 72h mini app</title>
+  <title>Content Hook Factory — mini app</title>
   <style>
-    :root{--bg:#08111f;--panel:#101c2f;--panel2:#13243b;--line:#2b4265;--txt:#edf5ff;--muted:#9fb3cc;--ok:#42f59b;--warn:#ffd166;--bad:#ff6b6b;--blue:#75b7ff;--violet:#c29bff}
-    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,system-ui,sans-serif;background:radial-gradient(circle at 0 0,#213a6b,#08111f 42%);color:var(--txt)}
-    .wrap{max-width:1280px;margin:auto;padding:26px 16px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--ok),var(--blue),var(--violet));box-shadow:0 0 34px #42f59b55}.badge{border:1px solid var(--line);background:#0b1729cc;border-radius:999px;padding:8px 12px;color:#c9dbef;font-size:13px}.hero{padding:40px 0 22px}.hero h1{font-size:clamp(34px,5vw,64px);line-height:1;margin:14px 0;letter-spacing:-1.4px}.hero p{max-width:900px;font-size:18px;line-height:1.55;color:#c7d7eb}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:14px;padding:12px 15px;font-weight:850;cursor:pointer;background:var(--ok);color:#03120b;text-decoration:none}.btn.secondary{background:#132742;color:#dcecff;border:1px solid var(--line)}.btn.danger{background:#3a1820;color:#ffd4d4;border:1px solid #70333d}.btn.small{padding:7px 9px;border-radius:10px;font-size:12px}
-    .cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:22px 0}.card,.panel{background:linear-gradient(180deg,#10213a,#0d192b);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 18px 38px #0005}.card strong{font-size:28px;display:block}.muted,.card span{color:var(--muted);font-size:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tab{padding:10px 12px;border:1px solid var(--line);background:#0b1728;color:#cfe0f3;border-radius:999px;cursor:pointer}.tab.active{background:#1a3b63;color:#fff;border-color:#5396e8}.section{display:none}.section.active{display:block}.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}.full{grid-column:1/-1}label{display:block;font-size:13px;color:#b8cce6;margin:8px 0 6px}input,select,textarea{width:100%;border:1px solid #345375;background:#07111f;color:#fff;border-radius:12px;padding:11px;font:inherit}textarea{min-height:80px;resize:vertical}.kpi{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #203757;padding:9px 0}.kpi b{text-align:right}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;color:#cde0f5;background:#0b1728}.pill.ok{border-color:#2c9f5c;color:#a8ffc9}.pill.warn{border-color:#9f7e2c;color:#ffe49a}.pill.bad{border-color:#9f3b3b;color:#ffc3c3}.table-wrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:16px}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid #203757;text-align:left;padding:10px;font-size:13px;vertical-align:top}.table th{color:#b7cce5;background:#0a1525;position:sticky;top:0}.split{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.log{font-family:ui-monospace,Menlo,monospace;font-size:12px;white-space:pre-wrap;background:#06101c;border:1px solid #203757;border-radius:16px;padding:14px;color:#b9d4ee;max-height:360px;overflow:auto}.check{display:flex;align-items:flex-start;gap:10px;border:1px solid #213a5c;background:#081627;border-radius:14px;padding:10px;margin:8px 0}.check input{width:auto;margin-top:3px}.footer{padding:28px 0;color:#8ba5c3;font-size:13px}@media(max-width:900px){.grid,.row,.split{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}
+    :root{--bg:#070913;--panel:#111827;--panel2:#172033;--line:#2a3650;--txt:#f5f7ff;--muted:#a8b3c7;--hot:#ff4d8d;--ok:#4df0a1;--warn:#ffd166;--blue:#72b7ff;--violet:#b99cff}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,system-ui,sans-serif;background:radial-gradient(circle at 10% 0,#2b1643,#070913 48%);color:var(--txt)}
+    .wrap{max-width:1280px;margin:auto;padding:26px 16px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:17px;background:linear-gradient(135deg,var(--hot),var(--violet),var(--blue));box-shadow:0 0 34px #ff4d8d66}.badge{display:inline-flex;border:1px solid var(--line);background:#0c1323cc;border-radius:999px;padding:8px 12px;color:#d2def0;font-size:13px}.hero{padding:42px 0 24px}.hero h1{font-size:clamp(34px,5vw,66px);line-height:.98;margin:14px 0;letter-spacing:-1.5px;max-width:980px}.hero p{max-width:920px;font-size:18px;line-height:1.55;color:#cad6ea}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:14px;padding:12px 15px;font-weight:900;cursor:pointer;background:var(--hot);color:white;text-decoration:none}.btn.secondary{background:#131f34;color:#e4eeff;border:1px solid var(--line)}.btn.ok{background:var(--ok);color:#04130c}.btn.small{font-size:12px;padding:7px 9px;border-radius:10px}
+    .cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:22px 0}.card,.panel{background:linear-gradient(180deg,#111b2e,#0c1322);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 18px 44px #0006}.card strong{font-size:27px;display:block}.muted,.card span{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#bed0e7;font-size:13px;font-weight:800}input,select,textarea{width:100%;border:1px solid #35445f;background:#070b15;color:white;border-radius:12px;padding:11px;font:inherit}textarea{min-height:86px;resize:vertical}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tab{padding:10px 12px;border:1px solid var(--line);border-radius:999px;background:#0b1322;color:#dce8f8;cursor:pointer}.tab.active{background:#2a1744;border-color:#a45dff}.section{display:none}.section.active{display:block}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;background:#0b1322;color:#dce8f8}.pill.ok{border-color:#2b9d65;color:#b7ffd8}.pill.warn{border-color:#9e792a;color:#ffe29a}.pill.hot{border-color:#a93c68;color:#ffc6dd}.table-wrap{max-height:430px;overflow:auto;border:1px solid var(--line);border-radius:16px}.table{width:100%;border-collapse:collapse}.table th,.table td{border-bottom:1px solid #21304a;padding:10px;text-align:left;vertical-align:top;font-size:13px}.table th{background:#0a101d;color:#bfd0e8;position:sticky;top:0}.output{white-space:pre-wrap;background:#060b14;border:1px solid #21304a;border-radius:16px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#c3d7f2;max-height:520px;overflow:auto}.idea{border:1px solid #243551;border-radius:16px;padding:13px;margin:10px 0;background:#0a1323}.idea b{display:block;margin-bottom:5px}.score{height:9px;border-radius:999px;background:#0a101d;border:1px solid #283751;overflow:hidden}.score span{display:block;height:100%;background:linear-gradient(90deg,var(--hot),var(--ok));width:0}.split{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.footer{padding:28px 0;color:#8898b0;font-size:13px}@media(max-width:900px){.grid,.row,.split{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:38px}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="brand"><div class="logo"></div><div><b>AI Pilot OS</b><div class="muted">lengvas pirmas appsas: lead → offer → quote → payment → 72h delivery</div></div></div>
-      <span class="badge">Tikslas: ne teorija, o pirmas apmokamas 299–600 € pilotas</span>
+      <div class="brand"><div class="logo"></div><div><b>Content Hook Factory</b><div class="muted">vienas briefas → 30+ kontento assetų</div></div></div>
+      <span class="badge">Pirmas lengvas appsas: kontentas, hookai, CTA, landing tekstas</span>
     </div>
 
     <section class="hero">
-      <span class="badge">P0 pivot: lengvesnis produktas prieš sudėtingas sistemas</span>
-      <h1>Mini CRM, kuris iš chaoso padaro parduodamą 72h AI pilotą.</h1>
-      <p>Įvedi klientą ir jo problemą. Appsas paskaičiuoja lead fit, parenka pasiūlymą, sugeneruoja quote tekstą, priverčia turėti payment kelią, sudeda 72h delivery checklist ir QA score. Viskas naršyklėje, be backend.</p>
-      <div class="cta"><button class="btn" onclick="showTab('intake')">Įvesti leadą</button><button class="btn secondary" onclick="seedDemo()">Užkrauti demo</button><button class="btn secondary" onclick="exportCsv()">Eksportuoti CSV</button></div>
+      <span class="badge">Sukurtas parduoti 199–399 € content sprintą</span>
+      <h1>Įvesk produktą. Gauk hookus, postus, video scriptus, hero bloką ir outreach tekstą.</h1>
+      <p>Šitas appsas nevaidina magijos. Jis greitai paverčia vieną produkto aprašymą į turinio paketą, kurį galima kelti į Facebook, TikTok, LinkedIn, landing page ar siųsti klientui kaip mini auditą.</p>
+      <div class="cta"><button class="btn" onclick="showTab('brief')">Kurti kontento paketą</button><button class="btn secondary" onclick="loadDemo()">Užkrauti demo</button><button class="btn secondary" onclick="exportMarkdown()">Eksportuoti Markdown</button></div>
     </section>
 
     <section class="cards">
-      <div class="card"><strong id="kLeads">0</strong><span>Leadų</span></div>
-      <div class="card"><strong id="kQualified">0</strong><span>Kvalifikuoti</span></div>
-      <div class="card"><strong id="kQuotes">0</strong><span>Quote sent</span></div>
-      <div class="card"><strong id="kPaid">0</strong><span>Paid pilots</span></div>
-      <div class="card"><strong id="kPipeline">0 €</strong><span>Pipeline vertė</span></div>
+      <div class="card"><strong id="kHooks">0</strong><span>Hookų</span></div>
+      <div class="card"><strong id="kPosts">0</strong><span>Postų</span></div>
+      <div class="card"><strong id="kScripts">0</strong><span>Video scriptų</span></div>
+      <div class="card"><strong id="kScore">0</strong><span>Asset score</span></div>
+      <div class="card"><strong id="kValue">0 €</strong><span>Sprinto vertė</span></div>
     </section>
 
     <div class="tabs">
-      <button class="tab active" data-tab="intake" onclick="showTab('intake')">1. Lead intake</button>
-      <button class="tab" data-tab="pipeline" onclick="showTab('pipeline')">2. Pipeline</button>
-      <button class="tab" data-tab="quote" onclick="showTab('quote')">3. Quote / payment</button>
-      <button class="tab" data-tab="delivery" onclick="showTab('delivery')">4. 72h delivery</button>
-      <button class="tab" data-tab="qa" onclick="showTab('qa')">5. QA / proof</button>
+      <button class="tab active" data-tab="brief" onclick="showTab('brief')">1. Brief</button>
+      <button class="tab" data-tab="hooks" onclick="showTab('hooks')">2. Hookai</button>
+      <button class="tab" data-tab="posts" onclick="showTab('posts')">3. Postai</button>
+      <button class="tab" data-tab="scripts" onclick="showTab('scripts')">4. Video</button>
+      <button class="tab" data-tab="landing" onclick="showTab('landing')">5. Landing / DM</button>
+      <button class="tab" data-tab="ops" onclick="showTab('ops')">6. QA / eksportas</button>
     </div>
 
-    <section id="intake" class="section active">
+    <section id="brief" class="section active">
       <div class="grid">
         <div class="panel">
-          <h2>Naujas potencialus klientas</h2>
+          <h2>Produkto briefas</h2>
           <div class="row">
-            <div><label>Įmonė / žmogus</label><input id="company" placeholder="pvz. mažas servisas, e-shop, brokeris" /></div>
-            <div><label>Kontaktas</label><input id="contact" placeholder="el. paštas, FB, WhatsApp, LinkedIn" /></div>
-            <div><label>Kanalas</label><select id="channel"><option>Facebook</option><option>LinkedIn</option><option>Email</option><option>Website form</option><option>Referral</option><option>Other</option></select></div>
-            <div><label>Biudžetas</label><select id="budget"><option value="0">Neaiškus</option><option value="199">199 €</option><option value="299">299 €</option><option value="600">600 €</option><option value="900">900 €+</option></select></div>
-            <div><label>Pagrindinė problema</label><select id="pain"><option value="lost_leads">Praranda leadus / lėtai atrašo</option><option value="manual_admin">Daug rankinio admin darbo</option><option value="weak_ads">Reikia reklamos variantų</option><option value="messy_data">Netvarkingi duomenys / Excel chaosas</option><option value="no_followup">Nėra follow-up sistemos</option><option value="other">Kita</option></select></div>
-            <div><label>Rekomenduojamas paketas</label><select id="package"><option value="automation_299">299 € AI Automation Pilot</option><option value="ads_299">299 € AI Ads Sprint</option><option value="data_499">499 € Data / Excel Cleanup Pilot</option><option value="ops_600">600 € Mini Ops Dashboard</option></select></div>
-            <div><label>Ar yra reikalingi duomenys/prieigos?</label><select id="access"><option value="yes">Taip / galima gauti</option><option value="partial">Dalinai</option><option value="no">Neaišku</option></select></div>
-            <div><label>Skuba</label><select id="urgency"><option value="normal">Normali</option><option value="high">Nori greitai</option><option value="low">Tik domisi</option></select></div>
-            <div class="full"><label>Problemos aprašymas</label><textarea id="notes" placeholder="pvz. klientai rašo į FB, niekas nesuseka, nėra follow-up, nori vieno paprasto workflow"></textarea></div>
+            <div><label>Produktas / paslauga</label><input id="product" placeholder="pvz. 72h AI content sprintas" /></div>
+            <div><label>Kam skirta?</label><input id="audience" placeholder="pvz. smulkūs verslai, kūrėjai, servisai" /></div>
+            <div><label>Pagrindinis skausmas</label><input id="pain" placeholder="pvz. nežino ką postinti, reklamos vienodos" /></div>
+            <div><label>Svajonių rezultatas</label><input id="dream" placeholder="pvz. 30 idėjų per vieną dieną" /></div>
+            <div><label>Kontrastas</label><select id="contrast"><option value="before_after">Before / After</option><option value="manual_vs_system">Rankinis chaosas vs sistema</option><option value="costly_vs_fast">Brangi agentūra vs 72h sprintas</option><option value="guessing_vs_testing">Spėliojimas vs testavimas</option></select></div>
+            <div><label>Tonas</label><select id="tone"><option value="direct">Tiesiai ir aštriai</option><option value="premium">Premium / patikimai</option><option value="educational">Edukacinis</option><option value="funny">Su ironija</option></select></div>
+            <div><label>Platforma</label><select id="platform"><option>Facebook</option><option>TikTok</option><option>LinkedIn</option><option>Instagram</option><option>YouTube Shorts</option></select></div>
+            <div><label>Pasiūlymo kaina</label><select id="price"><option value="199">199 €</option><option value="299" selected>299 €</option><option value="399">399 €</option><option value="499">499 €</option></select></div>
+            <div class="full"><label>Proof / kodėl tikėti?</label><textarea id="proof" placeholder="pvz. parodomas hookų sąrašas, video scriptai, CTA, landing hero, QA score"></textarea></div>
+            <div class="full"><label>CTA</label><input id="cta" placeholder="pvz. atsiųsk produktą, parodysiu 10 hookų nemokamai" /></div>
           </div>
-          <div class="cta"><button class="btn" onclick="addLead()">Pridėti leadą</button><button class="btn secondary" onclick="clearForm()">Išvalyti</button></div>
+          <div class="cta"><button class="btn" onclick="generatePack()">Generuoti paketą</button><button class="btn secondary" onclick="clearBrief()">Išvalyti</button></div>
         </div>
         <div class="panel">
-          <h2>Automatinis vertinimas</h2>
-          <div id="preview"></div>
-          <p class="muted">Appsas specialiai verčia nepriimti migloto darbo. Be kontakto, aiškaus skausmo, kainos ir payment kelio pipeline neturi būti vadinamas pardavimais.</p>
+          <h2>Greitas verdiktas</h2>
+          <div id="briefPreview"></div>
+          <p class="muted">Geras kontento sprintas turi aiškų pirkėją, skausmą, rezultatą, proof ir CTA. Jei bent vieno nėra, assetai bus gražūs, bet neparduos.</p>
         </div>
       </div>
     </section>
 
-    <section id="pipeline" class="section">
-      <div class="panel">
-        <h2>Pipeline</h2>
-        <div class="table-wrap"><table class="table"><thead><tr><th>Lead</th><th>Pain / paketas</th><th>Score</th><th>Statusas</th><th>Kaina</th><th>Next action</th><th>Veiksmai</th></tr></thead><tbody id="leadTable"></tbody></table></div>
-      </div>
-    </section>
-
-    <section id="quote" class="section">
-      <div class="grid">
-        <div class="panel">
-          <h2>Quote generatorius</h2>
-          <label>Pasirink leadą</label><select id="activeLead" onchange="selectLead(this.value)"></select>
-          <div id="quoteSummary" style="margin-top:12px"></div>
-          <div class="row">
-            <div><label>Kaina, €</label><input id="quotePrice" type="number" min="0" step="1" /></div>
-            <div><label>Payment kelias</label><select id="paymentPath"><option value="invoice">Invoice / bank transfer</option><option value="revolut">Revolut Business link</option><option value="paypal">PayPal link</option><option value="stripe">Stripe link</option><option value="manual">Manual quote only</option></select></div>
-            <div class="full"><label>Payment detalė / blocker</label><input id="paymentDetail" placeholder="pvz. invoice draft ready, Revolut link pending, bank instructions ready" /></div>
-          </div>
-          <div class="cta"><button class="btn" onclick="saveQuoteSettings()">Išsaugoti quote/payment</button><button class="btn secondary" onclick="copyQuote()">Kopijuoti quote tekstą</button></div>
-        </div>
-        <div class="panel">
-          <h2>Paruoštas tekstas klientui</h2>
-          <pre id="quoteText" class="log"></pre>
-        </div>
-      </div>
-    </section>
-
-    <section id="delivery" class="section">
-      <div class="grid">
-        <div class="panel">
-          <h2>72h delivery checklist</h2>
-          <div id="deliveryLeadInfo"></div>
-          <div id="deliveryChecks"></div>
-        </div>
-        <div class="panel">
-          <h2>Handoff tekstas</h2>
-          <pre id="handoffText" class="log"></pre>
-          <button class="btn secondary" onclick="copyHandoff()">Kopijuoti handoff</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="qa" class="section">
+    <section id="hooks" class="section"><div class="panel"><h2>Hookų generatorius</h2><div id="hookList"></div></div></section>
+    <section id="posts" class="section"><div class="panel"><h2>Postų paketai</h2><div id="postList"></div></div></section>
+    <section id="scripts" class="section"><div class="panel"><h2>15–30 s video scriptai</h2><div id="scriptList"></div></div></section>
+    <section id="landing" class="section"><div class="grid"><div class="panel"><h2>Landing hero</h2><div id="landingBox"></div></div><div class="panel"><h2>Outreach / DM</h2><div id="dmBox"></div></div></div></section>
+    <section id="ops" class="section">
       <div class="split">
-        <div class="panel"><h2>QA verdict</h2><div id="qaBox"></div></div>
-        <div class="panel"><h2>Eksportas</h2><p class="muted">JSON/CSV tinka perduoti į kitą sistemą arba repo proof failą.</p><div class="cta"><button class="btn secondary" onclick="exportJson()">JSON</button><button class="btn secondary" onclick="exportCsv()">CSV</button></div></div>
-        <div class="panel"><h2>Apribojimai</h2><div class="kpi"><span>Tikras mokėjimas</span><b class="pill warn">tracked, not processed</b></div><div class="kpi"><span>Email siuntimas</span><b class="pill warn">manual</b></div><div class="kpi"><span>Duomenų bazė</span><b class="pill warn">localStorage</b></div><div class="kpi"><span>Public URL</span><b class="pill warn">GitHub Pages verify</b></div></div>
+        <div class="panel"><h2>QA score</h2><div id="qaBox"></div></div>
+        <div class="panel"><h2>Eksportas</h2><div class="cta"><button class="btn secondary" onclick="exportMarkdown()">Markdown</button><button class="btn secondary" onclick="exportJson()">JSON</button><button class="btn secondary" onclick="copyOutput()">Copy</button></div></div>
+        <div class="panel"><h2>Pardavimo paketas</h2><p class="muted">Šitą galima parduoti kaip 199–399 € sprintą: 30 hookų, 6 postai, 3 video scriptai, landing hero, DM ir QA.</p><span class="pill hot">sellable micro-service</span></div>
       </div>
-      <div class="panel" style="margin-top:14px"><h2>Output</h2><pre id="output" class="log">Pasirink eksportą arba leadą.</pre></div>
+      <div class="panel" style="margin-top:14px"><h2>Output</h2><pre id="output" class="output">Sugeneruok paketą arba užkrauk demo.</pre></div>
     </section>
 
-    <div class="footer">AI Pilot OS MVP. Veikia kaip statinis naršyklės appsas su localStorage. Jis neužtikrina mokėjimo apdorojimo ar email siuntimo, bet sutvarko pirmo parduodamo piloto workflow.</div>
+    <div class="footer">Content Hook Factory MVP. Veikia naršyklėje, be backend ir be API. Tikslas — greitai testuoti kontento sprinto pasiūlymą.</div>
   </div>
 
 <script>
 const $=id=>document.getElementById(id);
-const money=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
-const statuses=['new','qualified','quote_sent','payment_ready','paid_pilot','in_delivery','delivered','maintenance_offer'];
-const statusLabel={new:'new',qualified:'qualified',quote_sent:'quote sent',payment_ready:'payment ready',paid_pilot:'paid pilot',in_delivery:'in delivery',delivered:'delivered',maintenance_offer:'maintenance offer'};
-const packages={
-  automation_299:{name:'299 € AI Automation Pilot',price:299,outcome:'vienas konkretus lead/admin/follow-up automatizacijos workflow',notIncluded:'sudėtingos integracijos, neribotos korekcijos, garantuoti pardavimai'},
-  ads_299:{name:'299 € AI Ads Sprint',price:299,outcome:'10 reklamos kampų, hookai, CTA, trumpi scriptai ir next-test rekomendacija',notIncluded:'ad account valdymas, garantuotas ROAS, fake testimonials'},
-  data_499:{name:'499 € Data / Excel Cleanup Pilot',price:499,outcome:'vienas sutvarkytas duomenų/Excel workflow su aiškiu import/export procesu',notIncluded:'pilna ERP migracija, login scraping, duomenys be leidimo'},
-  ops_600:{name:'600 € Mini Ops Dashboard',price:600,outcome:'mažas valdymo dashboardas su intake, statusais, QA ir handoff logika',notIncluded:'production SaaS su multi-user backendu'}
-};
-let leads=JSON.parse(localStorage.getItem('ai_pilot_os_leads')||'[]');
-let checks=JSON.parse(localStorage.getItem('ai_pilot_os_checks')||'{}');
-let selectedId=localStorage.getItem('ai_pilot_os_selected')||'';
-const checklist=['Intake užpildytas','Scope užrakintas','Not-included sąrašas aiškus','Kaina ir marža patikrinta','Payment path paruoštas','Reikalingi duomenys/prieigos patvirtinti','Pirma naudinga versija padaryta','QA pass arba blocker įrašytas','Handoff tekstas paruoštas','Maintenance upsell pasiūlytas'];
-function painText(v){return {lost_leads:'Praranda leadus / lėtai atrašo',manual_admin:'Daug rankinio admin darbo',weak_ads:'Reikia reklamos variantų',messy_data:'Netvarkingi duomenys / Excel chaosas',no_followup:'Nėra follow-up sistemos',other:'Kita'}[v]||v}
-function scoreLead(d){let score=15,w=[];if(d.company)score+=10;else w.push('missing_company');if(d.contact)score+=12;else w.push('missing_contact');if(d.notes&&d.notes.length>25)score+=15;else w.push('weak_problem_description');if(d.budget>=packages[d.package].price)score+=18;else if(d.budget>0)score+=8;else w.push('budget_unclear');if(d.access==='yes')score+=12;else if(d.access==='partial')score+=6;else w.push('access_unclear');if(d.urgency==='high')score+=8;if(d.pain!=='other')score+=10;const broad=/visk|piln|full|marketplace|erp|platform|appsa nuo nulio/i.test(d.notes||'');if(broad){score-=15;w.push('scope_too_broad')}score=Math.max(0,Math.min(100,score));return {score,warnings:w,grade:score>=75?'hot':score>=55?'warm':'cold'}}
-function buildLead(){const pkg=packages[$('package').value];const d={id:'L'+String(Date.now()).slice(-7),company:$('company').value.trim(),contact:$('contact').value.trim(),channel:$('channel').value,pain:$('pain').value,package:$('package').value,budget:Number($('budget').value)||0,access:$('access').value,urgency:$('urgency').value,notes:$('notes').value.trim(),price:pkg.price,paymentPath:'',paymentDetail:'',status:'new',nextAction:'Verify pain and send short offer',created:new Date().toISOString()};const s=scoreLead(d);return {...d,fitScore:s.score,fitGrade:s.grade,warnings:s.warnings}}
-function updatePreview(){const d=buildLead();$('preview').innerHTML=`<div class="kpi"><span>Lead fit</span><b><span class="pill ${d.fitScore>=75?'ok':d.fitScore>=55?'warn':'bad'}">${d.fitScore}/100 ${d.fitGrade}</span></b></div><div class="kpi"><span>Paketas</span><b>${packages[d.package].name}</b></div><div class="kpi"><span>Kaina</span><b>${money(d.price)}</b></div><div class="kpi"><span>Kitas veiksmas</span><b>${d.fitScore>=75?'Siųsti quote':'Patikslinti problemą / biudžetą'}</b></div><div class="kpi"><span>Blockeriai</span><b>${d.warnings.length?d.warnings.join(', '):'nėra'}</b></div>`}
-function addLead(){const d=buildLead();if(!d.company||!d.notes){alert('Reikia bent kliento/įmonės ir problemos aprašymo.');return}if(d.fitScore>=55)d.status='qualified';d.nextAction=d.fitScore>=75?'Send quote and payment path':'Clarify pain, budget or access';leads.unshift(d);selectedId=d.id;save();clearForm();showTab('pipeline')}
-function clearForm(){['company','contact','notes'].forEach(id=>$(id).value='');$('budget').value='0';$('access').value='yes';$('urgency').value='normal';$('pain').value='lost_leads';$('package').value='automation_299';updatePreview()}
-function save(){localStorage.setItem('ai_pilot_os_leads',JSON.stringify(leads));localStorage.setItem('ai_pilot_os_checks',JSON.stringify(checks));localStorage.setItem('ai_pilot_os_selected',selectedId||'');render()}
-function getSelected(){return leads.find(x=>x.id===selectedId)||leads[0]||null}
-function selectLead(id){selectedId=id;save();showTab('quote')}
-function badgeFor(d){return d.fitScore>=75?'ok':d.fitScore>=55?'warn':'bad'}
-function render(){const qualified=leads.filter(x=>['qualified','quote_sent','payment_ready','paid_pilot','in_delivery','delivered','maintenance_offer'].includes(x.status)).length;const quotes=leads.filter(x=>['quote_sent','payment_ready','paid_pilot','in_delivery','delivered','maintenance_offer'].includes(x.status)).length;const paid=leads.filter(x=>['paid_pilot','in_delivery','delivered','maintenance_offer'].includes(x.status)).length;const pipeline=leads.filter(x=>!['delivered','maintenance_offer'].includes(x.status)).reduce((s,x)=>s+(Number(x.price)||0),0);$('kLeads').textContent=leads.length;$('kQualified').textContent=qualified;$('kQuotes').textContent=quotes;$('kPaid').textContent=paid;$('kPipeline').textContent=money(pipeline);
-$('leadTable').innerHTML=leads.map(d=>`<tr><td><b>${d.company}</b><br><span class="muted">${d.contact||'be kontakto'} · ${d.channel}</span></td><td>${painText(d.pain)}<br><span class="muted">${packages[d.package].name}</span></td><td><span class="pill ${badgeFor(d)}">${d.fitScore}/100</span><br><span class="muted">${d.warnings.join(', ')||'ok'}</span></td><td><span class="pill ${d.status.includes('paid')||d.status==='delivered'?'ok':d.status.includes('quote')||d.status==='payment_ready'?'warn':''}">${statusLabel[d.status]}</span></td><td><b>${money(d.price)}</b></td><td>${d.nextAction||'—'}</td><td><button class="btn small secondary" onclick="selectLead('${d.id}')">Quote</button> <button class="btn small secondary" onclick="advance('${d.id}')">Next</button> <button class="btn small secondary" onclick="markPaid('${d.id}')">Paid</button> <button class="btn small danger" onclick="removeLead('${d.id}')">X</button></td></tr>`).join('')||'<tr><td colspan="7" class="muted">Dar nėra leadų. Įvesk leadą arba užkrauk demo.</td></tr>';
-const options=leads.map(d=>`<option value="${d.id}" ${d.id===selectedId?'selected':''}>${d.company} — ${statusLabel[d.status]} — ${money(d.price)}</option>`).join('');$('activeLead').innerHTML=options||'<option>Nėra leadų</option>';renderQuote();renderDelivery();renderQa()}
-function advance(id){const d=leads.find(x=>x.id===id);if(!d)return;const i=statuses.indexOf(d.status);d.status=statuses[Math.min(i+1,statuses.length-1)];d.nextAction=nextActionFor(d);selectedId=id;save()}
-function markPaid(id){const d=leads.find(x=>x.id===id);if(!d)return;d.status='paid_pilot';if(!d.paymentDetail)d.paymentDetail='Manual payment confirmation required';d.nextAction='Start 72h delivery checklist';selectedId=id;save();showTab('delivery')}
-function removeLead(id){leads=leads.filter(x=>x.id!==id);delete checks[id];if(selectedId===id)selectedId=leads[0]?.id||'';save()}
-function nextActionFor(d){return {new:'Qualify pain and contact',qualified:'Send quote',quote_sent:'Attach payment path',payment_ready:'Collect payment',paid_pilot:'Start delivery',in_delivery:'Finish handoff',delivered:'Offer maintenance',maintenance_offer:'Follow up monthly'}[d.status]||'Next action'}
-function saveQuoteSettings(){const d=getSelected();if(!d)return;d.price=Number($('quotePrice').value)||d.price;d.paymentPath=$('paymentPath').value;d.paymentDetail=$('paymentDetail').value.trim();d.status=d.paymentDetail?'payment_ready':'quote_sent';d.nextAction=d.paymentDetail?'Collect payment before delivery':'Attach payment link/invoice/bank instruction';save();showTab('quote')}
-function quoteBody(d){if(!d)return 'Nėra pasirinkto leado.';const p=packages[d.package];return `Sveiki, ${d.company},\n\nPagal jūsų problemą (${painText(d.pain)}) siūlau 72h pilotą: ${p.name}.\n\nRezultatas: ${p.outcome}.\nKaina: ${money(d.price)}.\nTerminas: 72 val. po apmokėjimo ir reikalingų duomenų gavimo.\n\nNeįeina: ${p.notIncluded}.\nPayment: ${d.paymentDetail||'paruošiu invoice / payment instructions prieš startą'}.\n\nKitas žingsnis: patvirtinam scope, apmokėjimą ir pradedu nuo mažiausios veikiančios versijos.`}
-function renderQuote(){const d=getSelected();if(!d){$('quoteSummary').innerHTML='<p class="muted">Nėra leadų.</p>';$('quoteText').textContent='Nėra ką generuoti.';return}$('quotePrice').value=d.price;$('paymentPath').value=d.paymentPath||'invoice';$('paymentDetail').value=d.paymentDetail||'';$('quoteSummary').innerHTML=`<div class="kpi"><span>Lead</span><b>${d.company}</b></div><div class="kpi"><span>Fit</span><b>${d.fitScore}/100</b></div><div class="kpi"><span>Statusas</span><b>${statusLabel[d.status]}</b></div>`;$('quoteText').textContent=quoteBody(d)}
-function copyQuote(){navigator.clipboard?.writeText($('quoteText').textContent);$('output').textContent='Quote nukopijuotas į clipboard.'}
-function renderDelivery(){const d=getSelected();if(!d){$('deliveryLeadInfo').innerHTML='<p class="muted">Nėra leadų.</p>';$('deliveryChecks').innerHTML='';$('handoffText').textContent='';return}const arr=checks[d.id]||[];$('deliveryLeadInfo').innerHTML=`<div class="kpi"><span>Aktyvus pilotas</span><b>${d.company}</b></div><div class="kpi"><span>Statusas</span><b>${statusLabel[d.status]}</b></div><div class="kpi"><span>Delivery allowed</span><b><span class="pill ${['paid_pilot','in_delivery','delivered','maintenance_offer'].includes(d.status)?'ok':'bad'}">${['paid_pilot','in_delivery','delivered','maintenance_offer'].includes(d.status)?'yes':'no payment yet'}</span></b></div>`;$('deliveryChecks').innerHTML=checklist.map((c,i)=>`<label class="check"><input type="checkbox" ${arr.includes(i)?'checked':''} onchange="toggleCheck('${d.id}',${i})"/><span>${c}</span></label>`).join('');$('handoffText').textContent=`Kas pristatyta: ${packages[d.package].outcome}\nKaip naudoti: atsidaryti pateiktą workflow / failą / puslapį ir vykdyti pažymėtus žingsnius.\nKas neįeina: ${packages[d.package].notIncluded}\nKnown limits: MVP, 72h scope, be neribotų integracijų.\nKitas pagerinimas: maintenance ${d.price>=600?'299':'99-199'} €/mėn. smulkiems pataisymams ir iteracijoms.`}
-function toggleCheck(id,i){checks[id]=checks[id]||[];checks[id]=checks[id].includes(i)?checks[id].filter(x=>x!==i):[...checks[id],i];const d=leads.find(x=>x.id===id);if(d&&checks[id].length>=8&&d.status==='in_delivery')d.status='delivered';save()}
-function copyHandoff(){navigator.clipboard?.writeText($('handoffText').textContent);$('output').textContent='Handoff nukopijuotas.'}
-function qaScore(d){if(!d)return {score:0,items:[]};const items=[['Lead/contact',!!d.company&&!!d.contact,10],['Pain clear',!!d.notes&&d.notes.length>25,15],['Offer selected',!!d.package,10],['Price visible',!!d.price,10],['Payment path',!!d.paymentDetail,15],['Scope not broad',!d.warnings.includes('scope_too_broad'),10],['Delivery checklist',!!checks[d.id]&&checks[d.id].length>=5,15],['Next action',!!d.nextAction,10],['No missing access',d.access!=='no',5]];return {score:items.reduce((s,x)=>s+(x[1]?x[2]:0),0),items}}
-function renderQa(){const d=getSelected();const q=qaScore(d);$('qaBox').innerHTML=d?`<div class="kpi"><span>Aktyvus lead</span><b>${d.company}</b></div><div class="kpi"><span>QA score</span><b><span class="pill ${q.score>=80?'ok':q.score>=60?'warn':'bad'}">${q.score}/100 ${q.score>=80?'PASS':'BLOCKED'}</span></b></div>${q.items.map(x=>`<div class="kpi"><span>${x[0]}</span><b>${x[1]?'✅':'❌'} ${x[2]} pt</b></div>`).join('')}`:'<p class="muted">Nėra leadų.</p>'}
-function feedRows(){return leads.map(d=>({id:d.id,company:d.company,contact:d.contact,channel:d.channel,pain:painText(d.pain),package:packages[d.package].name,fit_score:d.fitScore,status:d.status,price_eur:d.price,payment_path:d.paymentPath,payment_detail:d.paymentDetail,next_action:d.nextAction,qa_score:qaScore(d).score,created:d.created}))}
-function exportJson(){const data=feedRows();$('output').textContent=JSON.stringify(data,null,2);navigator.clipboard?.writeText(JSON.stringify(data,null,2));showTab('qa')}
-function exportCsv(){const rows=feedRows();const headers=Object.keys(rows[0]||{id:'',company:'',status:'',price_eur:'',next_action:''});const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');$('output').textContent=csv||'Nėra ką eksportuoti.';navigator.clipboard?.writeText(csv);showTab('qa')}
-function seedDemo(){leads=[{id:'L10001',company:'Local service business',contact:'info@example.com',channel:'Email',pain:'lost_leads',package:'automation_299',budget:299,access:'yes',urgency:'high',notes:'Klientai ateina iš Facebook ir web formos, bet nėra greito atsakymo ir follow-up. Reikia paprasto lead capture + atsakymo workflow.',price:299,paymentPath:'invoice',paymentDetail:'Invoice / bank transfer instructions ready',status:'payment_ready',nextAction:'Collect payment before delivery',created:new Date().toISOString()},{id:'L10002',company:'Small e-shop',contact:'FB page',channel:'Facebook',pain:'weak_ads',package:'ads_299',budget:299,access:'yes',urgency:'normal',notes:'Turi produktus, bet reklamos tekstai vienodi. Reikia 10 hookų, CTA ir trumpų video scriptų testavimui.',price:299,paymentPath:'revolut',paymentDetail:'Revolut link pending',status:'quote_sent',nextAction:'Attach payment link',created:new Date().toISOString()},{id:'L10003',company:'Excel-heavy operator',contact:'WhatsApp',channel:'Referral',pain:'messy_data',package:'data_499',budget:600,access:'partial',urgency:'high',notes:'Visi užsakymai ir klientai keliuose Excel failuose. Reikia vieno švaraus import/export proceso ir statusų.',price:499,paymentPath:'invoice',paymentDetail:'',status:'qualified',nextAction:'Send quote',created:new Date().toISOString()}].map(d=>{const s=scoreLead(d);return {...d,fitScore:s.score,fitGrade:s.grade,warnings:s.warnings}});selectedId=leads[0].id;checks={L10001:[0,1,2,3,4]};save();showTab('pipeline')}
-function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));$(id).classList.add('active');if(id==='quote')renderQuote();if(id==='delivery')renderDelivery();if(id==='qa')renderQa()}
-['company','contact','channel','budget','pain','package','access','urgency','notes'].forEach(id=>$(id).addEventListener('input',updatePreview));
-updatePreview();render();
+const money=n=>(Number(n)||0).toLocaleString('lt-LT')+' €';
+let pack=JSON.parse(localStorage.getItem('content_hook_factory_pack')||'null');
+const hookPatterns=[
+  'Nustok {bad}. Vietoj to daryk {good}.',
+  'Jei {audience} turi {pain}, šitas procesas sutaupo savaitę.',
+  '3 ženklai, kad tavo {product} komunikacija neparduoda.',
+  'Before: {pain}. After: {dream}. Štai kaip.',
+  'Kodėl dauguma {audience} postų nesuveikia?',
+  'Per 72h iš {pain} į {dream} — be agentūros chaoso.',
+  'Vienas briefas. 30 kampų. Nulis spėliojimo.',
+  'Brangiausia klaida: kurti turinį be hookų banko.',
+  'Parodyk produktą taip, kad klientas suprastų per 5 sekundes.',
+  'Jei reklamos neveikia, dažniausiai kaltas ne biudžetas.',
+  'Tavo konkurentai testuoja kampus. Tu vis dar rašai vieną postą?',
+  'Mažas verslas neturi laiko kūrybinei terapijai. Jam reikia assetų.'
+];
+function val(id){return ($(id).value||'').trim()}
+function brief(){return {product:val('product'),audience:val('audience'),pain:val('pain'),dream:val('dream'),contrast:val('contrast'),tone:val('tone'),platform:val('platform'),price:Number(val('price'))||299,proof:val('proof'),cta:val('cta')}}
+function scoreBrief(b){let s=0; if(b.product)s+=15;if(b.audience)s+=15;if(b.pain)s+=15;if(b.dream)s+=15;if(b.proof)s+=15;if(b.cta)s+=15;if(b.price)s+=10;return Math.min(100,s)}
+function words(b){return {bad:b.pain||'spėlioti kontentą',good:b.dream||'testuoti aiškius kampus',audience:b.audience||'klientai',pain:b.pain||'neaiškų turinį',product:b.product||'produktas',dream:b.dream||'aiškų rezultatą'}}
+function fill(t,b){const w=words(b);return t.replaceAll('{bad}',w.bad).replaceAll('{good}',w.good).replaceAll('{audience}',w.audience).replaceAll('{pain}',w.pain).replaceAll('{product}',w.product).replaceAll('{dream}',w.dream)}
+function generatePack(){const b=brief();if(!b.product||!b.audience||!b.pain){alert('Reikia bent produkto, auditorijos ir skausmo.');return}const hooks=hookPatterns.map((h,i)=>({id:i+1,text:fill(h,b),angle:['pain','contrast','speed','proof','money','simplicity'][i%6]}));const posts=makePosts(b,hooks);const scripts=makeScripts(b,hooks);pack={brief:b,hooks,posts,scripts,landing:makeLanding(b),dm:makeDm(b),qa:scoreBrief(b),created:new Date().toISOString()};localStorage.setItem('content_hook_factory_pack',JSON.stringify(pack));render();showTab('hooks')}
+function makePosts(b,hooks){return [
+  {type:'Problem post',text:`${hooks[0].text}\n\nDaug ${b.audience} bando kurti turinį iš oro. Problema ne tame, kad trūksta idėjų. Problema, kad nėra sistemos: skausmas → kontrastas → rezultatas → CTA.\n\n${b.cta}`},
+  {type:'Before / After',text:`Before: ${b.pain}.\nAfter: ${b.dream}.\n\nTarp jų reikia ne dar vieno gražaus posto, o 20–30 skirtingų kampų, kuriuos galima testuoti.\n\nPasiūlymas: ${money(b.price)} content sprintas.`},
+  {type:'Listicle',text:`5 turinio kampai apie ${b.product}:\n1. Skausmas: ${b.pain}\n2. Kontrastas: rankinis chaosas vs sistema\n3. Greitis: rezultatas per 72h\n4. Proof: ${b.proof||'parodomas konkretus output'}\n5. CTA: ${b.cta||'atsiųsk produktą'}`},
+  {type:'Trust post',text:`Aš neparduodu „daug postų“. Aš parduodu aiškų testavimo paketą: hookai, postai, video scriptai, landing hero ir CTA.\n\nTikslas — kad ${b.audience} greičiau suprastų, kas kabina klientą.`},
+  {type:'Offer post',text:`Padarau ${b.product} kontento sprintą už ${money(b.price)}.\n\nGauni: 30 hookų, 6 postus, 3 video scriptus, landing hero, outreach DM ir QA.\n\n${b.cta||'Parašyk „SPRINT“.'}`},
+  {type:'Objection post',text:`„Mes jau bandėm postinti.“\n\nPostinti nėra tas pats, kas testuoti kampus. Vienas postas nepasako tiesos. 30 hookų jau pradeda rodyti, kur yra pirkėjo skausmas.`}
+]}
+function makeScripts(b,hooks){return [
+  {title:'Before / After 20s',text:`0–3s: ${hooks[3].text}\n3–8s: Parodyk messy užrašus / tuščią content planą.\n8–15s: Parodyk sugeneruotų hookų ir CTA sąrašą.\n15–20s: ${b.cta||'Atsiųsk produktą, parodysiu 10 hookų.'}`},
+  {title:'Mistake 15s',text:`0–4s: Didžiausia klaida — kurti turinį be kampų banko.\n4–10s: Vienas produktas gali turėti 30 skirtingų įėjimų: skausmas, greitis, kaina, proof, kontrastas.\n10–15s: ${b.product} sprintas nuo ${money(b.price)}.`},
+  {title:'Proof walkthrough 30s',text:`0–5s: Įvedam produktą, auditoriją ir skausmą.\n5–15s: Išeina hookai, postai ir video scriptai.\n15–24s: Išsirenkam 3 stipriausius kampus testui.\n24–30s: ${b.cta||'Parašyk, jei nori tokio paketo.'}`}
+]}
+function makeLanding(b){return {hero:`${b.audience} nereikia dar vieno generic posto. Jiems reikia kampų, kurie parduoda ${b.product}.`,sub:`Per 72h paruošiam hookus, postus, short video scriptus, landing hero ir CTA, kad iš ${b.pain} pereitum į ${b.dream}.`,bullets:['30 hookų skirtingais kampais','6 paruošti postai','3 trumpų video scriptai','Landing hero ir DM tekstas','QA score prieš publikavimą'],cta:b.cta||'Atsiųsk produktą auditui'}}
+function makeDm(b){return `Sveiki, mačiau jūsų produktą/paslaugą. Man atrodo, kad čia galima greitai ištestuoti kelis aiškesnius kampus vietoj vieno bendro posto.\n\nGaliu per 72h paruošti mini paketą: 30 hookų, 6 postus, 3 video scriptus ir landing/CTA tekstą. Kaina nuo ${money(b.price)}.\n\nAr verta parodyti 3 pavyzdinius hookus pagal jūsų produktą?`}
+function updatePreview(){const b=brief();const s=scoreBrief(b);$('briefPreview').innerHTML=`<div class="idea"><b>Brief score: ${s}/100</b><div class="score"><span style="width:${s}%"></span></div><p class="muted">${s>=85?'Tinka parduodamam sprintui.':s>=60?'Galima generuoti, bet trūksta proof/CTA.':'Per silpnas briefas — reikės patikslinti.'}</p></div><div class="idea"><b>Pasiūlymas</b>${b.product||'—'} → ${b.audience||'—'} → ${money(b.price)}</div><div class="idea"><b>Silpniausia vieta</b>${!b.proof?'Trūksta proof.':!b.cta?'Trūksta CTA.':'Pakankamai aišku.'}</div>`}
+function render(){if(!pack){$('kHooks').textContent='0';$('kPosts').textContent='0';$('kScripts').textContent='0';$('kScore').textContent='0';$('kValue').textContent='0 €';updatePreview();return}$('kHooks').textContent=pack.hooks.length;$('kPosts').textContent=pack.posts.length;$('kScripts').textContent=pack.scripts.length;$('kScore').textContent=pack.qa;$('kValue').textContent=money(pack.brief.price);$('hookList').innerHTML=pack.hooks.map(h=>`<div class="idea"><b>#${h.id} <span class="pill hot">${h.angle}</span></b>${h.text}</div>`).join('');$('postList').innerHTML=pack.posts.map(p=>`<div class="idea"><b>${p.type}</b>${p.text.replaceAll('\n','<br>')}</div>`).join('');$('scriptList').innerHTML=pack.scripts.map(s=>`<div class="idea"><b>${s.title}</b>${s.text.replaceAll('\n','<br>')}</div>`).join('');$('landingBox').innerHTML=`<div class="idea"><b>Hero</b>${pack.landing.hero}</div><div class="idea"><b>Sub</b>${pack.landing.sub}</div><div class="idea"><b>Bullets</b>${pack.landing.bullets.map(x=>'• '+x).join('<br>')}</div><div class="idea"><b>CTA</b>${pack.landing.cta}</div>`;$('dmBox').innerHTML=`<div class="idea">${pack.dm.replaceAll('\n','<br>')}</div>`;$('qaBox').innerHTML=`<div class="idea"><b>QA: ${pack.qa}/100</b><div class="score"><span style="width:${pack.qa}%"></span></div><p>${pack.qa>=85?'PASS — galima rodyti klientui.':'REVISE — patikslinti briefą.'}</p></div>`;exportMarkdown(false);updatePreview()}
+function markdown(){if(!pack)return 'Nėra sugeneruoto paketo.';return `# Content Hook Factory Pack\n\nProduktas: ${pack.brief.product}\nAuditorija: ${pack.brief.audience}\nSkausmas: ${pack.brief.pain}\nRezultatas: ${pack.brief.dream}\nKaina: ${money(pack.brief.price)}\nQA: ${pack.qa}/100\n\n## Hookai\n${pack.hooks.map(h=>`${h.id}. ${h.text}`).join('\n')}\n\n## Postai\n${pack.posts.map(p=>`### ${p.type}\n${p.text}`).join('\n\n')}\n\n## Video scriptai\n${pack.scripts.map(s=>`### ${s.title}\n${s.text}`).join('\n\n')}\n\n## Landing hero\n${pack.landing.hero}\n\n${pack.landing.sub}\n\n${pack.landing.bullets.map(x=>'- '+x).join('\n')}\n\nCTA: ${pack.landing.cta}\n\n## Outreach DM\n${pack.dm}`}
+function exportMarkdown(switchTab=true){$('output').textContent=markdown();if(switchTab)showTab('ops')}
+function exportJson(){$('output').textContent=JSON.stringify(pack||{},null,2);showTab('ops')}
+function copyOutput(){navigator.clipboard?.writeText($('output').textContent)}
+function loadDemo(){ $('product').value='72h AI content sprintas';$('audience').value='smulkūs verslai ir kūrėjai';$('pain').value='nežino ką postinti ir vis kartoja tą patį';$('dream').value='turėti 30 testuojamų kampų per vieną dieną';$('contrast').value='guessing_vs_testing';$('tone').value='direct';$('platform').value='Facebook';$('price').value='299';$('proof').value='klientas gauna hookų banką, postus, video scriptus, landing hero ir QA score';$('cta').value='atsiųsk produktą, parodysiu 10 hookų nemokamai';generatePack()}
+function clearBrief(){['product','audience','pain','dream','proof','cta'].forEach(id=>$(id).value='');pack=null;localStorage.removeItem('content_hook_factory_pack');render()}
+function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));$(id).classList.add('active')}
+['product','audience','pain','dream','contrast','tone','platform','price','proof','cta'].forEach(id=>$(id).addEventListener('input',updatePreview));
+render();
 </script>
 </body>
 </html>
