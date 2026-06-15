@@ -1,0 +1,59 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "CRO / Revenue Department GM",
+  "purpose": "Make Apps Lab revenue-producing instead of idea-only.",
+  "cash_rule": "Every day must move at least one offer, lead, CTA, payment path, pilot, delivery, feedback or stop decision.",
+  "tasks": [
+    {
+      "id": "REV-001",
+      "title": "Turn AI Date Planner into paid test",
+      "product": "AI Date Planner",
+      "owner": "Revenue Pod A",
+      "status": "in_progress",
+      "output_path": "OPS/revenue_department/offers/ai_date_planner_offer_2026_06_15.md",
+      "next_action": "Use 3 EUR plan pack as first paid micro-offer after landing form proof.",
+      "proof_condition": "At least one real user submits form or payment/acceptance interest."
+    },
+    {
+      "id": "REV-002",
+      "title": "Turn AI Wingman into reply-pack offer",
+      "product": "AI Wingman",
+      "owner": "Revenue Pod B",
+      "status": "in_progress",
+      "output_path": "OPS/revenue_department/offers/ai_wingman_offer_2026_06_15.md",
+      "next_action": "Offer 3 free replies and paid pack for more variants.",
+      "proof_condition": "20 users paste messages or one user pays/asks for more."
+    },
+    {
+      "id": "REV-003",
+      "title": "Run NoSwipe 10 intro experiment",
+      "product": "NoSwipe",
+      "owner": "Revenue Pod C",
+      "status": "in_progress",
+      "output_path": "OPS/revenue_department/offers/noswipe_offer_2026_06_15.md",
+      "next_action": "Build opt-in intake and track 10 intro attempts before platform build.",
+      "proof_condition": "10 opt-in intro attempts or stop/pivot decision."
+    },
+    {
+      "id": "REV-004",
+      "title": "Create revenue signal ledger",
+      "product": "All Apps Lab",
+      "owner": "Revenue Analyst",
+      "status": "repo_output_created",
+      "output_path": "OPS/revenue_department/revenue_signal_ledger_2026_06_15.json",
+      "next_action": "Record every signup, reply, payment interest, pilot, blocker and pivot.",
+      "proof_condition": "Ledger exists and every revenue action writes a row."
+    },
+    {
+      "id": "REV-005",
+      "title": "Create video revenue deconstruction queue",
+      "product": "Content-to-revenue engine",
+      "owner": "Content Revenue Analyst",
+      "status": "blocked_transcript_unavailable",
+      "output_path": "OPS/revenue_department/video_revenue_deconstruction_queue_2026_06_15.json",
+      "next_action": "Add transcript or manually extract title/claims when accessible; continue other revenue tasks meanwhile.",
+      "proof_condition": "Every video has status, blocker, extracted mechanism or next action."
+    }
+  ]
+}
