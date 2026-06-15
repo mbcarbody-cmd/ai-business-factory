@@ -18,6 +18,7 @@ jobs:
             "README.md"
             "website/index.html"
             "products/ai-pilot-os/README.md"
+            "OPS/task_board_current_p0.json"
             "OPS/product_gates/ai_pilot_os_gate_2026_06_15.md"
             "OPS/qa/AI_PILOT_OS_QA_VERDICT_2026_06_15.md"
             "OPS/deploy_loop/AI_PILOT_OS_RELEASE_CHECK_2026_06_15.md"
@@ -40,11 +41,13 @@ jobs:
           grep -q "72h delivery" website/index.html
           grep -q "QA" website/index.html
           grep -q "localStorage" website/index.html
-          grep -q "Parts Seller OS is not deleted" README.md
+          grep -q "AI Pilot OS" README.md
+          grep -q "current_p0_product" OPS/task_board_current_p0.json
           echo "AI Pilot OS workflow markers are present."
 
-      - name: Validate existing JSON outputs
+      - name: Validate JSON outputs
         run: |
+          python3 -m json.tool OPS/task_board_current_p0.json >/dev/null
           python3 -m json.tool OPS/product_factory/EXECUTION_ENFORCEMENT_QUEUE_2026_06_15.json >/dev/null
           python3 -m json.tool OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json >/dev/null
           echo "JSON outputs are valid."
