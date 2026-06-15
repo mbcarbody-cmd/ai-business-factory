@@ -1,57 +1,61 @@
 {
   "updated_at": "2026-06-15",
-  "source_of_truth_note": "Current P0 snapshot after user corrected direction away from Parts Seller OS toward a lighter first app.",
-  "current_p0_product": "AI Pilot OS",
+  "source_of_truth_note": "Current P0 snapshot after user rejected AI Pilot OS and requested the next idea/app.",
+  "current_p0_product": "Content Hook Factory",
   "parked_products": [
     {
+      "product": "AI Pilot OS",
+      "reason": "Rejected by user as weak; parked unless explicitly revived."
+    },
+    {
       "product": "Parts Seller OS",
-      "reason": "Heavier domain product; parked until AI Pilot OS has public URL proof and payment-path proof."
+      "reason": "Heavier domain product; parked until lighter app has sell/revenue proof."
     }
   ],
   "proof_ladder": [
     "repo_output_created",
     "local_static_mvp_pass",
     "public_url_verified",
-    "real_lead_entered",
-    "quote_sent",
-    "payment_path_attached",
-    "paid_pilot_collected",
+    "content_sample_converted",
+    "markdown_export_verified",
+    "offer_packaged",
+    "paid_sprint_collected",
     "delivery_verified",
     "revenue_verified"
   ],
   "active_tasks": [
     {
-      "id": "OPS-043",
-      "title": "AI Pilot OS lightweight P0 app",
-      "owner": "CEO-C Build Factory + CEO-B Revenue + QA Critic-C5",
+      "id": "OPS-044",
+      "title": "Content Hook Factory lightweight P0 app",
+      "owner": "CEO-C Build Factory + Growth Agent-D4 + QA Critic-C5",
       "status": "repo_output_created",
       "priority": "P0-revenue-or-core-os",
       "proof_status": "local_static_mvp_pass",
       "output_path": "website/index.html",
-      "done_proof": "Public URL verified, one real lead row, quote/payment path, QA PASS, and first paid pilot or exact blocker.",
-      "next_action": "Verify public URL or record NO URL blocker; enter one real lead and attach payment path."
+      "done_proof": "Public URL verified, one real content sample converted, Markdown export verified, offer packaged, and first paid sprint or exact blocker.",
+      "next_action": "Verify public URL or record NO URL blocker; convert one user-provided content sample into hooks/assets."
     },
     {
-      "id": "OPS-043A",
-      "title": "Verify AI Pilot OS public URL",
+      "id": "OPS-044A",
+      "title": "Verify Content Hook Factory public URL",
       "owner": "DevOps Agent-C4",
       "status": "blocked",
       "priority": "P0-revenue-or-core-os",
       "proof_status": "public_url_missing",
       "blocker": "Public GitHub Pages URL not independently verified in this run.",
-      "fallback_next_task": "Use local static file and continue lead/quote/payment proof.",
-      "output_path": "OPS/deploy_loop/AI_PILOT_OS_RELEASE_CHECK_2026_06_15.md",
+      "fallback_next_task": "Use local static file and continue content sample conversion / offer packaging.",
+      "output_path": "OPS/deploy_loop/CONTENT_HOOK_FACTORY_RELEASE_CHECK_2026_06_15.md",
       "next_action": "Open expected GitHub Pages URL after deploy/index refresh and run smoke test."
     },
     {
-      "id": "OPS-043B",
-      "title": "Create first real lead and quote/payment path row",
-      "owner": "CEO-B Revenue",
+      "id": "OPS-044B",
+      "title": "Package first 199-399 EUR content sprint offer",
+      "owner": "Growth Agent-D4 + CEO-B Revenue",
       "status": "ready",
       "priority": "P0-revenue-or-core-os",
-      "proof_status": "missing_real_revenue_row",
-      "output_path": "OPS/revenue_ops/outreach_log.md",
-      "next_action": "Enter one real prospect in the app, generate quote, and record invoice/Revolut/bank payment path."
+      "proof_status": "offer_packaging_missing",
+      "output_path": "OPS/revenue_ops/content_hook_factory_offer_2026_06_15.md",
+      "next_action": "Create outreach line, offer scope and first sample pack using Content Hook Factory output."
     }
   ]
 }
