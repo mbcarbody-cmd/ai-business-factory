@@ -1,21 +1,27 @@
 # AI Business Factory
 
-Execution workspace for building autonomous internet businesses. The current priority is no longer a generic AI agent offer.
+Execution workspace for building autonomous internet businesses. The current priority is a lightweight finished app before heavier domain products.
 
-## Current product
+## Current P0 product
 
-**Parts Seller OS**
+**AI Pilot OS**
 
-A one-seller operating system for used auto parts commerce:
+A small static browser app for selling and delivering the first 72h AI pilot:
 
-- part intake from OEM code, vehicle, condition and notes
-- automatic category and storage profile suggestion
-- used-part pricing suggestion with floor price, confidence and manual-review triggers
-- warehouse location suggestion and pending-location fallback
-- listing readiness status: needs category, needs photo, needs price, manual review, ready to publish, reserved, sold
-- marketplace export feed for RRR/Ovoko, Allegro/eBay-style listings and CSV
-- order/reservation state so sold parts do not stay active by mistake
-- CFO view: purchase cost, asking price, floor price and gross margin signal
+- lead intake;
+- lead fit scoring;
+- package selection;
+- quote generation;
+- payment path tracking;
+- pipeline stages;
+- paid pilot marking;
+- 72h delivery checklist;
+- QA/proof score;
+- handoff text;
+- maintenance upsell;
+- JSON/CSV export;
+- demo data;
+- localStorage persistence.
 
 ## Live prototype
 
@@ -29,23 +35,31 @@ https://mbcarbody-cmd.github.io/ai-business-factory/
 
 The prototype currently stores data in browser `localStorage`. This is enough to validate the workflow and UI, but it is not yet a production database-backed system.
 
+## Important pivot note
+
+Parts Seller OS is not deleted, but it is no longer the immediate P0 app. It is parked until the lightweight AI Pilot OS reaches a stronger sell-ready/revenue-proof state.
+
+Reason: Parts Seller OS is heavier and depends on domain-specific data, marketplace logic, storage/location rules, and seller workflow validation. AI Pilot OS is simpler and closer to first revenue.
+
 ## Repo structure
 
 ```text
-website/                         Live static prototype
-products/parts-seller-os/         Product build contract and MVP notes
-OPS/marketplace/                  Category, pricing, location, listing and fitment rules
-OPS/task_board_v2.json            Proof-based task board
+website/                         Live static prototype for AI Pilot OS
+products/ai-pilot-os/             Current lightweight P0 product brief
+products/parts-seller-os/         Parked heavier domain product notes
 OPS/product_gates/                Product stage gates
 OPS/revenue_ops/                  Revenue and pilot pipeline
+OPS/delivery/                     72h delivery playbook
+OPS/qa/                           QA verdicts and scorecards
+OPS/deploy_loop/                  Release checks
 scripts/                          OPS audit and validation tools
 ```
 
 ## First execution target
 
-1. Make the one-seller Parts Seller OS prototype useful with real used-part workflow.
-2. Add 20-50 real/synthetic parts and test pricing/location/listing logic.
-3. Connect persistent storage.
-4. Add import/export flows for marketplace channels.
-5. Add photo intake and Recar/RRR/eBay pipeline decisions.
-6. Move from local prototype to a paid pilot or internal working tool.
+1. Verify the static AI Pilot OS app from `website/index.html`.
+2. Use demo data and run the full app flow: lead -> quote -> payment path -> delivery checklist -> QA.
+3. Enter one real lead manually.
+4. Attach quote/payment path proof.
+5. Verify or record public URL status.
+6. Move to first paid pilot proof.
