@@ -1,128 +1,20 @@
 <!doctype html>
 <html lang="lt">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Business Idea Scorer</title>
-<meta name="description" content="AI Business Idea Scorer įvertina internetinio verslo idėją pagal pelno potencialą, konkurenciją, paleidimo greitį ir riziką.">
-<style>
-:root{--bg:#05070b;--panel:#101722;--panel2:#151e2b;--text:#f5f7fb;--muted:#a8b3c4;--line:#293446;--green:#69db7c;--yellow:#ffd43b;--red:#ff8787;--blue:#74c0fc}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#162338,#05070b 45%);color:var(--text);font-family:Arial,sans-serif;line-height:1.45}.wrap{max-width:1180px;margin:auto;padding:24px}
-.top{display:flex;justify-content:space-between;gap:14px;align-items:center}.brand{font-weight:900;font-size:20px}.muted{color:var(--muted)}.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:42px}.card{background:rgba(16,23,34,.94);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 25px 80px rgba(0,0,0,.35)}
-h1{font-size:52px;line-height:1.02;margin:10px 0 16px}h2{margin-top:0}.lead{font-size:20px;color:#dce5f3}.pill{display:inline-block;border:1px solid #3e4d63;border-radius:999px;padding:7px 11px;margin:4px;color:#d7dfec;font-size:13px}.price{font-size:36px;color:var(--green);font-weight:900;margin:18px 0 5px}
-label{display:block;margin-top:13px;font-weight:800}input,textarea,select{width:100%;margin-top:7px;padding:13px;border-radius:13px;border:1px solid #3c4a60;background:#070b12;color:#fff;font-size:15px}textarea{min-height:132px}button{width:100%;margin-top:16px;border:0;border-radius:13px;background:var(--green);color:#031006;padding:15px;font-size:17px;font-weight:900;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.score{font-size:54px;font-weight:900}.bar{height:10px;background:#070b12;border:1px solid #334055;border-radius:999px;overflow:hidden;margin:8px 0 16px}.fill{height:100%;width:0;background:var(--green);transition:.4s}.result{display:none}.tag{display:inline-block;border-radius:999px;padding:5px 9px;margin:3px;font-size:12px;background:#202b3a;color:#dbe5f5}.decision{font-size:24px;font-weight:900;margin:10px 0}.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}.small{font-size:13px}.footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted)}
-@media(max-width:900px){.hero,.grid{grid-template-columns:1fr}h1{font-size:38px}.top{display:block}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Pilot OS</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#08111f;color:#edf5ff;display:grid;place-items:center;min-height:100vh;margin:0}
+    .box{max-width:720px;padding:28px;border:1px solid #2b4265;border-radius:20px;background:#101c2f}
+    a{color:#42f59b;font-weight:800;font-size:20px}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <div><div class="brand">AI Business Idea Scorer</div><div class="muted">Pirmas AI produkto MVP • veikia naršyklėje • be žmogaus konsultanto</div></div>
-    <div><span class="pill">No-code MVP</span><span class="pill">Idea scoring</span><span class="pill">AI business OS</span></div>
+  <div class="box">
+    <h1>AI Pilot OS</h1>
+    <p>Lengvas pirmas appsas: lead -> offer -> quote -> payment -> 72h delivery.</p>
+    <p><a href="website/index.html">Atidaryti AI Pilot OS appsą</a></p>
   </div>
-
-  <section class="hero">
-    <div>
-      <span class="pill">Pelno potencialas</span><span class="pill">Konkurencija</span><span class="pill">Rizika</span><span class="pill">Paleidimo greitis</span>
-      <h1>Įvesk verslo idėją. Gauk sprendimą: daryti, taisyti ar mesti.</h1>
-      <p class="lead">Šitas įrankis vertina internetinių produktų idėjas pagal praktinius kriterijus: ar galima greitai paleisti, ar yra aiškus mokantis klientas, ar nereikia didelio kapitalo, ar galima automatizuoti.</p>
-      <div class="price">0 € testas</div>
-      <p class="muted">Vėliau: Pro versija su nišų skeneriu, konkurentų analize ir automatiniu MVP generatoriumi.</p>
-    </div>
-
-    <div class="card">
-      <h2>Įvertinti idėją</h2>
-      <label>Verslo idėja</label>
-      <textarea id="idea" placeholder="Pvz. AI įrankis, kuris kuria TikTok video scenarijus mažiems verslams už 19 €/mėn."></textarea>
-      <label>Tikslinis klientas</label>
-      <input id="customer" placeholder="Pvz. smulkūs verslai, agentūros, YouTube kūrėjai">
-      <label>Pajamų modelis</label>
-      <select id="model">
-        <option value="subscription">Prenumerata</option>
-        <option value="lead">Lead fee</option>
-        <option value="marketplace">Marketplace komisiniai</option>
-        <option value="ads">Reklama / affiliate</option>
-        <option value="service">Paslauga</option>
-      </select>
-      <label>Kiek gali skirti startui?</label>
-      <select id="budget">
-        <option value="0">0 €</option><option value="50">iki 50 €</option><option value="200">iki 200 €</option><option value="1000">iki 1000 €</option>
-      </select>
-      <button onclick="scoreIdea()">Gauti verdiktą</button>
-      <p class="muted small">Tai MVP scoring variklis. Jis nepakeičia rinkos testo, bet greitai atmeta silpnas idėjas.</p>
-    </div>
-  </section>
-
-  <section class="grid result" id="result">
-    <div class="card">
-      <h2>Bendras balas</h2>
-      <div class="score" id="score">0</div>
-      <div class="bar"><div class="fill" id="scorebar"></div></div>
-      <div class="decision" id="decision">-</div>
-    </div>
-    <div class="card">
-      <h2>Stiprios vietos</h2>
-      <div id="pros"></div>
-    </div>
-    <div class="card">
-      <h2>Silpnos vietos</h2>
-      <div id="cons"></div>
-    </div>
-  </section>
-
-  <section class="card result" id="planbox">
-    <h2>Pirmas veiksmas</h2>
-    <p id="firstStep"></p>
-    <h2>Siūloma monetizacija</h2>
-    <p id="money"></p>
-    <h2>AI autopiloto logika</h2>
-    <p class="muted">Silpnos idėjos turi būti automatiškai nužudomos. Geros idėjos keliauja į MVP generatorių: landing page → forma / checkout → traffic test → KPI → scale arba kill.</p>
-  </section>
-
-  <div class="footer">AI Business Factory • Tikslas: kurti automatinius internetinius produktus, ne rankines paslaugas.</div>
-</div>
-
-<script>
-function hasAny(text, words){ return words.some(w => text.includes(w)); }
-function tag(t){ return '<span class="tag">'+t+'</span>'; }
-function scoreIdea(){
-  const idea=(document.getElementById('idea').value||'').toLowerCase();
-  const customer=(document.getElementById('customer').value||'').toLowerCase();
-  const model=document.getElementById('model').value;
-  const budget=parseInt(document.getElementById('budget').value,10);
-  let score=45, pros=[], cons=[];
-
-  if(idea.length>40){score+=8;pros.push('Aiškiai aprašyta idėja')} else {score-=8;cons.push('Idėja per trumpa / neaiški')}
-  if(customer.length>10){score+=10;pros.push('Yra tikslinis klientas')} else {score-=12;cons.push('Nėra aiškaus pirkėjo')}
-  if(model==='subscription'){score+=12;pros.push('Prenumerata gali kartotis kas mėnesį')}
-  if(model==='lead'){score+=8;pros.push('Lead fee greičiau testuojamas')}
-  if(model==='marketplace'){score+=2;cons.push('Marketplace sunkus be vartotojų tinklo')}
-  if(model==='ads'){score-=5;cons.push('Reklamai reikia didelio srauto')}
-  if(model==='service'){score-=8;cons.push('Paslauga gali reikalauti žmogaus darbo')}
-
-  if(hasAny(idea, ['ai','dirbtinis','automat','agent','generator','scorer','tool','įrank','irank'])){score+=14;pros.push('Tinka AI automatizacijai')}
-  if(hasAny(idea, ['rankiniu','konsult','skamb','atsakinet','atsakinėt','operator'])){score-=15;cons.push('Per daug žmogaus darbo')}
-  if(hasAny(idea, ['video','youtube','tiktok','shorts','content','turin'])){score+=5;pros.push('Turinio rinka didelė')}
-  if(hasAny(idea, ['crypto','casino','lazy','guaranteed','garantuot'])){score-=18;cons.push('Didelė rizika / pažadų problema')}
-  if(budget===0){score+=4;pros.push('Galima testuoti be biudžeto')} 
-  if(budget>=200){score+=6;pros.push('Yra mažas testavimo biudžetas')}
-
-  score=Math.max(0,Math.min(100,score));
-  let decision='TAISYTI IR TESTUOTI', cls='yellow';
-  if(score>=75){decision='DARYTI MVP DABAR';cls='green'}
-  if(score<50){decision='MESTI ARBA PERDARYTI';cls='red'}
-
-  document.getElementById('result').style.display='grid';
-  document.getElementById('planbox').style.display='block';
-  document.getElementById('score').textContent=score+'/100';
-  document.getElementById('scorebar').style.width=score+'%';
-  document.getElementById('decision').textContent=decision;
-  document.getElementById('decision').className='decision '+cls;
-  document.getElementById('pros').innerHTML=pros.map(tag).join('') || tag('Kol kas mažai stiprių signalų');
-  document.getElementById('cons').innerHTML=cons.map(tag).join('') || tag('Didelių silpnybių nerasta');
-  document.getElementById('firstStep').textContent = score>=75 ? 'Sukurti landing page, 1 aiškų pasiūlymą, kainą ir laukiančiųjų sąrašą. Testuoti per organinį postą / grupes / 20 € reklamą.' : score>=50 ? 'Susiaurinti klientą ir pajamų modelį. Pašalinti žmogaus darbo vietas. Tada kartoti scoring.' : 'Idėją mesti arba perdaryti į siauresnį AI įrankį su aiškiu mokančiu klientu.';
-  document.getElementById('money').textContent = model==='subscription' ? 'Siūloma: Free 3 bandymai, Pro 9–19 €/mėn., Agency 49 €/mėn.' : model==='lead' ? 'Siūloma: nemokama užklausa, mokamas prioritetas, lead fee arba prenumerata už alertus.' : model==='marketplace' ? 'Siūloma: nemokami baziniai skelbimai, mokamas iškėlimas, komisiniai už sandorį.' : model==='ads' ? 'Reikia didelio srauto. Pirma rinkti SEO arba viral kanalus, pinigai vėliau.' : 'Paslaugą reikia paversti produktu: šablonai, savitarna, automatizuotas pristatymas.';
-}
-</script>
 </body>
 </html>
