@@ -1,52 +1,62 @@
 # P0 Focus Lock
 
-Date: 2026-06-13
-Owner: CEO / Master Agent + COO-1 Execution Architect
+Date: 2026-06-15  
+Owner: CEO / Master Agent + COO-1 Execution Architect  
 Status: ACTIVE / BLOCKING
 
 ## Purpose
 
-Stop the system from spreading into too many unknown projects while the primary Parts Seller OS and revenue loop are not yet working.
+Stop the system from spreading into too many unknown projects while the first lightweight app and revenue loop are not yet working.
 
 ## Current focus
 
-The priority is not more ideas. The priority is to turn the used-parts operating system into a working proof:
+The immediate P0 priority is **AI Pilot OS**, not the heavier Parts Seller OS.
 
-`add part -> category tree -> vehicle fitment -> side/position -> location suggestion -> pricing -> listing readiness -> reservation/order -> ageing/dead-stock action -> first paid pilot path`
+Current P0 flow:
+
+`lead -> fit score -> offer -> quote -> payment path -> 72h delivery checklist -> QA -> handoff -> maintenance upsell -> first paid pilot proof`
 
 ## Focus rules
 
-1. No new unrelated product build starts while Parts Seller OS foundation is incomplete.
-2. New ideas may be captured only as backlog, not active build.
-3. Active build capacity goes first to:
-   - Parts Seller OS foundations,
-   - one-seller prototype,
-   - CEO Cockpit proof visibility,
-   - revenue pipeline with exact targets,
-   - delivery playbook for first paid pilot.
-4. Any agent proposing a new product must also state what current P0 task it would delay.
-5. A task is not progress unless it reduces distance to working prototype, paid pilot, deploy proof or delivery proof.
+1. No new unrelated product build starts while AI Pilot OS is not sell-ready.
+2. Parts Seller OS remains parked as a later/heavier product until the lightweight app has public URL proof and payment-path proof.
+3. New ideas may be captured only as backlog, not active P0 build.
+4. Active build capacity goes first to:
+   - AI Pilot OS static app,
+   - public URL / release proof,
+   - quote and payment path,
+   - real lead row,
+   - QA PASS/BLOCKED verdict,
+   - first 72h paid pilot proof.
+5. Any agent proposing a new product must state what current P0 proof it would delay.
+6. A task is not progress unless it reduces distance to working app, payment path, paid pilot, deploy proof or delivery proof.
 
-## Why this lock was created
+## Why this lock was updated
 
-A basic marketplace foundation gap was found: the category tree was not present until 2026-06-13. This means the system was allowing roadmap progress before checking simple first-principles foundations.
+User corrected the direction on 2026-06-15: do not continue Parts Seller OS as the first app. Start with a lighter app first.
+
+Parts Seller OS is still useful, but it is too heavy as the immediate app because it requires domain data, storage/location logic, marketplace rules and seller-specific workflow validation.
+
+AI Pilot OS is lighter and closer to first revenue.
 
 ## P0 lane order
 
-1. Close Parts Seller OS foundations.
-2. Build smallest one-seller prototype.
-3. Run QA critic on prototype.
-4. Turn demo into concrete offer.
-5. Replace seed leads with exact public companies and contact paths.
-6. Deliver first 72h paid pilot.
+1. Keep AI Pilot OS working in `website/index.html`.
+2. Run local smoke test and QA verdict.
+3. Verify public URL or record NO URL blocker.
+4. Enter one real lead manually.
+5. Generate quote and attach payment path.
+6. Collect first paid pilot or record exact blocker.
+7. Deliver 72h pilot with handoff and maintenance upsell.
 
 ## Kill criteria for distractions
 
 Reject or backlog anything that does not answer one of these questions:
 
-- Does it help classify, locate, price, list, reserve or age a used part?
-- Does it help sell the first paid pilot?
-- Does it help deliver the first paid pilot?
-- Does it make quality, cost or deployment safer?
+- Does it help get a real lead?
+- Does it help send a quote?
+- Does it help attach payment path?
+- Does it help deliver a 72h pilot?
+- Does it help verify deploy/QA/revenue proof?
 
-If the answer is no, it is not active work.
+If the answer is no, it is not active P0 work.
