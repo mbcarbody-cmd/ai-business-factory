@@ -3,43 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Parts Seller OS — One Seller Prototype</title>
+  <title>Parts Seller OS — Local Workflow Prototype</title>
   <style>
-    body{margin:0;background:#0b1019;color:#f2f6ff;font-family:Arial,system-ui,sans-serif}.wrap{max-width:1160px;margin:auto;padding:32px 18px}.badge{display:inline-block;background:#16243a;border:1px solid #304764;border-radius:999px;padding:8px 12px;color:#b7c8e4}h1{font-size:40px;line-height:1.05;margin:18px 0 10px}.lead{max-width:780px;color:#b7c8e4;font-size:17px;line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}.card{background:#121c2d;border:1px solid #304764;border-radius:18px;padding:18px}.step{font-size:13px;color:#91a9ca;text-transform:uppercase;letter-spacing:.08em}.big{font-size:24px;font-weight:800;margin:8px 0}.ok{color:#6df2a0}.warn{color:#ffd166}.bad{color:#ff8787}table{width:100%;border-collapse:collapse;margin-top:12px}td,th{padding:10px;border-bottom:1px solid #304764;text-align:left;vertical-align:top}th{color:#cfe0ff;font-size:12px;text-transform:uppercase}.small{color:#aabbd5;font-size:13px;line-height:1.45}@media(max-width:900px){.grid{grid-template-columns:1fr}h1{font-size:32px}}
+    body{margin:0;background:#0b1019;color:#f2f6ff;font-family:Arial,system-ui,sans-serif}.wrap{max-width:1160px;margin:auto;padding:32px 18px}.badge{display:inline-block;background:#16243a;border:1px solid #304764;border-radius:999px;padding:8px 12px;color:#b7c8e4}h1{font-size:38px;line-height:1.08;margin:18px 0 10px}.lead{max-width:820px;color:#b7c8e4;font-size:17px;line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}.card{background:#121c2d;border:1px solid #304764;border-radius:18px;padding:18px}.step{font-size:13px;color:#91a9ca;text-transform:uppercase;letter-spacing:.08em}.big{font-size:24px;font-weight:800;margin:8px 0}.ok{color:#6df2a0}.warn{color:#ffd166}.bad{color:#ff8787}table{width:100%;border-collapse:collapse;margin-top:12px}td,th{padding:10px;border-bottom:1px solid #304764;text-align:left;vertical-align:top}th{color:#cfe0ff;font-size:12px;text-transform:uppercase}.small{color:#aabbd5;font-size:13px;line-height:1.45}button{background:#f2f6ff;color:#0b1019;border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}pre{white-space:pre-wrap;background:#080c13;border:1px solid #304764;padding:12px;border-radius:12px;color:#dfeaff}@media(max-width:900px){.grid{grid-template-columns:1fr}h1{font-size:30px}}
   </style>
 </head>
 <body>
   <main class="wrap">
-    <span class="badge">Parts Seller OS • one-seller MVP</span>
-    <h1>Ne marketplace nuo pirmos dienos. Pirma — vieno pardavėjo kontrolė.</h1>
-    <p class="lead">Šitas prototipas rodo pirmą workflow: įvedi dalį, sistema siūlo lokaciją, kainą, floor kainą, listing statusą, rezervaciją ir dead-stock signalą.</p>
+    <span class="badge">Parts Seller OS • local first • no paid public address before functional product</span>
+    <h1>Pirma veikiantis vieno pardavėjo workflow. Tik tada plėtra.</h1>
+    <p class="lead">Šitas prototipas lokaliai įrodo A-Z srautą: add part → category → location → value → listing state → export row → reserve / review.</p>
 
     <section class="grid">
-      <div class="card"><div class="step">Step 1</div><div class="big">Add part</div><p class="small">Part number, kategorija, automobilis, pusė, būklė, foto.</p></div>
-      <div class="card"><div class="step">Step 2</div><div class="big">Suggest location</div><p class="small">Pagal kategoriją, matmenis, svorį, lokacijos užimtumą ir draudimus.</p></div>
-      <div class="card"><div class="step">Step 3</div><div class="big">Set price</div><p class="small">Kaina, floor kaina, konkurentų kainos, likvidumas, manual review jei reta.</p></div>
-      <div class="card"><div class="step">Step 4</div><div class="big">Listing status</div><p class="small">Ready, needs data arba hold pagal foto, title, price ir lokaciją.</p></div>
-      <div class="card"><div class="step">Step 5</div><div class="big">Reserve / order</div><p class="small">Rezervacija, mokėjimo būsena, pick, pack, ship, return.</p></div>
-      <div class="card"><div class="step">Step 6</div><div class="big">Ageing signal</div><p class="small">Keep, discount, promote arba review pagal laiką sandėlyje ir paklausą.</p></div>
+      <div class="card"><div class="step">Step 1</div><div class="big">Add part</div><p class="small">ID, pavadinimas, kodas, automobilis, pusė, būklė, foto būsena.</p></div>
+      <div class="card"><div class="step">Step 2</div><div class="big">Suggest</div><p class="small">Kategorija, lokacija, value/floor ir confidence.</p></div>
+      <div class="card"><div class="step">Step 3</div><div class="big">Act</div><p class="small">Ready, needs photo, review, export row, reserve.</p></div>
     </section>
 
     <section class="card">
-      <h2>Demo example</h2>
-      <table>
-        <tr><th>Field</th><th>Example</th><th>System decision</th></tr>
-        <tr><td>Part</td><td>DBX front window regulator</td><td class="ok">identifier exists</td></tr>
-        <tr><td>Category</td><td>Door / glass mechanism</td><td class="ok">allowed in medium shelf zone</td></tr>
-        <tr><td>Location</td><td>Zone B, shelf 04, bin 02</td><td class="warn">check occupancy under 85%</td></tr>
-        <tr><td>Price</td><td>premium rare-part logic</td><td class="warn">manual review if no comps</td></tr>
-        <tr><td>Listing</td><td>needs photo + title</td><td class="bad">not ready to publish</td></tr>
-      </table>
-    </section>
-
-    <section class="grid">
-      <div class="card"><h3>First KPIs</h3><p class="small">parts_without_location, ready_to_publish_count, manual_pricing_review_count.</p></div>
-      <div class="card"><h3>Build contract</h3><p class="small">OPS/marketplace/parts_os_mvp_data_model.json</p></div>
-      <div class="card"><h3>Gate</h3><p class="small">Full marketplace is blocked until this one-seller workflow works end-to-end.</p></div>
+      <button onclick="runWorkflow()">Run local workflow proof</button>
+      <div id="result" class="small" style="margin-top:16px">Waiting for local workflow run.</div>
     </section>
   </main>
+<script>
+const sampleItems=[
+ {id:'P-001',name:'Front right headlight',code:'SAMPLE-HEADLIGHT-RH',vehicle:'Kia EV sample 2024',side:'right',condition:'used_good',photo:'has_photo',base:420},
+ {id:'P-002',name:'Door control module',code:'SAMPLE-MODULE-01',vehicle:'Aston sample 2024',side:'left',condition:'used_unknown',photo:'needs_photo',base:180}
+];
+function category(item){const n=item.name.toLowerCase();if(n.includes('headlight'))return{cat:'lighting',sub:'headlight',conf:.92};if(n.includes('module'))return{cat:'electronics',sub:'control_module',conf:.8};return{cat:'review',sub:'unknown',conf:.3};}
+function location(c){if(c.cat==='lighting')return{zone:'fragile-rack',profile:'fragile_large'};if(c.cat==='electronics')return{zone:'small-electronics-bin',profile:'small_protected'};return{zone:'review-zone',profile:'manual'};}
+function value(item,c){const conf=Math.max(.25,c.conf-(item.condition==='used_unknown'?.15:0));return{suggested:Math.round(item.base*(conf>.75?1:.85)),floor:Math.round(item.base*.72),confidence:Number(conf.toFixed(2))};}
+function state(item,v){if(item.photo!=='has_photo')return'needs_photo';if(v.confidence<.65)return'needs_review';return'ready';}
+function runWorkflow(){const rows=sampleItems.map(item=>{const c=category(item),l=location(c),v=value(item,c),s=state(item,v);return{item:item.id,title:item.vehicle+' '+item.name+' '+item.side,code:item.code,category:c.cat,subcategory:c.sub,location:l.zone,value:v.suggested,floor:v.floor,confidence:v.confidence,listing_state:s,reserve_state:s==='ready'?'can_reserve':'blocked_until_ready'};});document.getElementById('result').innerHTML='<h2>Workflow result</h2>'+rows.map(r=>'<div class="card"><b>'+r.item+' — '+r.title+'</b><pre>'+JSON.stringify(r,null,2)+'</pre></div>').join('');}
+</script>
 </body>
 </html>
