@@ -132,3 +132,23 @@ Weakness/risk: blueprint visuals can fake depth if the layers do not map to real
 Gap we can use: create blueprint-style visuals for our actual OPS layers and Parts Seller OS workflow, where every box corresponds to a real repo artifact, product screen or deliverable.
 
 Action created: `OPS/competitor_intelligence/patterns/claude_architecture_blueprint_challenge_2026_06_15.md` with variants for AI Business Factory, Parts Seller OS and AI Visibility/GEO.
+
+## 2026-06-15 — Segmented AI skills ladder ad
+
+Source pattern: user-provided Facebook sponsored screenshot showing a Claude AI course funnel with a numbered 10-skill list.
+
+Segment: AI education, Claude course, practical skills ladder, course funnel.
+
+Offer/funnel: a structured list of 10 Claude AI skills with a practical benefit row for each skill and a course CTA.
+
+Price: not shown.
+
+CTA: explore the course / learn more.
+
+Strength: extremely clear curriculum structure; numbered skills reduce overwhelm; each row maps skill to result; the ad sells relevance, time savings and practical work improvement instead of abstract AI hype.
+
+Weakness/risk: demographic framing should be converted into role/problem framing; exact sponsor/ad claims are not independently verified; do not copy the visual or imply one checklist guarantees mastery.
+
+Gap we can use: create 10-skill ladders for AI Business Factory, Parts Seller OS, AI Visibility/GEO and internal CEO-thinking agent training.
+
+Action created: `OPS/competitor_intelligence/patterns/segmented_ai_skills_ladder_2026_06_15.md` with variants for AI Business Factory, Parts Seller OS, AI Visibility/GEO and CEO-thinking agent training.
