@@ -1,0 +1,49 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "CEO-D / Apps Lab GM",
+  "primary_front": true,
+  "rule": "Apps Lab is the primary product front. Heavy repo factory is secondary infrastructure.",
+  "tasks": [
+    {
+      "id": "APP-001",
+      "title": "Maintain 20 app idea portfolio",
+      "status": "done",
+      "owner": "Apps Lab GM",
+      "output_path": "OPS/apps_lab/APP_IDEA_PORTFOLIO_2026_06_15.md",
+      "next_action": "Review scores weekly and promote only small MVPs."
+    },
+    {
+      "id": "APP-002",
+      "title": "Run NoSwipe matchmaking experiment",
+      "status": "active",
+      "owner": "Customer Discovery + Product Marketing",
+      "output_path": "OPS/apps_lab/NOSWIPE_MATCHMAKING_EXPERIMENT_2026_06_15.md",
+      "next_action": "Prepare intake form and 10 intro test structure."
+    },
+    {
+      "id": "APP-003",
+      "title": "Create AI Date Planner landing page copy",
+      "status": "ready",
+      "owner": "Product Marketing Specialist",
+      "output_path": "OPS/apps_lab/AI_DATE_PLANNER_LANDING_2026_06_15.md",
+      "next_action": "Write hero, form fields, plan output and CTA."
+    },
+    {
+      "id": "APP-004",
+      "title": "Create AI Wingman mini prototype spec",
+      "status": "ready",
+      "owner": "AI Workflow Engineer",
+      "output_path": "OPS/apps_lab/AI_WINGMAN_SPEC_2026_06_15.md",
+      "next_action": "Define paste message -> 3 replies flow."
+    },
+    {
+      "id": "APP-005",
+      "title": "Operate browser agent public data rule",
+      "status": "active",
+      "owner": "Data Policy Specialist",
+      "output_path": "OPS/apps_lab/BROWSER_AGENT_PUBLIC_DATA_RULES_2026_06_15.md",
+      "next_action": "Collect only public source_url rows for events, venues and competitor teardowns."
+    }
+  ]
+}
