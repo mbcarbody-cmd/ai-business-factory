@@ -1,0 +1,45 @@
+{
+  "updated_at": "2026-06-15",
+  "owner": "Content Revenue Analyst",
+  "status": "active",
+  "purpose": "Track YouTube videos and convert them into revenue intelligence tasks.",
+  "required_fields": [
+    "video_url",
+    "video_id",
+    "title",
+    "channel",
+    "transcript_status",
+    "method",
+    "allowed_use_note",
+    "audience",
+    "pain",
+    "mechanism",
+    "offer",
+    "cta",
+    "monetization",
+    "next_revenue_action",
+    "confidence",
+    "blocker"
+  ],
+  "items": [
+    {
+      "id": "YTV-001",
+      "video_url": "https://www.youtube.com/watch?v=K2tC7EfP2eI",
+      "video_id": "K2tC7EfP2eI",
+      "title": "unknown_pending",
+      "channel": "unknown_pending",
+      "transcript_status": "blocked_not_available_from_current_tooling",
+      "method": "public_web_attempt_failed",
+      "allowed_use_note": "Do not store or republish full transcript. Extract business summary only when accessible or user-provided.",
+      "audience": "pending",
+      "pain": "pending",
+      "mechanism": "pending",
+      "offer": "pending",
+      "cta": "pending",
+      "monetization": "pending",
+      "next_revenue_action": "Continue Apps Lab revenue offers; revisit this row when transcript/title becomes accessible.",
+      "confidence": 0.1,
+      "blocker": "YouTube transcript was not accessible from current public web tooling in the previous cycle."
+    }
+  ]
+}
