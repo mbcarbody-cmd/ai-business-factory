@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parts Seller OS — 72h Paid Pilot</title>
+  <meta name="description" content="A one-seller operating dashboard for used auto parts intake, pricing, storage, listing readiness and paid pilot delivery." />
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: #e5e7eb; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 20px; }
+    .hero { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: center; }
+    .badge { display: inline-block; padding: 8px 12px; border: 1px solid #334155; border-radius: 999px; color: #93c5fd; font-size: 14px; }
+    h1 { font-size: clamp(38px, 7vw, 72px); line-height: .95; margin: 18px 0; letter-spacing: -0.06em; }
+    h2 { font-size: 30px; margin-top: 0; }
+    p { color: #cbd5e1; line-height: 1.65; }
+    .card { background: #111827; border: 1px solid #334155; border-radius: 22px; padding: 24px; box-shadow: 0 24px 70px rgba(0,0,0,.25); }
+    .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 24px; }
+    .step { padding: 18px; border-radius: 18px; background: #020617; border: 1px solid #1f2937; }
+    .cta { display: inline-block; background: #3b82f6; color: white; padding: 14px 18px; border-radius: 14px; text-decoration: none; font-weight: 700; margin-right: 12px; }
+    .cta.secondary { background: transparent; border: 1px solid #475569; }
+    .price { font-size: 42px; font-weight: 800; letter-spacing: -0.04em; }
+    input, textarea { width: 100%; box-sizing: border-box; margin: 8px 0; padding: 12px; border-radius: 12px; border: 1px solid #475569; background: #020617; color: #e5e7eb; }
+    button { width: 100%; padding: 14px; border-radius: 14px; border: 0; background: #22c55e; color: #052e16; font-weight: 800; }
+    small { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <span class="badge">72h paid pilot for used auto parts sellers</span>
+        <h1>One operating view from part intake to shelf, price and listing.</h1>
+        <p>Parts Seller OS is a one-seller operating dashboard that helps a dismantler or used parts seller intake parts, map category, suggest storage, calculate price/floor/confidence, decide listing readiness and export ready items.</p>
+        <a class="cta" href="#pilot">Request paid pilot</a>
+        <a class="cta secondary" href="#workflow">See workflow</a>
+      </div>
+      <div class="card">
+        <h2>What the pilot proves</h2>
+        <p>In 72 hours we run sample parts through the workflow and show what can be automated now.</p>
+        <div class="grid">
+          <div class="step"><b>20-100 parts</b><br><small>sample inventory</small></div>
+          <div class="step"><b>Price/floor</b><br><small>confidence logic</small></div>
+          <div class="step"><b>Storage</b><br><small>location suggestion</small></div>
+          <div class="step"><b>Listing status</b><br><small>ready or needs action</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="card" style="margin-top:32px">
+      <h2>Workflow demo</h2>
+      <div class="grid">
+        <div class="step">1. Add part with OEM, title, side, vehicle and condition.</div>
+        <div class="step">2. Suggest category, subcategory and storage profile.</div>
+        <div class="step">3. Calculate price, floor and confidence.</div>
+        <div class="step">4. Assign listing status and next required action.</div>
+        <div class="step">5. Export feed row for marketplace publishing.</div>
+        <div class="step">6. Reserve or sell ready parts.</div>
+      </div>
+    </section>
+
+    <section id="pilot" class="grid" style="margin-top:32px">
+      <div class="card">
+        <h2>Paid pilot</h2>
+        <div class="price">300-900 EUR</div>
+        <p>Setup depends on data quality and workflow complexity. Monthly target after pilot: 99-299 EUR per seller.</p>
+        <p><b>Payment path placeholder:</b> attach Stripe, PayPal, Revolut Business link or manual invoice before outreach.</p>
+      </div>
+      <div class="card">
+        <h2>Lead capture placeholder</h2>
+        <form>
+          <input placeholder="Company name" />
+          <input placeholder="Email or WhatsApp" />
+          <textarea placeholder="How many parts and where do you list today?"></textarea>
+          <button type="button">Create pilot request</button>
+        </form>
+        <small>Static template only. Connect this form to CRM/email before public launch.</small>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:32px">
+      <h2>Release proof placeholders</h2>
+      <p>QA verdict: pending. CFO verdict: pending. Public URL: pending. Revenue pipeline: pending. Payment link: pending.</p>
+    </section>
+  </main>
+</body>
+</html>
