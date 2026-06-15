@@ -112,3 +112,23 @@ Weakness/risk: SEO ranking claims are easy to overpromise; automated content can
 Gap we can use: build a safer SEO/GEO content visibility offer that sells briefs, gap maps, trust improvements and measurable 72h deliverables instead of guaranteed rankings.
 
 Action created: `OPS/competitor_intelligence/patterns/autopilot_seo_content_generation_2026_06_15.md` with variants for AI Visibility/GEO, Parts Seller OS listing SEO and SMB SEO content pilot.
+
+## 2026-06-15 — Claude architecture blueprint challenge ad
+
+Source pattern: user-provided Instagram/Facebook sponsored screenshot showing a Claude AI challenge funnel with a blueprint-style architecture diagram.
+
+Segment: AI education, Claude course, blueprint visual funnel, challenge funnel.
+
+Offer/funnel: learn Claude AI through a 28-day challenge using a system architecture framing: input layer, processing layer, memory layer, execution layer and prompt anatomy.
+
+Price: not shown.
+
+CTA: join the challenge / learn more.
+
+Strength: blueprint visual creates authority and perceived system depth; architecture language makes AI feel structured, not random; challenge format gives a time-boxed learning path; "no tech background required" removes friction.
+
+Weakness/risk: blueprint visuals can fake depth if the layers do not map to real workflows; exact sponsor/ad claims are not independently verified; do not imply official certification or copy the visual style directly.
+
+Gap we can use: create blueprint-style visuals for our actual OPS layers and Parts Seller OS workflow, where every box corresponds to a real repo artifact, product screen or deliverable.
+
+Action created: `OPS/competitor_intelligence/patterns/claude_architecture_blueprint_challenge_2026_06_15.md` with variants for AI Business Factory, Parts Seller OS and AI Visibility/GEO.
