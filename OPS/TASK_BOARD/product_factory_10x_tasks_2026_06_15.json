@@ -1,0 +1,130 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "Product Factory COO / Build Orchestrator",
+  "purpose": "Task manifest for 10x product factory staffing. Each task maps one production function to a concrete operating output and proof path.",
+  "staffing_source": "OPS/org/product_factory_10x_staffing.json",
+  "daily_loop": "OPS/product_factory/DAILY_PRODUCT_FACTORY_LOOP_LT.md",
+  "tasks": [
+    {
+      "id": "PF10X-T001",
+      "title": "Operate reusable product boilerplate crew",
+      "layer": "product_factory_boilerplate",
+      "owner": "PF10X-01-W01 Boilerplate Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-01 Product Factory Boilerplate Crew",
+      "next_action": "Create or update one reusable product shell with landing, pricing, payment placeholder, dashboard, analytics and deploy config.",
+      "output_path": "products/_templates/; OPS/org/product_factory_10x_staffing.json",
+      "done_proof": "A product can start from a reusable shell instead of a blank page."
+    },
+    {
+      "id": "PF10X-T002",
+      "title": "Operate idea to MVP crew",
+      "layer": "idea_to_mvp",
+      "owner": "PF10X-02-W01 MVP Sprint Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-02 Idea To MVP In One Day Crew",
+      "next_action": "Convert the next approved opportunity into buyer, problem, offer, demo scope, price, payment path and first outreach plan.",
+      "output_path": "OPS/product_factory/mvp_briefs/",
+      "done_proof": "An MVP brief has URL/payment/outreach requirements before build starts."
+    },
+    {
+      "id": "PF10X-T003",
+      "title": "Operate build orchestrator crew",
+      "layer": "build_orchestration",
+      "owner": "PF10X-03-W01 Build Orchestrator Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-03 Build Orchestrator Crew",
+      "next_action": "Split current P0 product work into owner-based tickets with blocker, fallback and proof path.",
+      "output_path": "OPS/TASK_BOARD/product_factory_10x_tasks_2026_06_15.json",
+      "done_proof": "Every active production function has owner, next_action and proof path."
+    },
+    {
+      "id": "PF10X-T004",
+      "title": "Operate reusable component library crew",
+      "layer": "component_library",
+      "owner": "PF10X-04-W01 Component Library Captain",
+      "status": "ready",
+      "priority": "P1-speed-and-conversion",
+      "next_role": "PF10X-04 Reusable Component Library Crew",
+      "next_action": "Create reusable UI/copy blocks for hero, pricing, trust, comparison, lead form, dashboard, marketplace card and email templates.",
+      "output_path": "products/_components/",
+      "done_proof": "New pages can be assembled from reusable components rather than designed from zero."
+    },
+    {
+      "id": "PF10X-T005",
+      "title": "Operate deploy robot crew",
+      "layer": "deploy_loop",
+      "owner": "PF10X-05-W01 Deploy Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-05 Deploy Robot Crew",
+      "next_action": "For every product release, produce public URL or explicit NO URL blocker plus smoke test and rollback note.",
+      "output_path": "OPS/deploy_loop/; .github/workflows/",
+      "done_proof": "A release has public URL or documented deploy blocker and fallback."
+    },
+    {
+      "id": "PF10X-T006",
+      "title": "Operate QA and conversion critic crew",
+      "layer": "qa_critic",
+      "owner": "PF10X-06-W01 QA Critic Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-06 QA And Conversion Critic Crew",
+      "next_action": "Run technical and money QA on the next shippable product/page before done status.",
+      "output_path": "OPS/qa/; OPS/product_gates/",
+      "done_proof": "Technical and conversion verdict exists before release is called done."
+    },
+    {
+      "id": "PF10X-T007",
+      "title": "Operate revenue ops autopilot crew",
+      "layer": "revenue_operations",
+      "owner": "PF10X-07-W01 Revenue Ops Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-07 Revenue Ops Autopilot Crew",
+      "next_action": "Attach lead list, outreach copy, follow-up sequence, CRM state and quote/payment path to the next MVP.",
+      "output_path": "OPS/revenue_ops/lead_pipeline.json; OPS/revenue_ops/",
+      "done_proof": "MVP has leads, messages and a paid-pilot/payment path."
+    },
+    {
+      "id": "PF10X-T008",
+      "title": "Operate competitor intelligence asset factory crew",
+      "layer": "competitor_intelligence",
+      "owner": "PF10X-08-W01 Intelligence Captain",
+      "status": "ready",
+      "priority": "P1-growth-assets",
+      "next_role": "PF10X-08 Competitor Intelligence To Asset Factory Crew",
+      "next_action": "Convert competitor examples into hooks, landing copy, social posts, scripts, pricing angles, objections and SEO assets.",
+      "output_path": "OPS/competitor_intelligence/; OPS/competitor_intelligence/patterns/",
+      "done_proof": "Competitor input becomes publishable and testable assets, not only research notes."
+    },
+    {
+      "id": "PF10X-T009",
+      "title": "Operate CFO gate crew",
+      "layer": "cfo_layer",
+      "owner": "PF10X-09-W01 CFO Gate Captain",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "next_role": "PF10X-09 CFO Gate Crew",
+      "next_action": "Attach cost, price, margin, break-even and continue/stop verdict to each active product test.",
+      "output_path": "OPS/cfo/",
+      "done_proof": "No product remains active without unit economics and a verdict."
+    },
+    {
+      "id": "PF10X-T010",
+      "title": "Operate product stop and pivot crew",
+      "layer": "product_governance",
+      "owner": "PF10X-10-W01 Stop/Pivot Captain",
+      "status": "ready",
+      "priority": "P0-focus-protection",
+      "next_role": "PF10X-10 Product Stop/Pivot Crew",
+      "next_action": "Review active products with weak signals and route them to continue, pivot, park or stop with a proof note.",
+      "output_path": "OPS/product_gates/product_stages.json; OPS/opportunity_lab/opportunity_backlog.json",
+      "done_proof": "Weak products do not consume build/revenue capacity without evidence."
+    }
+  ]
+}
