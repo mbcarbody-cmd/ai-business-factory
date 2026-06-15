@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-06-15",
+  "owner": "Revenue Analyst",
+  "status": "active",
+  "purpose": "Track real revenue signals for Apps Lab products.",
+  "signal_types": [
+    "waitlist_signup",
+    "form_submit",
+    "reply",
+    "payment_interest",
+    "payment_received",
+    "pilot_started",
+    "feedback_positive",
+    "feedback_negative",
+    "blocker",
+    "pivot_decision"
+  ],
+  "rows": [
+    {
+      "id": "SIG-001",
+      "product": "Revenue Department",
+      "signal_type": "blocker",
+      "source": "YouTube video K2tC7EfP2eI",
+      "detail": "Video transcript not available through current public tooling in this cycle.",
+      "next_action": "Continue with Apps Lab revenue offers while keeping video in deconstruction queue.",
+      "status": "open"
+    }
+  ],
+  "daily_rule": "At least one revenue signal or blocker row must be added per active revenue day."
+}
