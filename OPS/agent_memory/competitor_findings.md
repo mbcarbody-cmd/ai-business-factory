@@ -19,7 +19,7 @@ Purpose: keep competitor and content-funnel discoveries reusable across strategy
 
 Competitor intelligence has 20 seeded competitor/company profiles in `OPS/competitor_intelligence/competitors.json`. Verified rows can support pricing and offer decisions; seeded rows still need public verification before CFO or outreach decisions.
 
-Content intelligence now also captures high-performing funnel patterns, not only company profiles. Pattern teardown lives in `OPS/competitor_intelligence/content_funnel_patterns.md`.
+Content intelligence now also captures high-performing funnel patterns, not only company profiles. Pattern teardown lives in `OPS/competitor_intelligence/content_funnel_patterns.md` and detailed pattern files can live under `OPS/competitor_intelligence/patterns/`.
 
 ## Reuse rule
 
@@ -72,3 +72,23 @@ Weakness/risk: generic AI tool lists can become hype; exact sponsor/ad claims ar
 Gap we can use: convert the listicle mechanism into operational stacks tied to a concrete result: one built workflow, seller OS audit, pricing workflow, content engine or AI visibility audit.
 
 Action created: `OPS/competitor_intelligence/content_funnel_patterns.md` now includes AI business factory stack, Parts Seller OS stack and AI visibility audit stack variants.
+
+## 2026-06-15 — Free AI audit lead magnet ad
+
+Source pattern: user-provided Facebook sponsored screenshot showing a Lithuanian AI audit funnel.
+
+Segment: AI automation audit, SMB lead magnet, Lithuanian market.
+
+Offer/funnel: free AI audit that promises 5-7 concrete automation ideas with benefit, complexity and implementation evaluation.
+
+Price: free front-end audit; paid backend not shown.
+
+CTA: get a free audit / learn more.
+
+Strength: highly specific diagnostic outcome, low-friction promise, clear question-based hook, known AI tool logos for trust, no survey/no login friction removal and fast result promise.
+
+Weakness/risk: free audit can become unpaid consulting if no conversion path exists; exact sponsor/ad claims are not independently verified; do not copy branding or claim guaranteed savings without proof.
+
+Gap we can use: create our own free diagnostic lead magnet that routes into paid 72h pilot, Parts Seller OS audit, or AI visibility audit. Every free output must recommend one paid next step.
+
+Action created: `OPS/competitor_intelligence/patterns/free_ai_audit_lead_magnet_2026_06_15.md` with variants for AI Automation Pilot, Parts Seller OS and AI visibility audit.
