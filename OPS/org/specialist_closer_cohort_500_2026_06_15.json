@@ -1,0 +1,68 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "CEO / Master Agent + COO-1 Execution Architect",
+  "purpose": "Add 500 specialist closers without creating low-intelligence workers or duplicate management layers.",
+  "intelligence_contract": {
+    "rule": "Every specialist has CEO-level judgment, ownership, money awareness, risk awareness, prioritization and blocker escalation. No narrow or passive worker roles are allowed.",
+    "anti_duplication": "More capacity cannot create parallel duplicate work. Every specialist must attach to one canonical task, one owner, one output path and one proof condition.",
+    "no_public_url_purchase_rule": "No domain or paid public URL is purchased before the product is functional. Until then only local demo, static preview, or explicit no-url blocker is allowed."
+  },
+  "cohorts": [
+    {
+      "id": "SC-100",
+      "name": "Product workflow closers",
+      "count": 80,
+      "mission": "Turn product rules and data models into usable workflows.",
+      "output_paths": ["products/parts-seller-os/WORKFLOW_SPEC.md", "products/parts-seller-os/"],
+      "proof": "A sample item can move through the full workflow."
+    },
+    {
+      "id": "SC-200",
+      "name": "Quality and design closers",
+      "count": 80,
+      "mission": "Improve clarity, trust, mobile usability and release quality.",
+      "output_paths": ["OPS/design/visual_quality_review_2026_06_15.md", "OPS/qa/bug_board.json"],
+      "proof": "Every release has a pass, blocked or accepted-risk decision."
+    },
+    {
+      "id": "SC-300",
+      "name": "Data verification closers",
+      "count": 90,
+      "mission": "Verify public business records, source links, fit reasons and safe use notes.",
+      "output_paths": ["OPS/data_intelligence/", "OPS/revenue_ops/lead_pipeline.json"],
+      "proof": "Rows are review-ready before any outbound action is counted."
+    },
+    {
+      "id": "SC-400",
+      "name": "Offer and delivery closers",
+      "count": 90,
+      "mission": "Convert pilot scope into quote-ready, intake-ready and delivery-ready operating proof.",
+      "output_paths": ["OPS/delivery/delivery_registry_2026_06_15.json", "OPS/cfo/"],
+      "proof": "Pilot scope, intake, acceptance and handoff fields exist before delivery starts."
+    },
+    {
+      "id": "SC-500",
+      "name": "Audit and enforcement closers",
+      "count": 80,
+      "mission": "Run missing-proof checks and prevent false done status.",
+      "output_paths": ["scripts/gap_check_2026_06_15.py", "OPS/TASK_BOARD/gap_tasks_2026_06_15.json"],
+      "proof": "Missing proof creates a visible task or blocker."
+    },
+    {
+      "id": "SC-600",
+      "name": "Build and preview closers",
+      "count": 80,
+      "mission": "Prepare local and preview demos without purchasing domains before the product is ready.",
+      "output_paths": ["OPS/deploy_loop/release_registry_2026_06_15.md", "products/_templates/parts-seller-os-one-day-mvp/"],
+      "proof": "Each active demo has local path, blocker, fallback, check and rollback note."
+    }
+  ],
+  "total_specialists": 500,
+  "daily_required_outputs": [
+    "one proof artifact or blocker update per active cohort",
+    "no duplicate work without consolidation",
+    "no done status without proof",
+    "fallback action whenever blocked"
+  ]
+}
