@@ -1,0 +1,37 @@
+name: Product Factory Enforcement
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify-product-factory-outputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify product factory output files
+        run: |
+          set -e
+          required_files=(
+            "OPS/product_factory/EXECUTION_ENFORCEMENT_QUEUE_2026_06_15.json"
+            "OPS/product_factory/mvp_briefs/parts_seller_os_paid_pilot_2026_06_15.md"
+            "products/_templates/parts-seller-os-one-day-mvp/README.md"
+            "products/_templates/parts-seller-os-one-day-mvp/index.html"
+            "products/_components/parts_seller_os_component_library.md"
+            "OPS/qa/QA_CONVERSION_SCORECARD_2026_06_15.md"
+            "OPS/revenue_ops/parts_seller_os_paid_pilot_outreach_2026_06_15.md"
+            "OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json"
+            "OPS/deploy_loop/product_factory_release_check_2026_06_15.md"
+          )
+          for file in "${required_files[@]}"; do
+            test -s "$file" || { echo "Missing or empty required output: $file"; exit 1; }
+          done
+          echo "Product factory output files are present."
+
+      - name: Validate JSON outputs
+        run: |
+          python3 -m json.tool OPS/product_factory/EXECUTION_ENFORCEMENT_QUEUE_2026_06_15.json >/dev/null
+          python3 -m json.tool OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json >/dev/null
+          echo "JSON outputs are valid."
