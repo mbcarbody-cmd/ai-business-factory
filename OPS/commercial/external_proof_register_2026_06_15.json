@@ -1,0 +1,16 @@
+{
+  "updated_at": "2026-06-15",
+  "owner": "CEO-B Revenue and Delivery",
+  "status": "active",
+  "purpose": "Prevent external events from being marked done without evidence.",
+  "rules": [
+    "No buyer event is complete without recorded evidence.",
+    "No delivery is complete without intake, output, QA and handoff evidence.",
+    "No public address purchase before functional product proof."
+  ],
+  "items": [
+    {"id":"EXT-001","name":"First pilot event","state":"not_done","required_evidence":"accepted scope, agreed price, sample data, delivery owner","fallback":"internal dry run with sample data"},
+    {"id":"EXT-002","name":"Real delivery proof","state":"not_done","required_evidence":"intake, output, QA verdict, handoff, feedback","fallback":"internal dry run using delivery registry"},
+    {"id":"EXT-003","name":"Public address","state":"blocked_until_functional_product","required_evidence":"working product flow and release check","fallback":"local demo or static preview"}
+  ]
+}
