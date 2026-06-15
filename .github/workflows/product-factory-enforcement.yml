@@ -11,26 +11,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify product factory output files
+      - name: Verify current lightweight P0 app outputs
         run: |
           set -e
           required_files=(
-            "OPS/product_factory/EXECUTION_ENFORCEMENT_QUEUE_2026_06_15.json"
-            "OPS/product_factory/mvp_briefs/parts_seller_os_paid_pilot_2026_06_15.md"
-            "products/_templates/parts-seller-os-one-day-mvp/README.md"
-            "products/_templates/parts-seller-os-one-day-mvp/index.html"
-            "products/_components/parts_seller_os_component_library.md"
-            "OPS/qa/QA_CONVERSION_SCORECARD_2026_06_15.md"
-            "OPS/revenue_ops/parts_seller_os_paid_pilot_outreach_2026_06_15.md"
-            "OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json"
-            "OPS/deploy_loop/product_factory_release_check_2026_06_15.md"
+            "README.md"
+            "website/index.html"
+            "products/ai-pilot-os/README.md"
+            "OPS/product_gates/ai_pilot_os_gate_2026_06_15.md"
+            "OPS/qa/AI_PILOT_OS_QA_VERDICT_2026_06_15.md"
+            "OPS/deploy_loop/AI_PILOT_OS_RELEASE_CHECK_2026_06_15.md"
+            "OPS/TASK_BOARD/OPS-043_ai_pilot_os_lightweight_p0_2026_06_15.md"
+            "OPS/revenue_ops/offer_pack.md"
+            "OPS/delivery/72h_delivery_playbook.md"
           )
           for file in "${required_files[@]}"; do
             test -s "$file" || { echo "Missing or empty required output: $file"; exit 1; }
           done
-          echo "Product factory output files are present."
+          echo "Current lightweight P0 output files are present."
 
-      - name: Validate JSON outputs
+      - name: Verify app contains core workflow markers
+        run: |
+          set -e
+          grep -q "AI Pilot OS" website/index.html
+          grep -q "lead" website/index.html
+          grep -q "quote" website/index.html
+          grep -q "payment" website/index.html
+          grep -q "72h delivery" website/index.html
+          grep -q "QA" website/index.html
+          grep -q "localStorage" website/index.html
+          grep -q "Parts Seller OS is not deleted" README.md
+          echo "AI Pilot OS workflow markers are present."
+
+      - name: Validate existing JSON outputs
         run: |
           python3 -m json.tool OPS/product_factory/EXECUTION_ENFORCEMENT_QUEUE_2026_06_15.json >/dev/null
           python3 -m json.tool OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json >/dev/null
