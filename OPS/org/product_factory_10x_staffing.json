@@ -1,0 +1,109 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "CEO / Master Agent + COO-1 Execution Architect",
+  "purpose": "Scale the product factory into 10 production functions with 10 worker-agents per function so products move from idea to deployed offer, revenue test and stop/continue decision without waiting.",
+  "total_functions": 10,
+  "workers_per_function": 10,
+  "total_worker_agents": 100,
+  "operating_rule": "More agents are only useful when routed through a single proof-based production line. Every worker must ship an artifact, metric, decision, or blocker update. No worker may stay idle: if blocked, switch to the fallback task and escalate the blocker.",
+  "p0_product_focus": "Parts Seller OS remains the protected primary build. New opportunities go through the Opportunity Lab and cannot consume P0 capacity until gate-approved.",
+  "global_daily_outputs": [
+    "one shippable product artifact or one validated revenue action per active function",
+    "one written blocker/fallback update for every blocked lane",
+    "one proof path per done claim",
+    "one CFO continue/stop signal for every active product test"
+  ],
+  "functions": [
+    {
+      "id": "PF10X-01",
+      "name": "Product Factory Boilerplate Crew",
+      "mission": "Maintain a reusable product skeleton so every new product starts with landing, pricing, payment, dashboard, analytics, legal pages and deploy config instead of starting from zero.",
+      "primary_kpi": "new MVP shell can be created in one repeatable run with URL/payment/analytics placeholders",
+      "input": "approved product idea or P0 feature request",
+      "output": "ready-to-customize product shell",
+      "workers": ["PF10X-01-W01 Boilerplate Captain", "PF10X-01-W02 Landing Skeleton Builder", "PF10X-01-W03 Pricing Page Builder", "PF10X-01-W04 Auth/Login Placeholder Owner", "PF10X-01-W05 Payment Link Placeholder Owner", "PF10X-01-W06 Admin Dashboard Skeleton Owner", "PF10X-01-W07 Analytics/Event Tracking Owner", "PF10X-01-W08 SEO/Meta Template Owner", "PF10X-01-W09 Legal Pages Template Owner", "PF10X-01-W10 Boilerplate Regression Tester"]
+    },
+    {
+      "id": "PF10X-02",
+      "name": "Idea To MVP In One Day Crew",
+      "mission": "Force every promising idea through a same-day product brief, buyer definition, offer, demo, price, payment path and outreach plan.",
+      "primary_kpi": "idea has URL, offer, demo path, price and first outreach list before it can remain active",
+      "input": "raw opportunity, competitor insight or user request",
+      "output": "one-day MVP brief and launch checklist",
+      "workers": ["PF10X-02-W01 MVP Sprint Captain", "PF10X-02-W02 Buyer Pain Mapper", "PF10X-02-W03 Offer Framer", "PF10X-02-W04 Demo Scope Cutter", "PF10X-02-W05 Pricing Starter", "PF10X-02-W06 Payment Path Checker", "PF10X-02-W07 First 20 Leads Planner", "PF10X-02-W08 Product Naming/Positioning Owner", "PF10X-02-W09 Risk and Scope Cutter", "PF10X-02-W10 Same-Day Done Judge"]
+    },
+    {
+      "id": "PF10X-03",
+      "name": "Build Orchestrator Crew",
+      "mission": "Break build work into small tasks, assign owners, remove blockers and keep the product moving until a proof artifact exists.",
+      "primary_kpi": "no active product task remains without next_action, owner, blocker/fallback and output_path",
+      "input": "MVP brief, product gate, bug or user request",
+      "output": "routed build tickets and shipped proof",
+      "workers": ["PF10X-03-W01 Build Orchestrator Captain", "PF10X-03-W02 Ticket Splitter", "PF10X-03-W03 Dependency Mapper", "PF10X-03-W04 Bottleneck Breaker", "PF10X-03-W05 Scope Cutter", "PF10X-03-W06 Owner Assignment Controller", "PF10X-03-W07 Build Cadence Monitor", "PF10X-03-W08 Done-Proof Enforcer", "PF10X-03-W09 Escalation Router", "PF10X-03-W10 Handoff Auditor"]
+    },
+    {
+      "id": "PF10X-04",
+      "name": "Reusable Component Library Crew",
+      "mission": "Maintain reusable UI/copy components so pages are assembled like Lego: hero, pricing, forms, dashboards, listings, trust blocks and email templates.",
+      "primary_kpi": "new landing/product page can be assembled from approved components without custom design from zero",
+      "input": "product shell, product brief or conversion critic request",
+      "output": "componentized reusable assets",
+      "workers": ["PF10X-04-W01 Component Library Captain", "PF10X-04-W02 Hero Section Builder", "PF10X-04-W03 Pricing Card Builder", "PF10X-04-W04 Trust/Testimonial Block Builder", "PF10X-04-W05 Comparison Table Builder", "PF10X-04-W06 Lead Form Builder", "PF10X-04-W07 Dashboard Widget Builder", "PF10X-04-W08 Marketplace Card Builder", "PF10X-04-W09 Email Template Builder", "PF10X-04-W10 Component QA Tester"]
+    },
+    {
+      "id": "PF10X-05",
+      "name": "Deploy Robot Crew",
+      "mission": "Convert local product work into public, testable, rollback-safe deployments with preview URLs and health checks.",
+      "primary_kpi": "every done product claim has public URL or explicit NO URL blocker",
+      "input": "repo product folder or pull request",
+      "output": "preview URL, smoke test result and rollback note",
+      "workers": ["PF10X-05-W01 Deploy Captain", "PF10X-05-W02 GitHub Actions Owner", "PF10X-05-W03 Preview URL Owner", "PF10X-05-W04 Static Hosting Owner", "PF10X-05-W05 Environment Variables Guard", "PF10X-05-W06 Health Check Writer", "PF10X-05-W07 Smoke Test Runner", "PF10X-05-W08 Rollback Owner", "PF10X-05-W09 Release Notes Owner", "PF10X-05-W10 NO URL Gate Judge"]
+    },
+    {
+      "id": "PF10X-06",
+      "name": "QA And Conversion Critic Crew",
+      "mission": "Break-test both technical function and money logic before anything is called done.",
+      "primary_kpi": "each release has technical QA score, conversion QA score and fixed/accepted issue list",
+      "input": "preview URL, product shell, landing page or workflow demo",
+      "output": "QA verdict with fix queue and conversion verdict",
+      "workers": ["PF10X-06-W01 QA Critic Captain", "PF10X-06-W02 Broken Link Tester", "PF10X-06-W03 Form Flow Tester", "PF10X-06-W04 Payment Path Tester", "PF10X-06-W05 Mobile Layout Tester", "PF10X-06-W06 Speed/Load Tester", "PF10X-06-W07 Offer Clarity Critic", "PF10X-06-W08 CTA Strength Critic", "PF10X-06-W09 Trust/Design Critic", "PF10X-06-W10 Final Release Judge"]
+    },
+    {
+      "id": "PF10X-07",
+      "name": "Revenue Ops Autopilot Crew",
+      "mission": "Make every MVP sellable by producing exact lead lists, outreach messages, follow-ups, CRM states, quote/payment flow and daily sales status.",
+      "primary_kpi": "every MVP gets at least 50 targeted leads or a documented blocker/fallback segment",
+      "input": "launched MVP, target buyer, offer and pricing",
+      "output": "lead pipeline, outreach sequence and paid-pilot path",
+      "workers": ["PF10X-07-W01 Revenue Ops Captain", "PF10X-07-W02 Lead List Builder", "PF10X-07-W03 Contact Channel Finder", "PF10X-07-W04 Cold Email Writer", "PF10X-07-W05 DM Script Writer", "PF10X-07-W06 Follow-Up Sequence Owner", "PF10X-07-W07 CRM State Owner", "PF10X-07-W08 Quote/Invoice/Payment Owner", "PF10X-07-W09 Sales Objection Logger", "PF10X-07-W10 Daily Revenue Reporter"]
+    },
+    {
+      "id": "PF10X-08",
+      "name": "Competitor Intelligence To Asset Factory Crew",
+      "mission": "Turn competitor posts, pages, ads and offers into reusable hooks, pages, scripts, pricing ideas, objections and SEO assets.",
+      "primary_kpi": "weekly competitor input becomes publishable copy/assets, not just notes",
+      "input": "competitor examples, screenshots, public pages, ads or market patterns",
+      "output": "hooks, landing copy, post drafts, video scripts and offer tests",
+      "workers": ["PF10X-08-W01 Intelligence Captain", "PF10X-08-W02 Competitor Capture Owner", "PF10X-08-W03 Audience/Pain Decoder", "PF10X-08-W04 Hook Extractor", "PF10X-08-W05 Landing Copy Converter", "PF10X-08-W06 Social Post Converter", "PF10X-08-W07 Short Video Script Converter", "PF10X-08-W08 Pricing/Offer Angle Analyst", "PF10X-08-W09 Objection Library Owner", "PF10X-08-W10 Asset QA Judge"]
+    },
+    {
+      "id": "PF10X-09",
+      "name": "CFO Gate Crew",
+      "mission": "Stop unprofitable work early by checking cost, price, margin, customer acquisition effort and continue/stop thresholds.",
+      "primary_kpi": "no product remains active without unit economics and a continue/stop rule",
+      "input": "product brief, revenue data, tool cost, delivery scope",
+      "output": "CFO score, price recommendation and continue/stop decision",
+      "workers": ["PF10X-09-W01 CFO Gate Captain", "PF10X-09-W02 Cost Model Owner", "PF10X-09-W03 Pricing Floor Owner", "PF10X-09-W04 Margin Controller", "PF10X-09-W05 CAC Effort Estimator", "PF10X-09-W06 Break-Even Calculator", "PF10X-09-W07 Tool Cost Watcher", "PF10X-09-W08 Delivery Cost Watcher", "PF10X-09-W09 Risk/Compliance Cost Owner", "PF10X-09-W10 CFO Verdict Judge"]
+    },
+    {
+      "id": "PF10X-10",
+      "name": "Product Stop/Pivot Crew",
+      "mission": "Prevent stagnation by stopping, pivoting, parking or promoting product tests based on evidence within a fixed validation window.",
+      "primary_kpi": "every active product has a dated next verdict: continue, pivot, park or stop",
+      "input": "MVP results, outreach results, QA results and CFO score",
+      "output": "continue/pivot/park/stop decision with next task",
+      "workers": ["PF10X-10-W01 Stop/Pivot Captain", "PF10X-10-W02 Signal Collector", "PF10X-10-W03 No-Response Analyst", "PF10X-10-W04 Pivot Angle Owner", "PF10X-10-W05 Parking Lot Owner", "PF10X-10-W06 Promotion Gate Owner", "PF10X-10-W07 Weak Work Cleaner", "PF10X-10-W08 Lessons Learned Writer", "PF10X-10-W09 Backlog Pruner", "PF10X-10-W10 Final Decision Judge"]
+    }
+  ]
+}
