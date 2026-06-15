@@ -1,0 +1,39 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "Market Intelligence Analyst",
+  "signals": [
+    {
+      "id": "SIG-AI-001",
+      "theme": "AI visibility",
+      "signal": "Brands now need visibility inside AI answers, not only Google search.",
+      "source_note": "Public market examples include AI visibility platforms and GEO tools.",
+      "revenue_action": "Create AI Visibility Audit micro-offer for small businesses.",
+      "score": 88
+    },
+    {
+      "id": "SIG-AI-002",
+      "theme": "coding agents",
+      "signal": "Coding agents and app builders lower MVP build cost.",
+      "source_note": "Current market activity around Codex, Claude Code, Gemini and app builders.",
+      "revenue_action": "Use Apps Lab to build micro landing demos faster.",
+      "score": 82
+    },
+    {
+      "id": "SIG-AI-003",
+      "theme": "consumer AI cost pressure",
+      "signal": "Consumer AI apps must control inference cost and charge early.",
+      "source_note": "Market reports show consumer AI startups struggle with inference costs.",
+      "revenue_action": "Prefer paid micro-offers over free unlimited chat apps.",
+      "score": 86
+    },
+    {
+      "id": "SIG-AI-004",
+      "theme": "agent security",
+      "signal": "Agent tool ecosystems create demand for safety and permission checks.",
+      "source_note": "MCP and agent security research points to large tool risk surface.",
+      "revenue_action": "Create MCP / AI Agent Safety Checklist offer for small teams.",
+      "score": 76
+    }
+  ]
+}
