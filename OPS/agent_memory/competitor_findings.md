@@ -92,3 +92,23 @@ Weakness/risk: free audit can become unpaid consulting if no conversion path exi
 Gap we can use: create our own free diagnostic lead magnet that routes into paid 72h pilot, Parts Seller OS audit, or AI visibility audit. Every free output must recommend one paid next step.
 
 Action created: `OPS/competitor_intelligence/patterns/free_ai_audit_lead_magnet_2026_06_15.md` with variants for AI Automation Pilot, Parts Seller OS and AI visibility audit.
+
+## 2026-06-15 — Autopilot SEO content generation ad
+
+Source pattern: user-provided Facebook sponsored screenshot showing an AutoSEO / GetAutoSEO-style funnel.
+
+Segment: AI SEO SaaS, automated content generation, organic traffic growth.
+
+Offer/funnel: automated SEO-optimized content generation that claims to save time, outrank competitors and grow organic traffic on autopilot.
+
+Price: not shown.
+
+CTA: learn more / go to product site.
+
+Strength: direct pain hook, strong autopilot dream outcome, simple SEO/content angle, informal dashboard-style creative that feels like behind-the-scenes proof.
+
+Weakness/risk: SEO ranking claims are easy to overpromise; automated content can become low-quality spam; exact sponsor/ad claims and product page are not independently verified; do not copy branding or claim guaranteed ranking growth.
+
+Gap we can use: build a safer SEO/GEO content visibility offer that sells briefs, gap maps, trust improvements and measurable 72h deliverables instead of guaranteed rankings.
+
+Action created: `OPS/competitor_intelligence/patterns/autopilot_seo_content_generation_2026_06_15.md` with variants for AI Visibility/GEO, Parts Seller OS listing SEO and SMB SEO content pilot.
