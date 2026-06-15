@@ -7,7 +7,7 @@
     "A crew is not productive until it creates or updates its output_path.",
     "Ready tasks must move to in_progress or blocked with fallback after the next execution cycle.",
     "Done claims require repo proof, URL proof, QA verdict, revenue row, CFO verdict or client/revenue verification.",
-    "If public deploy is blocked, the Deploy Crew must produce a local smoke test and an explicit NO URL blocker with next action.",
+    "If public deploy is blocked, the Deploy Crew must produce a local release check and an explicit NO URL blocker with next action.",
     "If exact public lead verification is blocked, Revenue Ops must create the verification queue and outreach pack instead of waiting.",
     "Every active lane must end with the next single highest-value action."
   ],
@@ -17,7 +17,7 @@
       "id": "EXEC-001",
       "crew": "PF10X-01 Product Factory Boilerplate Crew",
       "owner": "PF10X-01-W01 Boilerplate Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
       "output_path": "products/_templates/parts-seller-os-one-day-mvp/README.md; products/_templates/parts-seller-os-one-day-mvp/index.html",
       "proof_condition": "Reusable one-day MVP shell exists for Parts Seller OS with landing, pricing, demo, lead capture and payment placeholder.",
@@ -27,19 +27,19 @@
       "id": "EXEC-002",
       "crew": "PF10X-04 Reusable Component Library Crew",
       "owner": "PF10X-04-W01 Component Library Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P1",
-      "output_path": "products/_components/parts_seller_os_component_library.html",
-      "proof_condition": "Reusable hero, pricing, trust, lead form, workflow and card blocks exist.",
-      "fallback": "Ship plain HTML components first; styling can improve later."
+      "output_path": "products/_components/parts_seller_os_component_library.md",
+      "proof_condition": "Reusable hero, pricing, trust, lead form, workflow and proof blocks are specified.",
+      "fallback": "Ship component specification first; styled HTML components can follow."
     },
     {
       "id": "EXEC-003",
       "crew": "PF10X-06 QA And Conversion Critic Crew",
       "owner": "PF10X-06-W01 QA Critic Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
-      "output_path": "OPS/qa/qa_conversion_scorecard_2026_06_15.json",
+      "output_path": "OPS/qa/QA_CONVERSION_SCORECARD_2026_06_15.md",
       "proof_condition": "Release gate can score technical, mobile, payment, trust and money clarity before done.",
       "fallback": "Use manual scorecard until automated tests exist."
     },
@@ -47,7 +47,7 @@
       "id": "EXEC-004",
       "crew": "PF10X-07 Revenue Ops Autopilot Crew",
       "owner": "PF10X-07-W01 Revenue Ops Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
       "output_path": "OPS/revenue_ops/parts_seller_os_paid_pilot_outreach_2026_06_15.md",
       "proof_condition": "Paid-pilot offer has lead criteria, outreach messages, follow-ups, CRM states and payment path requirements.",
@@ -57,7 +57,7 @@
       "id": "EXEC-005",
       "crew": "PF10X-09 CFO Gate Crew",
       "owner": "PF10X-09-W01 CFO Gate Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
       "output_path": "OPS/cfo/parts_seller_os_paid_pilot_cfo_gate_2026_06_15.json",
       "proof_condition": "Paid pilot has price floor, delivery budget, break-even and continue/stop thresholds.",
@@ -67,7 +67,7 @@
       "id": "EXEC-006",
       "crew": "PF10X-02 Idea To MVP In One Day Crew",
       "owner": "PF10X-02-W01 MVP Sprint Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
       "output_path": "OPS/product_factory/mvp_briefs/parts_seller_os_paid_pilot_2026_06_15.md",
       "proof_condition": "MVP brief defines buyer, pain, offer, demo, price, payment path and first outreach action.",
@@ -77,11 +77,12 @@
       "id": "EXEC-007",
       "crew": "PF10X-05 Deploy Robot Crew",
       "owner": "PF10X-05-W01 Deploy Captain",
-      "status": "in_progress",
+      "status": "repo_output_created",
       "priority": "P0",
-      "output_path": ".github/workflows/product-factory-enforcement.yml; OPS/deploy_loop/product_factory_smoke_test_2026_06_15.md",
-      "proof_condition": "Repo has an enforcement workflow/checklist that fails missing core product-factory outputs and documents deploy/smoke requirements.",
-      "fallback": "If GitHub Pages URL is not verified, keep NO URL blocker and local smoke checklist active."
+      "output_path": ".github/workflows/product-factory-enforcement.yml; OPS/deploy_loop/product_factory_release_check_2026_06_15.md",
+      "proof_condition": "Repo has an enforcement workflow/checklist that fails missing core product-factory outputs and documents release requirements.",
+      "fallback": "If GitHub Pages URL is not verified, keep NO URL blocker and local release checklist active."
     }
-  ]
+  ],
+  "next_forced_step": "Run or review the Product Factory Enforcement workflow, then convert exact public lead verification into revenue rows."
 }
