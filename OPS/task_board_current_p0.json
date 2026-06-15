@@ -1,0 +1,57 @@
+{
+  "updated_at": "2026-06-15",
+  "source_of_truth_note": "Current P0 snapshot after user corrected direction away from Parts Seller OS toward a lighter first app.",
+  "current_p0_product": "AI Pilot OS",
+  "parked_products": [
+    {
+      "product": "Parts Seller OS",
+      "reason": "Heavier domain product; parked until AI Pilot OS has public URL proof and payment-path proof."
+    }
+  ],
+  "proof_ladder": [
+    "repo_output_created",
+    "local_static_mvp_pass",
+    "public_url_verified",
+    "real_lead_entered",
+    "quote_sent",
+    "payment_path_attached",
+    "paid_pilot_collected",
+    "delivery_verified",
+    "revenue_verified"
+  ],
+  "active_tasks": [
+    {
+      "id": "OPS-043",
+      "title": "AI Pilot OS lightweight P0 app",
+      "owner": "CEO-C Build Factory + CEO-B Revenue + QA Critic-C5",
+      "status": "repo_output_created",
+      "priority": "P0-revenue-or-core-os",
+      "proof_status": "local_static_mvp_pass",
+      "output_path": "website/index.html",
+      "done_proof": "Public URL verified, one real lead row, quote/payment path, QA PASS, and first paid pilot or exact blocker.",
+      "next_action": "Verify public URL or record NO URL blocker; enter one real lead and attach payment path."
+    },
+    {
+      "id": "OPS-043A",
+      "title": "Verify AI Pilot OS public URL",
+      "owner": "DevOps Agent-C4",
+      "status": "blocked",
+      "priority": "P0-revenue-or-core-os",
+      "proof_status": "public_url_missing",
+      "blocker": "Public GitHub Pages URL not independently verified in this run.",
+      "fallback_next_task": "Use local static file and continue lead/quote/payment proof.",
+      "output_path": "OPS/deploy_loop/AI_PILOT_OS_RELEASE_CHECK_2026_06_15.md",
+      "next_action": "Open expected GitHub Pages URL after deploy/index refresh and run smoke test."
+    },
+    {
+      "id": "OPS-043B",
+      "title": "Create first real lead and quote/payment path row",
+      "owner": "CEO-B Revenue",
+      "status": "ready",
+      "priority": "P0-revenue-or-core-os",
+      "proof_status": "missing_real_revenue_row",
+      "output_path": "OPS/revenue_ops/outreach_log.md",
+      "next_action": "Enter one real prospect in the app, generate quote, and record invoice/Revolut/bank payment path."
+    }
+  ]
+}
