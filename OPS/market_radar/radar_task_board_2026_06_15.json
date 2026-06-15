@@ -1,0 +1,36 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "Market Intelligence + CRO",
+  "purpose": "Turn public AI and software signals into revenue actions.",
+  "tasks": [
+    {
+      "id": "MR-001",
+      "title": "Track AI agent and coding tools",
+      "status": "active",
+      "next_action": "Convert tool launches into micro-SaaS or service offers.",
+      "output_path": "OPS/market_radar/signal_ledger_2026_06_15.json"
+    },
+    {
+      "id": "MR-002",
+      "title": "Track AI visibility and GEO tools",
+      "status": "active",
+      "next_action": "Create small business AI visibility audit offer.",
+      "output_path": "OPS/market_radar/product_bets_2026_06_15.md"
+    },
+    {
+      "id": "MR-003",
+      "title": "Track consumer AI app signals",
+      "status": "active",
+      "next_action": "Improve Apps Lab Date Planner, Wingman and NoSwipe offers.",
+      "output_path": "OPS/apps_lab/APPS_LAB_TASK_BOARD_2026_06_15.json"
+    },
+    {
+      "id": "MR-004",
+      "title": "Track YouTube business videos",
+      "status": "active",
+      "next_action": "Extract audience, pain, offer and CTA when transcript or notes are available.",
+      "output_path": "OPS/content_intelligence/youtube_video_intake_queue_2026_06_15.json"
+    }
+  ]
+}
