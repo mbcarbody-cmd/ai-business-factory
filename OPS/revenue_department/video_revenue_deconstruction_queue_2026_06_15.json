@@ -1,0 +1,37 @@
+{
+  "updated_at": "2026-06-15",
+  "owner": "Content Revenue Analyst",
+  "status": "active",
+  "purpose": "Convert useful videos into revenue mechanics, offers and execution tasks.",
+  "fields_required": [
+    "video_url",
+    "title",
+    "transcript_status",
+    "audience",
+    "pain",
+    "mechanism",
+    "offer",
+    "proof",
+    "monetization",
+    "acquisition_channel",
+    "next_revenue_action",
+    "blocker"
+  ],
+  "videos": [
+    {
+      "id": "VID-001",
+      "video_url": "https://www.youtube.com/watch?v=K2tC7EfP2eI",
+      "title": "unknown_not_fetched",
+      "transcript_status": "blocked_unavailable_in_current_tooling",
+      "audience": "pending",
+      "pain": "pending",
+      "mechanism": "pending",
+      "offer": "pending",
+      "proof": "pending",
+      "monetization": "pending",
+      "acquisition_channel": "pending",
+      "next_revenue_action": "Do not wait. Continue Apps Lab revenue offers and fill this row when transcript/title is accessible.",
+      "blocker": "YouTube page and transcript were not accessible through current public web tooling during this cycle."
+    }
+  ]
+}
