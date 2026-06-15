@@ -1,0 +1,49 @@
+{
+  "updated_at": "2026-06-15",
+  "status": "active",
+  "owner": "PF10X-09-W01 CFO Gate Captain",
+  "product": "Parts Seller OS paid pilot",
+  "purpose": "Set the first financial gate for the paid pilot so the product cannot consume build and revenue capacity without price, cost and decision rules.",
+  "pilot_pricing": {
+    "setup_fee_floor_eur": 300,
+    "setup_fee_target_eur": 600,
+    "setup_fee_high_complexity_eur": 900,
+    "monthly_after_pilot_floor_eur": 99,
+    "monthly_after_pilot_target_eur": 199,
+    "monthly_after_pilot_high_value_eur": 299
+  },
+  "delivery_budget": {
+    "max_internal_hours_for_300_eur_pilot": 4,
+    "max_internal_hours_for_600_eur_pilot": 8,
+    "max_internal_hours_for_900_eur_pilot": 12,
+    "pilot_window_hours": 72
+  },
+  "cost_assumptions": {
+    "tool_cost_per_pilot_eur": 0,
+    "paid_ads_budget_eur": 0,
+    "manual_research_allowed": true,
+    "external_spend_requires_approval": true
+  },
+  "continue_conditions": [
+    "seller provides usable sample data",
+    "pilot can be delivered inside delivery budget",
+    "payment path exists before delivery starts",
+    "QA scorecard can be completed",
+    "workflow has repeatable monthly value"
+  ],
+  "pause_or_revise_conditions": [
+    "no payment path",
+    "sample data unavailable",
+    "scope exceeds delivery budget",
+    "buyer wants custom build outside pilot scope",
+    "no clear monthly value after demo"
+  ],
+  "first_break_even_target": {
+    "goal": "collect one paid pilot",
+    "minimum_revenue_eur": 300,
+    "preferred_revenue_eur": 600,
+    "proof_required": "payment link, invoice, bank confirmation or revenue_verified task row"
+  },
+  "verdict": "continue_with_300_900_eur_paid_pilot_test",
+  "next_action": "Revenue Ops must verify exact leads and attach payment path before delivery starts."
+}
