@@ -1,0 +1,27 @@
+{
+  "updated_at": "2026-06-15",
+  "items": [
+    {
+      "id": "P-001",
+      "name": "Front right headlight",
+      "code": "SAMPLE-HEADLIGHT-RH",
+      "vehicle": "Kia EV sample 2024",
+      "side": "right",
+      "condition": "used_good",
+      "photo_state": "has_photo",
+      "current_location": "",
+      "base_value": 420
+    },
+    {
+      "id": "P-002",
+      "name": "Door control module",
+      "code": "SAMPLE-MODULE-01",
+      "vehicle": "Aston sample 2024",
+      "side": "left",
+      "condition": "used_unknown",
+      "photo_state": "needs_photo",
+      "current_location": "",
+      "base_value": 180
+    }
+  ]
+}
