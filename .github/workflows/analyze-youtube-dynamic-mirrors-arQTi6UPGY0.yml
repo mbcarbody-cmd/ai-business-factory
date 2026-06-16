@@ -1,0 +1,231 @@
+name: Analyze YouTube via Dynamic Mirrors arQTi6UPGY0
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
+      - ".github/workflows/analyze-youtube-dynamic-mirrors-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Discover mirrors and fetch source
+        run: |
+          python - <<'PY'
+          import concurrent.futures
+          import html
+          import json
+          import re
+          import ssl
+          from pathlib import Path
+          from urllib.parse import urljoin
+          import urllib.request
+
+          VIDEO_ID = 'arQTi6UPGY0'
+          ROOT = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          RAW = ROOT / 'dynamic-mirrors'
+          RAW.mkdir(parents=True, exist_ok=True)
+          HEADERS = {'User-Agent': 'Mozilla/5.0'}
+          context = ssl.create_default_context()
+          logs = []
+
+          def get_json(url, timeout=12):
+              req = urllib.request.Request(url, headers=HEADERS)
+              with urllib.request.urlopen(req, timeout=timeout, context=context) as response:
+                  return response.status, response.read().decode('utf-8', errors='replace')
+
+          invidious = []
+          for list_url in [
+              'https://api.invidious.io/instances.json',
+              'https://instances.invidious.io/instances.json',
+          ]:
+              try:
+                  status, body = get_json(list_url, 20)
+                  logs.append(f'instance list {list_url} status={status} bytes={len(body)}')
+                  data = json.loads(body)
+                  if isinstance(data, list):
+                      for entry in data:
+                          if not isinstance(entry, list) or len(entry) < 2 or not isinstance(entry[1], dict):
+                              continue
+                          name, meta = entry[0], entry[1]
+                          uri = meta.get('uri') or f'https://{name}'
+                          if uri.startswith('https://') and meta.get('api', True):
+                              invidious.append(uri.rstrip('/'))
+                  if invidious:
+                      break
+              except Exception as exc:
+                  logs.append(f'instance list {list_url} {type(exc).__name__}: {exc}')
+
+          piped = []
+          for list_url in [
+              'https://piped.video/api/v1/instances',
+              'https://pipedapi.kavin.rocks/instances',
+          ]:
+              try:
+                  status, body = get_json(list_url, 20)
+                  logs.append(f'piped list {list_url} status={status} bytes={len(body)}')
+                  data = json.loads(body)
+                  rows = data if isinstance(data, list) else data.get('instances', []) if isinstance(data, dict) else []
+                  for row in rows:
+                      if not isinstance(row, dict):
+                          continue
+                      api = row.get('api_url') or row.get('apiUrl') or row.get('api')
+                      if isinstance(api, str) and api.startswith('https://'):
+                          piped.append(api.rstrip('/'))
+                  if piped:
+                      break
+              except Exception as exc:
+                  logs.append(f'piped list {list_url} {type(exc).__name__}: {exc}')
+
+          invidious = list(dict.fromkeys(invidious))[:80]
+          piped = list(dict.fromkeys(piped))[:80]
+          logs.append(f'discovered invidious={len(invidious)} piped={len(piped)}')
+
+          def try_invidious(base):
+              try:
+                  status, body = get_json(f'{base}/api/v1/videos/{VIDEO_ID}', 10)
+                  obj = json.loads(body)
+                  if isinstance(obj, dict) and obj.get('title'):
+                      return ('invidious', base, obj, status, len(body))
+                  return None
+              except Exception:
+                  return None
+
+          def try_piped(base):
+              try:
+                  status, body = get_json(f'{base}/streams/{VIDEO_ID}', 10)
+                  obj = json.loads(body)
+                  if isinstance(obj, dict) and obj.get('title'):
+                      return ('piped', base, obj, status, len(body))
+                  return None
+              except Exception:
+                  return None
+
+          result = None
+          tasks = [('invidious', base) for base in invidious] + [('piped', base) for base in piped]
+          with concurrent.futures.ThreadPoolExecutor(max_workers=16) as pool:
+              futures = []
+              for kind, base in tasks:
+                  futures.append(pool.submit(try_invidious if kind == 'invidious' else try_piped, base))
+              for future in concurrent.futures.as_completed(futures):
+                  candidate = future.result()
+                  if candidate and result is None:
+                      result = candidate
+                      logs.append(f'success {candidate[0]} {candidate[1]} status={candidate[3]} bytes={candidate[4]}')
+
+          transcript = []
+          meta = {}
+          source_kind = ''
+          source_base = ''
+          if result:
+              source_kind, source_base, meta, _, _ = result
+              (RAW / 'metadata.json').write_text(json.dumps(meta, ensure_ascii=False), encoding='utf-8')
+              if source_kind == 'invidious':
+                  tracks = meta.get('captions', [])
+                  if not tracks:
+                      try:
+                          _, body = get_json(f'{source_base}/api/v1/captions/{VIDEO_ID}', 15)
+                          payload = json.loads(body)
+                          tracks = payload.get('captions', []) if isinstance(payload, dict) else payload
+                      except Exception as exc:
+                          logs.append(f'invidious captions list {type(exc).__name__}: {exc}')
+              else:
+                  tracks = meta.get('subtitles', [])
+
+              for index, track in enumerate(tracks[:12]):
+                  if not isinstance(track, dict):
+                      continue
+                  url = track.get('url') or track.get('baseUrl')
+                  if not url:
+                      continue
+                  if url.startswith('/'):
+                      url = urljoin(source_base, url)
+                  try:
+                      req = urllib.request.Request(url, headers=HEADERS)
+                      with urllib.request.urlopen(req, timeout=20, context=context) as response:
+                          body = response.read().decode('utf-8', errors='replace')
+                      lang = track.get('languageCode') or track.get('code') or track.get('label') or track.get('name') or str(index)
+                      logs.append(f'caption {lang} bytes={len(body)}')
+                      (RAW / f'caption-{index}.txt').write_text(body, encoding='utf-8')
+                      if body.lstrip().startswith('{'):
+                          try:
+                              obj = json.loads(body)
+                              for event in obj.get('events', []):
+                                  segs = event.get('segs', []) if isinstance(event, dict) else []
+                                  text = ''.join(str(seg.get('utf8', '')) for seg in segs if isinstance(seg, dict))
+                                  if text.strip():
+                                      transcript.append(text)
+                          except Exception:
+                              pass
+                      else:
+                          for line in body.splitlines():
+                              value = line.strip()
+                              if not value or '-->' in value or value.startswith(('WEBVTT','Kind:','Language:','NOTE')):
+                                  continue
+                              if re.fullmatch(r'\d+', value):
+                                  continue
+                              transcript.append(html.unescape(re.sub(r'<[^>]+>', '', value)))
+                      if transcript:
+                          break
+                  except Exception as exc:
+                      logs.append(f'caption {index} {type(exc).__name__}: {exc}')
+
+          clean = []
+          previous = None
+          for value in transcript:
+              value = re.sub(r'\s+', ' ', value).strip()
+              if value and value != previous:
+                  clean.append(value)
+                  previous = value
+
+          title = meta.get('title', '') if isinstance(meta, dict) else ''
+          channel = ''
+          duration = ''
+          upload_date = ''
+          description = ''
+          if isinstance(meta, dict):
+              channel = meta.get('author') or meta.get('uploader') or meta.get('uploaderName') or meta.get('channel', '')
+              duration = meta.get('lengthSeconds') or meta.get('duration', '')
+              upload_date = meta.get('publishedText') or meta.get('uploadDate') or meta.get('published', '')
+              description = meta.get('description') or meta.get('descriptionHtml', '') or ''
+
+          lines = [
+              '# YouTube Knowledge Source via Dynamic Mirrors', '',
+              '- Video ID: `arQTi6UPGY0`',
+              f'- Mirror type: {source_kind}',
+              f'- Mirror base: {source_base}',
+              f'- Title: {title}',
+              f'- Channel: {channel}',
+              f'- Duration seconds: {duration}',
+              f'- Upload date: {upload_date}',
+              '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
+              '## Description', '', str(description) or '_Description unavailable._', '',
+              '## Transcript', '',
+          ]
+          lines.extend(clean if clean else ['_No transcript was returned._'])
+          lines.extend(['', '## Diagnostics', '', '```text', '\n'.join(logs), '```', ''])
+          (ROOT / 'dynamic-mirror-source.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+
+      - name: Persist discovered source
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/dynamic-mirror-source.md
+          if git diff --cached --quiet; then
+            echo "No dynamic source changes to commit"
+          else
+            git commit -m "Capture YouTube source through dynamic mirrors"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
