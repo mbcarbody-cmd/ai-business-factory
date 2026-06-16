@@ -1,0 +1,137 @@
+name: Transcribe Tadas Burgaila Podcast
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/transcription-trigger.md"
+      - ".github/workflows/transcribe-tadas-burgaila-podcast.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Install transcription runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check --no-cache-dir faster-whisper
+
+      - name: Download podcast audio
+        run: |
+          set -euo pipefail
+          audio_url="$(sed -n 's/^- Audio URL: //p' OPS/knowledge_ingestion/youtube/arQTi6UPGY0/podcast-feed-source.md | head -n 1)"
+          test -n "$audio_url"
+          curl -L --fail --retry 5 --retry-delay 3 --connect-timeout 30 \
+            "$audio_url" -o episode.mp3
+          ffprobe -v error -show_entries format=duration,size -of json episode.mp3 > audio-info.json
+
+      - name: Transcribe Lithuanian audio
+        run: |
+          python - <<'PY'
+          import json
+          from faster_whisper import WhisperModel
+
+          model = WhisperModel(
+              'base',
+              device='cpu',
+              compute_type='int8',
+              cpu_threads=4,
+              num_workers=1,
+          )
+          segments, info = model.transcribe(
+              'episode.mp3',
+              language='lt',
+              beam_size=3,
+              vad_filter=True,
+              vad_parameters={'min_silence_duration_ms': 500},
+              condition_on_previous_text=True,
+          )
+
+          rows = []
+          with open('transcript.txt', 'w', encoding='utf-8') as text_file:
+              for segment in segments:
+                  text = segment.text.strip()
+                  if not text:
+                      continue
+                  row = {'start': round(segment.start, 2), 'end': round(segment.end, 2), 'text': text}
+                  rows.append(row)
+                  text_file.write(f'[{segment.start:08.2f}-{segment.end:08.2f}] {text}\n')
+
+          with open('transcript.json', 'w', encoding='utf-8') as json_file:
+              json.dump(
+                  {
+                      'language': info.language,
+                      'language_probability': info.language_probability,
+                      'duration': info.duration,
+                      'segments': rows,
+                  },
+                  json_file,
+                  ensure_ascii=False,
+              )
+          PY
+
+      - name: Build chapter extracts
+        run: |
+          python - <<'PY'
+          import json
+
+          chapters = [
+              (0, 'Pradžia'),
+              (122, 'Sėkmingų žmonių santykiai ir ribos'),
+              (351, 'Kada atsiranda noras dalintis su kitais'),
+              (489, 'Verslo įvaizdis ir jaunimas'),
+              (626, 'Kodėl sėkmės momentas niekada neateina'),
+              (780, 'Pinigai ir galia atidengia žmogų'),
+              (1019, 'Praradimų baimė ir rizika'),
+              (1248, 'Timingas ir keto dietos bumas'),
+              (1380, 'Startuolių matematika ir sėkmės tikimybės'),
+              (1639, 'Žmogus prieš idėją versle'),
+              (1801, 'Sunkiausias kelias nuo idėjos iki veiksmo'),
+              (1999, 'Idėjos vertės mitas'),
+              (2274, 'Laidos analizė'),
+              (2429, 'Kaip supirkti ir konsoliduoti podcastus'),
+              (2550, 'Plėtra į užsienio rinkas'),
+              (2860, 'Lubos ir antras rytas'),
+              (3017, 'Gut feeling ir disciplina priimant sprendimus'),
+              (3209, 'ADHD ir fokuso problemos'),
+              (3832, 'Kada versle augti agresyviai'),
+              (4023, 'Startuolis prieš normalų verslą'),
+              (4192, 'Vinted deginimo logika'),
+              (4317, 'AI naikina profesijas'),
+              (4517, 'Darbas kaip tarpinė stotelė'),
+              (4590, 'Kaip išlipti iš algos rato'),
+              (4771, 'Kova su savo demonais'),
+              (4883, 'Pabaiga'),
+          ]
+
+          data = json.load(open('transcript.json', encoding='utf-8'))
+          segments = data['segments']
+          lines = ['# Chapter Extracts', '']
+          for index, (start, title) in enumerate(chapters):
+              end = chapters[index + 1][0] if index + 1 < len(chapters) else start + 300
+              selected = [row['text'] for row in segments if row['end'] >= start and row['start'] < end]
+              lines.extend([f'## {title}', '', ' '.join(selected), ''])
+          open('chapter-extracts.md', 'w', encoding='utf-8').write('\n'.join(lines))
+          PY
+
+      - name: Upload temporary transcript artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: tadas-burgaila-transcript
+          path: |
+            transcript.json
+            transcript.txt
+            chapter-extracts.md
+            audio-info.json
+          retention-days: 3
+          if-no-files-found: error
