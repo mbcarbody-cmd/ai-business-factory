@@ -48,7 +48,7 @@ RequestBlocked()
 
 ```text
 https://inv.nadeko.net video 403
-https://invidious.nerdvpn.de ConnectionError: HTTPSConnectionPool(host='invidious.nerdvpn.de', port=443): Max retries exceeded with url: /api/v1/videos/arQTi6UPGY0 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f0940cda120>: Failed to establish a new connection: [Errno 101] Network is unreachable'))
+https://invidious.nerdvpn.de ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
 https://inv.thepixora.com video 403
 https://yt.chocolatemoo53.com video 403
 ```
