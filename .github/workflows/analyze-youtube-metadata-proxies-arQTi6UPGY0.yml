@@ -1,0 +1,114 @@
+name: Analyze YouTube Metadata Proxies arQTi6UPGY0
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
+      - ".github/workflows/analyze-youtube-metadata-proxies-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Query metadata proxies
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import quote
+          import urllib.request
+
+          video_id = 'arQTi6UPGY0'
+          video_url = f'https://www.youtube.com/watch?v={video_id}'
+          root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          raw = root / 'metadata-proxies'
+          raw.mkdir(parents=True, exist_ok=True)
+          headers = {'User-Agent':'Mozilla/5.0'}
+          endpoints = {
+              'youtube-oembed': f'https://www.youtube.com/oembed?url={quote(video_url, safe="")}&format=json',
+              'noembed': f'https://noembed.com/embed?url={quote(video_url, safe="")}',
+              'lemnoslife': f'https://yt.lemnoslife.com/noKey/videos?part=snippet,contentDetails,statistics&id={video_id}',
+              'lemnoslife-snippet': f'https://yt.lemnoslife.com/noKey/videos?part=snippet&id={video_id}',
+          }
+          results = {}
+          logs = []
+          for name, url in endpoints.items():
+              try:
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      body = response.read().decode('utf-8', errors='replace')
+                  logs.append(f'{name} status={response.status} bytes={len(body)}')
+                  (raw / f'{name}.txt').write_text(body, encoding='utf-8')
+                  try:
+                      results[name] = json.loads(body)
+                  except Exception:
+                      results[name] = {'raw': body[:4000]}
+              except Exception as exc:
+                  logs.append(f'{name} {type(exc).__name__}: {exc}')
+
+          title = ''
+          author = ''
+          author_url = ''
+          description = ''
+          published = ''
+          duration = ''
+          stats = {}
+
+          for key in ['lemnoslife','lemnoslife-snippet']:
+              obj = results.get(key, {})
+              items = obj.get('items', []) if isinstance(obj, dict) else []
+              if items:
+                  item = items[0]
+                  snippet = item.get('snippet', {})
+                  details = item.get('contentDetails', {})
+                  title = title or snippet.get('title', '')
+                  author = author or snippet.get('channelTitle', '')
+                  description = description or snippet.get('description', '')
+                  published = published or snippet.get('publishedAt', '')
+                  duration = duration or details.get('duration', '')
+                  stats = item.get('statistics', {}) or stats
+
+          for key in ['youtube-oembed','noembed']:
+              obj = results.get(key, {})
+              if isinstance(obj, dict):
+                  title = title or obj.get('title', '')
+                  author = author or obj.get('author_name', '')
+                  author_url = author_url or obj.get('author_url', '')
+
+          lines = [
+              '# YouTube Metadata Proxy Source', '',
+              '- Video ID: `arQTi6UPGY0`',
+              f'- Title: {title}',
+              f'- Channel: {author}',
+              f'- Channel URL: {author_url}',
+              f'- Published: {published}',
+              f'- Duration: {duration}',
+              f'- Statistics: {json.dumps(stats, ensure_ascii=False)}',
+              '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
+              '## Description', '', description or '_Description unavailable._', '',
+              '## Diagnostics', '', '```text', '\n'.join(logs), '```',
+          ]
+          (root / 'metadata-proxy-source.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+
+      - name: Persist metadata source
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/metadata-proxy-source.md
+          if git diff --cached --quiet; then
+            echo "No metadata changes to commit"
+          else
+            git commit -m "Capture YouTube metadata through public proxies"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
