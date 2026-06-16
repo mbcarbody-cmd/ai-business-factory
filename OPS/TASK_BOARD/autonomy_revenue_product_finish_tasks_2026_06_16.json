@@ -1,0 +1,97 @@
+{
+  "updated_at": "2026-06-16",
+  "status": "active",
+  "owner": "CEO / Master Agent + COO Execution Architect",
+  "governance_source": "OPS/governance/AUTONOMY_REVENUE_PRODUCT_FINISH_PROTOCOL_2026_06_16.md",
+  "purpose": "Convert the user's autonomy request into executable tasks for business development and product completion.",
+  "standing_rule": "Agents do not wait to create internal artifacts, lead rows, drafts, QA, offers or delivery dry-runs. They wait only before spend, send, public claims or real customer commitment.",
+  "tasks": [
+    {
+      "id": "ARP-001",
+      "title": "Activate autonomy approval boundary",
+      "owner": "COO Execution Architect",
+      "status": "repo_output_created",
+      "priority": "P0-core-os",
+      "output_path": "OPS/governance/AUTONOMY_REVENUE_PRODUCT_FINISH_PROTOCOL_2026_06_16.md",
+      "done_proof": "Protocol file exists and separates autonomous internal work from explicit user approvals.",
+      "next_action": "Reference this protocol from P0 task board and enforcement checks."
+    },
+    {
+      "id": "ARP-002",
+      "title": "Create missing Content Hook Factory paid sprint offer file",
+      "owner": "Growth Agent-D4 + CEO-B Revenue",
+      "status": "ready",
+      "priority": "P0-revenue",
+      "output_path": "OPS/revenue_ops/content_hook_factory_offer_2026_06_16.md",
+      "done_proof": "Offer file contains buyer, pain, scope, price, delivery window, not-included list, CTA, acceptance path and payment fallback.",
+      "next_action": "Create the exact 199-399 EUR offer file without waiting for further approval."
+    },
+    {
+      "id": "ARP-003",
+      "title": "Promote verified lead review rows to outreach-ready draft rows",
+      "owner": "Data Verification Closers + Revenue Ops Captain",
+      "status": "ready",
+      "priority": "P0-revenue",
+      "input_path": "OPS/data_intelligence/lead_review_queue_2026_06_15.json",
+      "output_path": "OPS/revenue_ops/outreach_ready_drafts_2026_06_16.json",
+      "done_proof": "Rows include company, source, fit, segment, allowed contact route, offer, personalized angle, message draft and state=outreach_ready_draft.",
+      "next_action": "Promote rows as drafts only; do not send without SEND-B user approval."
+    },
+    {
+      "id": "ARP-004",
+      "title": "Run delivery dry-run for the first content sprint",
+      "owner": "Delivery Manager + QA Critic-C5",
+      "status": "ready",
+      "priority": "P0-delivery",
+      "output_path": "OPS/delivery/content_hook_factory_delivery_dry_run_2026_06_16.md",
+      "done_proof": "Dry-run contains intake, generated output, QA verdict, handoff template, revision rules and delivery risk notes.",
+      "next_action": "Use internal sample product brief and record delivery proof chain."
+    },
+    {
+      "id": "ARP-005",
+      "title": "Create first paid pilot blocker and approval tracker",
+      "owner": "CEO-B Revenue and Delivery",
+      "status": "ready",
+      "priority": "P0-revenue-proof",
+      "output_path": "OPS/commercial/first_paid_pilot_tracker_2026_06_16.json",
+      "done_proof": "Tracker has states for accepted scope, price agreed, invoice/payment, delivery owner, output, QA, handoff, feedback and exact blocker.",
+      "next_action": "Create tracker and keep state not_done until evidence exists."
+    },
+    {
+      "id": "ARP-006",
+      "title": "Create stronger daily business development loop",
+      "owner": "CRO-1 Pipeline Commander",
+      "status": "ready",
+      "priority": "P0-revenue",
+      "output_path": "OPS/revenue_ops/daily_bd_war_room_2026_06_16.md",
+      "done_proof": "Daily loop requires lead research, verification, offer, outreach drafts, follow-up, deal desk, delivery dry-run and proof update.",
+      "next_action": "Create the war-room operating file and attach it to lead pipeline."
+    }
+  ],
+  "user_approval_requests": [
+    {
+      "id": "AUTONOMY-A",
+      "needed_for": "standing internal autonomy",
+      "approval_text": "PATVIRTINU AUTONOMY-A: agents may autonomously create internal artifacts, lead rows, drafts, QA, offers and delivery dry-runs without asking me.",
+      "risk": "low, internal only"
+    },
+    {
+      "id": "SEND-B",
+      "needed_for": "sending real outreach messages",
+      "approval_text": "PATVIRTINU SEND-B: send these exact messages to these exact leads: [lead ids].",
+      "risk": "external communication"
+    },
+    {
+      "id": "SPEND-C",
+      "needed_for": "spending money",
+      "approval_text": "PATVIRTINU SPEND-C: approve [amount], [tool/vendor], [purpose], [limit/date].",
+      "risk": "money"
+    },
+    {
+      "id": "PIVOT-D",
+      "needed_for": "changing protected P0 focus",
+      "approval_text": "PATVIRTINU PIVOT-D: change P0 from [old] to [new] because [proof].",
+      "risk": "focus loss"
+    }
+  ]
+}
