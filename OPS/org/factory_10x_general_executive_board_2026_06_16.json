@@ -1,0 +1,27 @@
+{
+  "updated_at": "2026-06-16",
+  "status": "active",
+  "owner": "General CEO Council",
+  "purpose": "Scale the AI business factory 10x without turning extra agents into noise.",
+  "operating_rule": "More boards are allowed only when each board owns a measurable proof lane: product, revenue, delivery, quality, risk, intelligence or automation.",
+  "general_board": [
+    {"code":"GCEO","title":"General Chief Executive Officer","mission":"Own the full factory direction, capital allocation, P0 protection and product portfolio decisions."},
+    {"code":"GCOO","title":"General Chief Operating Officer","mission":"Turn strategy into operating lanes, owners, deadlines, blockers and fallback routes."},
+    {"code":"GCRO","title":"General Chief Revenue Officer","mission":"Own offers, leads, proposals, pilots, recurring revenue and revenue proof."},
+    {"code":"GCPO","title":"General Chief Product Officer","mission":"Own product selection, product finish gates and product roadmaps."},
+    {"code":"GCTO","title":"General Chief Technology Officer","mission":"Own architecture, app quality, runtime, integrations and automation reliability."},
+    {"code":"GCFO","title":"General Chief Financial Officer","mission":"Own pricing, margin, cash, budget, break-even and continue/kill decisions."},
+    {"code":"GCMO","title":"General Chief Marketing Officer","mission":"Own positioning, content, funnels, SEO, GEO and creative testing."},
+    {"code":"GCDO","title":"General Chief Data Officer","mission":"Own data quality, source registry, pricing intelligence and analytics."},
+    {"code":"GCQO","title":"General Chief Quality Officer","mission":"Reject weak output and enforce proof state movement."},
+    {"code":"GCCO","title":"General Chief Customer Officer","mission":"Own customer pain, delivery experience, support and retention."},
+    {"code":"GCLO","title":"General Chief Legal/Risk Officer","mission":"Own source permissions, privacy, compliance, platform risk and claim safety."},
+    {"code":"GCSEO","title":"General Search/SEO/GEO Officer","mission":"Own search visibility, AI visibility, content assets and discoverability."},
+    {"code":"GCCC","title":"General Command Control Center","mission":"Single cockpit for all boards, products, proof states, blockers and next actions."}
+  ],
+  "a_to_z_special_functions": [
+    "A Autonomy", "B Business Development", "C Customer", "D Delivery", "E Engineering", "F Finance", "G Growth", "H Human Judgment", "I Intelligence", "J Judge", "K Knowledge", "L Legal Risk", "M Media", "N New Products", "O Operations", "P Product", "Q Quality", "R Revenue", "S SEO/GEO/Search", "T Tooling", "U UX", "V Validation", "W Warehouse/Workflow", "X Experiments", "Y Yield", "Z Zero Waste"
+  ],
+  "board_kpi": "Every board must move at least one proof state, remove one blocker, or create one reusable revenue/product asset per cycle.",
+  "anti_noise_rule": "Any board that produces planning without proof movement is paused or merged into a stronger board."
+}
