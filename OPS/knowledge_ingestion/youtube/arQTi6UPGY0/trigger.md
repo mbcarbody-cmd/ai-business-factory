@@ -1,1 +1,1 @@
-Run dynamic mirror transcript analysis.
+Run all Invidious transcript analysis.
