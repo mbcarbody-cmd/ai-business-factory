@@ -1,0 +1,326 @@
+name: Ingest YouTube Knowledge
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/requests/*.json"
+      - ".github/workflows/ingest-youtube-knowledge.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Install runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check --no-cache-dir faster-whisper
+
+      - name: Process ingestion requests
+        run: |
+          python - <<'PY'
+          import html
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          import urllib.request
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          from urllib.parse import quote
+
+          requests_dir = Path('OPS/knowledge_ingestion/requests')
+          out_root = Path('OPS/knowledge_ingestion/youtube')
+          artifact_root = Path('tmp/youtube_artifacts')
+          artifact_root.mkdir(parents=True, exist_ok=True)
+          headers = {'User-Agent': 'Mozilla/5.0'}
+
+          def fetch(url, timeout=45):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=timeout) as response:
+                  return response.status, response.read()
+
+          def clean_html(value):
+              value = html.unescape(re.sub(r'<[^>]+>', ' ', value or ''))
+              return re.sub(r'\s+', ' ', value).strip()
+
+          request_files = sorted(requests_dir.glob('*.json'))
+          if not request_files:
+              print('No ingestion requests found')
+              sys.exit(0)
+
+          for request_file in request_files:
+              request = json.loads(request_file.read_text(encoding='utf-8'))
+              video_id = request['video_id']
+              video_url = request.get('url') or f'https://www.youtube.com/watch?v={video_id}'
+              transcribe_audio = bool(request.get('transcribe_audio', True))
+              root = out_root / video_id
+              raw = root / 'raw'
+              raw.mkdir(parents=True, exist_ok=True)
+              logs = []
+
+              title = ''
+              channel = ''
+              channel_url = ''
+              channel_id = ''
+              published = ''
+              duration = ''
+              description = ''
+
+              # OEmbed gives reliable title and channel identity without player access.
+              oembed_url = f'https://www.youtube.com/oembed?url={quote(video_url, safe="")}&format=json'
+              try:
+                  status, body = fetch(oembed_url)
+                  obj = json.loads(body.decode('utf-8', errors='replace'))
+                  (raw / 'oembed.json').write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding='utf-8')
+                  title = obj.get('title', '')
+                  channel = obj.get('author_name', '')
+                  channel_url = obj.get('author_url', '')
+                  logs.append(f'oembed status={status} title={bool(title)}')
+              except Exception as exc:
+                  logs.append(f'oembed {type(exc).__name__}: {exc}')
+
+              # Resolve channel ID from the public channel page.
+              if channel_url:
+                  try:
+                      status, body = fetch(channel_url)
+                      page = body.decode('utf-8', errors='replace')
+                      (raw / 'channel-page.html').write_text(page, encoding='utf-8')
+                      patterns = [
+                          r'"channelId":"(UC[0-9A-Za-z_-]{20,})"',
+                          r'"browseId":"(UC[0-9A-Za-z_-]{20,})"',
+                          r'youtube\.com/channel/(UC[0-9A-Za-z_-]{20,})',
+                          r'feeds/videos\.xml\?channel_id=(UC[0-9A-Za-z_-]{20,})',
+                      ]
+                      for pattern in patterns:
+                          match = re.search(pattern, page)
+                          if match:
+                              channel_id = match.group(1)
+                              break
+                      logs.append(f'channel page status={status} id={channel_id}')
+                  except Exception as exc:
+                      logs.append(f'channel page {type(exc).__name__}: {exc}')
+
+              # YouTube RSS often contains the complete description and chapters.
+              if channel_id:
+                  feed_url = f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}'
+                  try:
+                      status, body = fetch(feed_url)
+                      feed_text = body.decode('utf-8', errors='replace')
+                      (raw / 'youtube-feed.xml').write_text(feed_text, encoding='utf-8')
+                      ns = {
+                          'atom': 'http://www.w3.org/2005/Atom',
+                          'yt': 'http://www.youtube.com/xml/schemas/2015',
+                          'media': 'http://search.yahoo.com/mrss/',
+                      }
+                      tree = ET.fromstring(body)
+                      for entry in tree.findall('atom:entry', ns):
+                          if entry.findtext('yt:videoId', default='', namespaces=ns) != video_id:
+                              continue
+                          title = entry.findtext('atom:title', default=title, namespaces=ns)
+                          published = entry.findtext('atom:published', default='', namespaces=ns)
+                          group = entry.find('media:group', ns)
+                          if group is not None:
+                              description = group.findtext('media:description', default='', namespaces=ns)
+                          break
+                      logs.append(f'youtube feed status={status} matched={bool(description or published)}')
+                  except Exception as exc:
+                      logs.append(f'youtube feed {type(exc).__name__}: {exc}')
+
+              # Search Apple Podcasts and inspect RSS feeds for a matching episode.
+              podcast = {}
+              search_terms = []
+              if channel:
+                  search_terms.append(channel)
+              if title:
+                  search_terms.append(title[:80])
+                  words = [w for w in re.findall(r'[A-Za-zÀ-ž0-9]+', title) if len(w) > 3]
+                  if words:
+                      search_terms.append(' '.join(words[:5]))
+              podcast_candidates = []
+              for term in list(dict.fromkeys(search_terms))[:4]:
+                  try:
+                      url = f'https://itunes.apple.com/search?term={quote(term)}&media=podcast&entity=podcast&limit=30'
+                      status, body = fetch(url)
+                      data = json.loads(body.decode('utf-8', errors='replace'))
+                      podcast_candidates.extend(data.get('results', []))
+                      logs.append(f'itunes term={term[:40]} status={status} results={data.get("resultCount", 0)}')
+                  except Exception as exc:
+                      logs.append(f'itunes {type(exc).__name__}: {exc}')
+
+              feeds = []
+              for row in podcast_candidates:
+                  feed_url = row.get('feedUrl')
+                  if feed_url:
+                      feeds.append((feed_url, row.get('collectionName', ''), row.get('artistName', '')))
+              feeds = list(dict.fromkeys(feeds))[:60]
+
+              normalized_title = re.sub(r'\W+', ' ', title.lower()).strip()
+              important_words = {w for w in normalized_title.split() if len(w) >= 5}
+              best_score = 0
+              for feed_url, show_name, artist in feeds:
+                  try:
+                      status, body = fetch(feed_url, 60)
+                      tree = ET.fromstring(body)
+                      for item in tree.findall('.//item'):
+                          episode_title = item.findtext('title', default='')
+                          episode_desc = item.findtext('description', default='')
+                          content = item.findtext('{http://purl.org/rss/1.0/modules/content/}encoded', default='')
+                          hay = re.sub(r'\W+', ' ', f'{episode_title} {episode_desc} {content}'.lower())
+                          score = sum(1 for word in important_words if word in hay)
+                          if normalized_title and normalized_title in hay:
+                              score += 20
+                          if score <= best_score:
+                              continue
+                          enclosure = item.find('enclosure')
+                          audio_url = enclosure.get('url', '') if enclosure is not None else ''
+                          transcript_urls = []
+                          for child in list(item):
+                              if child.tag.lower().endswith('transcript'):
+                                  value = child.attrib.get('url') or (child.text or '').strip()
+                                  if value:
+                                      transcript_urls.append(value)
+                          best_score = score
+                          podcast = {
+                              'feed_url': feed_url,
+                              'show_name': show_name,
+                              'artist': artist,
+                              'episode_title': episode_title,
+                              'description': episode_desc or content,
+                              'audio_url': audio_url,
+                              'duration': item.findtext('{http://www.itunes.com/dtds/podcast-1.0.dtd}duration', default=''),
+                              'published': item.findtext('pubDate', default=''),
+                              'guid': item.findtext('guid', default=''),
+                              'transcript_urls': transcript_urls,
+                              'match_score': score,
+                          }
+                  except Exception as exc:
+                      logs.append(f'podcast feed {feed_url[:80]} {type(exc).__name__}: {exc}')
+
+              if podcast:
+                  (raw / 'podcast.json').write_text(json.dumps(podcast, ensure_ascii=False, indent=2), encoding='utf-8')
+                  logs.append(f'podcast match score={podcast.get("match_score")} show={podcast.get("show_name")}')
+
+              # Use publisher-provided transcript when available.
+              provided_transcript = ''
+              for transcript_url in podcast.get('transcript_urls', []):
+                  try:
+                      status, body = fetch(transcript_url, 60)
+                      provided_transcript = body.decode('utf-8', errors='replace')
+                      (raw / 'provided-transcript.txt').write_text(provided_transcript, encoding='utf-8')
+                      logs.append(f'provided transcript status={status} bytes={len(body)}')
+                      break
+                  except Exception as exc:
+                      logs.append(f'provided transcript {type(exc).__name__}: {exc}')
+
+              # Transcribe podcast audio only when requested and no transcript exists.
+              transcript_rows = []
+              artifact_dir = artifact_root / video_id
+              artifact_dir.mkdir(parents=True, exist_ok=True)
+              if transcribe_audio and not provided_transcript and podcast.get('audio_url'):
+                  try:
+                      audio_path = artifact_dir / 'episode.mp3'
+                      req = urllib.request.Request(podcast['audio_url'], headers=headers)
+                      with urllib.request.urlopen(req, timeout=120) as response, open(audio_path, 'wb') as out:
+                          while True:
+                              chunk = response.read(1024 * 1024)
+                              if not chunk:
+                                  break
+                              out.write(chunk)
+                      logs.append(f'audio downloaded bytes={audio_path.stat().st_size}')
+
+                      from faster_whisper import WhisperModel
+                      model = WhisperModel('base', device='cpu', compute_type='int8', cpu_threads=4, num_workers=1)
+                      segments, info = model.transcribe(
+                          str(audio_path), language=request.get('language', 'lt'), beam_size=3,
+                          vad_filter=True, vad_parameters={'min_silence_duration_ms': 500},
+                          condition_on_previous_text=True,
+                      )
+                      with open(artifact_dir / 'transcript.txt', 'w', encoding='utf-8') as text_file:
+                          for segment in segments:
+                              text = segment.text.strip()
+                              if not text:
+                                  continue
+                              row = {'start': round(segment.start, 2), 'end': round(segment.end, 2), 'text': text}
+                              transcript_rows.append(row)
+                              text_file.write(f'[{segment.start:08.2f}-{segment.end:08.2f}] {text}\n')
+                      (artifact_dir / 'transcript.json').write_text(
+                          json.dumps({'language': info.language, 'duration': info.duration, 'segments': transcript_rows}, ensure_ascii=False),
+                          encoding='utf-8',
+                      )
+                      logs.append(f'transcribed segments={len(transcript_rows)} duration={info.duration}')
+                  except Exception as exc:
+                      logs.append(f'transcription {type(exc).__name__}: {exc}')
+
+              # Create source memo with all trustworthy metadata and topic chapters.
+              chapter_lines = []
+              for line in description.splitlines():
+                  value = line.strip()
+                  if re.match(r'^(?:\d{1,2}:)?\d{1,2}:\d{2}\s+', value):
+                      chapter_lines.append(value)
+
+              lines = [
+                  '# YouTube Knowledge Source', '',
+                  f'- Video ID: `{video_id}`',
+                  f'- Title: {title}',
+                  f'- Channel: {channel}',
+                  f'- Channel ID: {channel_id}',
+                  f'- Published: {published}',
+                  f'- Duration: {duration or podcast.get("duration", "")}',
+                  f'- Source URL: {video_url}', '',
+                  '## Description', '', description or clean_html(podcast.get('description', '')) or '_Description unavailable._', '',
+                  '## Chapters', '',
+              ]
+              lines.extend(chapter_lines or ['_No chapters found._'])
+              lines.extend([
+                  '', '## Podcast fallback', '',
+                  f'- Show: {podcast.get("show_name", "")}',
+                  f'- Episode: {podcast.get("episode_title", "")}',
+                  f'- Published: {podcast.get("published", "")}',
+                  f'- Audio available: {bool(podcast.get("audio_url"))}',
+                  f'- Publisher transcript available: {bool(provided_transcript)}',
+                  f'- Local transcript artifact created: {bool(transcript_rows)}', '',
+                  '## Diagnostics', '', '```text', '\n'.join(logs), '```',
+              ])
+              (root / 'source.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+
+          PY
+
+      - name: Persist source memos
+        run: |
+          set -e
+          branch="${{ github.head_ref || github.ref_name }}"
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/*/source.md
+          if git diff --cached --quiet; then
+            echo "No source memo changes"
+          else
+            git commit -m "Ingest requested YouTube knowledge sources"
+            for attempt in 1 2 3 4 5; do
+              git pull --rebase origin "$branch" || true
+              if git push origin "HEAD:$branch"; then
+                break
+              fi
+              sleep $((attempt * 2))
+            done
+          fi
+
+      - name: Upload temporary transcript artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: youtube-knowledge-transcripts
+          path: tmp/youtube_artifacts
+          retention-days: 3
+          if-no-files-found: ignore
