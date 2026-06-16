@@ -85,6 +85,6 @@ Maisto papildas. Neskirtas ligoms gydyti ar jų profilaktikai. Maisto papildas n
 ## Diagnostics
 
 ```text
-https://www.youtube.com/@arturlebedenko status=200 bytes=1167196
+https://www.youtube.com/@arturlebedenko status=200 bytes=1221769
 https://www.youtube.com/feeds/videos.xml?channel_id=UC18wxTZHiS7W6lIDTU6A0tQ status=200 bytes=20940
 ```
