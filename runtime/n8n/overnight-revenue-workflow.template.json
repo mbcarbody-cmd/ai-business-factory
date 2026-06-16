@@ -1,0 +1,70 @@
+{
+  "name": "Overnight Revenue Loop - Template",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "nightly-trigger",
+      "name": "Nightly trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PUBLIC_BASE_URL}}/offer",
+        "options": {}
+      },
+      "id": "get-offer",
+      "name": "Get active offer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{status:'ready', note:'Add prospect selection, enrichment, approved sending and reply routing here. Keep daily caps and audit logging enabled.'}}];"
+      },
+      "id": "revenue-ops-placeholder",
+      "name": "Revenue ops placeholder",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0]
+    }
+  ],
+  "connections": {
+    "Nightly trigger": {
+      "main": [
+        [
+          {
+            "node": "Get active offer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get active offer": {
+      "main": [
+        [
+          {
+            "node": "Revenue ops placeholder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
