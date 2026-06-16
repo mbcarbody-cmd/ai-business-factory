@@ -1,0 +1,56 @@
+{
+  "updated_at": "2026-06-16",
+  "owner": "CEO-B Revenue and Delivery",
+  "status": "active_not_done",
+  "purpose": "Track first paid pilot evidence without allowing fake completion claims.",
+  "current_offer": "199-399 EUR Content Hook Factory Sprint",
+  "offer_path": "OPS/revenue_ops/content_hook_factory_offer_2026_06_16.md",
+  "delivery_dry_run_path": "OPS/delivery/content_hook_factory_delivery_dry_run_2026_06_16.md",
+  "evidence_rules": [
+    "No first paid pilot may be marked done without accepted scope and agreed price.",
+    "No payment may be marked paid without invoice/payment evidence.",
+    "No delivery may be marked delivered without output, QA and handoff evidence.",
+    "No testimonial or result claim may be published without permission and evidence."
+  ],
+  "states": {
+    "lead_selected": "not_done",
+    "outreach_sent": "blocked_until_SEND_B_approval",
+    "reply_received": "not_done",
+    "scope_accepted": "not_done",
+    "price_agreed": "not_done",
+    "invoice_or_payment_path_sent": "not_done",
+    "paid_or_invoice_confirmed": "not_done",
+    "delivery_owner_assigned": "not_done",
+    "delivery_started": "not_done",
+    "delivery_output_created": "not_done",
+    "qa_passed": "not_done",
+    "handoff_completed": "not_done",
+    "feedback_recorded": "not_done",
+    "pilot_closed": "not_done"
+  },
+  "current_blockers": [
+    {
+      "id": "FPB-001",
+      "blocker": "No outreach may be sent until the user approves exact rows with SEND-B.",
+      "next_highest_value_task": "Prepare exact outreach-ready drafts and route them for user approval."
+    },
+    {
+      "id": "FPB-002",
+      "blocker": "No real client has accepted scope or paid yet.",
+      "next_highest_value_task": "Use Content Hook Factory offer and outreach drafts to start first controlled outreach after approval."
+    }
+  ],
+  "allowed_autonomous_work": [
+    "prepare lead rows",
+    "prepare message drafts",
+    "prepare offer files",
+    "prepare delivery dry-runs",
+    "prepare QA and handoff templates"
+  ],
+  "requires_user_approval": [
+    "send outreach",
+    "spend money",
+    "claim paid pilot complete",
+    "publish client proof"
+  ]
+}
