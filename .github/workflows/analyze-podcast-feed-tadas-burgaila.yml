@@ -64,12 +64,6 @@ jobs:
           logs.append(f'candidate feeds={len(feeds)}')
 
           found = {}
-          ns = {
-              'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd',
-              'podcast':'https://podcastindex.org/namespace/1.0',
-              'content':'http://purl.org/rss/1.0/modules/content/',
-          }
-
           for feed_url, show_name, artist in feeds:
               try:
                   status, body = fetch(feed_url, 45)
@@ -91,8 +85,7 @@ jobs:
                       guid = item.findtext('guid', default='')
                       transcript_urls = []
                       for child in list(item):
-                          tag = child.tag.lower()
-                          if tag.endswith('transcript'):
+                          if child.tag.lower().endswith('transcript'):
                               url = child.attrib.get('url') or (child.text or '').strip()
                               if url:
                                   transcript_urls.append(url)
@@ -146,12 +139,22 @@ jobs:
 
       - name: Persist podcast discovery
         run: |
+          set -e
+          branch="${{ github.head_ref || github.ref_name }}"
           git config user.name "ai-business-factory-bot"
           git config user.email "actions@users.noreply.github.com"
           git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/podcast-feed-source.md
           if git diff --cached --quiet; then
             echo "No podcast discovery changes to commit"
-          else
-            git commit -m "Discover podcast feed for Tadas Burgaila episode"
-            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+            exit 0
           fi
+          git commit -m "Discover podcast feed for Tadas Burgaila episode"
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin "$branch" || true
+            if git push origin "HEAD:$branch"; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          echo "Failed to persist podcast discovery after retries"
+          exit 1
