@@ -1,0 +1,90 @@
+name: Analyze YouTube conversation arQTi6UPGY0
+
+on:
+  push:
+    paths:
+      - ".github/workflows/analyze-youtube-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Install transcript tools
+        run: |
+          python -m pip install --disable-pip-version-check --no-cache-dir yt-dlp youtube-transcript-api
+
+      - name: Fetch metadata and available subtitles
+        env:
+          VIDEO_URL: https://www.youtube.com/watch?v=arQTi6UPGY0
+        run: |
+          set -euo pipefail
+          mkdir -p OPS/knowledge_ingestion/youtube/arQTi6UPGY0/raw
+          cd OPS/knowledge_ingestion/youtube/arQTi6UPGY0/raw
+          yt-dlp --no-playlist --skip-download --dump-single-json "$VIDEO_URL" > metadata.json
+          yt-dlp --no-playlist --skip-download --write-subs --write-auto-subs --sub-langs "all,-live_chat" --sub-format "vtt" -o "transcript.%(language)s.%(ext)s" "$VIDEO_URL" || true
+
+      - name: Normalize transcript
+        run: |
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+
+          root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          raw = root / 'raw'
+          root.mkdir(parents=True, exist_ok=True)
+
+          meta = json.loads((raw / 'metadata.json').read_text(encoding='utf-8'))
+          lines = [
+              '# YouTube Knowledge Source', '',
+              f"- Video ID: `{meta.get('id', '')}`",
+              f"- Title: {meta.get('title', '')}",
+              f"- Channel: {meta.get('channel', meta.get('uploader', ''))}",
+              f"- Duration seconds: {meta.get('duration', '')}",
+              f"- Upload date: {meta.get('upload_date', '')}",
+              f"- Source URL: {meta.get('webpage_url', '')}", '',
+              '## Description', '', meta.get('description', '') or '', '',
+              '## Transcript', ''
+          ]
+
+          vtts = sorted(raw.glob('transcript.*.vtt'))
+          transcript = []
+          seen = set()
+          for path in vtts:
+              for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
+                  s = line.strip()
+                  if not s or s.startswith(('WEBVTT', 'Kind:', 'Language:')) or '-->' in s or re.fullmatch(r'\d+', s):
+                      continue
+                  s = re.sub(r'<[^>]+>', '', s)
+                  s = re.sub(r'&amp;', '&', s)
+                  s = re.sub(r'\s+', ' ', s).strip()
+                  if s and s not in seen:
+                      seen.add(s)
+                      transcript.append(s)
+
+          if transcript:
+              lines.extend(transcript)
+          else:
+              lines.append('_No subtitles were returned by YouTube._')
+
+          (root / 'source.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+
+      - name: Commit ingestion result
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0
+          if git diff --cached --quiet; then
+            echo "No new output to commit"
+          else
+            git commit -m "Ingest YouTube conversation arQTi6UPGY0"
+            git push
+          fi
