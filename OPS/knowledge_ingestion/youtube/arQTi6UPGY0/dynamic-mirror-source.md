@@ -20,7 +20,7 @@ _No transcript was returned._
 ## Diagnostics
 
 ```text
-instance list https://api.invidious.io/instances.json status=200 bytes=7972
+instance list https://api.invidious.io/instances.json status=200 bytes=7919
 piped list https://piped.video/api/v1/instances status=200 bytes=3792
 piped list https://piped.video/api/v1/instances JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 piped list https://pipedapi.kavin.rocks/instances HTTPError: HTTP Error 526: <none>
