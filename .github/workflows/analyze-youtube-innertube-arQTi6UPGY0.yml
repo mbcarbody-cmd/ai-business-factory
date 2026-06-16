@@ -1,0 +1,161 @@
+name: Analyze YouTube via Innertube arQTi6UPGY0
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
+      - ".github/workflows/analyze-youtube-innertube-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Query YouTube player clients and captions
+        run: |
+          python - <<'PY'
+          import html
+          import json
+          import re
+          from pathlib import Path
+          import urllib.request
+
+          root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          raw = root / 'innertube'
+          raw.mkdir(parents=True, exist_ok=True)
+          video_id = 'arQTi6UPGY0'
+          api_key = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8'
+          endpoint = f'https://www.youtube.com/youtubei/v1/player?key={api_key}&prettyPrint=false'
+          clients = [
+              {'clientName':'ANDROID','clientVersion':'20.10.38','androidSdkVersion':30,'hl':'lt','gl':'LT'},
+              {'clientName':'IOS','clientVersion':'20.10.4','deviceMake':'Apple','deviceModel':'iPhone16,2','osName':'iPhone','osVersion':'18.3.1.20D67','hl':'lt','gl':'LT'},
+              {'clientName':'WEB','clientVersion':'2.20250610.01.00','hl':'lt','gl':'LT'},
+              {'clientName':'TVHTML5','clientVersion':'7.20250610','hl':'lt','gl':'LT'},
+              {'clientName':'WEB_EMBEDDED_PLAYER','clientVersion':'1.20250610.00.00','hl':'lt','gl':'LT','clientScreen':'EMBED'},
+          ]
+          logs = []
+          best = {}
+          best_name = ''
+          caption_tracks = []
+
+          for index, client in enumerate(clients):
+              body = {
+                  'context': {'client': client},
+                  'videoId': video_id,
+                  'contentCheckOk': True,
+                  'racyCheckOk': True,
+              }
+              data = json.dumps(body).encode('utf-8')
+              headers = {
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'com.google.android.youtube/20.10.38 (Linux; U; Android 13)',
+                  'Origin': 'https://www.youtube.com',
+                  'X-Youtube-Bootstrap-Logged-In': 'false',
+              }
+              try:
+                  req = urllib.request.Request(endpoint, data=data, headers=headers, method='POST')
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      payload = response.read().decode('utf-8', errors='replace')
+                  obj = json.loads(payload)
+                  (raw / f'player-{index}-{client["clientName"]}.json').write_text(
+                      json.dumps(obj, ensure_ascii=False), encoding='utf-8'
+                  )
+                  status = obj.get('playabilityStatus', {}).get('status', '')
+                  reason = obj.get('playabilityStatus', {}).get('reason', '')
+                  title = obj.get('videoDetails', {}).get('title', '')
+                  logs.append(f'{client["clientName"]}: {status} title={bool(title)} reason={reason}')
+                  tracks = obj.get('captions', {}).get('playerCaptionsTracklistRenderer', {}).get('captionTracks', [])
+                  if title and not best:
+                      best = obj
+                      best_name = client['clientName']
+                  if tracks and not caption_tracks:
+                      caption_tracks = tracks
+                      best = obj
+                      best_name = client['clientName']
+              except Exception as exc:
+                  logs.append(f'{client["clientName"]}: {type(exc).__name__}: {exc}')
+
+          transcript = []
+          for index, track in enumerate(caption_tracks[:10]):
+              url = track.get('baseUrl')
+              if not url:
+                  continue
+              for suffix, kind in [('&fmt=json3','json3'), ('&fmt=vtt','vtt'), ('','raw')]:
+                  try:
+                      req = urllib.request.Request(url + suffix, headers={'User-Agent':'Mozilla/5.0'})
+                      with urllib.request.urlopen(req, timeout=30) as response:
+                          body = response.read().decode('utf-8', errors='replace')
+                      lang = track.get('languageCode') or str(index)
+                      safe = ''.join(ch if ch.isalnum() or ch in '._-' else '_' for ch in str(lang))
+                      (raw / f'caption-{safe}-{kind}.txt').write_text(body, encoding='utf-8')
+                      logs.append(f'caption {lang} {kind} bytes={len(body)}')
+                      if kind == 'json3' and body.lstrip().startswith('{'):
+                          obj = json.loads(body)
+                          for event in obj.get('events', []):
+                              segs = event.get('segs', []) if isinstance(event, dict) else []
+                              text = ''.join(str(seg.get('utf8', '')) for seg in segs if isinstance(seg, dict))
+                              if text.strip():
+                                  transcript.append(text)
+                      else:
+                          for line in body.splitlines():
+                              value = line.strip()
+                              if not value or '-->' in value or value.startswith(('WEBVTT','Kind:','Language:','NOTE')):
+                                  continue
+                              if re.fullmatch(r'\d+', value):
+                                  continue
+                              value = re.sub(r'<[^>]+>', '', value)
+                              transcript.append(html.unescape(value))
+                      if transcript:
+                          break
+                  except Exception as exc:
+                      logs.append(f'caption {index} {kind}: {type(exc).__name__}: {exc}')
+              if transcript:
+                  break
+
+          details = best.get('videoDetails', {}) if isinstance(best, dict) else {}
+          micro = best.get('microformat', {}).get('playerMicroformatRenderer', {}) if isinstance(best, dict) else {}
+          clean = []
+          previous = None
+          for value in transcript:
+              value = re.sub(r'\s+', ' ', value).strip()
+              if value and value != previous:
+                  clean.append(value)
+                  previous = value
+
+          lines = [
+              '# YouTube Knowledge Source via Innertube', '',
+              '- Video ID: `arQTi6UPGY0`',
+              f'- Client: {best_name}',
+              f'- Title: {details.get("title", "")}',
+              f'- Channel: {details.get("author", "")}',
+              f'- Duration seconds: {details.get("lengthSeconds", "")}',
+              f'- Upload date: {micro.get("uploadDate", "")}',
+              '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
+              '## Description', '', details.get('shortDescription', '') or '_Description unavailable._', '',
+              '## Transcript', '',
+          ]
+          lines.extend(clean if clean else ['_No transcript was returned._'])
+          lines.extend(['', '## Diagnostics', '', '```text', '\n'.join(logs), '```', ''])
+          (root / 'innertube-source.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+
+      - name: Persist Innertube source
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/innertube-source.md
+          if git diff --cached --quiet; then
+            echo "No Innertube source changes to commit"
+          else
+            git commit -m "Capture YouTube source through Innertube"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
