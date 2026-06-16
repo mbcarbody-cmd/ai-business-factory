@@ -1,0 +1,81 @@
+{
+  "updated_at": "2026-06-16",
+  "owner": "Data Verification Closers + Revenue Ops Captain",
+  "status": "draft_not_sent",
+  "rule": "Rows may be prepared autonomously, but no outbound message may be sent without SEND-B user approval.",
+  "source_queue": "OPS/data_intelligence/lead_review_queue_2026_06_15.json",
+  "offer_path": "OPS/revenue_ops/content_hook_factory_offer_2026_06_16.md",
+  "rows": [
+    {
+      "id": "ORD-001",
+      "source_row": "LRQ-001",
+      "company": "ASM Auto Recycling",
+      "country": "UK",
+      "source": "https://www.asm-autos.co.uk/",
+      "segment": "vehicle salvage and recycled parts seller",
+      "fit": "Large recycled parts operation that can benefit from content angles around parts availability, recycling trust and seller workflow clarity.",
+      "allowed_route_state": "needs_manual_route_check_before_send",
+      "offer": "199 EUR Content Sprint pilot",
+      "personalized_angle": "turn recycled parts inventory and green-parts trust into short posts, video hooks and buyer-facing landing copy",
+      "state": "outreach_ready_draft_not_sent",
+      "message_draft": "Hi, I am testing a 72h content sprint for recycled auto parts businesses. The output is practical: 30 hooks, 6 posts, 3 short video scripts, a landing hero and one buyer DM angle. For a recycler, I would focus on green parts trust, part availability and why buying used OEM parts is smarter than guessing. First pilot is 199 EUR. Want me to prepare one sample angle for ASM before you decide?"
+    },
+    {
+      "id": "ORD-002",
+      "source_row": "LRQ-002",
+      "company": "LKQ SYNETIQ",
+      "country": "UK",
+      "source": "https://www.synetiq.co.uk/",
+      "segment": "dismantling, recycling and green parts",
+      "fit": "Large green parts and dismantling brand with content opportunities around trust, sustainability and parts workflow.",
+      "allowed_route_state": "needs_manual_route_check_before_send",
+      "offer": "199 EUR Content Sprint pilot",
+      "personalized_angle": "green parts education and buyer confidence content pack",
+      "state": "outreach_ready_draft_not_sent",
+      "message_draft": "Hi, I am testing a small 72h content sprint for green parts and dismantling businesses. It creates 30 hooks, 6 posts, 3 short video scripts, landing copy and a DM angle from one brief. For SYNETIQ, I would frame angles around green parts trust, repair cost savings and why recycled OEM parts deserve clearer buyer education. First pilot is 199 EUR. Should I send one sample angle?"
+    },
+    {
+      "id": "ORD-003",
+      "source_row": "LRQ-003",
+      "company": "BreakerLink",
+      "country": "UK",
+      "source": "https://www.breakerlink.com/",
+      "segment": "used parts quote network",
+      "fit": "Marketplace/network model can use content explaining request flow, buyer confidence and supplier coverage.",
+      "allowed_route_state": "needs_manual_route_check_before_send",
+      "offer": "199 EUR Content Sprint pilot",
+      "personalized_angle": "buyer request flow education and supplier network trust hooks",
+      "state": "outreach_ready_draft_not_sent",
+      "message_draft": "Hi, I am testing a 72h content sprint for used parts platforms. It turns one product/service brief into 30 hooks, 6 posts, 3 short video scripts, landing hero copy and an outreach message. For BreakerLink, I would focus on explaining the quote request flow, supplier coverage and why buyers should request parts through a network instead of searching randomly. First pilot is 199 EUR. Want one sample angle?"
+    },
+    {
+      "id": "ORD-004",
+      "source_row": "LRQ-004",
+      "company": "PartsGateway",
+      "country": "UK",
+      "source": "https://www.partsgateway.co.uk/",
+      "segment": "used parts quote network and breaker marketplace",
+      "fit": "Used parts quote marketplace with clear content opportunities around fast quotes, breaker reach and trust.",
+      "allowed_route_state": "needs_manual_route_check_before_send",
+      "offer": "199 EUR Content Sprint pilot",
+      "personalized_angle": "fast quote, supplier reach and used part trust content sprint",
+      "state": "outreach_ready_draft_not_sent",
+      "message_draft": "Hi, I am testing a 72h content sprint for used auto parts marketplaces. Output: 30 hooks, 6 posts, 3 short video scripts, landing hero and one DM/outreach angle. For PartsGateway, I would build content around faster quotes, breaker network reach and buyer confidence in used parts. First pilot is 199 EUR. Want me to prepare one sample angle before any commitment?"
+    },
+    {
+      "id": "ORD-005",
+      "source_row": "LRQ-005",
+      "company": "Ovoko",
+      "country": "EU",
+      "source": "https://ovoko.com/",
+      "segment": "used vehicle parts marketplace",
+      "fit": "Large EU used parts marketplace with content opportunities around seller success, buyer trust and part discovery.",
+      "allowed_route_state": "needs_manual_route_check_before_send",
+      "offer": "199 EUR Content Sprint pilot",
+      "personalized_angle": "seller education and buyer trust content for used parts marketplace",
+      "state": "outreach_ready_draft_not_sent",
+      "message_draft": "Hi, I am testing a 72h content sprint for used parts marketplaces and sellers. It creates 30 hooks, 6 posts, 3 video scripts, landing hero and one outreach angle from a single brief. For Ovoko, I would focus on seller education, buyer trust and why structured listings help parts sell faster. First pilot is 199 EUR. Should I send one sample angle?"
+    }
+  ],
+  "send_blocker": "Do not send without explicit user approval: PATVIRTINU SEND-B with exact row ids."
+}
