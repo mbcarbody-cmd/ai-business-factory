@@ -1,0 +1,153 @@
+name: Analyze YouTube via Piped arQTi6UPGY0
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
+      - ".github/workflows/analyze-youtube-piped-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Fetch Piped metadata and subtitles
+        run: |
+          python - <<'PY'
+          import html
+          import json
+          import re
+          from pathlib import Path
+          from urllib.parse import urljoin
+          import urllib.request
+
+          video_id = 'arQTi6UPGY0'
+          root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          raw = root / 'piped'
+          raw.mkdir(parents=True, exist_ok=True)
+
+          instances = [
+              'https://pipedapi.kavin.rocks',
+              'https://pipedapi.adminforge.de',
+              'https://pipedapi.reallyaweso.me',
+              'https://pipedapi.leptons.xyz',
+              'https://pipedapi.r4fo.com',
+              'https://pipedapi-libre.kavin.rocks',
+          ]
+          log = []
+          meta = {}
+          base_used = ''
+          headers = {'User-Agent': 'Mozilla/5.0'}
+
+          for base in instances:
+              try:
+                  req = urllib.request.Request(f'{base}/streams/{video_id}', headers=headers)
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      payload = response.read().decode('utf-8', errors='replace')
+                      status = response.status
+                  log.append(f'{base} streams {status} bytes={len(payload)}')
+                  candidate = json.loads(payload)
+                  if isinstance(candidate, dict) and candidate.get('title'):
+                      meta = candidate
+                      base_used = base
+                      (raw / 'streams.json').write_text(
+                          json.dumps(candidate, ensure_ascii=False), encoding='utf-8'
+                      )
+                      break
+              except Exception as exc:
+                  log.append(f'{base} {type(exc).__name__}: {exc}')
+
+          transcript_lines = []
+          tracks = meta.get('subtitles', []) if isinstance(meta, dict) else []
+          for index, track in enumerate(tracks[:12]):
+              if not isinstance(track, dict):
+                  continue
+              url = track.get('url') or track.get('baseUrl')
+              if not url:
+                  continue
+              if url.startswith('/') and base_used:
+                  url = urljoin(base_used, url)
+              try:
+                  req = urllib.request.Request(url, headers=headers)
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      body = response.read().decode('utf-8', errors='replace')
+                  lang = track.get('code') or track.get('languageCode') or track.get('name') or str(index)
+                  safe = ''.join(ch if ch.isalnum() or ch in '._-' else '_' for ch in str(lang))
+                  (raw / f'subtitle.{safe}.txt').write_text(body, encoding='utf-8')
+                  log.append(f'subtitle {lang} bytes={len(body)}')
+
+                  stripped = body.lstrip()
+                  if stripped.startswith('{'):
+                      try:
+                          data = json.loads(body)
+                          for event in data.get('events', []):
+                              segs = event.get('segs', []) if isinstance(event, dict) else []
+                              text = ''.join(str(seg.get('utf8', '')) for seg in segs if isinstance(seg, dict))
+                              if text.strip():
+                                  transcript_lines.append(text)
+                      except Exception:
+                          pass
+                  else:
+                      for line in body.splitlines():
+                          value = line.strip()
+                          if not value or '-->' in value or value.startswith(('WEBVTT', 'Kind:', 'Language:', 'NOTE')):
+                              continue
+                          if re.fullmatch(r'\d+', value):
+                              continue
+                          value = re.sub(r'<[^>]+>', '', value)
+                          transcript_lines.append(html.unescape(value))
+              except Exception as exc:
+                  log.append(f'subtitle {index} {type(exc).__name__}: {exc}')
+
+          clean = []
+          previous = None
+          for value in transcript_lines:
+              value = re.sub(r'\s+', ' ', value).strip()
+              if value and value != previous:
+                  clean.append(value)
+                  previous = value
+
+          title = meta.get('title', '') if isinstance(meta, dict) else ''
+          channel = ''
+          if isinstance(meta, dict):
+              channel = meta.get('uploader') or meta.get('uploaderName') or meta.get('channel', '')
+          duration = meta.get('duration', '') if isinstance(meta, dict) else ''
+          upload_date = meta.get('uploadDate', '') if isinstance(meta, dict) else ''
+          description = meta.get('description', '') if isinstance(meta, dict) else ''
+
+          lines = [
+              '# YouTube Knowledge Source via Piped', '',
+              '- Video ID: `arQTi6UPGY0`',
+              f'- Title: {title}',
+              f'- Channel: {channel}',
+              f'- Duration seconds: {duration}',
+              f'- Upload date: {upload_date}',
+              '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
+              '## Description', '', str(description) or '_Description unavailable._', '',
+              '## Transcript', '',
+          ]
+          lines.extend(clean if clean else ['_No transcript was returned._'])
+          lines.extend(['', '## Diagnostics', '', '```text', '\n'.join(log), '```', ''])
+          (root / 'piped-source.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+
+      - name: Persist Piped source
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/piped-source.md
+          if git diff --cached --quiet; then
+            echo "No Piped source changes to commit"
+          else
+            git commit -m "Capture YouTube source through Piped"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
