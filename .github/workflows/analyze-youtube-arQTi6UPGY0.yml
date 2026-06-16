@@ -3,159 +3,189 @@ name: Analyze YouTube conversation arQTi6UPGY0
 on:
   pull_request:
     paths:
-      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/**"
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
       - ".github/workflows/analyze-youtube-arQTi6UPGY0.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout repository
+      - name: Checkout source branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Install transcript tools
         run: |
           python -m pip install --disable-pip-version-check --no-cache-dir yt-dlp youtube-transcript-api requests
 
-      - name: Fetch metadata and available subtitles
+      - name: Fetch metadata and subtitles with fallbacks
         env:
           VIDEO_ID: arQTi6UPGY0
           VIDEO_URL: https://www.youtube.com/watch?v=arQTi6UPGY0
         run: |
           set +e
-          mkdir -p OPS/knowledge_ingestion/youtube/arQTi6UPGY0/raw
-          cd OPS/knowledge_ingestion/youtube/arQTi6UPGY0/raw
+          ROOT="OPS/knowledge_ingestion/youtube/arQTi6UPGY0"
+          RAW="$ROOT/raw"
+          rm -rf "$RAW"
+          mkdir -p "$RAW"
+          cd "$RAW"
 
-          yt-dlp --no-playlist --skip-download --dump-single-json "$VIDEO_URL" > metadata.json 2> yt-dlp-metadata.log
-          yt-dlp --no-playlist --skip-download --write-subs --write-auto-subs --sub-langs "all,-live_chat" --sub-format "vtt" -o "transcript.%(language)s.%(ext)s" "$VIDEO_URL" > yt-dlp-subs.log 2>&1
+          curl -L --connect-timeout 10 --max-time 30 -fsS \
+            "https://www.youtube.com/oembed?url=$VIDEO_URL&format=json" \
+            -o oembed.json 2> oembed.log
 
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          p = Path('metadata.json')
-          try:
-              valid = bool(json.loads(p.read_text(encoding='utf-8')))
-          except Exception:
-              valid = False
-          Path('metadata-valid.txt').write_text('yes' if valid else 'no', encoding='utf-8')
-          PY
-
-          if [ "$(cat metadata-valid.txt)" != "yes" ]; then
-            for base in https://inv.nadeko.net https://invidious.nerdvpn.de https://inv.thepixora.com https://yt.chocolatemoo53.com; do
-              echo "Trying $base" >> fallback.log
-              curl -L --connect-timeout 10 --max-time 30 -fsS "$base/api/v1/videos/$VIDEO_ID" -o candidate.json 2>> fallback.log
-              python - <<'PY'
-          import json
-          from pathlib import Path
-          p = Path('candidate.json')
-          try:
-              data = json.loads(p.read_text(encoding='utf-8'))
-              ok = isinstance(data, dict) and bool(data.get('title'))
-          except Exception:
-              ok = False
-          Path('candidate-valid.txt').write_text('yes' if ok else 'no', encoding='utf-8')
-          PY
-              if [ "$(cat candidate-valid.txt)" = "yes" ]; then
-                mv candidate.json metadata.json
-                echo "$base" > invidious-base.txt
-                break
-              fi
-            done
-          fi
+          yt-dlp --no-playlist --skip-download --dump-single-json "$VIDEO_URL" \
+            > metadata.json 2> yt-dlp-metadata.log
+          yt-dlp --no-playlist --skip-download --write-subs --write-auto-subs \
+            --sub-langs "en.*,lt.*,ru.*" --sub-format "vtt" \
+            -o "transcript.%(language)s.%(ext)s" "$VIDEO_URL" \
+            > yt-dlp-subs.log 2>&1
 
           python - <<'PY'
           import json
           from pathlib import Path
 
           video_id = 'arQTi6UPGY0'
-          out = Path('transcript.youtube-api.json')
           errors = []
           try:
               from youtube_transcript_api import YouTubeTranscriptApi
-              try:
-                  api = YouTubeTranscriptApi()
-                  listing = api.list(video_id)
-              except Exception:
-                  listing = YouTubeTranscriptApi.list_transcripts(video_id)
-              chosen = None
-              for item in listing:
-                  if chosen is None or getattr(item, 'is_generated', False):
-                      chosen = item
-              if chosen is not None:
-                  fetched = chosen.fetch()
+              api = YouTubeTranscriptApi()
+              listing = api.list(video_id)
+              tracks = list(listing)
+              preferred = None
+              for languages in (['en'], ['lt'], ['ru']):
+                  try:
+                      preferred = listing.find_transcript(languages)
+                      break
+                  except Exception:
+                      pass
+              if preferred is None and tracks:
+                  preferred = tracks[0]
+              if preferred is not None:
+                  fetched = preferred.fetch()
                   rows = []
                   for row in fetched:
                       if hasattr(row, 'text'):
                           rows.append({'text': row.text, 'start': row.start, 'duration': row.duration})
                       else:
                           rows.append(dict(row))
-                  out.write_text(json.dumps(rows, ensure_ascii=False), encoding='utf-8')
+                  Path('transcript.youtube-api.json').write_text(
+                      json.dumps(rows, ensure_ascii=False), encoding='utf-8'
+                  )
           except Exception as exc:
               errors.append(repr(exc))
           Path('youtube-transcript-api.log').write_text('\n'.join(errors), encoding='utf-8')
           PY
 
-          if [ -f invidious-base.txt ]; then
-            BASE="$(cat invidious-base.txt)"
-            curl -L --connect-timeout 10 --max-time 30 -fsS "$BASE/api/v1/captions/$VIDEO_ID" -o captions.json 2>> fallback.log
-            python - <<'PY'
+          python - <<'PY'
           import json
           from pathlib import Path
-          from urllib.parse import urljoin
           import requests
+          from urllib.parse import urljoin
 
-          base_path = Path('invidious-base.txt')
-          captions_path = Path('captions.json')
-          if base_path.exists() and captions_path.exists():
-              base = base_path.read_text(encoding='utf-8').strip()
+          instances = [
+              'https://inv.nadeko.net',
+              'https://invidious.nerdvpn.de',
+              'https://inv.thepixora.com',
+              'https://yt.chocolatemoo53.com',
+          ]
+          video_id = 'arQTi6UPGY0'
+          log = []
+          for base in instances:
               try:
-                  data = json.loads(captions_path.read_text(encoding='utf-8'))
-              except Exception:
-                  data = {}
-              tracks = data.get('captions', data if isinstance(data, list) else [])
-              for i, track in enumerate(tracks[:8]):
-                  url = track.get('url') or track.get('baseUrl')
-                  if not url:
-                      continue
-                  url = urljoin(base, url)
-                  try:
-                      r = requests.get(url, timeout=30)
-                      r.raise_for_status()
-                      lang = track.get('languageCode') or track.get('label') or str(i)
-                      Path(f'transcript.invidious.{lang}.vtt').write_text(r.text, encoding='utf-8')
-                  except Exception:
-                      pass
+                  r = requests.get(f'{base}/api/v1/videos/{video_id}', timeout=20)
+                  log.append(f'{base} video {r.status_code}')
+                  if r.ok:
+                      data = r.json()
+                      if isinstance(data, dict) and data.get('title'):
+                          Path('invidious-metadata.json').write_text(
+                              json.dumps(data, ensure_ascii=False), encoding='utf-8'
+                          )
+                          c = requests.get(f'{base}/api/v1/captions/{video_id}', timeout=20)
+                          log.append(f'{base} captions {c.status_code}')
+                          if c.ok:
+                              payload = c.json()
+                              tracks = payload.get('captions', []) if isinstance(payload, dict) else payload
+                              for index, track in enumerate(tracks[:6]):
+                                  url = track.get('url') or track.get('baseUrl')
+                                  if not url:
+                                      continue
+                                  cr = requests.get(urljoin(base, url), timeout=20)
+                                  if cr.ok:
+                                      lang = track.get('languageCode') or track.get('label') or str(index)
+                                      safe = ''.join(ch if ch.isalnum() or ch in '._-' else '_' for ch in str(lang))
+                                      Path(f'transcript.invidious.{safe}.vtt').write_text(cr.text, encoding='utf-8')
+                          break
+              except Exception as exc:
+                  log.append(f'{base} {type(exc).__name__}: {exc}')
+          Path('invidious.log').write_text('\n'.join(log), encoding='utf-8')
           PY
-          fi
 
-          exit 0
-
-      - name: Normalize transcript
+      - name: Normalize knowledge source
         run: |
           python - <<'PY'
-          import json, re
+          import html
+          import json
+          import re
           from pathlib import Path
 
           root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
           raw = root / 'raw'
-          root.mkdir(parents=True, exist_ok=True)
 
-          meta = {}
-          try:
-              meta = json.loads((raw / 'metadata.json').read_text(encoding='utf-8'))
-          except Exception:
-              pass
+          def load_dict(name):
+              path = raw / name
+              try:
+                  value = json.loads(path.read_text(encoding='utf-8'))
+                  return value if isinstance(value, dict) else {}
+              except Exception:
+                  return {}
+
+          yt = load_dict('metadata.json')
+          inv = load_dict('invidious-metadata.json')
+          oembed = load_dict('oembed.json')
+          meta = yt or inv or oembed
 
           title = meta.get('title', '')
-          channel = meta.get('channel') or meta.get('uploader') or meta.get('author', '')
+          channel = meta.get('channel') or meta.get('uploader') or meta.get('author_name') or meta.get('author', '')
           duration = meta.get('duration') or meta.get('lengthSeconds', '')
           upload_date = meta.get('upload_date') or meta.get('publishedText') or meta.get('published', '')
           description = meta.get('description') or meta.get('descriptionHtml', '') or ''
+          description = html.unescape(re.sub(r'<[^>]+>', ' ', str(description)))
+          description = re.sub(r'\s+', ' ', description).strip()
+
+          entries = []
+          api_path = raw / 'transcript.youtube-api.json'
+          if api_path.exists():
+              try:
+                  for row in json.loads(api_path.read_text(encoding='utf-8')):
+                      if isinstance(row, dict):
+                          entries.append(str(row.get('text', '')))
+              except Exception:
+                  pass
+
+          for path in sorted(raw.glob('transcript.*.vtt')):
+              for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
+                  value = line.strip()
+                  if not value or '-->' in value or value.startswith(('WEBVTT', 'Kind:', 'Language:', 'NOTE')):
+                      continue
+                  if re.fullmatch(r'\d+', value):
+                      continue
+                  value = re.sub(r'<[^>]+>', '', value)
+                  entries.append(html.unescape(value))
+
+          transcript = []
+          previous = None
+          for value in entries:
+              value = re.sub(r'\s+', ' ', value).strip()
+              if value and value != previous:
+                  transcript.append(value)
+                  previous = value
 
           lines = [
               '# YouTube Knowledge Source', '',
@@ -165,51 +195,29 @@ jobs:
               f'- Duration seconds: {duration}',
               f'- Upload date: {upload_date}',
               '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
-              '## Description', '', re.sub(r'<[^>]+>', ' ', str(description)), '',
-              '## Transcript', ''
+              '## Description', '', description or '_Description unavailable._', '',
+              '## Transcript', '',
           ]
+          lines.extend(transcript if transcript else ['_No transcript was returned._'])
+          lines.extend(['', '## Diagnostics', ''])
 
-          transcript = []
-          seen = set()
-          for path in sorted(raw.glob('transcript.*.vtt')):
-              for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
-                  s = line.strip()
-                  if not s or s.startswith(('WEBVTT', 'Kind:', 'Language:', 'NOTE')) or '-->' in s or re.fullmatch(r'\d+', s):
-                      continue
-                  s = re.sub(r'<[^>]+>', '', s)
-                  s = s.replace('&amp;', '&').replace('&#39;', "'").replace('&quot;', '"')
-                  s = re.sub(r'\s+', ' ', s).strip()
-                  if s and s not in seen:
-                      seen.add(s)
-                      transcript.append(s)
-
-          api_json = raw / 'transcript.youtube-api.json'
-          if api_json.exists():
-              try:
-                  for row in json.loads(api_json.read_text(encoding='utf-8')):
-                      s = re.sub(r'\s+', ' ', str(row.get('text', ''))).strip()
-                      if s and s not in seen:
-                          seen.add(s)
-                          transcript.append(s)
-              except Exception:
-                  pass
-
-          if transcript:
-              lines.extend(transcript)
-          else:
-              lines.append('_No transcript was returned._')
-
-          lines += ['', '## Diagnostics', '']
-          for log_name in ['yt-dlp-metadata.log', 'yt-dlp-subs.log', 'fallback.log', 'youtube-transcript-api.log']:
-              p = raw / log_name
-              if p.exists() and p.stat().st_size:
-                  lines += [f'### {log_name}', '', '```text', p.read_text(encoding='utf-8', errors='replace')[-5000:], '```', '']
+          for name in ['oembed.log', 'yt-dlp-metadata.log', 'yt-dlp-subs.log', 'youtube-transcript-api.log', 'invidious.log']:
+              path = raw / name
+              if path.exists() and path.stat().st_size:
+                  text = path.read_text(encoding='utf-8', errors='replace')[-4000:]
+                  lines.extend([f'### {name}', '', '```text', text, '```', ''])
 
           (root / 'source.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
           PY
 
-      - name: Print normalized source for analysis
+      - name: Persist source to analysis branch
         run: |
-          echo "===== BEGIN NORMALIZED SOURCE ====="
-          cat OPS/knowledge_ingestion/youtube/arQTi6UPGY0/source.md
-          echo "===== END NORMALIZED SOURCE ====="
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/source.md
+          if git diff --cached --quiet; then
+            echo "No source changes to commit"
+          else
+            git commit -m "Capture YouTube knowledge source arQTi6UPGY0"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
