@@ -1,0 +1,130 @@
+name: Analyze YouTube Channel Feed arQTi6UPGY0
+
+on:
+  pull_request:
+    paths:
+      - "OPS/knowledge_ingestion/youtube/arQTi6UPGY0/trigger.md"
+      - ".github/workflows/analyze-youtube-channel-feed-arQTi6UPGY0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Resolve channel and read RSS feed
+        run: |
+          python - <<'PY'
+          import html
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          import urllib.request
+
+          root = Path('OPS/knowledge_ingestion/youtube/arQTi6UPGY0')
+          raw = root / 'channel-feed'
+          raw.mkdir(parents=True, exist_ok=True)
+          headers = {'User-Agent':'Mozilla/5.0'}
+          logs = []
+
+          def fetch(url, timeout=30):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=timeout) as response:
+                  return response.status, response.read().decode('utf-8', errors='replace')
+
+          channel_id = ''
+          page = ''
+          for url in [
+              'https://www.youtube.com/@arturlebedenko',
+              'https://m.youtube.com/@arturlebedenko',
+          ]:
+              try:
+                  status, page = fetch(url)
+                  logs.append(f'{url} status={status} bytes={len(page)}')
+                  (raw / 'channel-page.html').write_text(page, encoding='utf-8')
+                  patterns = [
+                      r'"channelId":"(UC[0-9A-Za-z_-]{20,})"',
+                      r'"browseId":"(UC[0-9A-Za-z_-]{20,})"',
+                      r'youtube\.com/channel/(UC[0-9A-Za-z_-]{20,})',
+                      r'feeds/videos\.xml\?channel_id=(UC[0-9A-Za-z_-]{20,})',
+                  ]
+                  for pattern in patterns:
+                      match = re.search(pattern, page)
+                      if match:
+                          channel_id = match.group(1)
+                          break
+                  if channel_id:
+                      break
+              except Exception as exc:
+                  logs.append(f'{url} {type(exc).__name__}: {exc}')
+
+          feeds = []
+          if channel_id:
+              feeds.append(f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}')
+          feeds += [
+              'https://www.youtube.com/feeds/videos.xml?user=arturlebedenko',
+          ]
+
+          description = ''
+          published = ''
+          title = ''
+          feed_used = ''
+          for url in feeds:
+              try:
+                  status, body = fetch(url)
+                  logs.append(f'{url} status={status} bytes={len(body)}')
+                  (raw / 'feed.xml').write_text(body, encoding='utf-8')
+                  ns = {
+                      'atom':'http://www.w3.org/2005/Atom',
+                      'yt':'http://www.youtube.com/xml/schemas/2015',
+                      'media':'http://search.yahoo.com/mrss/',
+                  }
+                  tree = ET.fromstring(body)
+                  for entry in tree.findall('atom:entry', ns):
+                      vid = entry.findtext('yt:videoId', default='', namespaces=ns)
+                      if vid == 'arQTi6UPGY0':
+                          title = entry.findtext('atom:title', default='', namespaces=ns)
+                          published = entry.findtext('atom:published', default='', namespaces=ns)
+                          group = entry.find('media:group', ns)
+                          if group is not None:
+                              description = group.findtext('media:description', default='', namespaces=ns)
+                          feed_used = url
+                          break
+                  if title:
+                      break
+              except Exception as exc:
+                  logs.append(f'{url} {type(exc).__name__}: {exc}')
+
+          lines = [
+              '# YouTube Channel Feed Source', '',
+              '- Video ID: `arQTi6UPGY0`',
+              f'- Channel ID: {channel_id}',
+              f'- Feed used: {feed_used}',
+              f'- Title: {title}',
+              f'- Published: {published}',
+              '- Source URL: https://www.youtube.com/watch?v=arQTi6UPGY0', '',
+              '## Description', '', html.unescape(description) or '_Description unavailable._', '',
+              '## Diagnostics', '', '```text', '\n'.join(logs), '```',
+          ]
+          (root / 'channel-feed-source.md').write_text('\n'.join(lines), encoding='utf-8')
+          PY
+
+      - name: Persist feed source
+        run: |
+          git config user.name "ai-business-factory-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add OPS/knowledge_ingestion/youtube/arQTi6UPGY0/channel-feed-source.md
+          if git diff --cached --quiet; then
+            echo "No feed changes to commit"
+          else
+            git commit -m "Capture YouTube source through channel feed"
+            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+          fi
