@@ -1,0 +1,116 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "External Execution COO",
+  "rule": "External workers own one complete result lane each. Tasks cannot finish at draft state when an approved executable action exists.",
+  "tasks": [
+    {
+      "id": "EXT-001",
+      "priority": "P0",
+      "owner": "EXT-LEAD",
+      "title": "Promote 10 exact leads to verified contactable state",
+      "input": "OPS/revenue_ops/outreach_ready_drafts_2026_06_16.json",
+      "output": "OPS/revenue_ops/external_verified_leads_2026_06_17.json",
+      "status": "ready",
+      "proof": "company, source URL, exact contact route, fit reason, duplicate check, permission note",
+      "fallback": "replace any unverifiable row with a smaller direct seller having public contact details"
+    },
+    {
+      "id": "EXT-002",
+      "priority": "P0",
+      "owner": "EXT-OUTBOUND",
+      "title": "Prepare send-ready personalized messages and follow-up schedule",
+      "input": "EXT-001 verified rows",
+      "output": "OPS/revenue_ops/external_send_queue_2026_06_17.json",
+      "status": "blocked_by_E2_approval",
+      "proof": "approved row, approved message, channel, send state, follow-up dates",
+      "fallback": "prepare drafts and sample assets while sending remains gated"
+    },
+    {
+      "id": "EXT-003",
+      "priority": "P0",
+      "owner": "EXT-PAY",
+      "title": "Create payable path for every active offer",
+      "input": "current offer files and company payment details",
+      "output": "OPS/revenue_ops/payment_path.md",
+      "status": "ready",
+      "proof": "quote template, invoice instructions, bank transfer path, payment state fields",
+      "fallback": "manual written quote and bank transfer instructions before payment automation"
+    },
+    {
+      "id": "EXT-004",
+      "priority": "P0",
+      "owner": "EXT-RELEASE",
+      "title": "Publish one working public sales demo",
+      "input": "active MVP assets",
+      "output": "OPS/deploy_loop/public_demo_registry.json",
+      "status": "ready",
+      "proof": "public URL, smoke test, health state, rollback note",
+      "fallback": "static public page or recorded product walkthrough with explicit NO_URL blocker"
+    },
+    {
+      "id": "EXT-005",
+      "priority": "P0",
+      "owner": "EXT-SALES",
+      "title": "Create negotiation guardrails for first pilot",
+      "input": "199-399 EUR Content Hook Factory Sprint",
+      "output": "OPS/revenue_ops/first_pilot_negotiation_limits_2026_06_17.json",
+      "status": "ready",
+      "proof": "scope, floor price, allowed concessions, objection replies, close conditions",
+      "fallback": "fixed 199 EUR pilot with no custom expansion"
+    },
+    {
+      "id": "EXT-006",
+      "priority": "P0",
+      "owner": "EXT-ONBOARD",
+      "title": "Create complete first-pilot intake without repeated questions",
+      "input": "offer and delivery dry-run",
+      "output": "OPS/delivery/first_pilot_intake_2026_06_17.md",
+      "status": "ready",
+      "proof": "inputs, access, acceptance criteria, timeline, missing-data fallback"
+    },
+    {
+      "id": "EXT-007",
+      "priority": "P0",
+      "owner": "EXT-DELIVERY",
+      "title": "Create delivery-ready production queue for first paid pilot",
+      "input": "accepted scope and intake",
+      "output": "OPS/delivery/external_delivery_queue_2026_06_17.json",
+      "status": "waiting_for_paid_pilot",
+      "proof": "owner, tasks, output paths, QA, handoff, acceptance and feedback row",
+      "fallback": "continue dry-run against a realistic sample brief"
+    },
+    {
+      "id": "EXT-008",
+      "priority": "P1",
+      "owner": "EXT-ANALYTICS",
+      "title": "Create full external funnel event ledger",
+      "input": "lead, send, reply, quote, payment and delivery states",
+      "output": "OPS/analytics/external_funnel_ledger_2026_06_17.json",
+      "status": "ready",
+      "proof": "measurable transitions and drop-off reason for every active row"
+    },
+    {
+      "id": "EXT-009",
+      "priority": "P1",
+      "owner": "EXT-COMPLIANCE",
+      "title": "Create sender, claims and platform safety gate",
+      "input": "outreach channels, public claims and data sources",
+      "output": "OPS/security/external_execution_safety_gate_2026_06_17.md",
+      "status": "ready",
+      "proof": "permission, source, claims evidence, bounce/spam limits and account-risk controls"
+    },
+    {
+      "id": "EXT-010",
+      "priority": "P1",
+      "owner": "EXT-SUPPORT",
+      "title": "Create retention and support handoff after delivery",
+      "input": "completed pilot and feedback",
+      "output": "OPS/customer/external_support_retention_loop_2026_06_17.md",
+      "status": "waiting_for_delivery",
+      "proof": "support SLA, renewal trigger, upsell route, churn reason"
+    }
+  ],
+  "success_condition": "At least one lead progresses through sent, reply, agreed scope, payable path, paid, delivered and accepted states with evidence.",
+  "failure_condition": "The workforce creates more internal files but no external proof state moves. In that case EXT-COO must pause planning and route all capacity to the nearest blocked commercial transition."
+}
