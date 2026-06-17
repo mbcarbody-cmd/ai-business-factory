@@ -1,0 +1,38 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Grand Master Council",
+  "total_capacity_units": 2500,
+  "truth_rule": "These are routed virtual execution capacity units, not 2500 independent persistent employees. A unit counts only when attached to a task_id, owner, canonical output, KPI and proof.",
+  "allocation": {
+    "evaluation_harness": 500,
+    "skill_graph": 500,
+    "champion_challenger_lab": 500,
+    "financial_independence_engine": 1000
+  },
+  "operating_rules": [
+    "No capacity unit may create generic planning when a higher-value executable task exists.",
+    "No learning output counts without before-after evaluation and regression proof.",
+    "No revenue output counts without a buyer, offer, distribution path, payment path and tracked state.",
+    "Duplicate work is merged; blocked work immediately switches to the next highest-value executable task.",
+    "Every squad keeps specialist ownership and uses CEO-level reasoning about money, risk, priority and proof."
+  ],
+  "financial_independence_gate": {
+    "definition": "Twelve-month average recurring gross profit must cover operating costs plus the configured owner draw with a 50 percent safety margin, while maintaining at least six months of operating reserve.",
+    "leading_metrics": ["MRR", "recurring gross profit", "net revenue retention", "churn", "cash reserve months", "paid conversion", "payback period"],
+    "hard_proof": "Recurring customer payments and delivered value, not projected revenue or unsigned pipeline."
+  },
+  "activation_model": {
+    "queue_driven": true,
+    "max_parallel_lanes_per_product": 3,
+    "one_accountable_owner_per_task": true,
+    "judge_veto_required": true,
+    "proof_ledger_required": true
+  },
+  "canonical_files": [
+    "OPS/learning/evaluation_harness_500_workforce_2026_06_17.json",
+    "OPS/learning/skill_graph_500_workforce_2026_06_17.json",
+    "OPS/learning/champion_challenger_500_workforce_2026_06_17.json",
+    "OPS/revenue/financial_independence_1000_workforce_2026_06_17.json"
+  ]
+}
