@@ -1,0 +1,62 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Recurring Revenue Officer + CFO",
+  "capacity_units": 1000,
+  "mission": "Build and operate recurring revenue systems until verified recurring gross profit covers operating costs and owner draw with a safety margin.",
+  "squads": [
+    {"code":"FI-01","name":"Buyer Pain Discovery","units":100,"scope":"verify expensive recurring pains and willingness to pay"},
+    {"code":"FI-02","name":"Offer Factory","units":100,"scope":"package narrow outcomes with price, proof and delivery limits"},
+    {"code":"FI-03","name":"MVP Build","units":100,"scope":"ship functional products that create, publish, connect, collect or save time"},
+    {"code":"FI-04","name":"Distribution","units":100,"scope":"SEO, GEO, marketplaces, partnerships, outbound and referral loops"},
+    {"code":"FI-05","name":"Sales Conversion","units":100,"scope":"lead qualification, demos, objections, quotes and closing"},
+    {"code":"FI-06","name":"Payment and Billing","units":100,"scope":"payable offers, subscriptions, reconciliation and recovery"},
+    {"code":"FI-07","name":"Delivery Automation","units":100,"scope":"onboarding, production, QA, handoff and support automation"},
+    {"code":"FI-08","name":"Retention and Expansion","units":100,"scope":"activation, usage, renewal, upsell and churn prevention"},
+    {"code":"FI-09","name":"Unit Economics","units":100,"scope":"gross margin, CAC, payback, LTV, model cost and capacity limits"},
+    {"code":"FI-10","name":"Portfolio Capital Allocation","units":100,"scope":"scale winners, repair bottlenecks and stop weak products"}
+  ],
+  "active_product_priority": [
+    "Parts Seller OS and WMS",
+    "Auto Parts Listing and Publishing Factory",
+    "Inventory-to-Cash Engine",
+    "Lead-to-Quote-to-Payment Agent",
+    "Validated small business automation products"
+  ],
+  "rejected_outputs": [
+    "generic chatbot",
+    "prompt library",
+    "text-only generator without action",
+    "idea list without buyer or payment path",
+    "traffic-only content farm",
+    "product without distribution and retention plan"
+  ],
+  "daily_minimum": {
+    "verified_buyer_conversations_or_signals": 20,
+    "offers_tested": 3,
+    "functional_revenue_artifacts_shipped": 1,
+    "payable_paths_created_or_checked": 3,
+    "funnel_bottlenecks_removed": 1,
+    "retention_or_delivery_improvements": 1,
+    "portfolio_scale_hold_or_kill_decisions": 1
+  },
+  "financial_independence_scorecard": [
+    "monthly recurring revenue",
+    "monthly recurring gross profit",
+    "active paying customers",
+    "net revenue retention",
+    "logo churn",
+    "gross margin",
+    "customer acquisition payback",
+    "cash reserve months",
+    "owner draw coverage ratio"
+  ],
+  "milestone_gates": [
+    {"gate":"FI-1","proof":"first external payment received and delivered"},
+    {"gate":"FI-2","proof":"three paying customers or equivalent recurring contracts"},
+    {"gate":"FI-3","proof":"three consecutive months of recurring gross profit growth"},
+    {"gate":"FI-4","proof":"recurring gross profit covers all operating costs"},
+    {"gate":"FI-5","proof":"recurring gross profit covers operating costs plus owner draw with 50 percent safety margin and six months reserve"}
+  ],
+  "hard_rule": "Agent count is not progress. Only customer value delivered, recurring payment evidence, margin, retention and reduced owner workload count."
+}
