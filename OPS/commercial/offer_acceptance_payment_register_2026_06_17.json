@@ -1,0 +1,16 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "SPEC-024 Commercial Closer",
+  "allowed_states": ["draft", "review_ready", "sent", "accepted", "invoice_issued", "payment_pending", "paid", "started", "started_before_paid", "delivered", "closed", "closed_lost"],
+  "required_for_accepted": ["client_company", "business_contact", "scope_reference", "price_amount", "currency", "tax_treatment", "accepted_at", "acceptance_evidence_reference", "sample_data_state", "delivery_owner"],
+  "required_for_paid": ["invoice_or_payment_request_id", "paid_amount", "paid_currency", "payment_method", "paid_at", "payment_evidence_reference", "payment_verified_by", "payment_verified_at"],
+  "records": [],
+  "first_paid_pilot": {
+    "state": "not_done",
+    "record_id": null,
+    "rule": "Do not change to done without one externally evidenced paid record."
+  },
+  "privacy_rule": "Store only minimal redacted evidence references.",
+  "next_action": "Create the first record when an outreach response reaches offer stage."
+}

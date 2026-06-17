@@ -1,0 +1,61 @@
+name: OPS Gap Gate
+
+on:
+  pull_request:
+    paths:
+      - "OPS/**"
+      - "scripts/**"
+      - ".github/workflows/ops-gap-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "OPS/**"
+      - "scripts/**"
+      - ".github/workflows/ops-gap-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ops-gap-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate discovered OPS gaps
+        run: python3 scripts/gap_check_2026_06_15.py
+
+      - name: Run canonical OPS audit
+        run: python3 scripts/ops_audit.py
+
+      - name: Smoke-test specialist router
+        shell: bash
+        run: |
+          cat > /tmp/router-task.json <<'JSON'
+          {
+            "task_id": "CI-ROUTER-SMOKE",
+            "title": "Validate CI gap check",
+            "description": "Run automation test and CI smoke validation",
+            "priority": "P0",
+            "output_path": "OPS/ci/router-smoke.json",
+            "done_proof": "Router selects a staffed QA automation specialist",
+            "knowledge_refresh_complete": true
+          }
+          JSON
+          python3 scripts/specialist_router.py /tmp/router-task.json | tee /tmp/router-result.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/router-result.json', encoding='utf-8') as handle:
+              result = json.load(handle)
+          assert result['status'] == 'routed', result
+          assert result['owner_specialty_id'] == 'SPEC-011', result
+          assert result['owner_seat_id'].startswith('SPEC-011-A'), result
+          PY

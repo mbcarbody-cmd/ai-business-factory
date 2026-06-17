@@ -1,0 +1,44 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "SPEC-030 Knowledge Manager",
+  "continuous_refresh_required": true,
+  "refresh_on_every_execution_cycle": true,
+  "purpose": "Prevent specialists from executing with stale assumptions and propagate verified learning across the factory.",
+  "cycle_triggers": [
+    "before task routing",
+    "before any decision that depends on external facts, prices, laws, APIs, product capabilities or competitor state",
+    "after a task produces new evidence",
+    "after a blocker or failed test",
+    "after client feedback, payment, delivery or support evidence",
+    "at least once every seven days for active specialties even when no task completed"
+  ],
+  "refresh_sequence": [
+    "read canonical task, product contract, decision log and latest proof",
+    "identify assumptions whose freshness affects money, safety, legality, delivery or architecture",
+    "verify unstable claims against primary or authoritative sources",
+    "record source, checked_at, confidence, affected artifacts and expiry rule",
+    "update the knowledge sync bus and route changed conclusions to impacted specialists",
+    "invalidate superseded guidance instead of silently appending contradictions"
+  ],
+  "required_record_fields": [
+    "knowledge_id",
+    "specialty_id",
+    "claim",
+    "source",
+    "checked_at",
+    "confidence",
+    "expires_or_refresh_trigger",
+    "affected_paths",
+    "supersedes",
+    "owner"
+  ],
+  "canonical_output": "OPS/learning/knowledge_sync_bus.json",
+  "enforcement": {
+    "stale_or_unverified_external_claim": "block_decision_and_refresh",
+    "missing_provenance": "fail_gap_gate",
+    "contradictory_records": "route_to_SPEC-030_and_SPEC-012",
+    "blocked_refresh": "record_blocker_then_execute_highest_value_non_stale_fallback"
+  },
+  "done_rule": "A cycle is not complete until new evidence is recorded or an explicit no-change refresh record exists."
+}
