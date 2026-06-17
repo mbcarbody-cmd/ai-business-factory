@@ -1,15 +1,82 @@
 {
-  "updated_at": "2026-06-15",
-  "owner": "Data Verification Closers",
+  "updated_at": "2026-06-17",
+  "owner": "SPEC-022 Lead Review Specialist",
   "status": "active",
-  "purpose": "Hold public target rows for manual review before any outreach is counted.",
-  "rule": "Rows are research proof only until a human confirms relevance and allowed contact route.",
+  "purpose": "Store manually verified public business targets and allowed official contact routes before outreach.",
+  "rule": "A row is outreach_ready only when relevance, official route and route source were manually checked. Outreach remains not_sent until explicitly executed.",
+  "route_policy": "Use only official public business forms, published business email addresses or published business phone numbers; respect each site's terms and do not automate sending.",
   "rows": [
-    {"id":"LRQ-001","name":"ASM Auto Recycling","country":"UK","source":"https://www.asm-autos.co.uk/","fit":"vehicle salvage and recycled parts inventory","state":"review_ready"},
-    {"id":"LRQ-002","name":"LKQ SYNETIQ","country":"UK","source":"https://www.synetiq.co.uk/","fit":"dismantling, recycling and green parts","state":"review_ready"},
-    {"id":"LRQ-003","name":"BreakerLink","country":"UK","source":"https://www.breakerlink.com/","fit":"supplier network for new and used parts","state":"review_ready"},
-    {"id":"LRQ-004","name":"PartsGateway","country":"UK","source":"https://www.partsgateway.co.uk/","fit":"used parts quote network and breaker marketplace","state":"review_ready"},
-    {"id":"LRQ-005","name":"Ovoko","country":"EU","source":"https://ovoko.com/","fit":"used vehicle parts marketplace","state":"review_ready"}
+    {
+      "id": "LRQ-001",
+      "name": "ASM Auto Recycling",
+      "country": "UK",
+      "source": "https://www.asm-autos.co.uk/",
+      "fit": "vehicle salvage and recycled parts inventory",
+      "relevance_verdict": "confirmed_used_parts_operator",
+      "state": "outreach_ready",
+      "outreach_status": "not_sent",
+      "allowed_contact_route": "official contact page; published business email admin@asm-autos.co.uk; published phone 01844 268 940",
+      "route_source": "https://www.asm-autos.co.uk/contact-us/",
+      "reviewed_at": "2026-06-17",
+      "reviewed_by": "SPEC-022-A001"
+    },
+    {
+      "id": "LRQ-002",
+      "name": "LKQ SYNETIQ",
+      "country": "UK",
+      "source": "https://www.synetiq.co.uk/",
+      "fit": "dismantling, recycling and green parts",
+      "relevance_verdict": "confirmed_used_parts_operator",
+      "state": "outreach_ready",
+      "outreach_status": "not_sent",
+      "allowed_contact_route": "official contact form using Solutions for business or General enquiries; published phone 01302 821608",
+      "route_source": "https://www.synetiq.co.uk/contact/",
+      "reviewed_at": "2026-06-17",
+      "reviewed_by": "SPEC-022-A002"
+    },
+    {
+      "id": "LRQ-003",
+      "name": "BreakerLink",
+      "country": "UK",
+      "source": "https://www.breakerlink.com/",
+      "fit": "supplier network for new and used parts",
+      "relevance_verdict": "confirmed_supplier_network",
+      "state": "outreach_ready",
+      "outreach_status": "not_sent",
+      "allowed_contact_route": "official Become a Supplier form; published phone 0330 111 3200",
+      "route_source": "https://www.breakerlink.com/join/",
+      "reviewed_at": "2026-06-17",
+      "reviewed_by": "SPEC-022-A003"
+    },
+    {
+      "id": "LRQ-004",
+      "name": "PartsGateway",
+      "country": "UK",
+      "source": "https://www.partsgateway.co.uk/",
+      "fit": "used parts quote network and breaker marketplace",
+      "relevance_verdict": "confirmed_supplier_network",
+      "state": "outreach_ready",
+      "outreach_status": "not_sent",
+      "allowed_contact_route": "official Join as Supplier form",
+      "route_source": "https://partsgateway.typeform.com/to/aJSTHoYI",
+      "reviewed_at": "2026-06-17",
+      "reviewed_by": "SPEC-022-A004"
+    },
+    {
+      "id": "LRQ-005",
+      "name": "Ovoko",
+      "country": "EU",
+      "source": "https://about.ovoko.com/",
+      "fit": "used vehicle parts marketplace and inventory platform",
+      "relevance_verdict": "confirmed_used_parts_platform",
+      "state": "outreach_ready",
+      "outreach_status": "not_sent",
+      "allowed_contact_route": "official seller partnership page and Let's talk form",
+      "route_source": "https://join.ovoko.com/",
+      "reviewed_at": "2026-06-17",
+      "reviewed_by": "SPEC-022-A005"
+    }
   ],
-  "next_action": "Move rows into the main lead pipeline only after manual relevance check."
+  "outreach_ready_count": 5,
+  "next_action": "Prepare individualized messages and obtain explicit send approval or execute through the approved outbound workflow."
 }
