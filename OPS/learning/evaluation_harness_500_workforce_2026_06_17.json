@@ -1,0 +1,34 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Evaluation Officer",
+  "capacity_units": 500,
+  "mission": "Turn real factory work into versioned tests that prevent weak agents, prompts, tools and workflows from reaching production.",
+  "squads": [
+    {"code":"EH-01","name":"Pricing Evaluation","units":50,"scope":"used-part pricing, floor, confidence, anomaly and margin tests"},
+    {"code":"EH-02","name":"Fitment Evaluation","units":50,"scope":"OEM normalization, supersession, vehicle compatibility and confidence tests"},
+    {"code":"EH-03","name":"WMS Evaluation","units":50,"scope":"dimensions, weight, capacity, putaway, picking and location accuracy tests"},
+    {"code":"EH-04","name":"Listing Evaluation","units":50,"scope":"title, category, description, required fields and marketplace export tests"},
+    {"code":"EH-05","name":"Buyer and Lead Evaluation","units":50,"scope":"buyer fit, source verification, duplicate detection and contact-route tests"},
+    {"code":"EH-06","name":"Sales Evaluation","units":50,"scope":"offer, objection, negotiation, follow-up and close-quality tests"},
+    {"code":"EH-07","name":"Payment Evaluation","units":50,"scope":"quote, invoice, payment path, reconciliation and overdue recovery tests"},
+    {"code":"EH-08","name":"Delivery Evaluation","units":50,"scope":"intake, acceptance criteria, QA, handoff and client-result tests"},
+    {"code":"EH-09","name":"Security and Compliance Evaluation","units":50,"scope":"permissions, secrets, claims, provenance and unsafe-action tests"},
+    {"code":"EH-10","name":"Regression and Benchmark Evaluation","units":50,"scope":"cross-product regression, latency, cost and release-gate benchmarks"}
+  ],
+  "required_artifacts": [
+    "OPS/evals/case_registry.json",
+    "OPS/evals/benchmark_runs.json",
+    "OPS/evals/regression_failures.json",
+    "OPS/evals/release_verdicts.json"
+  ],
+  "daily_minimum": {
+    "new_real_cases": 20,
+    "regression_runs": 10,
+    "failed_case_root_causes": 5,
+    "release_veto_or_pass_verdicts": 3,
+    "promoted_prevention_controls": 1
+  },
+  "done_rule": "An evaluation task is done only when inputs, expected output, actual output, score, evidence and regression state are recorded.",
+  "anti_noise_rule": "Synthetic cases may supplement but never replace real user corrections, production failures, buyer objections or delivery evidence."
+}
