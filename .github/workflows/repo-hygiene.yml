@@ -17,4 +17,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run repo hygiene scanner
-        run: python3 scripts/security/check_repo_hygiene.py
+        run: python3 scripts/security/run_repo_hygiene.py
