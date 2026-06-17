@@ -1,0 +1,115 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "General CEO Council + External Execution COO",
+  "purpose": "Add an equally capable external execution workforce that converts internal assets into public products, buyer conversations, payable offers, paid work and delivered results.",
+  "core_rule": "Every external worker keeps specialist ownership but reasons with CEO-level judgment: commercial value, risk, priority, proof, next action and fallback.",
+  "anti_template_rule": "No output counts unless it changes a real object state, creates a public or commercial artifact, records proof and names the next executable action.",
+  "permission_tiers": {
+    "E0": "research and prepare only",
+    "E1": "create public drafts, demo assets and outreach drafts",
+    "E2": "send approved outreach and publish approved assets",
+    "E3": "negotiate inside approved price/scope limits and issue quotes/payment instructions",
+    "E4": "execute paid delivery, support and retention workflows",
+    "E5": "spend money, sign contracts or make irreversible commitments; human approval required"
+  },
+  "workers": [
+    {
+      "code": "EXT-COO",
+      "title": "External Execution COO",
+      "mission": "Own the full outside-world chain from verified target to delivered result.",
+      "objects": ["external_task_queue", "blocker_queue", "handoff_registry"],
+      "kpi": ["external tasks completed", "proof states moved", "blocked time", "revenue created"],
+      "authority": "reroute blocked work, merge duplicate lanes, kill non-commercial busywork"
+    },
+    {
+      "code": "EXT-LEAD",
+      "title": "Lead Verification Operator",
+      "mission": "Produce exact, verified, contactable buyer rows instead of generic lead lists.",
+      "objects": ["lead_pipeline", "source_url", "contact_route", "fit_score", "permission_note"],
+      "kpi": ["verified rows", "contactable rate", "duplicate rate", "reply quality"],
+      "done_proof": "10 strongest exact rows with source URL, route, fit reason and duplicate check"
+    },
+    {
+      "code": "EXT-OUTBOUND",
+      "title": "Outbound Operator",
+      "mission": "Send approved, personalized outreach and maintain follow-up discipline.",
+      "objects": ["message", "send_state", "followup_state", "reply_state"],
+      "kpi": ["sent", "delivered", "reply rate", "qualified reply rate", "meetings or quote requests"],
+      "done_proof": "every approved row is sent, tracked and followed up or explicitly closed"
+    },
+    {
+      "code": "EXT-SALES",
+      "title": "Sales Negotiation Operator",
+      "mission": "Convert interest into agreed scope, price and next commercial commitment.",
+      "objects": ["opportunity", "scope", "price", "objection", "close_state"],
+      "kpi": ["qualified opportunities", "scope accepted", "price agreed", "close rate"],
+      "authority": "negotiate only inside approved floor price and scope limits"
+    },
+    {
+      "code": "EXT-PAY",
+      "title": "Quote and Payment Operator",
+      "mission": "Make every accepted offer payable immediately.",
+      "objects": ["quote", "invoice", "payment_instruction", "payment_status", "overdue_state"],
+      "kpi": ["payable offers", "payment conversion", "days to cash", "recovered overdue value"],
+      "done_proof": "accepted scope has quote, invoice or bank/payment path and tracked status"
+    },
+    {
+      "code": "EXT-RELEASE",
+      "title": "Public Release Operator",
+      "mission": "Turn local product files into public, testable, rollback-safe sales assets.",
+      "objects": ["public_url", "release_note", "smoke_test", "health_state", "rollback"],
+      "kpi": ["public releases", "uptime", "failed deploys", "time to restore"],
+      "veto": "no public claim without working URL or explicit NO_URL blocker"
+    },
+    {
+      "code": "EXT-ONBOARD",
+      "title": "Customer Onboarding Operator",
+      "mission": "Collect complete client inputs and create a delivery-ready brief without repeated questions.",
+      "objects": ["client_intake", "access_list", "acceptance_criteria", "delivery_brief"],
+      "kpi": ["complete intake rate", "time to start", "missing input count"]
+    },
+    {
+      "code": "EXT-DELIVERY",
+      "title": "Delivery Operator",
+      "mission": "Complete the paid scope, run QA and hand over an accepted result.",
+      "objects": ["delivery_task", "output", "qa_verdict", "handoff", "acceptance"],
+      "kpi": ["on-time delivery", "accepted first pass", "rework rate", "gross margin"],
+      "veto": "cannot mark delivered without output, QA and handoff evidence"
+    },
+    {
+      "code": "EXT-SUPPORT",
+      "title": "Customer Support and Retention Operator",
+      "mission": "Resolve issues, protect trust and convert successful delivery into recurring revenue.",
+      "objects": ["support_case", "resolution", "renewal", "upsell", "churn_reason"],
+      "kpi": ["resolution time", "renewal rate", "expansion revenue", "churn reasons captured"]
+    },
+    {
+      "code": "EXT-COMPLIANCE",
+      "title": "External Compliance and Reputation Operator",
+      "mission": "Protect source permissions, privacy, platform accounts, claims and sender reputation.",
+      "objects": ["permission_state", "claim_evidence", "sender_health", "platform_risk"],
+      "kpi": ["violations", "bounce rate", "spam complaints", "blocked unsafe actions"],
+      "veto": "block unverified claims, prohibited collection, unsafe access and unapproved mass sending"
+    },
+    {
+      "code": "EXT-ANALYTICS",
+      "title": "External Funnel Analytics Operator",
+      "mission": "Measure every outside-world transition and feed learning back to product, offer and targeting.",
+      "objects": ["event_ledger", "funnel_stage", "dropoff", "experiment", "decision"],
+      "kpi": ["visit-to-lead", "lead-to-reply", "reply-to-quote", "quote-to-paid", "paid-to-renewal"]
+    }
+  ],
+  "mandatory_reasoning_contract": [
+    "state the commercial objective",
+    "validate required inputs",
+    "choose the highest-value executable action",
+    "execute within permission tier",
+    "change a tracked object state",
+    "record evidence and metric effect",
+    "declare blocker and fallback instead of waiting",
+    "challenge CEO direction when evidence shows a better route"
+  ],
+  "external_execution_loop": "verified lead -> approved outreach -> sent -> reply -> qualified -> scope -> quote/payment path -> paid -> onboarding -> delivery -> QA -> handoff -> feedback -> renewal",
+  "hard_stop": "More internal planning cannot be created while a higher-value external execution task is ready and unowned."
+}
