@@ -1,17 +1,13 @@
 {
-  "updated_at": "2026-06-13",
+  "updated_at": "2026-06-17",
   "owner": "JUDGE-1 Release Gate Judge",
-  "stages": ["idea", "validated_problem", "build_ready", "demo_ready", "qa_ready", "deploy_ready", "sell_ready", "delivery_ready", "maintenance_ready"],
+  "scope_lock": "OPS/governance/OWNER_SCOPE_LOCK_2026_06_17.md",
+  "stages": ["idea", "validated_problem", "build_ready", "demo_ready", "qa_ready", "deploy_ready", "sell_ready", "delivery_ready", "maintenance_ready", "stopped_by_owner"],
   "gate_rules": [
     "No build without validated buyer pain and first MVP slice.",
-    "No product can advance to build_ready if basic foundational data, enums, rules or workflows are missing.",
-    "No marketplace or seller OS build without category tree, data model, workflow rules, location logic, listing status rules and pricing logic.",
-    "No full marketplace build before one-seller prototype works.",
-    "No sell without offer, CFO margin check and delivery scope.",
     "No deploy without QA, health check and rollback note.",
-    "No maintenance promise without support boundary and price.",
-    "No stage may advance on documents alone when a demo proof can be created.",
-    "No public financial guidance product without legal/compliance review and risk wording guardrails."
+    "No stage may advance on documents alone when demo proof can be created.",
+    "The owner scope lock overrides older product records and tasks."
   ],
   "products": [
     {
@@ -20,47 +16,18 @@
       "current_stage": "sell_ready",
       "next_gate": "delivery_ready",
       "owner": "CTO-1 Product Factory Architect",
-      "buyer": "small business owner needing one simple automation setup",
-      "value_proposition": "A 72h done-for-you business automation pilot with landing, intake, helper workflow, QA and handoff.",
       "gate_status": "allowed_to_sell_with_scope_lock",
-      "required_before_next_gate": ["delivery intake template completed", "72h delivery playbook confirmed", "QA critic checklist completed", "CFO margin checked", "offer pack aligned with sales messages", "one dry-run or first paid-pilot handoff saved"],
-      "proof_paths": ["website/", "OPS/delivery/72h_delivery_playbook.md", "OPS/revenue_ops/offer_pack.md", "OPS/cfo/costs.json", "OPS/qa/bug_board.json"]
+      "proof_paths": ["website/", "OPS/delivery/72h_delivery_playbook.md", "OPS/revenue_ops/offer_pack.md", "OPS/qa/bug_board.json"]
     },
     {
       "id": "PRODUCT-002",
-      "name": "Parts Commerce OS",
-      "current_stage": "build_ready",
-      "next_gate": "demo_ready",
-      "owner": "CEO-A / Parts OS General Manager",
-      "buyer": "used parts seller/dismantler needing inventory, location, pricing and listing control",
-      "value_proposition": "Internal inventory and pricing OS that can later become a marketplace module stack.",
-      "gate_status": "one_seller_prototype_build_allowed_foundation_complete",
-      "required_before_next_gate": [
-        "build smallest local one-seller prototype",
-        "prototype uses category tree",
-        "prototype uses location rules",
-        "prototype uses listing status rules",
-        "prototype uses pricing rules",
-        "prototype uses vehicle fitment seed",
-        "three sample parts pass through workflow",
-        "QA critic break-test recorded",
-        "CFO value case updated",
-        "internal dry-run selected"
-      ],
-      "proof_paths": [
-        "OPS/marketplace/roadmap.md",
-        "OPS/marketplace/foundation_completeness_audit.md",
-        "OPS/marketplace/parts_category_tree.json",
-        "OPS/marketplace/parts_workflow_rules.json",
-        "OPS/marketplace/location_rules.json",
-        "OPS/marketplace/listing_status_rules.json",
-        "OPS/marketplace/pricing_rules.json",
-        "OPS/marketplace/vehicle_fitment_seed.json",
-        "OPS/marketplace/parts_os_mvp_data_model.json",
-        "products/parts-seller-os/",
-        "OPS/competitor_intelligence/competitors.json",
-        "OPS/cfo/costs.json"
-      ]
+      "name": "Stopped legacy commerce product",
+      "current_stage": "stopped_by_owner",
+      "next_gate": "none",
+      "owner": "repository owner",
+      "gate_status": "no_build_no_research_no_outreach_no_reporting",
+      "required_before_next_gate": ["new explicit owner instruction"],
+      "proof_paths": ["OPS/governance/OWNER_SCOPE_LOCK_2026_06_17.md"]
     },
     {
       "id": "PRODUCT-003",
@@ -68,10 +35,7 @@
       "current_stage": "demo_ready",
       "next_gate": "qa_ready",
       "owner": "CEO-C / Build Factory General Manager",
-      "buyer": "internal operator and future SMB buyer who needs visible control of tasks, leads, cost and blockers",
-      "value_proposition": "A simple dashboard showing task control, QA, revenue, CFO and next actions.",
       "gate_status": "local_demo_ready_public_hosting_pending",
-      "required_before_next_gate": ["dynamic OPS JSON loading", "manual QA pass", "public hosting path", "screenshot or recording proof", "Judge review"],
       "proof_paths": ["products/ceo-cockpit/index.html", "products/ceo-cockpit/README.md", "OPS/deploy_loop/deploy_sop.md", "OPS/qa/ops_audit_checklist.md"]
     },
     {
@@ -80,11 +44,8 @@
       "current_stage": "validated_problem",
       "next_gate": "build_ready",
       "owner": "CEO-D / Opportunity Lab General Manager",
-      "buyer": "internal investor needing structured market monitoring, risk states, scenario planning and alerts",
-      "value_proposition": "Android app that watches gold, ETF, oil and macro indicators, explains market states, keeps a decision journal and sends review alerts without executing trades.",
       "gate_status": "parked_in_opportunity_lab_not_active_build",
-      "required_before_next_gate": ["MVP screens defined", "sample watchlist defined", "data source plan written", "risk wording guardrails approved", "no broker execution confirmed", "CFO data cost estimate written", "P0 impact review"],
-      "proof_paths": ["OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md", "OPS/cfo/costs.json", "OPS/security/AI_AGENT_SECURITY_POLICY_LT.md", "products/investment-advisor-app/", "OPS/opportunity_lab/opportunity_backlog.json"]
+      "proof_paths": ["OPS/investment_advisor/ANDROID_MARKET_ADVISOR_SPEC_LT.md", "OPS/security/AI_AGENT_SECURITY_POLICY_LT.md", "products/investment-advisor-app/"]
     }
   ]
 }
