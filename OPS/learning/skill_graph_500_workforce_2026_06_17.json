@@ -1,0 +1,50 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Learning and Certification Officer",
+  "capacity_units": 500,
+  "mission": "Maintain a measurable capability graph so each task is routed to the best qualified agent and recurring weaknesses trigger targeted improvement.",
+  "squads": [
+    {"code":"SG-01","name":"Skill Taxonomy","units":50,"scope":"define atomic skills, prerequisites and task classes"},
+    {"code":"SG-02","name":"Evidence Scoring","units":50,"scope":"score outputs using traceable task, QA and commercial evidence"},
+    {"code":"SG-03","name":"Certification","units":50,"scope":"certify and re-certify agents for independent work"},
+    {"code":"SG-04","name":"Error Recurrence","units":50,"scope":"track repeated error classes and route improvement work"},
+    {"code":"SG-05","name":"Retraining Curriculum","units":50,"scope":"build targeted drills from real failed cases"},
+    {"code":"SG-06","name":"Task Routing","units":50,"scope":"route tasks by skill, confidence, capacity, cost and risk"},
+    {"code":"SG-07","name":"Promotion and Review","units":50,"scope":"apply champion, production-ready, supervised and review-required states"},
+    {"code":"SG-08","name":"Knowledge Diffusion","units":50,"scope":"send verified lessons only to affected agents"},
+    {"code":"SG-09","name":"Skill Retirement","units":50,"scope":"expire stale, contradicted or low-value skills and rules"},
+    {"code":"SG-10","name":"Score Audit","units":50,"scope":"detect inflated scores, missing proof and certification drift"}
+  ],
+  "skill_score_weights": {
+    "outcome_quality": 30,
+    "proof_quality": 20,
+    "speed_and_throughput": 15,
+    "commercial_or_operational_impact": 15,
+    "error_recurrence": 10,
+    "knowledge_sharing": 10
+  },
+  "states": {
+    "90_100": "champion",
+    "80_89": "production_ready",
+    "70_79": "supervised",
+    "60_69": "retraining_required",
+    "below_60": "review_required_before_critical_work"
+  },
+  "required_artifacts": [
+    "OPS/skills/skill_taxonomy.json",
+    "OPS/skills/agent_skill_registry.json",
+    "OPS/skills/certification_ledger.json",
+    "OPS/skills/retraining_queue.json",
+    "OPS/skills/skill_expiry_queue.json"
+  ],
+  "daily_minimum": {
+    "agents_scored_or_rescored": 50,
+    "skills_verified": 25,
+    "retraining_drills_created": 10,
+    "promotions_or_reviews": 5,
+    "stale_skills_removed": 3,
+    "routing_improvements": 1
+  },
+  "quality_rule": "When the same material error appears twice, create a prevention control, evaluation case and targeted retraining before independent execution resumes for that task class."
+}
