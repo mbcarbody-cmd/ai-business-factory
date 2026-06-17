@@ -1,0 +1,63 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active_seed",
+  "owner": "Chief Learning Officer + Evaluation Engineer",
+  "purpose": "Route work by demonstrated capability, not agent title or self-claim.",
+  "skill_dimensions": [
+    "business_judgment",
+    "domain_accuracy",
+    "execution_completeness",
+    "tool_use",
+    "risk_control",
+    "proof_quality",
+    "commercial_impact",
+    "cost_efficiency",
+    "teaching_and_sync"
+  ],
+  "levels": {
+    "research_only": "0-49 or untested",
+    "supervised": "50-69",
+    "autonomous": "70-84 with no critical veto",
+    "trusted_owner": "85-94 with repeated real-world proof",
+    "principal": "95+ with cross-agent teaching and no unresolved critical incident"
+  },
+  "routing_rule": "A task may be assigned only when the agent has passed the relevant domain and consequence skill gates. High-risk work requires both domain score and risk-control score.",
+  "promotion_rule": "Minimum five relevant eval cases, at least two real-world proof events, no unresolved critical error and seven-day post-promotion monitoring.",
+  "demotion_rule": "Critical unsupported claim, unsafe action, stock/payment/data corruption, repeated incomplete work or regression breach triggers immediate traffic reduction or quarantine.",
+  "decay_rule": "Skills that depend on current tools, markets, policies or integrations lose freshness confidence after 30 days without verified use or re-evaluation.",
+  "agents": [
+    {
+      "agent_id": "CEO-MASTER",
+      "specialty": "direction and portfolio",
+      "level": "supervised",
+      "scores": {"business_judgment": 80, "domain_accuracy": 65, "execution_completeness": 55, "tool_use": 60, "risk_control": 75, "proof_quality": 60, "commercial_impact": 45, "cost_efficiency": 65, "teaching_and_sync": 70},
+      "confidence": "seed_unverified",
+      "next_gate": "move one product from public demo to paid proof"
+    },
+    {
+      "agent_id": "WMS-OWNER",
+      "specialty": "warehouse and location logic",
+      "level": "research_only",
+      "scores": {"business_judgment": 65, "domain_accuracy": 55, "execution_completeness": 50, "tool_use": 45, "risk_control": 65, "proof_quality": 50, "commercial_impact": 40, "cost_efficiency": 55, "teaching_and_sync": 45},
+      "confidence": "seed_unverified",
+      "next_gate": "pass capacity, putaway, box occupancy and exception cases"
+    },
+    {
+      "agent_id": "REVENUE-OWNER",
+      "specialty": "lead to payment",
+      "level": "research_only",
+      "scores": {"business_judgment": 70, "domain_accuracy": 55, "execution_completeness": 45, "tool_use": 45, "risk_control": 70, "proof_quality": 45, "commercial_impact": 30, "cost_efficiency": 60, "teaching_and_sync": 50},
+      "confidence": "seed_unverified",
+      "next_gate": "move one verified lead through sent, reply, quote and payable state"
+    },
+    {
+      "agent_id": "EVAL-JUDGE",
+      "specialty": "evaluation and release veto",
+      "level": "supervised",
+      "scores": {"business_judgment": 75, "domain_accuracy": 70, "execution_completeness": 70, "tool_use": 60, "risk_control": 85, "proof_quality": 80, "commercial_impact": 50, "cost_efficiency": 65, "teaching_and_sync": 70},
+      "confidence": "seed_unverified",
+      "next_gate": "run first champion-challenger suite and publish verdict"
+    }
+  ],
+  "important_note": "Seed scores are placeholders for routing safety and are not evidence of actual capability. They must be replaced by evaluation results."
+}
