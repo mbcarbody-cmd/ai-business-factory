@@ -1,0 +1,81 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Learning Officer",
+  "rule": "Learning capacity must improve a production rule, agent route or measurable outcome. It may not create passive summaries.",
+  "tasks": [
+    {
+      "id": "LEARN-001",
+      "priority": "P0",
+      "owner": "Knowledge Manager",
+      "title": "Convert all queued knowledge-sync lessons into tested workflow changes",
+      "input": "OPS/learning/knowledge_sync_bus.json",
+      "output": "versioned workflow or gate changes plus updated sync states",
+      "status": "ready",
+      "done": "at least one lesson is synced with proof; no lesson remains queued without owner and next action",
+      "fallback": "sync the highest-value Parts Seller OS lesson first"
+    },
+    {
+      "id": "LEARN-002",
+      "priority": "P0",
+      "owner": "Evaluation Engineer",
+      "title": "Create the first regression suite for Parts Seller OS and WMS",
+      "input": "category, pricing, location, listing and stock rules",
+      "output": "OPS/evals/eval_registry.json",
+      "status": "ready",
+      "done": "minimum 20 cases including normal, edge, adversarial and prior-failure cases"
+    },
+    {
+      "id": "LEARN-003",
+      "priority": "P0",
+      "owner": "AI Workflow Engineer",
+      "title": "Run first champion-challenger comparison",
+      "input": "one high-frequency workflow such as add part to ready listing",
+      "output": "OPS/model_council/champion_challenger_results.json",
+      "status": "ready",
+      "done": "same cases, quality/cost/latency comparison, verdict and rollback route"
+    },
+    {
+      "id": "LEARN-004",
+      "priority": "P0",
+      "owner": "Judge Agent",
+      "title": "Audit seed skill scores and replace claims with evidence",
+      "input": "OPS/learning/agent_skill_ledger.json",
+      "output": "evidence-backed skill scores and quarantines",
+      "status": "ready",
+      "done": "no agent receives autonomous status from placeholder scores"
+    },
+    {
+      "id": "LEARN-005",
+      "priority": "P0",
+      "owner": "Revenue Learning Operator",
+      "title": "Turn buyer replies and no-replies into offer and targeting changes",
+      "input": "external funnel ledger",
+      "output": "versioned objection and offer rules",
+      "status": "waiting_for_outreach",
+      "fallback": "use verified competitor and seller objections as simulation, marked simulated"
+    },
+    {
+      "id": "LEARN-006",
+      "priority": "P1",
+      "owner": "WMS Learning Operator",
+      "title": "Learn from stock discrepancy and putaway exceptions",
+      "input": "location, box, scan and stock movement events",
+      "output": "new WMS eval cases and improved placement rules",
+      "status": "waiting_for_runtime_events",
+      "fallback": "run deterministic warehouse simulations"
+    },
+    {
+      "id": "LEARN-007",
+      "priority": "P1",
+      "owner": "Chief Learning Officer",
+      "title": "Publish daily learning proof report",
+      "input": "learning events, evals, promotions, rejections and seven-day effects",
+      "output": "OPS/learning/daily_learning_report.json",
+      "status": "ready",
+      "done": "report names promoted change, rejected weak pattern, affected agents, KPI effect and blocker"
+    }
+  ],
+  "daily_success": "At least one tested rule is promoted or one harmful rule is removed and propagated.",
+  "daily_failure": "Only reading, summarizing, brainstorming or creating policies occurred without a tested operational change."
+}
