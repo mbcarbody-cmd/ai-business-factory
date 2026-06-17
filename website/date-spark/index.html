@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Date Spark — profilio ir pokalbio pagalbininkas</title>
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root{--bg:#0b1020;--card:#141b31;--line:#28324d;--text:#eef3ff;--muted:#aab6d3;--good:#6ee7b7;--warn:#fbbf24;--bad:#fb7185;--accent:#a855f7}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#111827,#0b1020);color:var(--text);font-family:Inter,Arial,sans-serif}.wrap{max-width:980px;margin:auto;padding:22px 14px 90px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.badge{border:1px solid var(--line);background:#0f172a;border-radius:999px;padding:7px 11px;color:var(--muted);font-size:13px}h1{font-size:34px;line-height:1.05;margin:18px 0 8px}.lead{color:var(--muted);line-height:1.55;max-width:720px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.card{background:rgba(20,27,49,.92);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.25)}label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}input,select,textarea{width:100%;background:#0b1224;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:15px}textarea{min-height:84px;resize:vertical}.btn{border:0;border-radius:14px;background:linear-gradient(90deg,#7c3aed,#ec4899);color:white;padding:12px 14px;font-weight:800;font-size:15px;cursor:pointer}.btn.secondary{background:#1f2937;border:1px solid var(--line)}.row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.pill{border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--muted);font-size:13px}.score{font-size:38px;font-weight:900}.good{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}.small{font-size:13px;color:var(--muted);line-height:1.45}.match{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;border-top:1px solid var(--line);padding:12px 0}.avatar{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}.nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.95);border-top:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;justify-content:center}.nav button{background:#111827;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:9px 11px}.hidden{display:none}@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:30px}.top{align-items:flex-start}.score{font-size:32px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top"><span class="badge">Date Spark • local-only privacy</span><button class="btn secondary" onclick="resetDemo()">Reset</button></div>
+    <h1>Geresnis profilis, pokalbio pradžia ir pasimatymo idėjos.</h1>
+    <p class="lead">Duomenys lieka tavo naršyklėje. Įrankis pagerina bio, paskaičiuoja demonstracinį suderinamumą, pasiūlo pokalbio pradžias ir saugesnio pirmo susitikimo idėjas.</p>
+
+    <section id="screen-profile" class="screen grid">
+      <div class="card">
+        <h2>1. Tavo profilis</h2>
+        <label>Vardas / nickname</label><input id="name" placeholder="Pvz. Mantas" />
+        <label>Amžius</label><input id="age" type="number" min="18" placeholder="32" />
+        <label>Miestas</label><input id="city" placeholder="Kaunas" />
+        <label>Ko ieškai?</label><select id="intent"><option>Rimtos pažinties</option><option>Lengvo pasimatymo</option><option>Bendravimo ir veiklų</option></select>
+        <label>Pomėgiai</label><textarea id="interests" placeholder="vanduo, kelionės, sportas, kava, koncertai"></textarea>
+        <label>Bio juodraštis</label><textarea id="bio" placeholder="Parašyk bet kaip — sistema pagerins"></textarea>
+        <div class="row"><button class="btn" onclick="saveProfile()">Pagerinti profilį</button><button class="btn secondary" onclick="loadSample()">Demo</button></div>
+      </div>
+      <div class="card">
+        <h2>Bio rezultatas</h2>
+        <div id="bioOut" class="card" style="background:#0b1224;margin-top:12px">Įvesk duomenis ir spausk „Pagerinti profilį“.</div>
+        <div class="row"><span class="pill">Be spam</span><span class="pill">Pokalbio kabliukai</span><span class="pill">Duomenys naršyklėje</span></div>
+      </div>
+    </section>
+
+    <section id="screen-matches" class="screen grid hidden">
+      <div class="card"><h2>2. Demonstraciniai profiliai</h2><div id="matches"></div></div>
+      <div class="card"><h2>Suderinamumo paaiškinimas</h2><div id="verdict">Pasirink profilį.</div></div>
+    </section>
+
+    <section id="screen-ideas" class="screen grid hidden">
+      <div class="card"><h2>3. Pokalbio pradžios</h2><div id="icebreakers"></div></div>
+      <div class="card"><h2>4. Pasimatymo idėjos</h2><div id="dateIdeas"></div></div>
+    </section>
+
+    <section id="screen-safety" class="screen grid hidden">
+      <div class="card"><h2>Saugumas</h2><p class="small">Pirmas susitikimas viešoje vietoje, jokio pinigų siuntimo, pasakyk artimam žmogui kur būsi, o įtartiną elgesį blokuok.</p><div class="row"><span class="pill">18+</span><span class="pill">Vieša vieta</span><span class="pill">Nesiųsti pinigų</span></div></div>
+      <div class="card"><h2>Privatumas</h2><p class="small">Šis prototipas neturi serverio ar realių vartotojų tinklo. Profilis saugomas tik tavo naršyklėje ir gali būti ištrintas mygtuku Reset.</p></div>
+    </section>
+  </main>
+  <nav class="nav"><button onclick="show('profile')">Profilis</button><button onclick="show('matches')">Match</button><button onclick="show('ideas')">Žinutės</button><button onclick="show('safety')">Saugumas</button></nav>
+<script>
+const profiles=[
+{name:'Aistė',city:'Kaunas',intent:'Bendravimo ir veiklų',interests:'kava, kelionės, koncertai, šunys, pasivaikščiojimai'},
+{name:'Ieva',city:'Vilnius',intent:'Rimtos pažinties',interests:'slidinėjimas, knygos, gamta, jūra, sportas'},
+{name:'Laura',city:'Kaunas',intent:'Lengvo pasimatymo',interests:'wakeboard, vanduo, muzika, maistas, savaitgalio kelionės'},
+{name:'Monika',city:'Klaipėda',intent:'Rimtos pažinties',interests:'jūra, dviračiai, teatras, maisto gaminimas, kelionės'}];
+function words(s){return (s||'').toLowerCase().split(/[^a-ząčęėįšųūž0-9]+/).filter(Boolean)}
+function getProfile(){return {name:name.value,age:age.value,city:city.value,intent:intent.value,interests:interests.value,bio:bio.value}}
+function saveProfile(){const p=getProfile();localStorage.setItem('dateSparkProfile',JSON.stringify(p));bioOut.innerHTML=makeBio(p);renderAll();show('matches')}
+function loadSample(){name.value='Mantas';age.value='34';city.value='Kaunas';intent.value='Bendravimo ir veiklų';interests.value='vanduo, moto, slidinėjimas, wakeboard, kelionės, kava';bio.value='Patinka aktyvus gyvenimas ir savaitgaliai prie vandens.';saveProfile()}
+function makeBio(p){let ints=words(p.interests).slice(0,6).join(', ');return `<b>${p.name||'Žmogus'}, ${p.city||'miestas'}.</b><br>Ieškau ${String(p.intent||'bendravimo').toLowerCase()}. Labiausiai užkabina žmonės, kurie mėgsta ${ints||'gyvą pokalbį ir veiklas'}. Lengviausia pradėti nuo klausimo apie savaitgalio planą, kelionę arba gerą kavos vietą.`}
+function score(a,b){let aw=new Set(words(a.interests)),bw=new Set(words(b.interests)),common=[...aw].filter(x=>bw.has(x));let city=(a.city||'').toLowerCase()===(b.city||'').toLowerCase()?20:0;let intent=(a.intent===b.intent)?20:8;return {raw:Math.min(100,30+common.length*12+city+intent),common}}
+function renderMatches(){let p=getProfile();matches.innerHTML=profiles.map((m,i)=>{let s=score(p,m),cls=s.raw>75?'good':s.raw>55?'warn':'bad';return `<div class="match" onclick="selectMatch(${i})"><div class="avatar">${m.name[0]}</div><div><b>${m.name}</b> • ${m.city}<br><span class="${cls}">${s.raw}%</span> <span class="small">bendri: ${s.common.join(', ')||'mažai'}</span></div></div>`}).join('')}
+function selectMatch(i){let p=getProfile(),m=profiles[i],s=score(p,m),cls=s.raw>75?'good':s.raw>55?'warn':'bad';verdict.innerHTML=`<div class="score ${cls}">${s.raw}%</div><p><b>${m.name}</b> — ${m.intent}. Bendri kabliukai: ${s.common.join(', ')||'reikia daugiau duomenų'}.</p>`;renderIdeas(m,s)}
+function renderIdeas(m=profiles[0],s=score(getProfile(),profiles[0])){let common=s.common.length?s.common:['kava','kelionės','savaitgalis'];icebreakers.innerHTML=common.slice(0,5).map(x=>`<div class="card" style="background:#0b1224;margin:8px 0">Mačiau, kad tau irgi patinka ${x}. Koks paskutinis geras atradimas šitoje temoje?</div>`).join('');dateIdeas.innerHTML=[`Kava + trumpas pasivaikščiojimas ${getProfile().city||'mieste'}`,`Aktyvi veikla pagal bendrą pomėgį: ${common[0]}`,`Ramus pirmas susitikimas viešoje vietoje`].map(x=>`<div class="card" style="background:#0b1224;margin:8px 0">${x}</div>`).join('')}
+function renderAll(){renderMatches();renderIdeas()}
+function show(s){document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));document.getElementById('screen-'+s).classList.remove('hidden');if(s!=='profile')renderAll()}
+function resetDemo(){localStorage.removeItem('dateSparkProfile');location.reload()}
+let saved=localStorage.getItem('dateSparkProfile');if(saved){let p=JSON.parse(saved);name.value=p.name||'';age.value=p.age||'';city.value=p.city||'';intent.value=p.intent||'';interests.value=p.interests||'';bio.value=p.bio||'';bioOut.innerHTML=makeBio(p);renderAll()}
+</script>
+</body>
+</html>
