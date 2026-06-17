@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070913">
+<title>Quick Product Video</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070913;color:#f5f7ff;font-family:Arial,system-ui,sans-serif}.wrap{max-width:980px;margin:auto;padding:16px}.top{margin-bottom:18px}.tag{display:inline-block;padding:7px 10px;border:1px solid #2b9d65;border-radius:999px;color:#b7ffd8;background:#0b1a17;font-size:12px;font-weight:800}h1{font-size:clamp(32px,7vw,58px);line-height:1;margin:14px 0}.lead{color:#cbd7e9;line-height:1.5}.grid{display:grid;grid-template-columns:1fr 360px;gap:16px}.panel{background:#111827;border:1px solid #2a3650;border-radius:18px;padding:15px}.upload{display:block;border:1px dashed #60769a;border-radius:14px;padding:18px;text-align:center;background:#0a1220;cursor:pointer}.upload input{display:none}.muted{color:#a8b3c7;font-size:13px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;margin:11px 0 6px;font-weight:800;font-size:13px}input,select{width:100%;border:1px solid #35445f;background:#070b15;color:white;border-radius:11px;padding:12px;font:inherit}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:900;cursor:pointer;background:#ff4d8d;color:#fff;text-decoration:none}.btn.ok{background:#4df0a1;color:#04130c}.btn.alt{background:#172033;border:1px solid #35445f}.btn:disabled{opacity:.45}.phone{width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#02040a;border:1px solid #3b4963}canvas,video{width:100%;height:100%;display:block;object-fit:cover}.status{margin-top:12px;padding:11px;border:1px solid #253653;border-radius:12px;background:#09111f;font-size:13px}.bar{height:8px;background:#050911;border-radius:999px;overflow:hidden;margin-top:8px}.bar span{display:block;width:0;height:100%;background:linear-gradient(90deg,#ff4d8d,#4df0a1)}#result{display:none;margin-top:12px}.note{margin-top:10px;color:#ffe29a;font-size:12px;line-height:1.45}.footer{margin-top:18px;text-align:center;color:#8090aa;font-size:12px}@media(max-width:780px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.panel:last-child{order:-1}.phone{max-width:330px;margin:auto}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="top"><span class="tag">REALUS VIDEO FAILAS</span><h1>Nuotraukos → vertikalus produkto video</h1><p class="lead">Įkelk iki 8 nuotraukų, įrašyk pavadinimą, kainą ir kontaktą. Programa telefone realiai sukuria atsisiunčiamą WEBM video.</p></div>
+<section class="grid">
+<div class="panel">
+<h2>Duomenys</h2>
+<label class="upload"><input id="photos" type="file" accept="image/*" multiple><b>Pasirinkti nuotraukas</b><div id="count" class="muted">Dar nepasirinkta</div></label>
+<label>Pavadinimas</label><input id="title" maxlength="70" placeholder="Pvz. Aston Martin DBX žibintas">
+<div class="row"><div><label>Kaina</label><input id="price" maxlength="24" placeholder="850 €"></div><div><label>Trukmė</label><select id="duration"><option value="6">6 s</option><option value="10" selected>10 s</option><option value="15">15 s</option></select></div></div>
+<label>Papildomas tekstas</label><input id="detail" maxlength="70" placeholder="OEM · siunčiame visoje ES">
+<label>Kontaktas</label><input id="contact" maxlength="70" placeholder="Rašykite žinutę">
+<div class="actions"><button id="preview" class="btn alt">Peržiūra</button><button id="render" class="btn ok">Sukurti video</button></div>
+<div class="status"><span id="statusText">Pasirink nuotraukas.</span><div class="bar"><span id="progress"></span></div></div>
+<div class="note">10 sekundžių video kuriamas maždaug 10–15 sekundžių. Garso ši versija neprideda.</div>
+</div>
+<div class="panel">
+<h2>Peržiūra</h2>
+<div class="phone"><canvas id="canvas" width="540" height="960"></canvas><video id="video" controls playsinline hidden></video></div>
+<div id="result"><div class="actions"><a id="download" class="btn" download="product-video.webm">Atsisiųsti video</a><button id="back" class="btn alt">Atgal</button></div><p id="fileInfo" class="muted"></p></div>
+</div>
+</section>
+<div class="footer">Nuotraukos apdorojamos tik tavo telefone.</div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),c=$('canvas'),x=c.getContext('2d'),v=$('video');let imgs=[],urls=[],out=null,busy=false;
+function status(t,p=0){$('statusText').textContent=t;$('progress').style.width=Math.max(0,Math.min(100,p))+'%'}
+function text(id,f){return ($(id).value||'').trim()||f}
+function clearUrls(){urls.forEach(URL.revokeObjectURL);urls=[];imgs=[]}
+$('photos').onchange=async e=>{clearUrls();const fs=[...e.target.files].slice(0,8);try{for(const f of fs){const u=URL.createObjectURL(f);urls.push(u);const i=new Image();i.src=u;await i.decode();imgs.push(i)}$('count').textContent=imgs.length?imgs.length+' nuotr. paruošta':'Dar nepasirinkta';status(imgs.length?'Nuotraukos paruoštos.':'Pasirink nuotraukas.',imgs.length?10:0);preview()}catch(err){console.error(err);status('Nepavyko atidaryti nuotraukos.',0)}};
+['title','price','detail','contact'].forEach(id=>$(id).oninput=preview);$('preview').onclick=preview;$('back').onclick=preview;$('render').onclick=render;
+function cover(i,z=1,px=0,py=0,a=1){const s=Math.max(c.width/i.naturalWidth,c.height/i.naturalHeight)*z,w=i.naturalWidth*s,h=i.naturalHeight*s;x.save();x.globalAlpha=a;x.drawImage(i,(c.width-w)/2+px,(c.height-h)/2+py,w,h);x.restore()}
+function rr(px,py,w,h,r){x.beginPath();x.roundRect(px,py,w,h,r)}
+function wrap(t,px,py,mw,lh,max=3){const ws=t.split(/\s+/);let l='',ls=[];for(const w of ws){const q=l?l+' '+w:w;if(x.measureText(q).width>mw&&l){ls.push(l);l=w}else l=q}if(l)ls.push(l);ls.slice(0,max).forEach((q,n)=>x.fillText(q,px,py+n*lh))}
+function overlay(p=.05){const g=x.createLinearGradient(0,400,0,960);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.94)');x.fillStyle=g;x.fillRect(0,0,540,960);x.fillStyle='rgba(255,255,255,.95)';rr(32,48,150,42,21);x.fill();x.fillStyle='#080b12';x.font='800 20px Arial';x.fillText('PARDUODAMA',50,77);x.fillStyle='#fff';x.font='900 46px Arial';wrap(text('title','Produkto pavadinimas'),34,680,470,52,3);x.fillStyle='#4df0a1';x.font='900 52px Arial';x.fillText(text('price','Kaina'),34,842);x.fillStyle='#dce8f8';x.font='600 24px Arial';x.fillText(text('detail','Trumpas aprašymas'),34,884);x.fillStyle='#ff4d8d';rr(326,815,180,72,18);x.fill();x.fillStyle='#fff';x.font='800 21px Arial';x.textAlign='center';x.fillText(text('contact','Rašykite žinutę'),416,859);x.textAlign='left';x.fillStyle='rgba(255,255,255,.25)';rr(34,922,472,7,4);x.fill();x.fillStyle='#fff';rr(34,922,472*Math.max(.03,p),7,4);x.fill()}
+function empty(){const g=x.createLinearGradient(0,0,540,960);g.addColorStop(0,'#2b1643');g.addColorStop(1,'#070913');x.fillStyle=g;x.fillRect(0,0,540,960);x.fillStyle='#fff';x.textAlign='center';x.font='900 42px Arial';x.fillText('Įkelk nuotraukas',270,430);x.fillStyle='#a8b3c7';x.font='500 24px Arial';x.fillText('čia bus video peržiūra',270,474);x.textAlign='left'}
+function preview(){v.pause();v.hidden=true;c.hidden=false;$('result').style.display='none';if(!imgs.length)return empty();x.clearRect(0,0,540,960);cover(imgs[0],1.03);overlay(.05)}
+function mime(){for(const t of ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'])if(window.MediaRecorder&&MediaRecorder.isTypeSupported(t))return t;return ''}
+async function render(){if(busy)return;if(!imgs.length)return alert('Pirma pasirink bent vieną nuotrauką.');if(!c.captureStream||!window.MediaRecorder)return alert('Atidaryk per naujausią Android Chrome.');busy=true;$('render').disabled=true;$('preview').disabled=true;v.hidden=true;c.hidden=false;$('result').style.display='none';if(out)URL.revokeObjectURL(out);const dur=Number($('duration').value)||10,stream=c.captureStream(30),chunks=[],mt=mime();let rec;try{rec=mt?new MediaRecorder(stream,{mimeType:mt,videoBitsPerSecond:4500000}):new MediaRecorder(stream,{videoBitsPerSecond:4500000})}catch(e){busy=false;$('render').disabled=false;$('preview').disabled=false;return alert('Šiame telefone video kodavimas nepasileido.')}rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};const done=new Promise(r=>rec.onstop=r);rec.start(250);const start=performance.now();await new Promise(resolve=>{function f(now){const p=Math.min(1,(now-start)/1000/dur),pos=p*imgs.length,idx=Math.min(imgs.length-1,Math.floor(pos)),local=pos-idx,next=Math.min(imgs.length-1,idx+1);x.fillStyle='#000';x.fillRect(0,0,540,960);cover(imgs[idx],1.02+local*.08,(local-.5)*18,0,1);if(next!==idx&&local>.78)cover(imgs[next],1.02,0,0,(local-.78)/.22);overlay(p);status('Kuriamas video… '+Math.round(p*100)+'%',p*100);p<1?requestAnimationFrame(f):resolve()}requestAnimationFrame(f)});rec.stop();await done;stream.getTracks().forEach(t=>t.stop());const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'});out=URL.createObjectURL(blob);v.src=out;v.hidden=false;c.hidden=true;$('download').href=out;$('download').download='product-video.webm';$('fileInfo').textContent='Sukurta: '+(blob.size/1048576).toFixed(1)+' MB · '+dur+' s · 540×960 · WEBM';$('result').style.display='block';status('Video sukurtas.',100);busy=false;$('render').disabled=false;$('preview').disabled=false}
+empty();
+</script>
+</body>
+</html>
