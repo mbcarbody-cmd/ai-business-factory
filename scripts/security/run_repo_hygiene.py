@@ -8,12 +8,14 @@ from pathlib import Path
 import check_repo_hygiene as scanner
 
 SCANNER_DEFINITION = Path("scripts/security/check_repo_hygiene.py")
+ORIGINAL_ITER = scanner.iter_repo_files
 
 
 def changed_files() -> list[Path]:
     commands = [
         ["git", "diff", "--name-only", "--diff-filter=ACMR", "HEAD^1", "HEAD"],
-        ["git", "show", "--pretty=", "--name-only", "--diff-filter=ACMR", "HEAD"],
+        ["git", "show", "--first-parent", "--pretty=", "--name-only", "--diff-filter=ACMR", "HEAD"],
+        ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", "-m", "HEAD"],
     ]
     for command in commands:
         result = subprocess.run(command, cwd=scanner.ROOT, text=True, capture_output=True, check=False)
@@ -26,7 +28,7 @@ def changed_files() -> list[Path]:
 def iter_changed_repo_files():
     rows = changed_files()
     if not rows:
-        for relative, path in scanner.iter_repo_files():
+        for relative, path in ORIGINAL_ITER():
             if relative != SCANNER_DEFINITION:
                 yield relative, path
         return
