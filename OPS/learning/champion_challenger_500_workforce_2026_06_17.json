@@ -1,0 +1,45 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Experimentation Officer",
+  "capacity_units": 500,
+  "mission": "Continuously compare current production methods against challengers and promote only measured improvements.",
+  "squads": [
+    {"code":"CC-01","name":"Prompt Challengers","units":50,"scope":"compare prompt versions on quality, consistency and task completion"},
+    {"code":"CC-02","name":"Model Challengers","units":50,"scope":"compare AI models by accuracy, cost, speed and risk"},
+    {"code":"CC-03","name":"Tool Challengers","units":50,"scope":"compare APIs, parsers and automation tools"},
+    {"code":"CC-04","name":"Workflow Challengers","units":50,"scope":"compare process sequences, handoffs and exception handling"},
+    {"code":"CC-05","name":"Pricing Challengers","units":50,"scope":"compare pricing, floor, discount and slow-stock rules"},
+    {"code":"CC-06","name":"WMS Challengers","units":50,"scope":"compare putaway, slotting, capacity and picking rules"},
+    {"code":"CC-07","name":"Listing Challengers","units":50,"scope":"compare titles, descriptions, SEO and marketplace formats"},
+    {"code":"CC-08","name":"Sales Challengers","units":50,"scope":"compare offers, channels, personalization and follow-up sequences"},
+    {"code":"CC-09","name":"Cost and Latency Challengers","units":50,"scope":"reduce runtime, model cost and human touches without quality loss"},
+    {"code":"CC-10","name":"Adversarial Challengers","units":50,"scope":"stress-test claims, permissions, calculations and edge cases"}
+  ],
+  "experiment_contract": [
+    "one explicit hypothesis",
+    "one champion version",
+    "one or more challengers",
+    "fixed evaluation set",
+    "predefined winning metric",
+    "cost and risk measurement",
+    "regression check",
+    "promotion or rejection verdict",
+    "rollback path"
+  ],
+  "required_artifacts": [
+    "OPS/experiments/champion_registry.json",
+    "OPS/experiments/challenger_queue.json",
+    "OPS/experiments/experiment_results.json",
+    "OPS/experiments/promotion_ledger.json",
+    "OPS/experiments/rollback_registry.json"
+  ],
+  "daily_minimum": {
+    "experiments_started": 10,
+    "experiments_completed": 5,
+    "production_promotions": 1,
+    "weak_methods_retired": 1,
+    "regression_checks": 5
+  },
+  "promotion_rule": "A challenger replaces the champion only when it wins the primary metric, passes regression checks, stays within cost and risk limits, and has a rollback path."
+}
