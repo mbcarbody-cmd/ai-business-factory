@@ -1,0 +1,115 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Learning Officer + Evaluation Engineer + Knowledge Manager",
+  "purpose": "Make every agent measurably better every operating day by converting outcomes, errors, market signals and peer comparisons into tested rules and improved routing.",
+  "core_principle": "Agents do not improve because they read more. They improve only when a new lesson changes a tested decision rule, tool workflow, prompt, routing policy or product behavior without breaking prior capabilities.",
+  "daily_cycle": [
+    {
+      "step": 1,
+      "name": "Collect evidence",
+      "inputs": ["task outputs", "QA failures", "customer replies", "revenue movement", "warehouse discrepancies", "pricing errors", "deploy incidents", "competitor signals", "model disagreements"],
+      "output": "raw_learning_events"
+    },
+    {
+      "step": 2,
+      "name": "Normalize lesson",
+      "rule": "Every lesson must contain source, observed result, cause hypothesis, reusable rule, affected agents, risk and proof path.",
+      "output": "normalized_lesson"
+    },
+    {
+      "step": 3,
+      "name": "Create evaluation case",
+      "rule": "No lesson may change production behavior without at least one positive test and one regression test.",
+      "output": "eval_case"
+    },
+    {
+      "step": 4,
+      "name": "Champion challenger test",
+      "rule": "Current rule/model is champion. New rule/model is challenger. Compare accuracy, completion, cost, latency, risk and commercial impact.",
+      "output": "comparison_result"
+    },
+    {
+      "step": 5,
+      "name": "Promote, quarantine or reject",
+      "promotion_threshold": "challenger must improve the primary KPI and must not breach safety, quality, margin or regression limits",
+      "output": "policy_decision"
+    },
+    {
+      "step": 6,
+      "name": "Compile into operations",
+      "targets": ["agent instruction", "workflow rule", "task template", "routing policy", "QA gate", "pricing rule", "warehouse rule", "sales playbook"],
+      "output": "versioned_change"
+    },
+    {
+      "step": 7,
+      "name": "Propagate and verify",
+      "rule": "Affected agents must acknowledge the new version and pass the relevant skill gate before receiving autonomous work.",
+      "output": "sync_and_gate_proof"
+    },
+    {
+      "step": 8,
+      "name": "Measure after deployment",
+      "rule": "Track seven-day effect and roll back if quality, cash, conversion, reliability or accuracy worsens.",
+      "output": "post_change_effect"
+    }
+  ],
+  "mandatory_daily_outputs": {
+    "minimum_learning_events": 10,
+    "minimum_normalized_lessons": 3,
+    "minimum_new_eval_cases": 3,
+    "minimum_champion_challenger_runs": 3,
+    "minimum_promoted_improvements": 1,
+    "minimum_rejected_weak_patterns": 1,
+    "minimum_cross_agent_syncs": 1
+  },
+  "learning_sources_priority": [
+    "real paid or buyer behavior",
+    "real operational errors",
+    "real product usage",
+    "verified public market data",
+    "controlled simulations",
+    "model-generated hypotheses"
+  ],
+  "anti_fake_learning_rules": [
+    "Reading or summarizing is not learning proof.",
+    "A new document is not improvement unless it changes a tested operational rule.",
+    "Self-scoring without an external evaluator or deterministic check is invalid.",
+    "A lesson without provenance, affected objects and rollback path cannot be promoted.",
+    "Agents cannot rewrite their own release gate or evaluation thresholds.",
+    "No improvement may reduce compliance, security, data provenance or financial controls.",
+    "More output volume is not improvement unless quality or commercial throughput rises."
+  ],
+  "daily_score": {
+    "weights": {
+      "task_success_and_proof": 25,
+      "commercial_or_time_value": 20,
+      "accuracy_and_regression": 20,
+      "quality_and_user_acceptance": 15,
+      "cost_and_latency_efficiency": 10,
+      "knowledge_freshness_and_provenance": 5,
+      "cross_agent_teaching": 5
+    },
+    "promotion": ">=85 and no veto breach",
+    "normal": "70-84",
+    "coaching_required": "50-69",
+    "quarantine": "<50 or critical error"
+  },
+  "role_rules": {
+    "Chief Learning Officer": "Own the learning portfolio and ensure useful lessons become operating changes.",
+    "Evaluation Engineer": "Own objective cases, regression sets, thresholds and comparison integrity.",
+    "Knowledge Manager": "Own normalization, versioning, provenance, propagation and deprecation.",
+    "Judge Agent": "Independent veto over unsupported promotion claims.",
+    "Agent Owner": "Own skill remediation and business impact after promotion.",
+    "CEO": "Allocate improvement capacity to the highest-value weakness, not the most interesting topic."
+  },
+  "daily_done_definition": "The day is not counted as a learning day unless at least one tested improvement is promoted into a real workflow or an existing harmful rule is removed, with proof and rollback information.",
+  "canonical_outputs": [
+    "OPS/evals/eval_plan.md",
+    "OPS/evals/eval_registry.json",
+    "OPS/learning/agent_skill_ledger.json",
+    "OPS/learning/knowledge_sync_bus.json",
+    "OPS/model_council/workflow_model_routing.md",
+    "OPS/learning/daily_learning_report.json"
+  ]
+}
