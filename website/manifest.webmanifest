@@ -1,7 +1,7 @@
 {
-  "name": "Quick Product Video",
-  "short_name": "Product Video",
-  "description": "Create a real vertical product video from photos directly on Android.",
+  "name": "Studio Video Builder",
+  "short_name": "Video Studio",
+  "description": "Create vertical videos from photos, brand text, logo and audio directly on Android.",
   "lang": "lt",
   "start_url": "./android.html",
   "scope": "./",
