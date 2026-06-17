@@ -1,0 +1,35 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Chief Learning Officer",
+  "engine": "OPS/learning/DAILY_AGENT_IMPROVEMENT_ENGINE_2026_06_17.md",
+  "daily_targets": {
+    "learning_events": 10,
+    "normalized_lessons": 3,
+    "evaluation_cases": 3,
+    "champion_challenger_tests": 3,
+    "promoted_improvements_or_removed_harmful_rules": 1,
+    "cross_agent_syncs": 1,
+    "regression_runs": 1
+  },
+  "layers": [
+    {"id":"LEARN-01","name":"Experience Replay Ledger","status":"required","owner":"Memory Ledger Keeper"},
+    {"id":"LEARN-02","name":"Evaluation Harness","status":"required","owner":"Judge Agent"},
+    {"id":"LEARN-03","name":"Champion-Challenger Lab","status":"required","owner":"Model Council"},
+    {"id":"LEARN-04","name":"Skill Graph and Certification","status":"required","owner":"Chief Learning Officer"},
+    {"id":"LEARN-05","name":"Knowledge Distillation Router","status":"required","owner":"Knowledge Router"},
+    {"id":"LEARN-06","name":"Forgetting and Expiry Layer","status":"required","owner":"Memory Hygiene Agent"},
+    {"id":"LEARN-07","name":"Model and Tool Router","status":"required","owner":"CTO / Model Router"},
+    {"id":"LEARN-08","name":"Red-Team and Adversarial Layer","status":"required","owner":"Chief Quality and Risk Officer"}
+  ],
+  "first_execution_queue": [
+    {"id":"LQ-001","priority":"P0","task":"Create 20 canonical evaluation cases from real pricing, WMS, listing, sales and delivery work","status":"ready"},
+    {"id":"LQ-002","priority":"P0","task":"Create agent skill registry with scores, evidence and certification state","status":"ready"},
+    {"id":"LQ-003","priority":"P0","task":"Create lesson ledger from user corrections, QA bugs and failed outputs","status":"ready"},
+    {"id":"LQ-004","priority":"P0","task":"Run first champion-challenger comparison on Parts Seller OS workflow","status":"ready"},
+    {"id":"LQ-005","priority":"P0","task":"Add forgetting rules for stale, contradictory and low-confidence memory","status":"ready"},
+    {"id":"LQ-006","priority":"P1","task":"Create model/tool routing scorecard for quality, cost, speed and risk","status":"ready"}
+  ],
+  "success_condition": "Every day at least one verified improvement changes a live workflow, decision rule, tool choice or agent capability score.",
+  "failure_condition": "The system creates summaries or new policy files without measurable before-after evidence or production promotion."
+}
