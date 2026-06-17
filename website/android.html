@@ -1,62 +1,26 @@
 <!doctype html>
 <html lang="lt">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#070913" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Content Hook Factory</title>
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./icon.svg" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070913">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Quick Product Video</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg">
   <style>
-    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#070913;color:#f5f7ff;font-family:Inter,Arial,system-ui,sans-serif;overflow:hidden}
-    .bar{height:58px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0c1323;border-bottom:1px solid #2a3650}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}.brand img{width:40px;height:40px;border-radius:12px}.brand div{min-width:0}.brand b,.brand span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.brand span{font-size:12px;color:#a8b3c7}
-    button{border:0;border-radius:12px;padding:10px 13px;font-weight:800;background:#4df0a1;color:#04130c;cursor:pointer;white-space:nowrap}
-    iframe{display:block;width:100%;height:calc(100% - 58px);border:0;background:#070913}
-    @media(display-mode:standalone){.bar{height:50px}.brand span{display:none}iframe{height:calc(100% - 50px)}}
-    @media(max-width:560px){.brand span{display:none}.bar{padding:6px 8px}button{padding:9px 10px;font-size:12px}}
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#070913;color:#f5f7ff;font-family:Arial,system-ui,sans-serif;overflow:hidden}.bar{height:54px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0c1323;border-bottom:1px solid #2a3650}.brand{display:flex;align-items:center;gap:9px;min-width:0}.brand img{width:38px;height:38px;border-radius:11px}.brand b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.install{border:0;border-radius:11px;padding:9px 11px;font-weight:800;background:#4df0a1;color:#04130c;white-space:nowrap}iframe{display:block;width:100%;height:calc(100% - 54px);border:0;background:#070913}@media(display-mode:standalone){.bar{display:none}iframe{height:100%}}
   </style>
 </head>
 <body>
-  <div class="bar">
-    <div class="brand">
-      <img src="./icon.svg" alt="" />
-      <div><b>Content Hook Factory</b><span>Android versija · veikia ir neprisijungus</span></div>
-    </div>
-    <button id="installBtn" type="button">Įdiegti</button>
-  </div>
-  <iframe src="./index.html" title="Content Hook Factory programa"></iframe>
+  <div class="bar"><div class="brand"><img src="./icon.svg" alt=""><b>Quick Product Video</b></div><button id="install" class="install">Įdiegti</button></div>
+  <iframe src="./video-maker.html" title="Quick Product Video"></iframe>
   <script>
-    let installPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', event => {
-      event.preventDefault();
-      installPrompt = event;
-      installBtn.textContent = 'Įdiegti programėlę';
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (installPrompt) {
-        installPrompt.prompt();
-        await installPrompt.userChoice;
-        installPrompt = null;
-        return;
-      }
-      alert('Android Chrome: paspauskite meniu ⋮ ir pasirinkite „Įdiegti programėlę“ arba „Pridėti prie pagrindinio ekrano“.');
-    });
-
-    window.addEventListener('appinstalled', () => {
-      installBtn.textContent = 'Įdiegta';
-      installBtn.disabled = true;
-    });
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
-    }
+    let promptEvent=null;const button=document.getElementById('install');
+    addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptEvent=e});
+    button.onclick=async()=>{if(promptEvent){promptEvent.prompt();await promptEvent.userChoice;promptEvent=null}else alert('Chrome meniu ⋮ pasirink „Įdiegti programėlę“ arba „Pridėti prie pagrindinio ekrano“.')};
+    addEventListener('appinstalled',()=>{button.textContent='Įdiegta';button.disabled=true});
+    if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
   </script>
 </body>
 </html>
