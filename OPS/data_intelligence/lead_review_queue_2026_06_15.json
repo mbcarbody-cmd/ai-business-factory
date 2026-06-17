@@ -3,8 +3,9 @@
   "owner": "SPEC-022 Lead Review Specialist",
   "status": "active",
   "purpose": "Store manually verified public business targets and allowed official contact routes before outreach.",
-  "rule": "A row is outreach_ready only when relevance, official route and route source were manually checked. Outreach remains not_sent until explicitly executed.",
+  "rule": "A row is outreach_ready only when relevance, official route and route source were manually checked. A prepared message is still not sent until explicitly executed.",
   "route_policy": "Use only official public business forms, published business email addresses or published business phone numbers; respect each site's terms and do not automate sending.",
+  "message_pack": "OPS/revenue_ops/paid_pilot_outreach_pack_2026_06_17.md",
   "rows": [
     {
       "id": "LRQ-001",
@@ -14,7 +15,8 @@
       "fit": "vehicle salvage and recycled parts inventory",
       "relevance_verdict": "confirmed_used_parts_operator",
       "state": "outreach_ready",
-      "outreach_status": "not_sent",
+      "outreach_status": "message_ready_not_sent",
+      "message_section": "LRQ-001",
       "allowed_contact_route": "official contact page; published business email admin@asm-autos.co.uk; published phone 01844 268 940",
       "route_source": "https://www.asm-autos.co.uk/contact-us/",
       "reviewed_at": "2026-06-17",
@@ -28,7 +30,8 @@
       "fit": "dismantling, recycling and green parts",
       "relevance_verdict": "confirmed_used_parts_operator",
       "state": "outreach_ready",
-      "outreach_status": "not_sent",
+      "outreach_status": "message_ready_not_sent",
+      "message_section": "LRQ-002",
       "allowed_contact_route": "official contact form using Solutions for business or General enquiries; published phone 01302 821608",
       "route_source": "https://www.synetiq.co.uk/contact/",
       "reviewed_at": "2026-06-17",
@@ -42,7 +45,8 @@
       "fit": "supplier network for new and used parts",
       "relevance_verdict": "confirmed_supplier_network",
       "state": "outreach_ready",
-      "outreach_status": "not_sent",
+      "outreach_status": "message_ready_not_sent",
+      "message_section": "LRQ-003",
       "allowed_contact_route": "official Become a Supplier form; published phone 0330 111 3200",
       "route_source": "https://www.breakerlink.com/join/",
       "reviewed_at": "2026-06-17",
@@ -56,7 +60,8 @@
       "fit": "used parts quote network and breaker marketplace",
       "relevance_verdict": "confirmed_supplier_network",
       "state": "outreach_ready",
-      "outreach_status": "not_sent",
+      "outreach_status": "message_ready_not_sent",
+      "message_section": "LRQ-004",
       "allowed_contact_route": "official Join as Supplier form",
       "route_source": "https://partsgateway.typeform.com/to/aJSTHoYI",
       "reviewed_at": "2026-06-17",
@@ -70,7 +75,8 @@
       "fit": "used vehicle parts marketplace and inventory platform",
       "relevance_verdict": "confirmed_used_parts_platform",
       "state": "outreach_ready",
-      "outreach_status": "not_sent",
+      "outreach_status": "message_ready_not_sent",
+      "message_section": "LRQ-005",
       "allowed_contact_route": "official seller partnership page and Let's talk form",
       "route_source": "https://join.ovoko.com/",
       "reviewed_at": "2026-06-17",
@@ -78,5 +84,6 @@
     }
   ],
   "outreach_ready_count": 5,
-  "next_action": "Prepare individualized messages and obtain explicit send approval or execute through the approved outbound workflow."
+  "message_ready_count": 5,
+  "next_action": "Obtain explicit send approval, then send one individualized message per approved official route and record evidence."
 }
