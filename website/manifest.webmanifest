@@ -3,7 +3,7 @@
   "short_name": "Video Studio",
   "description": "Create vertical videos from photos, brand text, logo and audio directly on Android.",
   "lang": "lt",
-  "start_url": "./android.html",
+  "start_url": "./studio.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
