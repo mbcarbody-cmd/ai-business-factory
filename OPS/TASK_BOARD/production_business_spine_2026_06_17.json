@@ -1,0 +1,120 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "CTO + COO + CFO + Security Judge",
+  "purpose": "Convert the factory from prototype-and-doc output into a secure, measurable, billable production business.",
+  "p0_layers": [
+    {
+      "id": "PBS-001",
+      "layer": "Multi-tenant identity and RBAC",
+      "status": "schema_and_account_model_exist_backend_missing",
+      "owner": "Identity Platform Lead",
+      "proof": "login, invites, role checks, tenant isolation tests and audited admin access",
+      "next_action": "implement auth service and permission middleware against core_v1 API"
+    },
+    {
+      "id": "PBS-002",
+      "layer": "Canonical database and event ledger",
+      "status": "v1_schema_created",
+      "owner": "Data Platform Lead",
+      "proof": "migration applies cleanly, RLS tests pass, stock and payment idempotency tests pass",
+      "next_action": "add migration runner, seed permissions and database integration tests"
+    },
+    {
+      "id": "PBS-003",
+      "layer": "Billing, subscriptions and payment reconciliation",
+      "status": "data_model_created_provider_not_connected",
+      "owner": "Billing Platform Lead",
+      "proof": "trial to paid, renewal, failed payment, cancellation, invoice and reconciliation flows",
+      "next_action": "implement one provider adapter plus manual bank-payment fallback"
+    },
+    {
+      "id": "PBS-004",
+      "layer": "Object storage and photo pipeline",
+      "status": "infrastructure_stub_created_pipeline_missing",
+      "owner": "Media Infrastructure Lead",
+      "proof": "tenant-isolated upload, validation, thumbnails, 25-photo part test and deletion audit",
+      "next_action": "create signed upload API and asynchronous image processing jobs"
+    },
+    {
+      "id": "PBS-005",
+      "layer": "Background jobs and integration bus",
+      "status": "redis_and_job_schema_created_workers_missing",
+      "owner": "Automation Runtime Lead",
+      "proof": "retry, dead-letter, idempotency, marketplace sync and invoice job tests",
+      "next_action": "implement worker runtime and dead-letter queue"
+    },
+    {
+      "id": "PBS-006",
+      "layer": "Observability and incident response",
+      "status": "missing",
+      "owner": "Site Reliability Lead",
+      "proof": "structured logs, metrics, traces, uptime alert, incident owner, rollback and postmortem",
+      "next_action": "add health endpoints, error tracking, service dashboards and incident runbook"
+    },
+    {
+      "id": "PBS-007",
+      "layer": "Backup, restore and disaster recovery",
+      "status": "missing",
+      "owner": "Data Resilience Lead",
+      "proof": "encrypted backup, documented RPO/RTO and successful restore drill",
+      "next_action": "create automated database and object-storage backup with restore test"
+    },
+    {
+      "id": "PBS-008",
+      "layer": "Product analytics and unit economics",
+      "status": "plans_exist_runtime_events_missing",
+      "owner": "Product Analytics Lead + CFO",
+      "proof": "activation, usage, listing-to-sale, churn, MRR, gross margin and model cost dashboards",
+      "next_action": "define event contract and instrument first seller workflow"
+    },
+    {
+      "id": "PBS-009",
+      "layer": "Customer onboarding, support and retention",
+      "status": "process_docs_exist_product_flow_missing",
+      "owner": "Customer Operations Lead",
+      "proof": "self-serve onboarding, checklist completion, support SLA, renewal and churn reason",
+      "next_action": "build onboarding checklist and support/retention state machine"
+    },
+    {
+      "id": "PBS-010",
+      "layer": "Legal, privacy and data lifecycle",
+      "status": "partial",
+      "owner": "Legal and Privacy Lead",
+      "proof": "terms acceptance, privacy consent, export, retention, account closure and deletion logs",
+      "next_action": "create versioned consent and data lifecycle model"
+    },
+    {
+      "id": "PBS-011",
+      "layer": "Feature flags and safe releases",
+      "status": "missing",
+      "owner": "Release Engineering Lead",
+      "proof": "tenant-scoped flags, staged rollout, rollback, migration gate and release evidence",
+      "next_action": "implement feature flag registry and release checklist in CI"
+    },
+    {
+      "id": "PBS-012",
+      "layer": "Marketplace connectors and sync truth",
+      "status": "specs_partial_connectors_missing",
+      "owner": "Integrations Lead",
+      "proof": "one import/export connector, stock reservation, retry, reconciliation and failure queue",
+      "next_action": "ship CSV connector first, then one real marketplace connector"
+    }
+  ],
+  "execution_order": [
+    "PBS-001",
+    "PBS-002",
+    "PBS-006",
+    "PBS-007",
+    "PBS-003",
+    "PBS-004",
+    "PBS-005",
+    "PBS-008",
+    "PBS-009",
+    "PBS-011",
+    "PBS-012",
+    "PBS-010"
+  ],
+  "release_gate": "No customer data or payment may enter production until tenant isolation, audit logging, backup restore and monitoring tests pass.",
+  "business_gate": "No product counts as launched until a buyer can sign up, reach value, pay, receive support and renew without founder-only manual intervention."
+}
