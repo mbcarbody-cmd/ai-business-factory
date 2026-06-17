@@ -1,50 +1,36 @@
 # Content Hook Factory Product Gate
 
-Date: 2026-06-15
-Owner: JUDGE-1 Release Gate Judge
-Status: active / lightweight P0
+Date: 2026-06-17
+Owner: Release Gate Judge
+Status: REJECTED / NOT A SELLABLE PRODUCT
 
 ## Decision
 
-Content Hook Factory becomes the current lightweight P0 app.
+Content Hook Factory is removed from P0. It produced only template text and video scripts; it did not generate a real video or another sufficiently valuable finished artifact.
 
-AI Pilot OS is parked. Parts Seller OS remains parked as a heavier domain product.
+The Android/PWA packaging did not make the underlying product useful. It must not be presented as a finished product, sold, promoted, or counted as delivery proof.
 
-## Why this gate exists
+## Failure reasons
 
-The user rejected the previous app and requested the next idea/app. The new P0 must create a visible output immediately and connect to the content-intelligence direction.
+- no real AI or model-backed generation;
+- no video file generation;
+- generic template output;
+- excessive low-value text;
+- no demonstrated customer outcome;
+- no valid paid-pilot or delivery evidence.
 
-Content Hook Factory is allowed because it directly supports:
+## Replacement P0
 
-- hook generation;
-- social post generation;
-- short video script generation;
-- landing hero generation;
-- outreach DM generation;
-- content sprint packaging;
-- Markdown/JSON export;
-- a 199-399 EUR sprint offer.
+`website/video-maker.html` — Quick Product Video.
 
-## Gate constraints
+Its first functional gate is narrow and testable:
 
-- Do not claim the app uses a real LLM/API; it is a static template-based MVP.
-- Do not claim guaranteed results from content.
-- Do not copy user-provided social samples; extract only reusable mechanics.
-- Do not return parked apps to P0 unless user explicitly asks.
+1. user uploads one or more photos;
+2. user enters title, price and contact text;
+3. the browser renders a vertical 540x960 video;
+4. the user can play and download a non-empty WEBM file;
+5. the result is verified on a real Android Chrome device.
 
-## Current proof
+## Revenue gate
 
-- Static app updated at `website/index.html`.
-- Root `index.html` points to the new app.
-- Product brief created at `products/content-hook-factory/README.md`.
-- P0 Focus Lock updated.
-
-## Next gate
-
-Content Hook Factory can move from `lightweight_p0` to `sell_ready` only when:
-
-1. QA verdict is recorded;
-2. release/public URL proof is recorded;
-3. one real content sample is converted into assets;
-4. one 199-399 EUR offer page/copy block is produced;
-5. enforcement checks include the new app.
+No outreach, payment request, domain purchase or sell-ready claim is allowed until the five functional checks above have real evidence.
