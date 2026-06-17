@@ -1,0 +1,32 @@
+{
+  "updated_at": "2026-06-17",
+  "status": "active",
+  "owner": "Asset Opportunity Radar Lead",
+  "radars": [
+    {
+      "id": "RADAR-LAND-KAUNAS-25K",
+      "asset": "land plots",
+      "area": "approximately 30 km from Kaunas city center",
+      "max_total_price_eur": 25000,
+      "allowed_use": ["residential", "garden community"],
+      "required_output": ["direct listing URL", "price", "area", "price per are", "locality", "distance estimate", "purpose", "utilities", "freshness", "risks"],
+      "exclude": ["agricultural only", "forest", "commercial only", "auction", "sold", "duplicate", "search page without exact listing"],
+      "automation_cadence": "every 3 hours"
+    },
+    {
+      "id": "RADAR-HYBRID-EU-5K",
+      "asset": "damaged hybrid vehicles",
+      "region": "Europe excluding UK",
+      "max_total_price_eur": 5000,
+      "model_year_min": 2020,
+      "allowed_powertrain": ["HEV", "PHEV"],
+      "priority": ["lowest fixed price", "newest year", "heaviest damage", "complete vehicle"],
+      "required_output": ["direct listing URL", "country", "fixed price", "make/model/year", "powertrain", "damage", "mileage", "seller", "freshness", "VAT/fees/export conditions"],
+      "exclude": ["UK", "auction", "starting bid", "parts only", "shell only", "lease", "dealer-only bidding", "search page without exact listing"],
+      "automation_cadence": "every 2 hours"
+    }
+  ],
+  "proof_rule": "No opportunity is reported without a verified direct listing URL and visible price matching the configured ceiling.",
+  "dedup_rule": "The same plot or vehicle appearing across multiple portals is reported once with alternate sources attached.",
+  "first_scan_state": "No verified in-scope direct-link match was confirmed during the initial manual scan; out-of-scope results were rejected instead of reported."
+}
