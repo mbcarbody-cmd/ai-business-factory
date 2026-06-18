@@ -5,6 +5,11 @@ on:
       - 'website/ai-assistant-architect.html'
       - 'tests/test_ai_assistant_architect.py'
       - '.github/workflows/assistant-architect-qa.yml'
+  pull_request:
+    paths:
+      - 'website/ai-assistant-architect.html'
+      - 'tests/test_ai_assistant_architect.py'
+      - '.github/workflows/assistant-architect-qa.yml'
   workflow_dispatch:
 permissions:
   contents: read
