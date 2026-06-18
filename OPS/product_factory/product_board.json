@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-06-18T08:00:00+03:00",
+  "canonical": true,
+  "products": [
+    {
+      "id": "AI-ASSISTANT-ARCHITECT-001",
+      "name": "AI asistento architektas",
+      "status": "qa_review",
+      "buyer": "Lithuanian SMB owner, operations manager or automation consultant who has a repetitive process but no implementation-ready AI assistant specification",
+      "pain": "AI initiatives stall at vague prompts, unclear approval gates and no ROI baseline",
+      "price_test_eur": 149,
+      "delivery": "Browser-generated assistant blueprint plus optional 72-hour one-process pilot",
+      "functional_path": "website/ai-assistant-architect.html",
+      "test_path": "tests/test_ai_assistant_architect.py",
+      "qa_workflow": ".github/workflows/assistant-architect-qa.yml",
+      "acceptance_path": "mailto:mbcarbody@gmail.com?subject=AI%20asistento%20pilotas%20%E2%80%93%20149%20EUR",
+      "payment_path": "not_enabled_until_qa_pass",
+      "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/ai-assistant-architect.html",
+      "next_gate": "Confirm GitHub Actions critical-path pass, then promote from qa_review to live and add payment link",
+      "non_duplicate_evidence": "Repository search returned no existing assistant architect, workflow generator or ROI blueprint product"
+    }
+  ]
+}
