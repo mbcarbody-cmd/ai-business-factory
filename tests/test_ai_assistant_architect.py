@@ -33,7 +33,7 @@ assert round(saved_monthly, 1) == 24.2
 assert round(monthly_value) == 485
 assert round(payback, 2) == 0.31
 
-# Guard against accidental external runtime dependencies.
+# Guard against accidental external runtime dependencies and accidental redirects.
 assert not re.search(r'<script[^>]+src=', text, re.I)
 assert not re.search(r'<link[^>]+stylesheet[^>]+href=["\']https?://', text, re.I)
 
