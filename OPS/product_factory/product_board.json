@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-20T08:00:00+03:00",
+  "updated_at": "2026-06-21T08:00:00+03:00",
   "canonical": true,
   "products": [
     {
@@ -7,7 +7,7 @@
       "name": "AI asistento architektas",
       "status": "live",
       "buyer": "Lithuanian SMB owner, operations manager or automation consultant who has a repetitive process but no implementation-ready AI assistant specification",
-      "pain": "AI initiatives stall at vague prompts, unclear approval gates and no ROI baseline",
+      "pain": "AI initiatives stall at vague prompts, unclear approval gates, weak output verification and no ROI baseline",
       "price_test_eur": 149,
       "delivery": "Browser-generated assistant blueprint plus optional 72-hour one-process pilot",
       "functional_path": "website/ai-assistant-architect.html",
@@ -17,9 +17,13 @@
       "payment_path": "Accepted email brief -> 149 EUR pro-forma invoice/payment instructions -> work starts after payment confirmation",
       "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/ai-assistant-architect.html",
       "primary_url": "https://mbcarbody-cmd.github.io/ai-business-factory/",
-      "qa_evidence": "PR #83 head ea87ed1544aba51e27d99ada4bac65c30fc4e99f: Assistant Architect QA, Product Factory Enforcement and Repo Hygiene completed with success",
-      "next_gate": "Run public URL smoke check after GitHub Pages refresh, then prepare 20 outreach rows",
-      "non_duplicate_evidence": "Repository search returned no existing assistant architect, workflow generator or ROI blueprint product"
+      "qa_evidence": "Executable test path exists on main and checks form, generator, downloads, offer CTA, deterministic ROI math, HTML structure, no accidental redirect and no external runtime dependency. PR #83 remains open and mergeable with head ea87ed1544aba51e27d99ada4bac65c30fc4e99f as additional QA-hardening evidence.",
+      "market_signal_2026_06_21": "Fresh AI-agent signals show demand for governed workflow integration, output verification, approval gates and ROI tracking rather than vague agent experiments.",
+      "outreach_path": "OPS/product_factory/outreach_ai_assistant_architect.csv",
+      "outreach_ready_rows": 20,
+      "last_revenue_state_transition": "2026-06-21: added 20 outreach-ready segment rows and moved the product from only-live to ready-for-first-contact validation.",
+      "next_gate": "Use the first five rows for manual contact, record replies, then keep or adjust the 149 EUR price test based on response quality.",
+      "non_duplicate_evidence": "Repository search returned no existing assistant architect, workflow generator or ROI blueprint product before launch"
     }
   ]
 }
