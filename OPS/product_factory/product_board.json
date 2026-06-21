@@ -24,7 +24,7 @@
       "outreach_ready_rows": 20,
       "revenue_log_path": "OPS/product_factory/revenue_log_2026-06-21.md",
       "last_revenue_state_transition": "2026-06-21: added 20 outreach-ready segment rows and moved the product from only-live to ready-for-first-contact validation.",
-      "next_gate": "Use the first five rows for manual contact, record replies, then keep or adjust the 149 EUR price test based on response quality.",
+      "next_gate": "Use the first five outreach rows for manual contact, record replies, then keep or adjust the 149 EUR price test based on response quality.",
       "non_duplicate_evidence": "Repository search returned no existing assistant architect, workflow generator or ROI blueprint product before launch"
     }
   ]
