@@ -1,0 +1,66 @@
+{
+  "date": "2026-06-23",
+  "product": "Quick Product Video",
+  "run": "revenue_autopilot_run_12",
+  "status": "product_shipped",
+  "shipped_change": "Connected Lead Send Helper to the sales pipeline by adding selected/all CSV export in the UI and expanding OPS/sales/video_offer_pipeline_v1.csv from 2 placeholder rows to 20 tracked lead rows.",
+  "commits": {
+    "lead_send_ui": "ec1292cb57ce759a3827183fe2969700987022f3",
+    "pipeline_rows": "a255af0cdc53729b86cfd5003f15f1f58114a25b"
+  },
+  "working_urls": [
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/lead-send.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html"
+  ],
+  "regression_checks": [
+    {
+      "case": "lead_send_helper_exports_all_rows",
+      "expected": "UI exposes Download all pipeline rows and exports 20 rows with Lead status, 19 EUR price, 0 EUR revenue and offer URL.",
+      "result": "pass",
+      "evidence": "website/lead-send.html includes exportAll handler, pipelineCsv(leads), and leads LP-0001 through LP-0020."
+    },
+    {
+      "case": "selected_lead_pipeline_export",
+      "expected": "UI can export a single selected pipeline row without marking outreach as sent.",
+      "result": "pass",
+      "evidence": "website/lead-send.html includes exportSelected handler and status text: Status remains Lead until manual send is completed."
+    },
+    {
+      "case": "pipeline_file_matches_revenue_rule",
+      "expected": "OPS/sales/video_offer_pipeline_v1.csv contains 20 rows, Lead status, price_eur 19 and revenue_eur 0.",
+      "result": "pass",
+      "evidence": "OPS/sales/video_offer_pipeline_v1.csv expanded to LP-0001..LP-0020 and includes revenue rule comment."
+    },
+    {
+      "case": "no_fake_send_or_fake_revenue",
+      "expected": "No row is marked Contacted/Paid/Delivered, and no revenue is claimed.",
+      "result": "pass",
+      "evidence": "All rows remain Lead with next_action Send first contact and revenue_eur 0."
+    },
+    {
+      "case": "payment_provider",
+      "expected": "A real live payment URL exists and checkout can complete paid order.",
+      "result": "fail_blocked",
+      "evidence": "No real Stripe/PayPal/Revolut/bank payment URL is present in repo."
+    }
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "buyer_count": 0,
+    "offer_price_eur": 19,
+    "before": "Outreach helper had 20 send-ready placeholders and the sales pipeline had only 2 tracked rows.",
+    "after": "Lead Send Helper and sales pipeline now share a 20-row Lead-state tracking/export path, enabling measurable outreach progression from Lead to Paid to Delivered."
+  },
+  "rejected_weak_patterns": [
+    "Do not count generated outreach text as sent outreach.",
+    "Do not count Lead status as buyer interest or revenue.",
+    "Do not claim payment-ready checkout without a real payment provider URL.",
+    "Do not treat policy, audit, staffing, roadmap or idea files as product progress."
+  ],
+  "blockers": [
+    "No live payment provider/payment URL in repo.",
+    "No manual sending connector enabled in this run; outreach rows are send-ready but not sent.",
+    "Lead names are still segment placeholders, not researched named companies."
+  ],
+  "next_executable_task": "Replace segment placeholder leads with 20 researched public Lithuanian seller/contact URLs, then keep statuses Lead until actual manual send is performed."
+}
