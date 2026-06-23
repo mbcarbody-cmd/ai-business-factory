@@ -16,6 +16,7 @@
 <h1>Quick Product Video checkout</h1>
 <p class="muted">Create a payment-pending order, request payment instructions, then track fulfillment by order ID. Revenue is counted only when payment is confirmed.</p>
 <a class="cta ghost" href="./offer.html">Back to offer</a>
+<a class="cta ghost" href="./payment.html">Payment proof</a>
 <a class="cta ghost" href="./order-status.html">Check order status</a>
 <a class="cta ghost" href="./order-admin.html">Local order admin</a>
 </section>
@@ -23,13 +24,14 @@
 <div class="card">
 <p class="price">19 EUR</p>
 <p class="muted">One ready-to-post vertical product video from 1-12 photos.</p>
-<div class="notice"><b>Current payment fallback:</b> no live checkout provider is connected yet. This page creates a payment-pending order and sends a structured payment-instructions request to fulfillment. Do not count as revenue until the order is marked paid.</div>
+<div class="notice"><b>Current payment fallback:</b> no live checkout provider is connected yet. This page creates a payment-pending order and sends a structured payment-proof handoff. Do not count as revenue until the order is marked paid.</div>
 <form id="checkoutForm" novalidate>
 <div class="row"><div><label for="brand">Brand / seller</label><input id="brand" maxlength="50" required></div><div><label for="contact">Buyer contact</label><input id="contact" maxlength="80" required></div></div>
 <label for="product">Product</label><input id="product" maxlength="90" required>
 <div class="row"><div><label for="ctaText">Video CTA</label><input id="ctaText" maxlength="35" required value="Message me"></div><div><label for="photoCount">Photo count</label><input id="photoCount" type="number" min="1" max="12" required></div></div>
 <label for="deliveryLink">Photo / product link</label><textarea id="deliveryLink" placeholder="Paste Google Drive, marketplace listing, WeTransfer, or notes"></textarea>
 <button class="cta" type="submit">Create payment-pending order</button>
+<a id="paymentLink" class="cta secondary" hidden>Open payment proof</a>
 <a id="payMail" class="cta secondary" hidden>Request payment instructions</a>
 <a id="trackLink" class="cta ghost" hidden>Track this order</a>
 <a id="builderLink" class="cta ghost" hidden>Open builder with this order</a>
@@ -42,7 +44,7 @@
 <div class="card">
 <h2>Checkout proof</h2>
 <div id="proof" class="proof">No checkout order created yet.</div>
-<div class="handoff"><b>Fulfillment handoff now required before work starts:</b><br><span class="muted">copy or download the order JSON, then open the builder with seller/product/CTA fields prefilled. This prevents lost buyer data between payment request and video production.</span></div>
+<div class="handoff"><b>Fulfillment handoff now required before work starts:</b><br><span class="muted">copy/download the order JSON, open payment proof with the same order ID, then open the builder only after paid confirmation. This prevents lost buyer/payment data.</span></div>
 <h3>Revenue rules</h3>
 <ul>
 <li>Payment pending is <b>not</b> revenue.</li>
@@ -50,7 +52,7 @@
 <li>Every order must include order ID, buyer contact, product, photo count and payment status.</li>
 <li>Every browser-created order is stored in the local admin ledger until exported or cleared.</li>
 </ul>
-<p class="mini">Rejected weak pattern: asking for payment without exportable order proof, production handoff, or local ledger review.</p>
+<p class="mini">Rejected weak pattern: asking for payment without exportable order proof, payment proof handoff, production handoff, or local ledger review.</p>
 </div>
 </section>
 </main>
@@ -67,10 +69,11 @@ function readLedger(){try{const raw=JSON.parse(localStorage.getItem(ledgerKey)||
 function writeLedger(rows){localStorage.setItem(ledgerKey,JSON.stringify(rows.slice(-200)))}
 function upsertLedger(order){const rows=readLedger().filter(row=>row.orderId!==order.orderId);rows.push(order);writeLedger(rows);localStorage.setItem('qpvLastCheckoutOrder',JSON.stringify(order));return rows.length}
 function builderHref(data,id){const p=new URLSearchParams({orderId:id,brand:data.brand,headline:data.product,cta:data.ctaText,subline:`19 EUR paid-order workflow · ${data.photoCount} photos expected`});return `./video-maker.html?${p.toString()}`}
-function buildHandoff(data){const id=orderId(),createdAt=new Date().toISOString(),proof={orderId:id,product:'Quick Product Video',priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',buyer:data.contact,seller:data.brand,item:data.product,cta:data.ctaText,photoCount:Number(data.photoCount),deliveryLink:data.deliveryLink||'',createdAt,updatedAt:createdAt,production:{builderUrl:builderHref(data,id),requiredInputs:['photos','brand','headline','cta'],doNotStartBefore:'payment_confirmed'}};const subject=`Payment instructions ${id} — Quick Product Video`;const body=[`Order ID: ${id}`,`Price: ${priceEur} EUR`,'Payment status: payment_pending','Fulfillment status: lead','',`Brand/seller: ${data.brand}`,`Buyer contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Photo/product link: ${data.deliveryLink||'-'}`,'','Please send payment instructions for this Quick Product Video order. I understand revenue is counted only after payment confirmation.'].join('\n');return{proof,mailto:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,track:`./order-status.html?orderId=${encodeURIComponent(id)}&status=payment_pending&price=19&product=${encodeURIComponent(data.product)}`,builder:builderHref(data,id)}}
+function paymentHref(data,id){const p=new URLSearchParams({orderId:id,buyer:data.contact});return `./payment.html?${p.toString()}`}
+function buildHandoff(data){const id=orderId(),createdAt=new Date().toISOString(),proof={orderId:id,product:'Quick Product Video',priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',buyer:data.contact,seller:data.brand,item:data.product,cta:data.ctaText,photoCount:Number(data.photoCount),deliveryLink:data.deliveryLink||'',createdAt,updatedAt:createdAt,payment:{proofUrl:paymentHref(data,id),requiredReference:id,doNotCountBefore:'manual_payment_confirmation'},production:{builderUrl:builderHref(data,id),requiredInputs:['photos','brand','headline','cta'],doNotStartBefore:'payment_confirmed'}};const subject=`Payment instructions ${id} — Quick Product Video`;const body=[`Order ID: ${id}`,`Price: ${priceEur} EUR`,'Payment status: payment_pending','Fulfillment status: lead','',`Brand/seller: ${data.brand}`,`Buyer contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Photo/product link: ${data.deliveryLink||'-'}`,'','Please send payment instructions for this Quick Product Video order. I understand revenue is counted only after payment confirmation.'].join('\n');return{proof,mailto:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,track:`./order-status.html?orderId=${encodeURIComponent(id)}&status=payment_pending&price=19&product=${encodeURIComponent(data.product)}`,builder:builderHref(data,id),payment:paymentHref(data,id)}}
 function setExportLinks(proof){lastProof=proof;const blob=new Blob([JSON.stringify(proof,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);$('downloadProof').href=url;$('downloadProof').download=`${proof.orderId}-quick-product-video-order.json`;$('downloadProof').hidden=false;$('copyProof').hidden=false}
 $('copyProof').addEventListener('click',async()=>{if(!lastProof)return;const text=JSON.stringify(lastProof,null,2);try{await navigator.clipboard.writeText(text);$('msg').className='ok';$('msg').textContent='Order JSON copied. Fulfillment can now use the same buyer/order proof.'}catch(error){$('msg').className='bad';$('msg').textContent='Clipboard blocked. Use Download order JSON instead.'}});
-$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),deliveryLink:clean($('deliveryLink').value)},error=validate(data);if(error){$('msg').className='bad';$('msg').textContent=error;$('payMail').hidden=true;$('trackLink').hidden=true;$('builderLink').hidden=true;$('adminLink').hidden=true;$('copyProof').hidden=true;$('downloadProof').hidden=true;return}const handoff=buildHandoff(data);let ledgerCount=0;try{ledgerCount=upsertLedger(handoff.proof)}catch(error){console.warn('Could not store checkout proof',error)}$('proof').textContent=JSON.stringify(handoff.proof,null,2);$('payMail').href=handoff.mailto;$('payMail').hidden=false;$('trackLink').href=handoff.track;$('trackLink').hidden=false;$('builderLink').href=handoff.builder;$('builderLink').hidden=false;$('adminLink').href=`./order-admin.html?orderId=${encodeURIComponent(handoff.proof.orderId)}`;$('adminLink').hidden=false;setExportLinks(handoff.proof);$('msg').className='ok';$('msg').textContent=`Payment-pending order saved to local ledger (${ledgerCount||1} total). Request payment instructions, then use admin to mark paid only after confirmation.`});
+$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),deliveryLink:clean($('deliveryLink').value)},error=validate(data);if(error){$('msg').className='bad';$('msg').textContent=error;['paymentLink','payMail','trackLink','builderLink','adminLink','copyProof','downloadProof'].forEach(id=>$(id).hidden=true);return}const handoff=buildHandoff(data);let ledgerCount=0;try{ledgerCount=upsertLedger(handoff.proof)}catch(error){console.warn('Could not store checkout proof',error)}$('proof').textContent=JSON.stringify(handoff.proof,null,2);$('paymentLink').href=handoff.payment;$('paymentLink').hidden=false;$('payMail').href=handoff.mailto;$('payMail').hidden=false;$('trackLink').href=handoff.track;$('trackLink').hidden=false;$('builderLink').href=handoff.builder;$('builderLink').hidden=false;$('adminLink').href=`./order-admin.html?orderId=${encodeURIComponent(handoff.proof.orderId)}`;$('adminLink').hidden=false;setExportLinks(handoff.proof);$('msg').className='ok';$('msg').textContent=`Payment-pending order saved to local ledger (${ledgerCount||1} total). Open payment proof, then use admin to mark paid only after confirmation.`});
 fillFromParams();
 </script>
 </body>
