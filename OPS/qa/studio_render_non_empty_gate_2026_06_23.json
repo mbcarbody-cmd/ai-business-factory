@@ -1,0 +1,42 @@
+{
+  "date": "2026-06-23",
+  "product": "Quick Product Video / Studio Video Builder",
+  "status": "promoted_to_real_workflow",
+  "commit": "ae628d8a4c20c9636458274c335a010368d2d221",
+  "changed_file": "website/video-studio.js",
+  "promoted_rule": {
+    "id": "studio-render-non-empty-webm-gate-v1",
+    "before": "The renderer could mark a video as created after MediaRecorder stopped even if chunks were empty or the WEBM blob was unusably small.",
+    "after": "The renderer now blocks success when chunks are missing or blob.size is below minimumUsefulVideoBytes(duration). It shows an error, does not expose download/share as success, and records local render proof only after passing the non-empty gate.",
+    "minimum_bytes": "max(160000, durationSeconds * 45000)",
+    "rollback": "Revert commit ae628d8a4c20c9636458274c335a010368d2d221 if Android Chrome produces valid playable WEBM below this threshold. Replace threshold with device-calibrated value instead of removing the gate."
+  },
+  "regression_checks": [
+    {
+      "case": "empty_chunks",
+      "expected": "status error, outputBlob null, no success message",
+      "covered_by_code": "if(!chunks.length || blob.size < minimumBytes)"
+    },
+    {
+      "case": "too_small_blob",
+      "expected": "status error, fileInfo shows QA block and minimum bytes",
+      "covered_by_code": "minimumUsefulVideoBytes(duration)"
+    },
+    {
+      "case": "valid_blob",
+      "expected": "video src set, download href set, local render proof stored, success status says non-empty WEBM gate passed",
+      "covered_by_code": "recordRenderProof(duration, blob, hadAudio) after gate"
+    }
+  ],
+  "rejected_weak_patterns": [
+    "Do not count 'Video sukurtas' as proof unless blob size is above threshold.",
+    "Do not sell or outreach from a summary/policy/audit without a playable downloaded file.",
+    "Do not hide Android Chrome failures behind generic success text."
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "confirmed_quality_change": "Reduced false-positive render success risk for the P0 product.",
+    "remaining_sell_ready_blocker": "A real Android Chrome manual test must still prove photos load, preview renders, non-empty WEBM generates, video plays, and download succeeds."
+  },
+  "next_executable_task": "Run Android Chrome manual QA on the live GitHub Pages URL and paste the localStorage studioVideoLastRenderProof payload plus downloaded file size into OPS/qa. If pass, open the revenue gate for a 19 EUR one-off video pack or 49 EUR/month seller plan test."
+}
