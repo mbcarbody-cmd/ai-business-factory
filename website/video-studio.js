@@ -1,31 +1,576 @@
 'use strict';
-const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d',{alpha:false}),video=$('video');
-const state={media:[],logo:null,outputUrl:null,outputBlob:null,busy:false};
-function setStatus(message,progress=0,type='info'){$('statusText').textContent=message;$('progress').style.width=`${Math.max(0,Math.min(100,progress))}%`;$('statusBox').dataset.type=type}
-function value(id,fallback=''){return($(id)?.value||'').trim()||fallback}
-function isHeic(file){const n=(file.name||'').toLowerCase(),t=(file.type||'').toLowerCase();return t.includes('heic')||t.includes('heif')||/\.(heic|heif)$/i.test(n)}
-function readAsDataUrl(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error('FileReader failed'));reader.readAsDataURL(blob)})}
-function loadHtmlImage(dataUrl){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Image decode failed'));img.src=dataUrl})}
-async function normalizeHeic(file){if(!window.heic2any)throw new Error('HEIC konverteris nepasikrovė. Patikrink interneto ryšį.');const converted=await window.heic2any({blob:file,toType:'image/jpeg',quality:.92});return Array.isArray(converted)?converted[0]:converted}
-async function decodeImageFile(file){let blob=file,converted=false;if(isHeic(file)){blob=await normalizeHeic(file);converted=true}if('createImageBitmap'in window){try{const bitmap=await createImageBitmap(blob,{imageOrientation:'from-image'});return{source:bitmap,width:bitmap.width,height:bitmap.height,name:file.name||'image',type:file.type||'unknown',converted,close:()=>bitmap.close?.()}}catch(error){console.warn('createImageBitmap failed; using FileReader',error)}}const dataUrl=await readAsDataUrl(blob),image=await loadHtmlImage(dataUrl);return{source:image,width:image.naturalWidth,height:image.naturalHeight,name:file.name||'image',type:file.type||'unknown',converted,close:()=>{}}}
-function clearMedia(){state.media.forEach(item=>item.close?.());state.media=[]}
-function escapeHtml(text){return String(text).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]))}
-function renderDiagnostics(rows){const box=$('diagnostics');if(!rows.length){box.innerHTML='<span class="muted">Failų diagnostika atsiras čia.</span>';return}box.innerHTML=rows.map(row=>`<div class="diag ${row.ok?'ok':'bad'}"><b>${row.ok?'✓':'✕'} ${escapeHtml(row.name)}</b><span>${escapeHtml(row.message)}</span></div>`).join('')}
-$('photos').addEventListener('change',async event=>{const files=[...event.target.files].slice(0,12);clearMedia();const diagnostics=[];$('mediaCount').textContent=files.length?`Apdorojama: ${files.length}`:'Dar nepasirinkta';setStatus('Apdorojamos nuotraukos…',4);for(let index=0;index<files.length;index+=1){const file=files[index];try{const decoded=await decodeImageFile(file);state.media.push(decoded);diagnostics.push({ok:true,name:decoded.name,message:`${decoded.width}×${decoded.height}${decoded.converted?' · HEIC → JPEG':''}`})}catch(error){diagnostics.push({ok:false,name:file.name||`Failas ${index+1}`,message:error.message||'Nepavyko atidaryti'})}setStatus(`Apdorojama ${index+1}/${files.length}`,5+((index+1)/Math.max(1,files.length))*20)}renderDiagnostics(diagnostics);$('mediaCount').textContent=state.media.length?`${state.media.length} paruošta${state.media.length!==files.length?` · ${files.length-state.media.length} atmesta`:''}`:'Nė viena nuotrauka neatsidarė';if(state.media.length){setStatus('Nuotraukos paruoštos.',25,'ok');drawPreview()}else{setStatus('Nė viena nuotrauka neatsidarė. Žiūrėk diagnostiką.',0,'error');drawEmpty()}})
-$('logo').addEventListener('change',async event=>{const file=event.target.files?.[0];if(!file)return;try{state.logo?.close?.();state.logo=await decodeImageFile(file);$('logoStatus').textContent=`Logotipas paruoštas: ${state.logo.name}`;drawPreview()}catch(error){state.logo=null;$('logoStatus').textContent=`Logotipo klaida: ${error.message}`}})
-$('soundtrack').addEventListener('change',()=>{$('audioUploadWrap').hidden=$('soundtrack').value!=='upload'});['brand','headline','subline','cta','template'].forEach(id=>{$(id).addEventListener('input',drawPreview);$(id).addEventListener('change',drawPreview)});$('preview').addEventListener('click',drawPreview);$('render').addEventListener('click',renderVideo);$('back').addEventListener('click',drawPreview);$('share').addEventListener('click',shareVideo)
-function roundedRect(x,y,width,height,radius){const r=Math.min(radius,width/2,height/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+width-r,y);ctx.quadraticCurveTo(x+width,y,x+width,y+r);ctx.lineTo(x+width,y+height-r);ctx.quadraticCurveTo(x+width,y+height,x+width-r,y+height);ctx.lineTo(x+r,y+height);ctx.quadraticCurveTo(x,y+height,x,y+height-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
-function cover(item,zoom=1,offsetX=0,alpha=1){const scale=Math.max(canvas.width/item.width,canvas.height/item.height)*zoom,width=item.width*scale,height=item.height*scale;ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(item.source,(canvas.width-width)/2+offsetX,(canvas.height-height)/2,width,height);ctx.restore()}
-function fitLogo(item,x,y,maxWidth,maxHeight){if(!item)return;const scale=Math.min(maxWidth/item.width,maxHeight/item.height,1),width=item.width*scale,height=item.height*scale;ctx.drawImage(item.source,x,y,width,height)}
-function wrapText(text,x,y,maxWidth,lineHeight,maxLines=3){const words=text.split(/\s+/).filter(Boolean),lines=[];let line='';for(const word of words){const candidate=line?`${line} ${word}`:word;if(ctx.measureText(candidate).width>maxWidth&&line){lines.push(line);line=word}else line=candidate}if(line)lines.push(line);lines.slice(0,maxLines).forEach((row,index)=>ctx.fillText(row,x,y+index*lineHeight))}
-function drawOverlay(progress=.04){const template=$('template').value,brand=value('brand','BRAND'),headline=value('headline','Aiški istorija. Stiprus vaizdas.'),subline=value('subline','Trumpas profesionalus paaiškinimas.'),cta=value('cta','Sužinoti daugiau'),gradient=ctx.createLinearGradient(0,canvas.height*.32,0,canvas.height);gradient.addColorStop(0,'rgba(0,0,0,0)');gradient.addColorStop(.62,'rgba(0,0,0,.50)');gradient.addColorStop(1,'rgba(0,0,0,.93)');ctx.fillStyle=gradient;ctx.fillRect(0,0,canvas.width,canvas.height);if(template==='editorial'){ctx.fillStyle='rgba(255,255,255,.94)';roundedRect(36,42,190,48,24);ctx.fill();ctx.fillStyle='#090b10';ctx.font='800 21px Arial';ctx.fillText(brand.slice(0,18).toUpperCase(),58,74);fitLogo(state.logo,410,38,92,58)}else if(template==='minimal'){ctx.fillStyle='#fff';ctx.font='700 22px Arial';ctx.fillText(brand.slice(0,24),38,70);fitLogo(state.logo,420,36,86,54)}else{ctx.fillStyle='#4df0a1';ctx.fillRect(0,0,14,canvas.height);ctx.fillStyle='#fff';ctx.font='900 24px Arial';ctx.fillText(brand.slice(0,22).toUpperCase(),42,76);fitLogo(state.logo,420,36,86,54)}ctx.fillStyle='#fff';ctx.font=template==='minimal'?'700 48px Arial':'900 52px Arial';wrapText(headline,38,670,468,58,3);ctx.fillStyle='rgba(255,255,255,.78)';ctx.font='500 25px Arial';wrapText(subline,40,842,455,34,2);if(cta){ctx.fillStyle=template==='contrast'?'#4df0a1':'rgba(255,255,255,.94)';roundedRect(38,900,264,58,16);ctx.fill();ctx.fillStyle='#090b10';ctx.font='800 21px Arial';ctx.fillText(cta.slice(0,26),60,937)}ctx.fillStyle='rgba(255,255,255,.22)';roundedRect(38,1002,464,7,4);ctx.fill();ctx.fillStyle='#fff';roundedRect(38,1002,Math.max(16,464*progress),7,4);ctx.fill()}
-function drawEmpty(){const gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.height);gradient.addColorStop(0,'#182033');gradient.addColorStop(1,'#06080d');ctx.fillStyle=gradient;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='800 42px Arial';ctx.fillText('Įkelk nuotraukas',canvas.width/2,485);ctx.fillStyle='#9cabc2';ctx.font='500 23px Arial';ctx.fillText('čia bus gyva peržiūra',canvas.width/2,530);ctx.textAlign='left'}
-function drawPreview(){video.pause();video.hidden=true;canvas.hidden=false;$('result').hidden=true;if(!state.media.length){drawEmpty();return}ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);cover(state.media[0],1.02,0,1);drawOverlay(.04)}
-function supportedMimeType(){return['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(type=>window.MediaRecorder?.isTypeSupported(type))||''}
-function minimumUsefulVideoBytes(durationSeconds){return Math.max(160000,Number(durationSeconds||6)*45000)}
-function recordRenderProof(durationSeconds,blob,hadAudio){const proof={version:'studio-video-render-proof-v1',createdAt:new Date().toISOString(),durationSeconds,bytes:blob.size,mimeType:blob.type||'video/webm',hasAudio:!!hadAudio,width:canvas.width,height:canvas.height,mediaCount:state.media.length,userAgent:navigator.userAgent};try{localStorage.setItem('studioVideoLastRenderProof',JSON.stringify(proof))}catch(error){console.warn('Could not store local render proof',error)}return proof}
-async function buildAudio(durationSeconds){const AudioContextClass=window.AudioContext||window.webkitAudioContext,mode=$('soundtrack').value;if(!AudioContextClass||mode==='none')return{tracks:[],stop:async()=>{}};const audioContext=new AudioContextClass();await audioContext.resume();const destination=audioContext.createMediaStreamDestination(),master=audioContext.createGain();master.gain.value=Number($('volume').value||35)/100;master.connect(destination);const nodes=[],now=audioContext.currentTime+.05;if(mode==='upload'){const file=$('audioFile').files?.[0];if(!file)throw new Error('Pasirink savo garso failą arba kitą garso režimą.');const buffer=await audioContext.decodeAudioData(await file.arrayBuffer()),source=audioContext.createBufferSource();source.buffer=buffer;source.loop=true;source.connect(master);source.start(now);nodes.push(source)}else{const lowPass=audioContext.createBiquadFilter();lowPass.type='lowpass';lowPass.frequency.value=mode==='ambient'?620:880;lowPass.connect(master);(mode==='ambient'?[110,164.81,220]:[110,220]).forEach((frequency,index)=>{const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();oscillator.type=index===0?'sine':'triangle';oscillator.frequency.value=frequency;gain.gain.value=mode==='ambient'?.035:.022;oscillator.connect(gain).connect(lowPass);oscillator.start(now);oscillator.stop(now+durationSeconds+.3);nodes.push(oscillator)});if(mode==='pulse'){for(let beat=0;beat<durationSeconds*2;beat+=1){const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),start=now+beat*.5;oscillator.type='sine';oscillator.frequency.setValueAtTime(82.41,start);oscillator.frequency.exponentialRampToValueAtTime(55,start+.18);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.15,start+.012);gain.gain.exponentialRampToValueAtTime(.0001,start+.24);oscillator.connect(gain).connect(master);oscillator.start(start);oscillator.stop(start+.26);nodes.push(oscillator)}}}return{tracks:destination.stream.getAudioTracks(),stop:async()=>{nodes.forEach(node=>{try{node.stop?.()}catch(_){}try{node.disconnect?.()}catch(_){}});try{await audioContext.close()}catch(_){}}}}
-async function renderVideo(){if(state.busy)return;if(!state.media.length){alert('Pirma įkelk bent vieną nuotrauką.');return}if(!canvas.captureStream||!window.MediaRecorder){alert('Ši naršyklė nepalaiko video kūrimo. Atidaryk naujausią Android Chrome.');return}state.busy=true;$('render').disabled=true;$('preview').disabled=true;$('result').hidden=true;video.hidden=true;canvas.hidden=false;if(state.outputUrl)URL.revokeObjectURL(state.outputUrl);const duration=Number($('duration').value||10);let audioBundle={tracks:[],stop:async()=>{}},stream,recorder;try{audioBundle=await buildAudio(duration);const canvasStream=canvas.captureStream(30);stream=new MediaStream([...canvasStream.getVideoTracks(),...audioBundle.tracks]);const mimeType=supportedMimeType();recorder=mimeType?new MediaRecorder(stream,{mimeType,videoBitsPerSecond:5200000,audioBitsPerSecond:128000}):new MediaRecorder(stream,{videoBitsPerSecond:5200000,audioBitsPerSecond:128000})}catch(error){await audioBundle.stop();state.busy=false;$('render').disabled=false;$('preview').disabled=false;alert(error.message||'Nepavyko paleisti video kodavimo.');return}const chunks=[];recorder.addEventListener('dataavailable',event=>{if(event.data?.size)chunks.push(event.data)});const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));recorder.start(250);const startedAt=performance.now();await new Promise(resolve=>{const draw=now=>{const progress=Math.min(1,(now-startedAt)/1000/duration),position=progress*state.media.length,index=Math.min(state.media.length-1,Math.floor(position)),local=position-index,next=Math.min(state.media.length-1,index+1);ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);cover(state.media[index],1.02+local*.07,(local-.5)*18,1);if(next!==index&&local>.78)cover(state.media[next],1.02,0,(local-.78)/.22);drawOverlay(progress);setStatus(`Kuriamas video… ${Math.round(progress*100)}%`,progress*100);if(progress<1)requestAnimationFrame(draw);else resolve()};requestAnimationFrame(draw)});recorder.stop();await stopped;stream.getTracks().forEach(track=>track.stop());const hadAudio=audioBundle.tracks.length>0;await audioBundle.stop();const blob=new Blob(chunks,{type:recorder.mimeType||'video/webm'}),minimumBytes=minimumUsefulVideoBytes(duration);if(!chunks.length||blob.size<minimumBytes){state.outputBlob=null;state.outputUrl=null;setStatus(`Renderio klaida: WEBM per mažas (${blob.size} B). Bandyk Chrome Android arba trumpesnį/garsą be upload.`,0,'error');$('fileInfo').textContent=`QA blokas: ${chunks.length} chunk · ${blob.size} B · minimumas ${minimumBytes} B`;state.busy=false;$('render').disabled=false;$('preview').disabled=false;return}state.outputBlob=blob;state.outputUrl=URL.createObjectURL(blob);const proof=recordRenderProof(duration,blob,hadAudio);video.src=state.outputUrl;video.hidden=false;canvas.hidden=true;$('download').href=state.outputUrl;$('download').download=`studio-video-${Date.now()}.webm`;$('fileInfo').textContent=`${duration} s · ${(blob.size/1048576).toFixed(1)} MB · 540×1080 · ${hadAudio?'su garsu':'be garso'} · QA ${proof.bytes} B`; $('result').hidden=false;$('share').hidden=!navigator.share;setStatus('Video sukurtas ir praėjo non-empty WEBM vartus.',100,'ok');state.busy=false;$('render').disabled=false;$('preview').disabled=false}
-async function shareVideo(){if(!state.outputBlob||!navigator.share)return;const file=new File([state.outputBlob],'studio-video.webm',{type:state.outputBlob.type});try{await navigator.share({files:[file],title:'Studio Video'})}catch(error){if(error.name!=='AbortError')alert('Dalintis nepavyko. Naudok atsisiuntimo mygtuką.')}}
-function renderSystemCheck(){const checks=[['FileReader',!!window.FileReader],['createImageBitmap',!!window.createImageBitmap],['Canvas captureStream',!!canvas.captureStream],['MediaRecorder',!!window.MediaRecorder],['Web Audio',!!(window.AudioContext||window.webkitAudioContext)]];$('systemCheck').innerHTML=checks.map(([name,ok])=>`<span class="chip ${ok?'ok':'bad'}">${ok?'✓':'✕'} ${name}</span>`).join('')}
-renderDiagnostics([]);renderSystemCheck();drawEmpty();
+
+const $ = id => document.getElementById(id);
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+const video = $('video');
+const state = { media: [], logo: null, outputUrl: null, outputBlob: null, busy: false };
+
+function setStatus(message, progress = 0, type = 'info') {
+  $('statusText').textContent = message;
+  $('progress').style.width = `${Math.max(0, Math.min(100, progress))}%`;
+  $('statusBox').dataset.type = type;
+}
+
+function value(id, fallback = '') {
+  return ($(id)?.value || '').trim() || fallback;
+}
+
+function isHeic(file) {
+  const n = (file.name || '').toLowerCase();
+  const t = (file.type || '').toLowerCase();
+  return t.includes('heic') || t.includes('heif') || /\.(heic|heif)$/i.test(n);
+}
+
+function readAsDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('FileReader failed'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function loadHtmlImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Image decode failed'));
+    img.src = dataUrl;
+  });
+}
+
+async function normalizeHeic(file) {
+  if (!window.heic2any) throw new Error('HEIC konverteris nepasikrovė. Patikrink interneto ryšį.');
+  const converted = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: .92 });
+  return Array.isArray(converted) ? converted[0] : converted;
+}
+
+async function decodeImageFile(file) {
+  let blob = file;
+  let converted = false;
+  if (isHeic(file)) {
+    blob = await normalizeHeic(file);
+    converted = true;
+  }
+  if ('createImageBitmap' in window) {
+    try {
+      const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+      return {
+        source: bitmap,
+        width: bitmap.width,
+        height: bitmap.height,
+        name: file.name || 'image',
+        type: file.type || 'unknown',
+        converted,
+        close: () => bitmap.close?.()
+      };
+    } catch (error) {
+      console.warn('createImageBitmap failed; using FileReader', error);
+    }
+  }
+  const dataUrl = await readAsDataUrl(blob);
+  const image = await loadHtmlImage(dataUrl);
+  return {
+    source: image,
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+    name: file.name || 'image',
+    type: file.type || 'unknown',
+    converted,
+    close: () => {}
+  };
+}
+
+function clearMedia() {
+  state.media.forEach(item => item.close?.());
+  state.media = [];
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>'"]/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#039;',
+    '"': '&quot;'
+  }[char]));
+}
+
+function renderDiagnostics(rows) {
+  const box = $('diagnostics');
+  if (!rows.length) {
+    box.innerHTML = '<span class="muted">Failų diagnostika atsiras čia.</span>';
+    return;
+  }
+  box.innerHTML = rows.map(row => `<div class="diag ${row.ok ? 'ok' : 'bad'}"><b>${row.ok ? '✓' : '✕'} ${escapeHtml(row.name)}</b><span>${escapeHtml(row.message)}</span></div>`).join('');
+}
+
+function scrollToPreview(delay = 180) {
+  const panel = document.querySelector('.previewPanel');
+  if (!panel) return;
+  window.setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), delay);
+}
+
+function scrollToResult(delay = 120) {
+  const panel = document.querySelector('.previewPanel');
+  if (!panel) return;
+  window.setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), delay);
+}
+
+function updateReadyStatus() {
+  const count = state.media.length;
+  const label = count === 1 ? '1 nuotrauka' : `${count} nuotraukos`;
+  setStatus(`Peržiūra paruošta: ${label}. App automatiškai pakels į video langą; tada spausk „Renderinti video“.`, 35, 'ok');
+}
+
+$('photos').addEventListener('change', async event => {
+  const files = [...event.target.files].slice(0, 12);
+  clearMedia();
+  const diagnostics = [];
+  $('mediaCount').textContent = files.length ? `Apdorojama: ${files.length}` : 'Dar nepasirinkta';
+  setStatus('Apdorojamos nuotraukos…', 4);
+
+  for (let index = 0; index < files.length; index += 1) {
+    const file = files[index];
+    try {
+      const decoded = await decodeImageFile(file);
+      state.media.push(decoded);
+      diagnostics.push({
+        ok: true,
+        name: decoded.name,
+        message: `${decoded.width}×${decoded.height}${decoded.converted ? ' · HEIC → JPEG' : ''}`
+      });
+    } catch (error) {
+      diagnostics.push({ ok: false, name: file.name || `Failas ${index + 1}`, message: error.message || 'Nepavyko atidaryti' });
+    }
+    setStatus(`Apdorojama ${index + 1}/${files.length}`, 5 + ((index + 1) / Math.max(1, files.length)) * 20);
+  }
+
+  renderDiagnostics(diagnostics);
+  $('mediaCount').textContent = state.media.length
+    ? `${state.media.length} paruošta${state.media.length !== files.length ? ` · ${files.length - state.media.length} atmesta` : ''}`
+    : 'Nė viena nuotrauka neatsidarė';
+
+  if (state.media.length) {
+    drawPreview();
+    updateReadyStatus();
+    scrollToPreview(320);
+  } else {
+    setStatus('Nė viena nuotrauka neatsidarė. Žiūrėk diagnostiką.', 0, 'error');
+    drawEmpty();
+  }
+});
+
+$('logo').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    state.logo?.close?.();
+    state.logo = await decodeImageFile(file);
+    $('logoStatus').textContent = `Logotipas paruoštas: ${state.logo.name}`;
+    drawPreview();
+    setStatus('Logotipas pridėtas. Peržiūra atnaujinta.', 35, 'ok');
+    scrollToPreview(180);
+  } catch (error) {
+    state.logo = null;
+    $('logoStatus').textContent = `Logotipo klaida: ${error.message}`;
+  }
+});
+
+$('soundtrack').addEventListener('change', () => {
+  $('audioUploadWrap').hidden = $('soundtrack').value !== 'upload';
+});
+
+['brand', 'headline', 'subline', 'cta', 'template'].forEach(id => {
+  $(id).addEventListener('input', drawPreview);
+  $(id).addEventListener('change', drawPreview);
+});
+
+$('preview').addEventListener('click', () => {
+  drawPreview();
+  if (state.media.length) {
+    updateReadyStatus();
+    scrollToPreview(100);
+  }
+});
+$('render').addEventListener('click', renderVideo);
+$('back').addEventListener('click', drawPreview);
+$('share').addEventListener('click', shareVideo);
+
+function roundedRect(x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function cover(item, zoom = 1, offsetX = 0, alpha = 1) {
+  const scale = Math.max(canvas.width / item.width, canvas.height / item.height) * zoom;
+  const width = item.width * scale;
+  const height = item.height * scale;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(item.source, (canvas.width - width) / 2 + offsetX, (canvas.height - height) / 2, width, height);
+  ctx.restore();
+}
+
+function fitLogo(item, x, y, maxWidth, maxHeight) {
+  if (!item) return;
+  const scale = Math.min(maxWidth / item.width, maxHeight / item.height, 1);
+  const width = item.width * scale;
+  const height = item.height * scale;
+  ctx.drawImage(item.source, x, y, width, height);
+}
+
+function wrapText(text, x, y, maxWidth, lineHeight, maxLines = 3) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  lines.slice(0, maxLines).forEach((row, index) => ctx.fillText(row, x, y + index * lineHeight));
+}
+
+function drawOverlay(progress = .04) {
+  const template = $('template').value;
+  const brand = value('brand', 'BRAND');
+  const headline = value('headline', 'Aiški istorija. Stiprus vaizdas.');
+  const subline = value('subline', 'Trumpas profesionalus paaiškinimas.');
+  const cta = value('cta', 'Sužinoti daugiau');
+  const gradient = ctx.createLinearGradient(0, canvas.height * .32, 0, canvas.height);
+  gradient.addColorStop(0, 'rgba(0,0,0,0)');
+  gradient.addColorStop(.62, 'rgba(0,0,0,.50)');
+  gradient.addColorStop(1, 'rgba(0,0,0,.93)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (template === 'editorial') {
+    ctx.fillStyle = 'rgba(255,255,255,.94)';
+    roundedRect(36, 42, 190, 48, 24);
+    ctx.fill();
+    ctx.fillStyle = '#090b10';
+    ctx.font = '800 21px Arial';
+    ctx.fillText(brand.slice(0, 18).toUpperCase(), 58, 74);
+    fitLogo(state.logo, 410, 38, 92, 58);
+  } else if (template === 'minimal') {
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 22px Arial';
+    ctx.fillText(brand.slice(0, 24), 38, 70);
+    fitLogo(state.logo, 420, 36, 86, 54);
+  } else {
+    ctx.fillStyle = '#4df0a1';
+    ctx.fillRect(0, 0, 14, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = '900 24px Arial';
+    ctx.fillText(brand.slice(0, 22).toUpperCase(), 42, 76);
+    fitLogo(state.logo, 420, 36, 86, 54);
+  }
+
+  ctx.fillStyle = '#fff';
+  ctx.font = template === 'minimal' ? '700 48px Arial' : '900 52px Arial';
+  wrapText(headline, 38, 670, 468, 58, 3);
+  ctx.fillStyle = 'rgba(255,255,255,.78)';
+  ctx.font = '500 25px Arial';
+  wrapText(subline, 40, 842, 455, 34, 2);
+
+  if (cta) {
+    ctx.fillStyle = template === 'contrast' ? '#4df0a1' : 'rgba(255,255,255,.94)';
+    roundedRect(38, 900, 264, 58, 16);
+    ctx.fill();
+    ctx.fillStyle = '#090b10';
+    ctx.font = '800 21px Arial';
+    ctx.fillText(cta.slice(0, 26), 60, 937);
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,.22)';
+  roundedRect(38, 1002, 464, 7, 4);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  roundedRect(38, 1002, Math.max(16, 464 * progress), 7, 4);
+  ctx.fill();
+}
+
+function drawEmpty() {
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, '#182033');
+  gradient.addColorStop(1, '#06080d');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.font = '800 42px Arial';
+  ctx.fillText('Įkelk nuotraukas', canvas.width / 2, 485);
+  ctx.fillStyle = '#9cabc2';
+  ctx.font = '500 23px Arial';
+  ctx.fillText('čia bus gyva peržiūra', canvas.width / 2, 530);
+  ctx.textAlign = 'left';
+}
+
+function drawPreview() {
+  video.pause();
+  video.hidden = true;
+  canvas.hidden = false;
+  $('result').hidden = true;
+  if (!state.media.length) {
+    drawEmpty();
+    return;
+  }
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  cover(state.media[0], 1.02, 0, 1);
+  drawOverlay(.04);
+}
+
+function supportedMimeType() {
+  return [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm'
+  ].find(type => window.MediaRecorder?.isTypeSupported(type)) || '';
+}
+
+function minimumUsefulVideoBytes(durationSeconds) {
+  return Math.max(160000, Number(durationSeconds || 6) * 45000);
+}
+
+function recordRenderProof(durationSeconds, blob, hadAudio) {
+  const proof = {
+    version: 'studio-video-render-proof-v1',
+    createdAt: new Date().toISOString(),
+    durationSeconds,
+    bytes: blob.size,
+    mimeType: blob.type || 'video/webm',
+    hasAudio: !!hadAudio,
+    width: canvas.width,
+    height: canvas.height,
+    mediaCount: state.media.length,
+    userAgent: navigator.userAgent
+  };
+  try {
+    localStorage.setItem('studioVideoLastRenderProof', JSON.stringify(proof));
+  } catch (error) {
+    console.warn('Could not store local render proof', error);
+  }
+  return proof;
+}
+
+async function buildAudio(durationSeconds) {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  const mode = $('soundtrack').value;
+  if (!AudioContextClass || mode === 'none') return { tracks: [], stop: async () => {} };
+
+  const audioContext = new AudioContextClass();
+  await audioContext.resume();
+  const destination = audioContext.createMediaStreamDestination();
+  const master = audioContext.createGain();
+  master.gain.value = Number($('volume').value || 35) / 100;
+  master.connect(destination);
+  const nodes = [];
+  const now = audioContext.currentTime + .05;
+
+  if (mode === 'upload') {
+    const file = $('audioFile').files?.[0];
+    if (!file) throw new Error('Pasirink savo garso failą arba kitą garso režimą.');
+    const buffer = await audioContext.decodeAudioData(await file.arrayBuffer());
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    source.connect(master);
+    source.start(now);
+    nodes.push(source);
+  } else {
+    const lowPass = audioContext.createBiquadFilter();
+    lowPass.type = 'lowpass';
+    lowPass.frequency.value = mode === 'ambient' ? 620 : 880;
+    lowPass.connect(master);
+    (mode === 'ambient' ? [110, 164.81, 220] : [110, 220]).forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = index === 0 ? 'sine' : 'triangle';
+      oscillator.frequency.value = frequency;
+      gain.gain.value = mode === 'ambient' ? .035 : .022;
+      oscillator.connect(gain).connect(lowPass);
+      oscillator.start(now);
+      oscillator.stop(now + durationSeconds + .3);
+      nodes.push(oscillator);
+    });
+    if (mode === 'pulse') {
+      for (let beat = 0; beat < durationSeconds * 2; beat += 1) {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const start = now + beat * .5;
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(82.41, start);
+        oscillator.frequency.exponentialRampToValueAtTime(55, start + .18);
+        gain.gain.setValueAtTime(.0001, start);
+        gain.gain.exponentialRampToValueAtTime(.15, start + .012);
+        gain.gain.exponentialRampToValueAtTime(.0001, start + .24);
+        oscillator.connect(gain).connect(master);
+        oscillator.start(start);
+        oscillator.stop(start + .26);
+        nodes.push(oscillator);
+      }
+    }
+  }
+
+  return {
+    tracks: destination.stream.getAudioTracks(),
+    stop: async () => {
+      nodes.forEach(node => {
+        try { node.stop?.(); } catch (_) {}
+        try { node.disconnect?.(); } catch (_) {}
+      });
+      try { await audioContext.close(); } catch (_) {}
+    }
+  };
+}
+
+async function renderVideo() {
+  if (state.busy) return;
+  if (!state.media.length) {
+    alert('Pirma įkelk bent vieną nuotrauką.');
+    return;
+  }
+  if (!canvas.captureStream || !window.MediaRecorder) {
+    alert('Ši naršyklė nepalaiko video kūrimo. Atidaryk naujausią Android Chrome.');
+    return;
+  }
+
+  state.busy = true;
+  $('render').disabled = true;
+  $('preview').disabled = true;
+  $('result').hidden = true;
+  video.hidden = true;
+  canvas.hidden = false;
+  if (state.outputUrl) URL.revokeObjectURL(state.outputUrl);
+
+  const duration = Number($('duration').value || 10);
+  let audioBundle = { tracks: [], stop: async () => {} };
+  let stream;
+  let recorder;
+
+  try {
+    audioBundle = await buildAudio(duration);
+    const canvasStream = canvas.captureStream(30);
+    stream = new MediaStream([...canvasStream.getVideoTracks(), ...audioBundle.tracks]);
+    const mimeType = supportedMimeType();
+    recorder = mimeType
+      ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5200000, audioBitsPerSecond: 128000 })
+      : new MediaRecorder(stream, { videoBitsPerSecond: 5200000, audioBitsPerSecond: 128000 });
+  } catch (error) {
+    await audioBundle.stop();
+    state.busy = false;
+    $('render').disabled = false;
+    $('preview').disabled = false;
+    alert(error.message || 'Nepavyko paleisti video kodavimo.');
+    return;
+  }
+
+  const chunks = [];
+  recorder.addEventListener('dataavailable', event => {
+    if (event.data?.size) chunks.push(event.data);
+  });
+  const stopped = new Promise(resolve => recorder.addEventListener('stop', resolve, { once: true }));
+  recorder.start(250);
+  const startedAt = performance.now();
+  setStatus('Renderis paleistas. Kuriamas WEBM video…', 2);
+
+  await new Promise(resolve => {
+    const draw = now => {
+      const progress = Math.min(1, (now - startedAt) / 1000 / duration);
+      const position = progress * state.media.length;
+      const index = Math.min(state.media.length - 1, Math.floor(position));
+      const local = position - index;
+      const next = Math.min(state.media.length - 1, index + 1);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      cover(state.media[index], 1.02 + local * .07, (local - .5) * 18, 1);
+      if (next !== index && local > .78) cover(state.media[next], 1.02, 0, (local - .78) / .22);
+      drawOverlay(progress);
+      setStatus(`Kuriamas video… ${Math.round(progress * 100)}%`, progress * 100);
+      if (progress < 1) requestAnimationFrame(draw);
+      else resolve();
+    };
+    requestAnimationFrame(draw);
+  });
+
+  recorder.stop();
+  await stopped;
+  stream.getTracks().forEach(track => track.stop());
+  const hadAudio = audioBundle.tracks.length > 0;
+  await audioBundle.stop();
+
+  const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+  const minimumBytes = minimumUsefulVideoBytes(duration);
+  if (!chunks.length || blob.size < minimumBytes) {
+    state.outputBlob = null;
+    state.outputUrl = null;
+    setStatus(`Renderio klaida: WEBM per mažas (${blob.size} B). Bandyk Chrome Android arba trumpesnį/garsą be upload.`, 0, 'error');
+    $('fileInfo').textContent = `QA blokas: ${chunks.length} chunk · ${blob.size} B · minimumas ${minimumBytes} B`;
+    state.busy = false;
+    $('render').disabled = false;
+    $('preview').disabled = false;
+    return;
+  }
+
+  state.outputBlob = blob;
+  state.outputUrl = URL.createObjectURL(blob);
+  const proof = recordRenderProof(duration, blob, hadAudio);
+  video.src = state.outputUrl;
+  video.hidden = false;
+  canvas.hidden = true;
+  $('download').href = state.outputUrl;
+  $('download').download = `studio-video-${Date.now()}.webm`;
+  $('fileInfo').textContent = `${duration} s · ${(blob.size / 1048576).toFixed(1)} MB · 540×1080 · ${hadAudio ? 'su garsu' : 'be garso'} · QA ${proof.bytes} B`;
+  $('result').hidden = false;
+  $('share').hidden = !navigator.share;
+  setStatus('Video sukurtas ir praėjo non-empty WEBM vartus. App pakels į rezultatą.', 100, 'ok');
+  scrollToResult(120);
+  state.busy = false;
+  $('render').disabled = false;
+  $('preview').disabled = false;
+}
+
+async function shareVideo() {
+  if (!state.outputBlob || !navigator.share) return;
+  const file = new File([state.outputBlob], 'studio-video.webm', { type: state.outputBlob.type });
+  try {
+    await navigator.share({ files: [file], title: 'Studio Video' });
+  } catch (error) {
+    if (error.name !== 'AbortError') alert('Dalintis nepavyko. Naudok atsisiuntimo mygtuką.');
+  }
+}
+
+function renderSystemCheck() {
+  const checks = [
+    ['FileReader', !!window.FileReader],
+    ['createImageBitmap', !!window.createImageBitmap],
+    ['Canvas captureStream', !!canvas.captureStream],
+    ['MediaRecorder', !!window.MediaRecorder],
+    ['Web Audio', !!(window.AudioContext || window.webkitAudioContext)]
+  ];
+  $('systemCheck').innerHTML = checks.map(([name, ok]) => `<span class="chip ${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✕'} ${name}</span>`).join('');
+}
+
+renderDiagnostics([]);
+renderSystemCheck();
+drawEmpty();
