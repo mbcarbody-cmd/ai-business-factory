@@ -1,0 +1,83 @@
+{
+  "date": "2026-06-23",
+  "run": "revenue_autopilot_007",
+  "product": "Quick Product Video",
+  "status": "PRODUCT_SHIPPED_WITH_PAYMENT_FALLBACK",
+  "commits": {
+    "checkout_page": "4a7017ccac66839afa63f8c96402553f7322bfda",
+    "offer_checkout_link": "7c87cc5642103e458b96ead28fb5b3f860539dee",
+    "order_status_url_handoff": "c990f8adffab29a41e61c50e70a257b252965238"
+  },
+  "working_urls": {
+    "offer": "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html",
+    "checkout": "https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html",
+    "order_status": "https://mbcarbody-cmd.github.io/ai-business-factory/website/order-status.html"
+  },
+  "highest_value_task_chosen": "Close the payment/checkout gap without waiting for external payment-provider credentials by shipping a payment-ready checkout handoff and status bridge.",
+  "exact_blocker": "No live payment provider URL, Stripe/PayPal account, bank payment details, or approved payment link exists in repo context. A real checkout charge cannot be honestly created by the agent.",
+  "fallback_executed": "Created checkout.html that generates payment-pending order proof, payment-instructions mailto, tracking link, and localStorage handoff. Updated offer.html to link to checkout. Upgraded order-status.html to read orderId/status/price/product from URL and qpvLastCheckoutOrder from localStorage.",
+  "tests": [
+    {
+      "id": "checkout_page_exists",
+      "type": "static_regression",
+      "result": "PASS",
+      "evidence": "website/checkout.html exists and contains Quick Product Video checkout"
+    },
+    {
+      "id": "price_visible",
+      "type": "static_regression",
+      "result": "PASS",
+      "evidence": "checkout page and offer page expose 19 EUR"
+    },
+    {
+      "id": "required_buyer_fields",
+      "type": "static_regression",
+      "result": "PASS",
+      "evidence": "checkout requires brand, contact, product, ctaText and photoCount"
+    },
+    {
+      "id": "photo_count_guardrail",
+      "type": "static_regression",
+      "result": "PASS",
+      "evidence": "photoCount is min 1 max 12 and validate() rejects invalid values"
+    },
+    {
+      "id": "payment_pending_not_revenue",
+      "type": "business_regression",
+      "result": "PASS",
+      "evidence": "checkout proof sets paymentStatus payment_pending; order status counts revenueCountedEur as 0 until paid/delivered"
+    },
+    {
+      "id": "offer_to_checkout_path",
+      "type": "conversion_regression",
+      "result": "PASS",
+      "evidence": "offer.html has direct Go to checkout CTA and generated checkoutLink with URLSearchParams"
+    },
+    {
+      "id": "checkout_to_status_path",
+      "type": "conversion_regression",
+      "result": "PASS",
+      "evidence": "checkout creates track link to order-status.html?orderId=...&status=payment_pending&price=19"
+    },
+    {
+      "id": "live_payment_charge",
+      "type": "payment_regression",
+      "result": "FAIL_BLOCKED",
+      "evidence": "No real payment processor/link exists; fallback keeps payment_pending and requests instructions instead of pretending payment is live"
+    }
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "buyer": null,
+    "price_eur": 19,
+    "measurable_product_state_movement": "Before: offer and order intake relied on email/manual instructions with no checkout page. After: Offer -> Checkout -> Payment-pending proof -> Status tracking path exists, while avoiding false revenue claims."
+  },
+  "rejected_weak_patterns": [
+    "Do not claim live checkout without a real payment provider URL or bank/payment details.",
+    "Do not count payment-pending order proof as revenue.",
+    "Do not count summaries, policy files, staffing plans, idea lists, or audits as progress.",
+    "Do not stop at blocker; execute fallback that moves buyer path forward.",
+    "Do not create internal-only order records without a buyer-visible path."
+  ],
+  "next_executable_task": "Add a manual payment configuration file and checkout renderer that can switch from payment_pending fallback to a real payment button as soon as a Stripe/PayPal/Revolut/bank payment URL is placed in repo config; then update offer and checkout regression to require a live href before marking payment_ready_live."
+}
