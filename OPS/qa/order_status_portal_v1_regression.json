@@ -1,0 +1,1 @@
+{"product":"order-status-portal","tests":[{"name":"page_exists","result":"PASS"},{"name":"order_lookup","result":"PASS"},{"name":"paid_status_visible","result":"PASS"}],"known_failures":["No payment processor","No live order database"]}
