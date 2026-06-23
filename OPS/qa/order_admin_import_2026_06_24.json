@@ -1,0 +1,62 @@
+{
+  "date": "2026-06-24",
+  "product": "Quick Product Video",
+  "shipped_change": "Local order admin can now import and merge order JSON from another phone/browser before a backend exists.",
+  "commit": "2f23c6b5b6f2f1901975dbcf35b1a38afe00edf7",
+  "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/order-admin.html",
+  "buyer_price": {
+    "buyer": "SMB/product seller lead",
+    "price_eur": 19
+  },
+  "revenue_status": {
+    "confirmed_eur": 0,
+    "rule": "Only rows with paymentStatus=paid, paymentStatus=delivered, or fulfillmentStatus=delivered count toward confirmed revenue. Imported payment_pending rows count as 0 EUR."
+  },
+  "tests_regression_evidence": [
+    {
+      "case": "import_single_order_object",
+      "input_shape": {"orderId":"QP-TEST-1","paymentStatus":"payment_pending","priceEur":19},
+      "expected": "order is added to qpvOrderLedger and confirmedRevenueEur remains 0",
+      "status": "passed_by_code_path",
+      "evidence": "parseImportPayload accepts one object; normalizeOrder defaults unpaid; revenue(rows) filters isPaid only."
+    },
+    {
+      "case": "import_exported_ledger_object",
+      "input_shape": {"orders":[{"orderId":"QP-TEST-2"}]},
+      "expected": "orders array is imported",
+      "status": "passed_by_code_path",
+      "evidence": "parseImportPayload chooses parsed.orders when it is an array."
+    },
+    {
+      "case": "deduplicate_existing_order",
+      "input_shape": "same orderId imported twice",
+      "expected": "existing row is updated instead of duplicated",
+      "status": "passed_by_code_path",
+      "evidence": "mergeOrders uses Map keyed by orderId and tracks added/updated counts."
+    },
+    {
+      "case": "paid_gate_still_enforced",
+      "input_shape": {"orderId":"QP-TEST-3","fulfillmentStatus":"delivered","priceEur":19},
+      "expected": "delivered order counts 19 EUR; payment_pending order counts 0 EUR",
+      "status": "passed_by_code_path",
+      "evidence": "isPaid checks paid/delivered statuses; revenue only sums rows.filter(isPaid)."
+    },
+    {
+      "case": "browser_runtime",
+      "expected": "manual paste/import test on GitHub Pages",
+      "status": "not_run",
+      "reason": "No browser execution environment available in this automation run."
+    }
+  ],
+  "kpi_movement": {
+    "before": "Orders were locked to the browser that created checkout, so a phone checkout could be lost from desktop admin unless copied manually into another tool.",
+    "after": "Admin has an import box for one order, exported ledger object, or raw array; this makes buyer lead handoff executable without backend."
+  },
+  "rejected_weak_patterns": [
+    "No summaries, staffing plans, policies, idea lists, or audits counted as progress.",
+    "No fake revenue: imported unpaid orders remain 0 EUR.",
+    "No spreadsheet-only workflow: admin now executes local import/merge in product UI.",
+    "No duplicate order inflation: merge deduplicates by orderId."
+  ],
+  "next_executable_task": "Add a buyer-facing payment instructions page linked from checkout/admin with bank/Revolut fields, payment reference, and paid-proof upload/copy instructions so a real buyer can complete payment without conversation back-and-forth."
+}
