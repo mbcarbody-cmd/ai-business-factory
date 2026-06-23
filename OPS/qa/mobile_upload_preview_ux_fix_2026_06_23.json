@@ -1,0 +1,40 @@
+{
+  "date": "2026-06-23",
+  "product": "Quick Product Video / Studio Video Builder",
+  "trigger": "Real Android screenshot after uploading several photos showed 'Nuotraukos paruoštos' but the user did not see a meaningful result.",
+  "status": "shipped_workflow_improvement",
+  "commit": "d93388920f05280eeffddd3931f10202ca73e2f4",
+  "changed_file": "website/video-studio.js",
+  "problem": {
+    "before": "After photo upload the app only set status to 'Nuotraukos paruoštos' and drew the preview above the current mobile scroll position. The user could stay on the form area and feel that nothing happened.",
+    "after": "After successful photo upload the app draws preview, changes the status to explain that preview is ready, shows the media count, and automatically scrolls to the preview panel. After successful render it scrolls to the result video."
+  },
+  "regression_checks": [
+    {
+      "case": "photos_selected_and_decoded",
+      "expected": "drawPreview() runs, status says preview is ready, and scrollToPreview() is called",
+      "code_path": "photos change handler lines: drawPreview(); updateReadyStatus(); scrollToPreview(320);"
+    },
+    {
+      "case": "no_valid_photos",
+      "expected": "error state remains and no fake preview/result is shown",
+      "code_path": "else branch sets 'Nė viena nuotrauka neatsidarė' and drawEmpty()"
+    },
+    {
+      "case": "valid_render_finished",
+      "expected": "non-empty WEBM gate remains, result is shown, and scrollToResult() is called",
+      "code_path": "blob size gate remains before result; scrollToResult(120) after success"
+    }
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "quality_improvement": "Reduced mobile confusion after photo upload and improved path from upload to preview to render result.",
+    "remaining_blocker": "Needs real Android Chrome retest with uploaded photos, render, playback and download proof."
+  },
+  "rejected_weak_patterns": [
+    "Do not treat 'files decoded' as user-visible product success if the user cannot see the preview.",
+    "Do not make the user hunt for the preview on mobile after upload.",
+    "Do not claim revenue or sell-ready status until Android playback/download proof exists."
+  ],
+  "next_executable_task": "Retest on Android Chrome: upload 2-4 photos, confirm auto-scroll to preview, render 6s WEBM, confirm playback and download, then record file size and studioVideoLastRenderProof."
+}
