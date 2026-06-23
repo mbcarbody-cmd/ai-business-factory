@@ -1,0 +1,75 @@
+{
+  "date": "2026-06-23",
+  "run": "revenue_autopilot_run_02",
+  "product": "Quick Product Video",
+  "product_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html",
+  "checkout_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html",
+  "admin_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/order-admin.html",
+  "status": "shipped",
+  "buyer": "open SMB/product seller lead",
+  "price_eur": 19,
+  "confirmed_revenue_eur": 0,
+  "shipped_changes": [
+    {
+      "file": "website/checkout.html",
+      "change": "Checkout now stores each valid payment-pending order in qpvOrderLedger and links directly to local admin by orderId."
+    },
+    {
+      "file": "website/order-admin.html",
+      "change": "New browser-local admin ledger with order list, selected proof, KPI counters, manual paid/delivered status controls, copy/export JSON and clear ledger action."
+    },
+    {
+      "file": "website/offer.html",
+      "change": "Buyer/product path now includes local admin ledger so payment-pending leads have a reviewable operational path."
+    }
+  ],
+  "regression_evidence": [
+    {
+      "test": "checkout_required_fields_gate",
+      "result": "passed_by_code_review",
+      "evidence": "checkout validate() still rejects missing brand/contact/product/ctaText/photoCount and invalid photoCount outside 1-12 before any ledger write."
+    },
+    {
+      "test": "payment_pending_not_revenue",
+      "result": "passed_by_code_review",
+      "evidence": "new orders are created with paymentStatus payment_pending and fulfillmentStatus lead; admin revenueCountedEur is 0 unless paymentStatus is paid/delivered or fulfillmentStatus delivered."
+    },
+    {
+      "test": "ledger_upsert_and_last_order",
+      "result": "passed_by_code_review",
+      "evidence": "upsertLedger() filters duplicate orderId, appends the order, persists qpvOrderLedger, and keeps qpvLastCheckoutOrder for customer status page compatibility."
+    },
+    {
+      "test": "admin_revenue_kpis",
+      "result": "passed_by_code_review",
+      "evidence": "order-admin computes orders, pending, paid/delivered, and confirmed EUR from the local ledger and does not count payment_pending rows."
+    },
+    {
+      "test": "admin_fulfillment_change_preserves_payment_status",
+      "result": "passed_by_code_review",
+      "evidence": "fulfillment change only sets paymentStatus to paid when fulfillmentStatus becomes delivered; otherwise it preserves current paymentStatus."
+    },
+    {
+      "test": "json_export_path",
+      "result": "passed_by_code_review",
+      "evidence": "order-admin exports JSON containing exportedAt, product, orders, and confirmedRevenueEur."
+    },
+    {
+      "test": "real_browser_runtime",
+      "result": "not_run",
+      "evidence": "Needs manual browser test on GitHub Pages after deployment cache refresh."
+    }
+  ],
+  "measurable_product_state_movement": {
+    "before": "Checkout created only last-order proof plus per-order JSON export; multiple leads could be lost or not reviewed as a queue.",
+    "after": "Checkout now creates a browser-local order queue with admin review, manual paid gate and exportable ledger, enabling lead follow-up and paid-order tracking."
+  },
+  "rejected_weak_patterns": [
+    "No summaries counted as progress.",
+    "No staffing plan or policy-only change counted as shipping.",
+    "No fake revenue: payment_pending remains 0 EUR confirmed.",
+    "No admin page that auto-counts unpaid leads as sales.",
+    "No payment request without order proof and operational review path."
+  ],
+  "next_executable_task": "Add import/paste order JSON into order-admin.html so downloaded checkout orders from other browsers/devices can be added to the ledger before a real backend exists."
+}
