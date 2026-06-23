@@ -1,0 +1,93 @@
+{
+  "date": "2026-06-23",
+  "registry": "Daily Agent Improvement Engine eval cases",
+  "status": "active_execution_proof",
+  "rule_under_test": "studio-render-non-empty-webm-gate-v1",
+  "source_change": {
+    "code_commit": "ae628d8a4c20c9636458274c335a010368d2d221",
+    "code_path": "website/video-studio.js",
+    "qa_path": "OPS/qa/studio_render_non_empty_gate_2026_06_23.json"
+  },
+  "anti_fake_learning_filter": {
+    "accepted_as_learning_proof": "A product renderer workflow was changed and has deterministic regression cases.",
+    "rejected_as_learning_proof": [
+      "reading the old Daily Agent Improvement Engine document",
+      "summarizing the prior failed audit",
+      "creating a new policy without changing code or a workflow gate",
+      "counting a task board entry without execution result"
+    ]
+  },
+  "evaluation_cases": [
+    {
+      "id": "DAIE-EVAL-2026-06-23-001",
+      "name": "empty MediaRecorder chunks must not unlock download success",
+      "given": "recorder stops with zero dataavailable chunks",
+      "champion_expected_old_behavior": "success path could continue after recorder.stop because no chunk-count gate existed",
+      "challenger_expected_new_behavior": "state.outputBlob null, result hidden, status error, no download/share success",
+      "deterministic_check": "!chunks.length triggers error branch before URL.createObjectURL(blob)",
+      "regression_status": "pass_by_static_control_flow",
+      "evidence_path": "website/video-studio.js::renderVideo if(!chunks.length||blob.size<minimumBytes)"
+    },
+    {
+      "id": "DAIE-EVAL-2026-06-23-002",
+      "name": "tiny WEBM blob must not count as playable proof",
+      "given": "recorder emits chunks but final blob is below minimumUsefulVideoBytes(duration)",
+      "champion_expected_old_behavior": "download link could be exposed with a tiny unusable WEBM",
+      "challenger_expected_new_behavior": "status says Renderio klaida, fileInfo displays QA block with chunk count, bytes and minimum",
+      "deterministic_check": "blob.size < Math.max(160000, durationSeconds * 45000) triggers error branch",
+      "regression_status": "pass_by_static_control_flow",
+      "evidence_path": "website/video-studio.js::minimumUsefulVideoBytes + renderVideo gate"
+    },
+    {
+      "id": "DAIE-EVAL-2026-06-23-003",
+      "name": "valid WEBM stores local proof only after quality gate",
+      "given": "recorder emits chunks and blob size is above threshold",
+      "champion_expected_old_behavior": "success text existed but no structured render proof was stored",
+      "challenger_expected_new_behavior": "video src and download href are set and localStorage studioVideoLastRenderProof stores bytes, mimeType, duration, dimensions, mediaCount and userAgent",
+      "deterministic_check": "recordRenderProof(duration, blob, hadAudio) is called only after the non-empty gate",
+      "regression_status": "pass_by_static_control_flow",
+      "evidence_path": "website/video-studio.js::recordRenderProof after non-empty gate"
+    }
+  ],
+  "champion_challenger_comparisons": [
+    {
+      "id": "CC-2026-06-23-001",
+      "case_id": "DAIE-EVAL-2026-06-23-001",
+      "champion": "old Studio renderer success path",
+      "challenger": "non-empty chunk gate",
+      "primary_metric": "false_success_blocked",
+      "champion_score": 0,
+      "challenger_score": 1,
+      "winner": "challenger",
+      "promotion_decision": "promoted"
+    },
+    {
+      "id": "CC-2026-06-23-002",
+      "case_id": "DAIE-EVAL-2026-06-23-002",
+      "champion": "old blob acceptance path",
+      "challenger": "minimumUsefulVideoBytes threshold",
+      "primary_metric": "unusable_blob_blocked",
+      "champion_score": 0,
+      "challenger_score": 1,
+      "winner": "challenger",
+      "promotion_decision": "promoted"
+    },
+    {
+      "id": "CC-2026-06-23-003",
+      "case_id": "DAIE-EVAL-2026-06-23-003",
+      "champion": "unstructured success message",
+      "challenger": "structured local render proof after pass",
+      "primary_metric": "qa_evidence_created_after_gate",
+      "champion_score": 0,
+      "challenger_score": 1,
+      "winner": "challenger",
+      "promotion_decision": "promoted"
+    }
+  ],
+  "regression_summary": {
+    "cases_total": 3,
+    "passed": 3,
+    "failed": 0,
+    "method": "static control-flow proof from versioned code plus QA proof file; physical Android playback remains a separate release blocker"
+  }
+}
