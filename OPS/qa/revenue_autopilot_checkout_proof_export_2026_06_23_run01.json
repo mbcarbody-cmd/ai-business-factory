@@ -1,0 +1,68 @@
+{
+  "date": "2026-06-23",
+  "product": "Quick Product Video",
+  "run_result": "SHIP",
+  "commits": [
+    "cba1bd58e21103eb403816ba5d00ec3ad077bf2c",
+    "bb4e7dd73c80bcdf24f92e0eaa7056d9404792f6"
+  ],
+  "changed_files": [
+    "website/checkout.html",
+    "website/video-maker.html"
+  ],
+  "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html",
+  "buyer": "open SMB/product seller lead",
+  "price_eur": 19,
+  "confirmed_revenue_eur": 0,
+  "revenue_rule": "payment_pending is not revenue; count 19 EUR only after manual payment confirmation",
+  "improvement": {
+    "before": "Checkout generated a payment-pending order and mailto link, but buyer/order proof was trapped on the page and the production builder handoff was not explicit.",
+    "after": "Checkout now exposes Copy order JSON, Download order JSON, Track order and Open builder with this order. The generated proof includes production.builderUrl, requiredInputs and doNotStartBefore=payment_confirmed. Video builder now reads checkout URL params, pre-fills brand/headline/subline/CTA and displays the checkout order ID handoff banner."
+  },
+  "regression_evidence": [
+    {
+      "check": "required_checkout_fields_gate",
+      "expected": "brand, contact, product, ctaText and photoCount remain required; invalid photo count outside 1-12 is blocked",
+      "source": "website/checkout.html validate(data)"
+    },
+    {
+      "check": "payment_pending_not_counted",
+      "expected": "order proof keeps paymentStatus=payment_pending and production.doNotStartBefore=payment_confirmed",
+      "source": "website/checkout.html buildHandoff(data)"
+    },
+    {
+      "check": "order_proof_export",
+      "expected": "after valid submit, page shows copy/download proof controls and stores qpvLastCheckoutOrder in localStorage",
+      "source": "website/checkout.html setExportLinks + submit handler"
+    },
+    {
+      "check": "production_handoff",
+      "expected": "builder link is generated with orderId, brand, headline, subline and cta params; builder pre-fills those fields and shows handoff banner",
+      "source": "website/checkout.html builderHref + website/video-maker.html prefill script"
+    },
+    {
+      "check": "diff_scope",
+      "expected": "only checkout.html and video-maker.html changed in the product ship commits before QA proof",
+      "source": "compare 6e0c12dad89f413b197a251367f4b96b15cdfefb..bb4e7dd73c80bcdf24f92e0eaa7056d9404792f6: 2 files, 25 total changed lines"
+    }
+  ],
+  "tests_passed": [
+    "static_checkout_required_fields_preserved",
+    "static_payment_pending_revenue_rule_preserved",
+    "static_order_json_export_controls_present",
+    "static_builder_prefill_handoff_present",
+    "github_compare_scope_confirmed"
+  ],
+  "tests_failed": [
+    "browser_runtime_clipboard_download_not_executed_in_this_noninteractive_run",
+    "android_webm_render_not_retested_in_this_run"
+  ],
+  "rejected_weak_patterns": [
+    "No summaries, staffing plans, policies, idea lists or audits counted as progress",
+    "No fake revenue counted from payment-pending orders",
+    "No payment request without exportable order proof",
+    "No production start before payment confirmation",
+    "No buyer data lost between checkout and builder"
+  ],
+  "next_executable_task": "Add a tiny local order ledger page or admin CSV append/export flow so multiple payment-pending orders can be reviewed, marked paid manually, and converted into confirmed revenue without relying on a single localStorage record."
+}
