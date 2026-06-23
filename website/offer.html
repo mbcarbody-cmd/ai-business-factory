@@ -12,10 +12,11 @@
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">BUYER-READY LAUNCH OFFER · MANUAL FULFILLMENT · 19 EUR</span>
+<span class="badge">BUYER-READY LAUNCH OFFER · PAYMENT HANDOFF · 19 EUR</span>
 <h1>Quick Product Video</h1>
 <p>Send 1-12 product photos and receive a ready-to-post vertical product video for marketplaces, Facebook, Instagram, TikTok or WhatsApp sales.</p>
 <a class="cta" href="#order">Start paid order</a>
+<a class="cta secondary" href="./checkout.html">Go to checkout</a>
 <a class="cta ghost" href="./video-maker.html">Open video builder</a>
 </section>
 <section class="grid">
@@ -27,12 +28,12 @@
 <li>WEBM delivery, ready to post</li>
 <li>Same-day target turnaround after usable photos and payment confirmation</li>
 </ul>
-<div class="notice"><b>Launch rule:</b> first buyer is fulfilled manually to prove demand before automating payment checkout.</div>
+<div class="notice"><b>Launch rule:</b> first buyer is fulfilled manually. Checkout creates a payment-pending order and structured handoff; revenue is counted only after payment confirmation.</div>
 <h2>How ordering works</h2>
 <div class="steps">
 <div class="step"><b>1. Fill order details</b><br><span class="muted">Brand, contact, product, CTA and photo count are required.</span></div>
-<div class="step"><b>2. Send the prefilled paid-order email</b><br><span class="muted">Attach photos in the email thread or reply with a file link.</span></div>
-<div class="step"><b>3. Receive payment instructions + preview</b><br><span class="muted">Order is counted as revenue only after payment confirmation.</span></div>
+<div class="step"><b>2. Continue to checkout</b><br><span class="muted">Checkout creates a payment-pending order ID and payment-instructions request.</span></div>
+<div class="step"><b>3. Track the order</b><br><span class="muted">Use the order ID in the status page. Order is counted as revenue only after payment confirmation.</span></div>
 </div>
 </div>
 <div class="card" id="order">
@@ -44,6 +45,7 @@
 <label for="notes">Notes / delivery link</label><textarea id="notes" placeholder="Add target marketplace link, logo note, file link, or language preference"></textarea>
 <button class="cta" type="submit">Generate paid-order email</button>
 <a id="mailLink" class="cta secondary" hidden>Send order email</a>
+<a id="checkoutLink" class="cta" hidden>Continue to checkout</a>
 <p id="formMsg" class="error" role="status"></p>
 </form>
 <h3>Order proof</h3>
@@ -62,8 +64,9 @@ const $=id=>document.getElementById(id);
 function clean(value){return String(value||'').trim()}
 function orderId(){const d=new Date(),stamp=d.toISOString().replace(/[-:TZ.]/g,'').slice(0,14);return `QPV-${stamp}-${Math.random().toString(36).slice(2,6).toUpperCase()}`}
 function validate(data){const missing=['brand','contact','product','ctaText','photoCount'].filter(key=>!data[key]);if(missing.length)return `Missing required fields: ${missing.join(', ')}`;const count=Number(data.photoCount);if(!Number.isFinite(count)||count<1||count>12)return 'Photo count must be from 1 to 12.';return ''}
+function checkoutHref(data){const p=new URLSearchParams({brand:data.brand,contact:data.contact,product:data.product,ctaText:data.ctaText,photoCount:data.photoCount,notes:data.notes||''});return `./checkout.html?${p.toString()}`}
 function buildMailto(data){const id=orderId(),subject=`Paid order request ${id} — Quick Product Video`,body=[`Order ID: ${id}`,'Price: 19 EUR','Status: payment instructions requested','',`Brand: ${data.brand}`,`Contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Notes/link: ${data.notes||'-'}`,'','I want to order one Quick Product Video. Please send payment instructions and I will attach or link the photos in this email thread.'].join('\n');return{id,subject,body,href:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}}
-$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Order email generated. Use the button below and attach photos.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('proof').textContent=JSON.stringify({orderId:mail.id,priceEur:19,status:'payment_pending',buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),createdAt:new Date().toISOString()},null,2)});
+$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;$('checkoutLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Order email generated. You can email directly or continue to checkout handoff.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('checkoutLink').href=checkoutHref(data);$('checkoutLink').hidden=false;$('proof').textContent=JSON.stringify({orderId:mail.id,priceEur:19,status:'payment_pending',buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),createdAt:new Date().toISOString()},null,2)});
 </script>
 </body>
 </html>
