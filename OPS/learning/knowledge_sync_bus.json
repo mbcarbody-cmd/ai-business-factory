@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-06-14",
+  "updated_at": "2026-06-23",
   "owner": "Cross-Project Knowledge Sync Operators + PMO-2 Memory Ledger Keeper",
-  "status": "active_seed",
+  "status": "active_with_synced_artifact_gate",
   "purpose": "Canonical bus that moves lessons from one project or agent cohort into every affected project so worker knowledge stays equal.",
   "rule": "A lesson is not system knowledge until it is normalized, assigned to affected projects, has a proof path, and is marked synced or blocked with fallback.",
   "sync_statuses": ["observed", "normalized", "queued_for_sync", "synced", "blocked", "deprecated"],
@@ -89,13 +89,27 @@
       "proof_path": "OPS/org/TEN_THOUSAND_LEARNING_WORKFORCE_2026_06_14.json",
       "qa_check": "QA checks for duplicate tasks and vague work outputs.",
       "next_action": "Apply dedupe check to all new learning tasks."
+    },
+    {
+      "id": "KSB-006",
+      "source_project": "Quick Product Video / Studio Video Builder",
+      "source_output_path": "OPS/qa/studio_render_non_empty_gate_2026_06_23.json",
+      "lesson_type": "qa_rule",
+      "lesson": "A generated-product success message is not proof unless the produced file has non-empty chunks, useful size and post-gate proof metadata.",
+      "reusable_rule": "Artifact-producing workflows cannot expose success, download, share, delivery or paid-pilot claims until the generated artifact passes a deterministic gate and regression cases are recorded.",
+      "affected_projects": ["Quick Product Video", "Product QA", "Revenue Operations", "Delivery", "Judge Agent", "Daily Agent Improvement Engine"],
+      "owner": "Product QA Agent + Studio Builder Agent + Judge Agent",
+      "sync_status": "synced",
+      "proof_path": "OPS/learning/daily_agent_improvement_execution_2026_06_23.json",
+      "qa_check": "QA verifies non-empty chunks, minimum useful bytes, localStorage render proof and Android Chrome playback/download before any sell-ready claim.",
+      "next_action": "Run Android Chrome manual QA and update product gate only if downloaded WEBM plays."
     }
   ],
   "metrics": {
-    "lessons_total": 5,
-    "synced": 0,
+    "lessons_total": 6,
+    "synced": 1,
     "queued_for_sync": 5,
     "blocked": 0,
-    "target_next": "Convert queued lessons into Parts Seller OS workflow rules and task-board updates."
+    "target_next": "Run Android Chrome QA for Studio Video Builder and move KSB-006 from static proof to device proof."
   }
 }
