@@ -1,0 +1,6 @@
+lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action
+LP-0001,Lead,Quick Product Video,19,Outreach Batch 001,,,2026-06-23,Send first contact
+LP-0002,Lead,Quick Product Video,19,Outreach Batch 001,,,2026-06-23,Send first contact
+
+# Workflow States: Lead -> Contacted -> Interested -> Paid -> Delivered
+# KPI: leads, response_rate, paid_orders, revenue_eur
