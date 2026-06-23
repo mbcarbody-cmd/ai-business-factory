@@ -1,0 +1,9 @@
+{
+  "version":"payment-config-v1",
+  "provider":"manual",
+  "offer":"Quick Product Video",
+  "price_eur":19,
+  "payment_url":"REPLACE_WITH_STRIPE_PAYPAL_REVOLUT_OR_BANK_LINK",
+  "success_redirect":"/website/order-status.html",
+  "status":"blocked_until_real_payment_url"
+}
