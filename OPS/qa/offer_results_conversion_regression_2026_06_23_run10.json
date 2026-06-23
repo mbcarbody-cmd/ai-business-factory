@@ -1,0 +1,71 @@
+{
+  "date": "2026-06-23",
+  "product": "Quick Product Video",
+  "run_type": "revenue_autopilot",
+  "status": "product_state_moved",
+  "product_commit": "7e6f27aaa087a8eabf15c8d01a3209b3f3c7a2c4",
+  "changed_file": "website/offer.html",
+  "working_urls": [
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/results.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/order-status.html"
+  ],
+  "shipped_change": {
+    "type": "buyer-facing conversion improvement",
+    "description": "Offer page now exposes a clear Offer -> Results/examples -> Checkout handoff -> Order status buyer path and adds a photos-only versus Quick Product Video comparison table.",
+    "why_this_was_highest_value": "Live payment remains blocked by absence of a real payment URL, so the fallback improved conversion trust and reduced buyer decision friction on the existing 19 EUR offer without inventing revenue."
+  },
+  "regression_checks": [
+    {
+      "case": "offer_to_results_link",
+      "expected": "offer page has a visible link to ./results.html",
+      "status": "PASS",
+      "evidence": "See results path CTA added in hero"
+    },
+    {
+      "case": "offer_to_checkout_link_kept",
+      "expected": "offer page still has a visible checkout link",
+      "status": "PASS",
+      "evidence": "Go to checkout CTA remains in hero and generated checkoutLink remains in order form"
+    },
+    {
+      "case": "comparison_table_visible",
+      "expected": "buyer can compare Photos only versus Quick Product Video",
+      "status": "PASS",
+      "evidence": "compare table with Attention, Posting speed, Sales message and Launch price rows"
+    },
+    {
+      "case": "price_not_hidden",
+      "expected": "19 EUR remains visible on offer page",
+      "status": "PASS",
+      "evidence": "price block and comparison launch-price row both include 19 EUR"
+    },
+    {
+      "case": "no_fake_testimonials",
+      "expected": "results trust path does not invent customers, metrics or testimonials",
+      "status": "PASS",
+      "evidence": "copy explicitly says results page explains workflow without fake testimonials"
+    },
+    {
+      "case": "live_payment_processor",
+      "expected": "real payment URL/provider is connected",
+      "status": "FAIL_BLOCKED",
+      "evidence": "No live payment URL exists in repo; fallback conversion improvement executed instead"
+    }
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "buyer": null,
+    "price_eur": 19,
+    "measurable_state_change": "Offer page now has one-click buyer path across results, checkout and status, plus conversion comparison table."
+  },
+  "rejected_weak_patterns": [
+    "Do not count fake testimonials as trust proof.",
+    "Do not count a checkout page as payment unless a real payment URL exists.",
+    "Do not count summaries, policies, staffing plans, audits or idea lists as progress.",
+    "Do not remove price visibility while improving page copy.",
+    "Do not stop at payment blocker; execute conversion fallback."
+  ],
+  "next_executable_task": "Ship a lightweight lead-send helper page that turns the existing 20-row outreach CSV into copy-ready personalized Lithuanian messages with the live offer URL, so contacting leads becomes faster and measurable."
+}
