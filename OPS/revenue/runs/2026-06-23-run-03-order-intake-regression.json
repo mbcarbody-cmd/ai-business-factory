@@ -1,0 +1,76 @@
+{
+  "date": "2026-06-23",
+  "run": 3,
+  "product": "Quick Product Video",
+  "shipped_change": {
+    "type": "deployable_ui_and_lead_capture_workflow",
+    "file": "website/offer.html",
+    "commit": "cb751185578af728c5d798c96123acc9866ee7ba",
+    "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html",
+    "buyer_price_eur": 19,
+    "revenue_status_eur": 0
+  },
+  "why_this_was_highest_value": "The prior offer page had a visible price and mailto CTA, but the buyer path was still too generic. This run converted it into a structured paid-order intake with required fields, generated order ID, payment-pending proof payload and clearer manual fulfillment path.",
+  "regression_checks": [
+    {
+      "case": "visible_price",
+      "expected": "19 EUR appears above the fold and in KPI proof",
+      "result": "PASS"
+    },
+    {
+      "case": "required_order_fields",
+      "expected": "brand, contact, product, CTA and photo count are required before order email is generated",
+      "result": "PASS"
+    },
+    {
+      "case": "photo_count_guardrail",
+      "expected": "photo count outside 1-12 is rejected",
+      "result": "PASS"
+    },
+    {
+      "case": "paid_order_email_generation",
+      "expected": "valid form creates prefilled mailto to automariu@gmail.com with order ID, price, payment-pending status and buyer details",
+      "result": "PASS"
+    },
+    {
+      "case": "order_proof_payload",
+      "expected": "valid form prints JSON order proof with orderId, priceEur, status, buyer, product, photoCount and createdAt",
+      "result": "PASS"
+    },
+    {
+      "case": "direct_payment_checkout",
+      "expected": "buyer can pay online without manual instructions",
+      "result": "FAIL",
+      "blocker": "No payment processor or live payment link is available in repo/runtime. Fallback executed: structured paid-order email plus payment-pending order proof."
+    },
+    {
+      "case": "confirmed_revenue",
+      "expected": "at least one paid buyer",
+      "result": "FAIL",
+      "blocker": "No inbound paid order yet."
+    }
+  ],
+  "rejected_weak_patterns": [
+    "Generic mailto link without required buyer/order fields.",
+    "Idea lists, policies, staffing plans or audits counted as progress.",
+    "Hidden or ambiguous pricing.",
+    "Success claim without order ID, buyer contact, price and payment status.",
+    "Waiting for Vitalijus to provide payment setup before improving the purchase path."
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "buyer": null,
+    "price_eur": 19,
+    "product_state_movement": "Offer page moved from simple static CTA to structured order intake with validation, generated order ID and payment-pending proof.",
+    "measurable_next_kpi": "First paid order at 19 EUR or first qualified order email with generated order ID."
+  },
+  "agent_promotions_demotions": {
+    "promoted": [
+      "Revenue Ops challenger: structured order-intake beats generic contact CTA for buyer-readiness."
+    ],
+    "demoted": [
+      "Policy/audit-only agent behavior remains disallowed as proof of revenue progress."
+    ]
+  },
+  "next_executable_task": "Create outreach-ready buyer rows and prefilled messages for 20 Lithuanian used-parts/product sellers, each linking to the 19 EUR Quick Product Video offer, then track outreach status in OPS/revenue/leads without waiting for checkout integration."
+}
