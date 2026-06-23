@@ -1,0 +1,67 @@
+{
+  "date": "2026-06-23",
+  "run": 11,
+  "product": "Quick Product Video",
+  "shipped_change": "Lead Send Helper page connected to the 19 EUR offer path",
+  "product_commits": [
+    "e59d063de21f12ab3802c0f73f730f531580dcbc",
+    "a43a10177e1e2c805ebd91924e4e784c5952e3ba"
+  ],
+  "working_urls": [
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/lead-send.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html"
+  ],
+  "regression_checks": [
+    {
+      "case": "lead_helper_is_deployable_static_ui",
+      "expected": "website/lead-send.html exists as static HTML with no backend dependency",
+      "status": "pass"
+    },
+    {
+      "case": "twenty_send_ready_leads",
+      "expected": "20 segment-specific lead rows exist in JS data, replacing weak placeholder/test rows",
+      "status": "pass"
+    },
+    {
+      "case": "offer_price_preserved",
+      "expected": "19 EUR is visible and embedded in outreach proof",
+      "status": "pass"
+    },
+    {
+      "case": "no_fake_send_or_revenue",
+      "expected": "generated proof status is send_ready_not_sent and revenueEur remains 0",
+      "status": "pass"
+    },
+    {
+      "case": "offer_path_connected",
+      "expected": "offer.html links to lead-send.html and keeps checkout/order path",
+      "status": "pass"
+    },
+    {
+      "case": "live_payment_provider",
+      "expected": "real Stripe/PayPal/Revolut/bank payment URL exists",
+      "status": "fail_blocked",
+      "blocker": "No real payment endpoint exists in repo; do not fake checkout."
+    },
+    {
+      "case": "actual_outreach_sent",
+      "expected": "at least one seller was contacted through email/Facebook/phone",
+      "status": "fail_blocked",
+      "blocker": "Automation has no email/Facebook sending enabled. Fallback executed: send-ready helper page."
+    }
+  ],
+  "revenue": {
+    "confirmed_revenue_eur": 0,
+    "buyer": null,
+    "price_eur": 19,
+    "kpi_movement": "Outreach state improved from generic CSV rows with weak placeholders to a deployable UI that generates tracked send-ready messages linked to the live offer."
+  },
+  "rejected_weak_patterns": [
+    "Do not count placeholder CSV rows with message='test' as outreach-ready leads.",
+    "Do not count generated message text as sent outreach.",
+    "Do not count payment-pending or send-ready status as revenue.",
+    "Do not create fake testimonials, fake buyers, fake checkout links, or fake conversions.",
+    "Do not count summaries, staffing plans, policies, idea lists, or audits as product progress."
+  ],
+  "next_executable_task": "Replace the static placeholder lead names with real researched Lithuanian seller prospects and add verified contact URLs, or, if web/contact lookup is unavailable, add import/export support between lead-send.html and OPS/sales/video_offer_pipeline_v1.csv so contacted/interested/paid statuses can be measured."
+}
