@@ -1,0 +1,1 @@
+{"run":8,"result":"PRODUCT_SHIPPED","change":"payment config activation template","commit":"a2bbd2bdd490fae0a1a0bfea763e37bd2953255f","tests":["config file exists","price=19","payment_url placeholder required"],"rejected":["fake payment links","counting pending payments as revenue"]}
