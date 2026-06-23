@@ -1,6 +1,26 @@
-lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action
-LP-0001,Lead,Quick Product Video,19,Outreach Batch 001,,,2026-06-23,Send first contact
-LP-0002,Lead,Quick Product Video,19,Outreach Batch 001,,,2026-06-23,Send first contact
+lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action,revenue_eur,offer_url
+LP-0001,Lead,Quick Product Video,19,Lead Send Helper,Auto prekyba 1,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0002,Lead,Quick Product Video,19,Lead Send Helper,Auto prekyba 2,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0003,Lead,Quick Product Video,19,Lead Send Helper,Auto prekyba 3,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0004,Lead,Quick Product Video,19,Lead Send Helper,Auto prekyba 4,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0005,Lead,Quick Product Video,19,Lead Send Helper,Auto prekyba 5,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0006,Lead,Quick Product Video,19,Lead Send Helper,Detalių pardavėjas 1,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0007,Lead,Quick Product Video,19,Lead Send Helper,Detalių pardavėjas 2,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0008,Lead,Quick Product Video,19,Lead Send Helper,Detalių pardavėjas 3,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0009,Lead,Quick Product Video,19,Lead Send Helper,Detalių pardavėjas 4,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0010,Lead,Quick Product Video,19,Lead Send Helper,Detalių pardavėjas 5,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0011,Lead,Quick Product Video,19,Lead Send Helper,Moto prekyba 1,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0012,Lead,Quick Product Video,19,Lead Send Helper,Moto prekyba 2,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0013,Lead,Quick Product Video,19,Lead Send Helper,Moto prekyba 3,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0014,Lead,Quick Product Video,19,Lead Send Helper,Marketplace 1,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0015,Lead,Quick Product Video,19,Lead Send Helper,Marketplace 2,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0016,Lead,Quick Product Video,19,Lead Send Helper,Marketplace 3,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0017,Lead,Quick Product Video,19,Lead Send Helper,Marketplace 4,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0018,Lead,Quick Product Video,19,Lead Send Helper,Local service 1,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0019,Lead,Quick Product Video,19,Lead Send Helper,Local service 2,email,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
+LP-0020,Lead,Quick Product Video,19,Lead Send Helper,Local service 3,facebook,2026-06-23,Send first contact,0,https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html
 
 # Workflow States: Lead -> Contacted -> Interested -> Paid -> Delivered
-# KPI: leads, response_rate, paid_orders, revenue_eur
+# KPI: leads,response_rate,paid_orders,revenue_eur
+# Revenue rule: keep revenue_eur=0 until a paid buyer is confirmed.
+# Regression link: website/lead-send.html can export the same 20-row pipeline CSV and selected lead rows.
