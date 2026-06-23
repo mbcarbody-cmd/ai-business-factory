@@ -1,0 +1,56 @@
+{
+  "date": "2026-06-24",
+  "product": "Quick Product Video",
+  "run_type": "revenue_autopilot_concrete_product_ship",
+  "shipped": "buyer-facing payment proof page plus checkout and offer links",
+  "commits": [
+    "b234d3df759ab97b22547c84594690f337924b2e",
+    "b18e7992d527be914a842a230dcb9460da9a1cf2",
+    "d07f1f9df5463c33e23e149a435e8bc517bbff26"
+  ],
+  "working_urls": [
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/payment.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html",
+    "https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html"
+  ],
+  "kpi_movement": {
+    "confirmed_revenue_eur": 0,
+    "buyer": "SMB/product seller lead",
+    "price_eur": 19,
+    "state_change": "Payment-pending checkout orders now have a buyer-visible proof/reference step before manual admin paid confirmation. This reduces the gap between order creation and paid status."
+  },
+  "tests": [
+    {
+      "name": "payment proof requires order ID and buyer contact",
+      "status": "passed_by_code_review",
+      "evidence": "payment.html submit handler blocks proof generation when orderId or buyer is missing"
+    },
+    {
+      "name": "payment proof revenue gate remains zero before admin confirmation",
+      "status": "passed_by_code_review",
+      "evidence": "buildProof sets paymentStatus=proof_submitted_manual_review and revenueCountedEur=0"
+    },
+    {
+      "name": "checkout creates payment proof URL with same order ID and buyer",
+      "status": "passed_by_code_review",
+      "evidence": "checkout paymentHref(order) builds ./payment.html?orderId=...&buyer=... and submit reveals paymentLink"
+    },
+    {
+      "name": "offer page exposes buyer path step for payment proof",
+      "status": "passed_by_code_review",
+      "evidence": "offer buyer path and ordering steps include Payment proof before order status/admin"
+    },
+    {
+      "name": "real browser payment proof form runtime",
+      "status": "not_run",
+      "evidence": "needs GitHub Pages browser test after deployment cache refresh"
+    }
+  ],
+  "rejected_weak_patterns": [
+    "No payment text without an order ID reference.",
+    "No proof-submitted status counted as revenue.",
+    "No hidden buyer path where checkout exists but payment proof is disconnected.",
+    "No production start before manual paid confirmation."
+  ],
+  "next_executable_task": "Add an admin-side payment proof import/review box so proof JSON from payment.html can be pasted into order-admin and matched to an existing order ID without marking paid automatically."
+}
