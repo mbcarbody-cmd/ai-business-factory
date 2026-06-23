@@ -12,13 +12,14 @@
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">BUYER-READY LAUNCH OFFER · RESULTS LINK · CHECKOUT HANDOFF · 19 EUR</span>
+<span class="badge">BUYER-READY LAUNCH OFFER · RESULTS LINK · CHECKOUT HANDOFF · PAYMENT PROOF · 19 EUR</span>
 <h1>Quick Product Video</h1>
 <p>Send 1-12 product photos and receive a ready-to-post vertical product video for marketplaces, Facebook, Instagram, TikTok or WhatsApp sales.</p>
-<div class="path" aria-label="Buyer path"><span>1 Offer</span><span>2 Results/examples</span><span>3 Checkout handoff</span><span>4 Order status</span><span>5 Local admin ledger</span><span>6 Outreach helper</span></div>
+<div class="path" aria-label="Buyer path"><span>1 Offer</span><span>2 Results/examples</span><span>3 Checkout handoff</span><span>4 Payment proof</span><span>5 Order status</span><span>6 Local admin ledger</span><span>7 Outreach helper</span></div>
 <a class="cta" href="#order">Start paid order</a>
 <a class="cta secondary" href="./results.html">See results path</a>
 <a class="cta secondary" href="./checkout.html">Go to checkout</a>
+<a class="cta secondary" href="./payment.html">Payment proof</a>
 <a class="cta ghost" href="./order-admin.html">Open order admin</a>
 <a class="cta ghost" href="./lead-send.html">Open outreach helper</a>
 <a class="cta ghost" href="./video-maker.html">Open video builder</a>
@@ -32,7 +33,7 @@
 <li>WEBM delivery, ready to post</li>
 <li>Same-day target turnaround after usable photos and payment confirmation</li>
 </ul>
-<div class="notice"><b>Launch rule:</b> first buyer is fulfilled manually. Checkout creates a payment-pending order and structured handoff; revenue is counted only after payment confirmation.</div>
+<div class="notice"><b>Launch rule:</b> first buyer is fulfilled manually. Checkout creates a payment-pending order and structured proof handoff; revenue is counted only after payment confirmation.</div>
 <h2>Why video instead of photos only?</h2>
 <table class="compare" aria-label="Photos only versus Quick Product Video comparison">
 <thead><tr><th>Buyer asset</th><th>Photos only</th><th>Quick Product Video</th></tr></thead>
@@ -47,10 +48,11 @@
 <div class="steps">
 <div class="step"><b>1. Fill order details</b><br><span class="muted">Brand, contact, product, CTA and photo count are required.</span></div>
 <div class="step"><b>2. Check results path</b><br><span class="muted">The results page explains the before/after workflow without fake testimonials.</span></div>
-<div class="step"><b>3. Continue to checkout</b><br><span class="muted">Checkout creates a payment-pending order ID and payment-instructions request.</span></div>
-<div class="step"><b>4. Track the order</b><br><span class="muted">Use the order ID in the status page. Order is counted as revenue only after payment confirmation.</span></div>
-<div class="step"><b>5. Review in local admin</b><br><span class="muted">The local admin ledger keeps browser-created orders, exports JSON and marks paid/delivered only after manual proof.</span></div>
-<div class="step"><b>6. Send outreach</b><br><span class="muted">Use the outreach helper to generate send-ready Lithuanian lead messages without claiming unsent outreach as revenue.</span></div>
+<div class="step"><b>3. Continue to checkout</b><br><span class="muted">Checkout creates a payment-pending order ID and exportable order proof.</span></div>
+<div class="step"><b>4. Send payment proof</b><br><span class="muted">The payment proof page creates a reference/proof message tied to the same order ID.</span></div>
+<div class="step"><b>5. Track the order</b><br><span class="muted">Use the order ID in the status page. Order is counted as revenue only after payment confirmation.</span></div>
+<div class="step"><b>6. Review in local admin</b><br><span class="muted">The local admin ledger keeps browser-created orders, exports JSON and marks paid/delivered only after manual proof.</span></div>
+<div class="step"><b>7. Send outreach</b><br><span class="muted">Use the outreach helper to generate send-ready Lithuanian lead messages without claiming unsent outreach as revenue.</span></div>
 </div>
 </div>
 <div class="card" id="order">
@@ -72,7 +74,7 @@
 <section class="card" style="margin-top:16px">
 <h2>Revenue KPI</h2>
 <p><b>Current confirmed revenue:</b> 0 EUR. <b>Next KPI:</b> first paid order at 19 EUR. <b>Buyer:</b> open SMB/product seller lead.</p>
-<p class="muted">Rejected weak patterns: hidden price, fake testimonials, generic contact-only CTA, idea/policy files counted as progress, success without payment or usable delivery path, unsent outreach counted as revenue, and payment-pending leads without a reviewable ledger.</p>
+<p class="muted">Rejected weak patterns: hidden price, fake testimonials, generic contact-only CTA, idea/policy files counted as progress, success without payment or usable delivery path, unsent outreach counted as revenue, and payment-pending leads without a reviewable ledger/payment-proof gate.</p>
 </section>
 </main>
 <script>
@@ -83,7 +85,7 @@ function orderId(){const d=new Date(),stamp=d.toISOString().replace(/[-:TZ.]/g,'
 function validate(data){const missing=['brand','contact','product','ctaText','photoCount'].filter(key=>!data[key]);if(missing.length)return `Missing required fields: ${missing.join(', ')}`;const count=Number(data.photoCount);if(!Number.isFinite(count)||count<1||count>12)return 'Photo count must be from 1 to 12.';return ''}
 function checkoutHref(data){const p=new URLSearchParams({brand:data.brand,contact:data.contact,product:data.product,ctaText:data.ctaText,photoCount:data.photoCount,notes:data.notes||''});return `./checkout.html?${p.toString()}`}
 function buildMailto(data){const id=orderId(),subject=`Paid order request ${id} — Quick Product Video`,body=[`Order ID: ${id}`,'Price: 19 EUR','Status: payment instructions requested','',`Brand: ${data.brand}`,`Contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Notes/link: ${data.notes||'-'}`,'','I want to order one Quick Product Video. Please send payment instructions and I will attach or link the photos in this email thread.'].join('\n');return{id,subject,body,href:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}}
-$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;$('checkoutLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Order email generated. You can email directly or continue to checkout handoff.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('checkoutLink').href=checkoutHref(data);$('checkoutLink').hidden=false;$('proof').textContent=JSON.stringify({orderId:mail.id,priceEur:19,status:'payment_pending',buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),createdAt:new Date().toISOString()},null,2)});
+$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;$('checkoutLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Order email generated. You can email directly or continue to checkout handoff.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('checkoutLink').href=checkoutHref(data);$('checkoutLink').hidden=false;$('proof').textContent=JSON.stringify({orderId:mail.id,priceEur:19,status:'payment_pending',buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),paymentProofNext:'checkout.html then payment.html with same order ID',createdAt:new Date().toISOString()},null,2)});
 </script>
 </body>
 </html>
