@@ -1,5 +1,5 @@
-const CACHE='studio-video-v6';
-const APP_SHELL=['./studio.html','./video-maker.html','./video-studio.js','./video-render-fix.js','./offer.html','./checkout.html','./payment.html','./order-admin.html','./order-status.html','./results.html','./lead-send.html','./manifest.webmanifest','./icon.svg'];
+const CACHE='studio-video-v7';
+const APP_SHELL=['./studio.html','./video-maker.html','./video-studio.js','./video-render-fix.js','./offer.html','./checkout.html','./payment.html','./payment-proof-review.html','./order-admin.html','./order-status.html','./results.html','./lead-send.html','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim()});
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response}).catch(()=>caches.match(event.request).then(cached=>cached||caches.match('./studio.html'))))});
