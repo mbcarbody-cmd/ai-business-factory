@@ -12,7 +12,7 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 CHECKOUT = ROOT / "website" / "checkout.html"
-PAYMENT = ROOT / "website" / "payment.html"
+PAYMENT_LEDGER = ROOT / "website" / "payment-ledger.html"
 ADMIN = ROOT / "website" / "order-admin.html"
 BUILDER = ROOT / "website" / "video-maker.html"
 
@@ -29,7 +29,7 @@ def read(path: Path) -> str:
 
 def main() -> None:
     checkout = read(CHECKOUT)
-    payment = read(PAYMENT)
+    payment_ledger = read(PAYMENT_LEDGER)
     admin = read(ADMIN)
     builder = read(BUILDER)
 
@@ -41,13 +41,21 @@ def main() -> None:
         "fulfillmentStatus:'lead'",
         "revenueCountedEur:0",
         "confirmedRevenue(rows)",
-        "./payment.html?",
+        "./payment-ledger.html?",
+        "Payment proof ledger",
         "./video-maker.html?",
         "Download order JSON",
         "Revenue gate:",
     ]
     for marker in required_checkout_markers:
         require(marker in checkout, f"checkout.html missing required marker: {marker}")
+
+    rejected_checkout_markers = [
+        "./payment.html?",
+        "Continue to payment proof</a>",
+    ]
+    for marker in rejected_checkout_markers:
+        require(marker not in checkout, f"checkout.html must not route to legacy proof path: {marker}")
 
     required_ids = [
         "checkoutForm",
@@ -67,14 +75,16 @@ def main() -> None:
     require("photoCount" in checkout and "min=\"1\"" in checkout and "max=\"12\"" in checkout, "photo count must be constrained to 1-12")
     require("payment_pending" in admin and "proof_submitted" in admin and "paid" in admin, "admin must support payment status gate")
     require("confirmedRevenueEur" in admin, "admin must expose confirmed revenue evidence")
-    require("revenueCountedEur:0" in payment, "payment proof must not count revenue before manual verification")
+    require("ledgerKey='qpvOrderLedger'" in payment_ledger, "payment proof must write to the shared checkout/admin ledger")
+    require("paymentStatus:'proof_submitted_manual_review'" in payment_ledger, "payment proof must remain manual-review only")
+    require("revenueCountedEur:0" in payment_ledger, "payment proof must not count revenue before manual verification")
     require("__QPV_ORDER_PREFILL__" in builder and "orderId" in builder, "builder must support checkout order handoff prefill")
 
     order_id_pattern = re.search(r"QPV-\$\{stamp\}-\$\{Math\.random\(\)\.toString\(36\)\.slice\(2,6\)\.toUpperCase\(\)\}", checkout)
     require(order_id_pattern is not None, "checkout must create QPV order IDs with timestamp and random suffix")
 
     print("PASS qpv checkout flow regression")
-    print("checked: checkout UI, local ledger, payment proof gate, admin revenue gate, builder prefill")
+    print("checked: checkout UI, local ledger, ledger-synced payment proof gate, admin revenue gate, builder prefill")
 
 
 if __name__ == "__main__":
