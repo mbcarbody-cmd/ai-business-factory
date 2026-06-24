@@ -1,0 +1,1 @@
+<!doctype html><html><body><h1>Status Link Generator</h1><input id='o' placeholder='Order ID'><button onclick="const id=document.getElementById('o').value.trim();const u='./order-status.html?orderId='+encodeURIComponent(id);navigator.clipboard.writeText(u);document.getElementById('r').textContent=u;">Copy status link</button><pre id='r'></pre></body></html>
