@@ -1,0 +1,52 @@
+{
+  "date": "2026-06-24",
+  "harness": "studio-render-non-empty-webm-gate-regression-harness-v1",
+  "status": "active_operational_regression_spec",
+  "owner_agents": ["Product QA Agent", "Studio Builder Agent", "Judge Agent", "Daily Learning Engine Owner"],
+  "rule_under_test": "Artifact-producing workflows cannot expose success, download, share, delivery or paid-pilot claims until the generated artifact passes deterministic non-empty/useful-size gates and records post-gate proof metadata.",
+  "source_operational_rule": "website/video-studio.js::minimumUsefulVideoBytes + renderVideo non-empty gate + recordRenderProof after gate",
+  "accepted_learning_proof_filter": {
+    "accepted": "A versioned workflow/code rule or operational gate changed and has regression checks tied to the changed path.",
+    "rejected": [
+      "reading a repo file",
+      "summarizing prior audits",
+      "creating policy-only markdown",
+      "creating task-board entries without an executed workflow change",
+      "counting UI success text as proof without artifact bytes/playback/download evidence"
+    ]
+  },
+  "regression_cases": [
+    {
+      "id": "SRG-REG-2026-06-24-001",
+      "case": "empty_chunks_blocks_success",
+      "input_condition": "MediaRecorder stops with zero dataavailable chunks",
+      "must_hold": ["state.outputBlob remains null", "state.outputUrl remains null", "result panel remains hidden", "download/share success is not exposed"],
+      "code_anchor": "if (!chunks.length || blob.size < minimumBytes)",
+      "expected_result": "pass"
+    },
+    {
+      "id": "SRG-REG-2026-06-24-002",
+      "case": "tiny_blob_blocks_success",
+      "input_condition": "chunks exist but blob.size is below max(160000, durationSeconds * 45000)",
+      "must_hold": ["error status is shown", "fileInfo includes chunk count, blob bytes and minimum bytes", "no success path or paid-pilot claim is unlocked"],
+      "code_anchor": "minimumUsefulVideoBytes(duration)",
+      "expected_result": "pass"
+    },
+    {
+      "id": "SRG-REG-2026-06-24-003",
+      "case": "valid_blob_records_post_gate_proof",
+      "input_condition": "chunks exist and blob.size is above the duration-aware threshold",
+      "must_hold": ["download href is set", "video src is set", "localStorage studioVideoLastRenderProof is written only after the gate", "proof includes bytes, durationSeconds, mimeType, dimensions, mediaCount and userAgent"],
+      "code_anchor": "recordRenderProof(duration, blob, hadAudio) after non-empty gate",
+      "expected_result": "pass"
+    }
+  ],
+  "champion_challenger_required_comparisons": [
+    {"id": "SRG-CC-2026-06-24-001", "champion": "success text after recorder.stop", "challenger": "empty chunk gate", "winner_required": "challenger"},
+    {"id": "SRG-CC-2026-06-24-002", "champion": "accept any blob", "challenger": "duration-aware minimum byte threshold", "winner_required": "challenger"},
+    {"id": "SRG-CC-2026-06-24-003", "champion": "manual visual confidence", "challenger": "post-gate structured render proof", "winner_required": "challenger"}
+  ],
+  "promotion_rule": "The Revenue Operations Agent remains blocked until real Android Chrome evidence proves photos load, preview renders, non-empty WEBM generates, downloaded file plays, and localStorage proof matches the downloaded file.",
+  "fallback_if_device_qa_blocked": "Do not wait. Keep revenue blocked, keep the deterministic gate promoted, and execute the next smallest workflow hardening task with regression coverage.",
+  "next_executable_learning_task": "Create or run an Android Chrome QA proof file with downloaded WEBM size, playback result and localStorage studioVideoLastRenderProof payload; if pass, update the product gate and launch only a narrow 19 EUR paid-offer test."
+}
