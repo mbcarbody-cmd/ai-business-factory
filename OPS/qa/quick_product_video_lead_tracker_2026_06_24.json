@@ -1,0 +1,47 @@
+{
+  "date": "2026-06-24",
+  "product": "Quick Product Video",
+  "shipped": "Local lead tracker for outreach attempts, replies, paid orders and confirmed revenue KPI movement.",
+  "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/lead-tracker.html",
+  "commits": [
+    "c9832d2f480feae25a9343bea527d91aed7f7ab9",
+    "51408e1f78e708be2b7d80b472786cc03d6c96d0"
+  ],
+  "tests": [
+    {
+      "name": "lead status revenue gate",
+      "expected": "lead/contacted/replied/interested/lost statuses count 0 EUR",
+      "result": "passed_by_code_review"
+    },
+    {
+      "name": "paid revenue gate",
+      "expected": "paid/delivered lead status counts 19 EUR each",
+      "result": "passed_by_code_review"
+    },
+    {
+      "name": "seed rows are not revenue",
+      "expected": "20 starter rows are created as lead status only with 0 EUR revenue",
+      "result": "passed_by_code_review"
+    },
+    {
+      "name": "export evidence",
+      "expected": "CSV export and JSON copy include statuses and revenue_eur per row",
+      "result": "passed_by_code_review"
+    },
+    {
+      "name": "PWA cache",
+      "expected": "lead-tracker.html and outreach-pack-lt.html are included in cache v8",
+      "result": "passed_by_code_review"
+    }
+  ],
+  "revenue_status_eur": 0,
+  "buyer": "open SMB/product seller lead",
+  "price_eur": 19,
+  "rejected_weak_patterns": [
+    "Do not count starter rows as real outreach.",
+    "Do not count contacted/replied/interested leads as revenue.",
+    "Do not claim sent messages from a local tracker without manual channel action.",
+    "Do not count summaries, staffing, plans, policies, idea lists, or audits as progress."
+  ],
+  "next_executable_task": "Add a lead-to-checkout bridge from lead-tracker rows that pre-fills checkout and persists the originating leadId into order JSON, so paid orders can be tied back to outreach source."
+}
