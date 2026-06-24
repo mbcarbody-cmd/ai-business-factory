@@ -1,0 +1,1 @@
+{"commit":"9804e2c0dc2fee1c086ac71579273a8b6964472b","tests":["file_exists","contains_facebook_template","contains_sms_template","contains_email_template","contains_kpi_targets"],"revenue_counted_eur":0}
