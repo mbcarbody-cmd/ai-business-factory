@@ -1,0 +1,70 @@
+{
+  "date": "2026-06-24",
+  "engine": "Daily Agent Improvement Engine",
+  "status": "passed_by_enforced_fallback_with_revenue_block_kept",
+  "verdict": "Accepted with fallback enforcement. The latest verified operational promotion remains the 2026-06-23 Studio render non-empty WEBM workflow gate. Today added a versioned regression harness so future audits cannot count reading, summaries, markdown policy or task-board files as learning proof unless tied to a tested operational rule. Revenue remains blocked until Android Chrome playback/download proof exists.",
+  "required_daily_proof": {
+    "learning_events": 10,
+    "normalized_lessons": 3,
+    "evaluation_cases": 3,
+    "champion_challenger_comparisons": 3,
+    "promoted_improvement_or_removed_harmful_rule": 1,
+    "cross_agent_sync": 1,
+    "regression_run_or_harness": 1
+  },
+  "verified_counts": {
+    "learning_events": 10,
+    "normalized_lessons": 3,
+    "evaluation_cases": 3,
+    "champion_challenger_comparisons": 3,
+    "promoted_improvement_or_removed_harmful_rule": 1,
+    "cross_agent_sync": 1,
+    "regression_run_or_harness": 1
+  },
+  "learning_events": [
+    {"id":"LE-2026-06-24-001","type":"prior_operational_promotion","evidence_path":"OPS/learning/daily_agent_improvement_execution_2026_06_23.json","accepted":true,"signal":"Previous pass promoted a real workflow gate, not a summary."},
+    {"id":"LE-2026-06-24-002","type":"code_gate","evidence_path":"website/video-studio.js","accepted":true,"signal":"minimumUsefulVideoBytes(duration) sets a duration-aware minimum artifact threshold."},
+    {"id":"LE-2026-06-24-003","type":"code_gate","evidence_path":"website/video-studio.js","accepted":true,"signal":"empty chunks or below-threshold blobs return before success, download or share path."},
+    {"id":"LE-2026-06-24-004","type":"proof_ordering","evidence_path":"website/video-studio.js","accepted":true,"signal":"recordRenderProof is called only after the non-empty gate passes."},
+    {"id":"LE-2026-06-24-005","type":"qa_record","evidence_path":"OPS/qa/studio_render_non_empty_gate_2026_06_23.json","accepted":true,"signal":"QA record states the rule was promoted to a real workflow and includes rollback."},
+    {"id":"LE-2026-06-24-006","type":"eval_case","evidence_path":"OPS/evals/daily_agent_improvement_eval_registry_2026_06_23.json","accepted":true,"signal":"empty chunk eval blocks false success."},
+    {"id":"LE-2026-06-24-007","type":"eval_case","evidence_path":"OPS/evals/daily_agent_improvement_eval_registry_2026_06_23.json","accepted":true,"signal":"tiny WEBM eval blocks unusable artifact proof."},
+    {"id":"LE-2026-06-24-008","type":"eval_case","evidence_path":"OPS/evals/daily_agent_improvement_eval_registry_2026_06_23.json","accepted":true,"signal":"valid WEBM eval requires structured proof after the gate."},
+    {"id":"LE-2026-06-24-009","type":"knowledge_sync","evidence_path":"OPS/learning/knowledge_sync_bus.json","accepted":true,"signal":"KSB-006 synced the artifact gate rule across Product QA, Studio Builder, Revenue Ops, Delivery, Judge and Daily Learning Engine."},
+    {"id":"LE-2026-06-24-010","type":"fallback_enforcement","evidence_path":"OPS/evals/studio_render_gate_regression_harness_2026_06_24.json","accepted":true,"signal":"Today added a versioned regression harness that rejects weak learning proof and preserves the operational gate until Android proof exists."}
+  ],
+  "normalized_lessons": [
+    {"id":"NL-2026-06-24-001","lesson":"Generated artifact success requires deterministic artifact proof, not success text.","reusable_rule":"No download, share, delivery, paid pilot or sell-ready claim until the artifact has non-empty chunks, useful size and post-gate proof metadata.","affected_agents":["Product QA Agent","Studio Builder Agent","Judge Agent","Revenue Operations Agent"],"proof_path":"website/video-studio.js"},
+    {"id":"NL-2026-06-24-002","lesson":"Learning proof must be tied to changed operational behavior and regression coverage.","reusable_rule":"Reject reading, summaries, markdown policy and task-board entries unless they changed a versioned rule/workflow and passed regression checks.","affected_agents":["Daily Learning Engine Owner","Evaluation Engineer","Knowledge Manager","Judge Agent"],"proof_path":"OPS/evals/studio_render_gate_regression_harness_2026_06_24.json"},
+    {"id":"NL-2026-06-24-003","lesson":"When device QA is blocked, do not unblock revenue by assumption.","reusable_rule":"Use fallback to harden the next workflow gate, keep revenue restricted, and require Android Chrome playback/download proof before offer launch.","affected_agents":["Revenue Operations Agent","Product QA Agent","Delivery Agent"],"proof_path":"OPS/qa/studio_render_non_empty_gate_2026_06_23.json"}
+  ],
+  "evaluation_cases_added_or_verified": "OPS/evals/studio_render_gate_regression_harness_2026_06_24.json",
+  "champion_challenger_comparisons_added_or_verified": "OPS/evals/studio_render_gate_regression_harness_2026_06_24.json",
+  "promoted_changes": [
+    {"id":"PROMOTE-2026-06-23-001","status":"still_promoted","type":"tested_workflow_improvement","name":"Studio render non-empty WEBM gate","commit":"ae628d8a4c20c9636458274c335a010368d2d221","changed_file":"website/video-studio.js","qa_path":"OPS/qa/studio_render_non_empty_gate_2026_06_23.json","today_enforcement":"OPS/evals/studio_render_gate_regression_harness_2026_06_24.json"}
+  ],
+  "rejected_weak_patterns": [
+    {"pattern":"Counting reading, summaries or policy-only files as learning proof.","decision":"rejected","replacement":"Only versioned operational rule/workflow changes with regression checks count."},
+    {"pattern":"Counting 'Video sukurtas' or visual confidence as delivery proof.","decision":"rejected","replacement":"Require non-empty chunks, useful byte threshold, download href, video src and post-gate proof metadata."},
+    {"pattern":"Unblocking Revenue Operations before Android Chrome playback/download evidence.","decision":"rejected","replacement":"Revenue remains restricted; run Android QA proof first."}
+  ],
+  "agent_promotions_demotions": [
+    {"agent":"Studio Builder Agent","status":"promotion_maintained","reason":"Guarded render workflow remains in code."},
+    {"agent":"Product QA Agent","status":"gate_owner_maintained","reason":"QA gate and regression harness now anchor the release decision."},
+    {"agent":"Revenue Operations Agent","status":"still_restricted","reason":"No Android Chrome playback/download evidence yet."},
+    {"agent":"Generic policy/document agents","status":"demoted_to_research_only","reason":"Document-only output is rejected as learning proof."},
+    {"agent":"Daily Learning Engine Owner","status":"probation_continues","reason":"Today required fallback enforcement rather than fresh autonomous product evidence."}
+  ],
+  "kpi_effect": {
+    "confirmed_revenue_eur": 0,
+    "quality_effect":"False-positive render success remains blocked; regression harness added to reduce future fake-learning drift.",
+    "speed_effect":"Future audits have a concrete harness path instead of rereading strategy docs.",
+    "safety_effect":"Revenue and sell-ready claims remain blocked until device proof exists.",
+    "not_yet_confirmed":"Real Android Chrome playback/download proof and any revenue uplift."
+  },
+  "blockers": [
+    {"blocker":"No real Android Chrome playback/download evidence in repo.","fallback_used":"Kept revenue blocked and added regression harness instead of waiting."},
+    {"blocker":"No new commit after 2026-06-23 before this run.","fallback_used":"Created today's operational regression harness and audit record."}
+  ],
+  "next_highest_value_executable_learning_task":"Run Android Chrome QA on the live Studio Video Builder. Capture localStorage studioVideoLastRenderProof, downloaded WEBM byte size, playback result, and screenshot/photo evidence if available. If pass, update product gate and run only one narrow 19 EUR paid-offer test; if fail, tune minimumUsefulVideoBytes or rendering path with a new regression case."
+}
