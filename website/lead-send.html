@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lead Send Helper — Quick Product Video</title>
-<meta name="description" content="Outreach helper for the 19 EUR Quick Product Video offer. Creates Lithuanian seller messages, tracked pipeline rows and exportable CSV proof.">
+<meta name="description" content="Outreach helper for the 19 EUR Quick Product Video offer. Creates Lithuanian seller messages, tracked pipeline rows and a prefilled checkout handoff.">
 <style>
 :root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1b2a3e 0,#071019 46%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1100px;margin:auto;padding:24px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.hero h1{font-size:clamp(34px,6vw,62px);line-height:.98;margin:14px 0 10px}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}label{display:block;margin:10px 0 5px;font-size:13px;font-weight:800}input,textarea,select{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:190px;resize:vertical}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:13px 17px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.cta.secondary{background:#fff;color:#071019}.cta.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.proof{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.notice{border-left:4px solid var(--warn);padding:10px 12px;background:#201b0d;border-radius:12px;color:#ffe6ad}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.leadlist{display:grid;gap:8px;max-height:360px;overflow:auto}.lead{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420;cursor:pointer;color:#fff;text-align:left}.lead[aria-selected="true"]{outline:2px solid var(--accent)}.lead b{display:block}.pill{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:4px 8px;margin:5px 4px 0 0;color:#dce9f7;font-size:12px}.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.kpi div{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420}.kpi b{display:block;font-size:22px}.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}@media(max-width:860px){.grid,.row,.kpi,.split{grid-template-columns:1fr}.hero h1{font-size:38px}}
 </style>
@@ -12,9 +12,9 @@
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">OUTREACH HELPER · 20 LEADS · PIPELINE EXPORT · 19 EUR OFFER · NO FAKE SENDING</span>
+<span class="badge">OUTREACH HELPER · 20 LEADS · PREFILLED CHECKOUT · 19 EUR OFFER · NO FAKE SENDING</span>
 <h1>Lead Send Helper</h1>
-<p class="muted">Pick a Lithuanian seller segment, generate a ready-to-send outreach message, and export the matching sales-pipeline row. This page does not claim sent messages; it creates tracked send-ready output only.</p>
+<p class="muted">Pick a Lithuanian seller segment, generate a ready-to-send outreach message, export the pipeline row and open a prefilled checkout when the buyer is interested. This page does not claim sent messages or paid revenue.</p>
 <a class="cta ghost" href="./offer.html">Offer</a>
 <a class="cta ghost" href="./checkout.html">Checkout</a>
 <a class="cta ghost" href="./order-status.html">Order status</a>
@@ -32,15 +32,17 @@
 </div>
 <div class="card">
 <h2>Send-ready message</h2>
-<div class="notice"><b>Revenue rule:</b> this is only outreach preparation. Revenue remains 0 EUR until a buyer pays for the 19 EUR video.</div>
+<div class="notice"><b>Revenue rule:</b> this is only outreach preparation. Revenue remains 0 EUR until a buyer pays for the 19 EUR video and admin verifies it.</div>
 <form id="msgForm" novalidate>
 <div class="row"><div><label for="seller">Seller / company</label><input id="seller" required maxlength="70"></div><div><label for="channel">Channel</label><input id="channel" required maxlength="40"></div></div>
 <label for="productHint">Product hint</label><input id="productHint" maxlength="90" placeholder="Example: automobilio detalė / auto skelbimas / moto dalis">
+<label for="buyerContact">Buyer contact for checkout</label><input id="buyerContact" maxlength="90" placeholder="email, phone or FB profile">
 <label for="message">Message</label><textarea id="message" required></textarea>
 <button class="cta" type="submit">Generate outreach proof</button>
 <button class="cta ghost" type="button" id="exportSelected">Download selected pipeline row</button>
 <button class="cta ghost" type="button" id="exportAll">Download all pipeline rows</button>
 <a id="mailto" class="cta secondary" hidden>Open email draft</a>
+<a id="checkoutLead" class="cta secondary" hidden>Open prefilled checkout</a>
 <a id="offerLink" class="cta ghost" href="./offer.html" target="_blank" rel="noopener">Open offer URL</a>
 <p id="status" class="bad" role="status"></p>
 </form>
@@ -54,6 +56,7 @@
 <script>
 'use strict';
 const offerUrl='https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html';
+const checkoutBase='./checkout.html';
 const today=new Date().toISOString().slice(0,10);
 const leads=[
 {leadId:'LP-0001',company:'Auto prekyba 1',segment:'used cars',channel:'facebook',product:'automobilio skelbimas'},
@@ -78,18 +81,20 @@ const leads=[
 {leadId:'LP-0020',company:'Local service 3',segment:'local services',channel:'facebook',product:'greitas vietinis pasiūlymas'}
 ];
 const $=id=>document.getElementById(id);let selected=null;
+function clean(v){return String(v||'').trim()}
 function messageFor(lead){return `Sveiki, ${lead.company},\n\nGaliu iš 1-12 jūsų ${lead.product} nuotraukų paruošti trumpą vertikalų produkto video už 19 EUR. Tinka Facebook, Instagram, TikTok, WhatsApp ar skelbimui.\n\nKą gaunate: 10 s video, antraštė, naudos eilutė, CTA ir paruoštas failas postinimui.\n\nUžsakymo forma: ${offerUrl}\n\nJeigu norit, atsiųskit produktą ir 1-12 nuotraukų — paruošiu pirmą video pagal launch kainą.`}
 function csvEscape(value){return `"${String(value??'').replaceAll('"','""')}"`}
-function pipelineRow(lead,status='Lead'){return [lead.leadId,status,'Quick Product Video',19,'Lead Send Helper',lead.company,lead.channel,today,'Send first contact',0,offerUrl].map(csvEscape).join(',')}
-function pipelineCsv(rows){return ['lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action,revenue_eur,offer_url',...rows.map(lead=>pipelineRow(lead))].join('\n')+'\n# Workflow States: Lead -> Contacted -> Interested -> Paid -> Delivered\n# KPI: leads,response_rate,paid_orders,revenue_eur\n'}
+function pipelineRow(lead,status='Lead'){return [lead.leadId,status,'Quick Product Video',19,'Lead Send Helper',lead.company,lead.channel,today,'Send first contact; if interested open prefilled checkout',0,offerUrl].map(csvEscape).join(',')}
+function pipelineCsv(rows){return ['lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action,revenue_eur,offer_url',...rows.map(lead=>pipelineRow(lead))].join('\n')+'\n# Workflow States: Lead -> Contacted -> Interested -> Checkout Created -> Paid -> Delivered\n# KPI: leads,response_rate,checkout_orders,paid_orders,revenue_eur\n'}
 function download(name,text){const blob=new Blob([text],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800)}
+function checkoutHref(data){const p=new URLSearchParams({brand:data.seller,contact:data.buyerContact||data.channel,product:data.productHint||'Quick Product Video item',ctaText:'Message me',photoCount:'6',notes:`Lead ${data.leadId} from Lead Send Helper. Source channel: ${data.channel}. Revenue remains 0 EUR until paid verification.`});return `${checkoutBase}?${p.toString()}`}
 function renderLeads(){const filter=$('segment').value,list=$('leadList');list.innerHTML='';leads.filter(lead=>filter==='all'||lead.segment===filter).forEach(lead=>{const div=document.createElement('button');div.type='button';div.className='lead';div.setAttribute('aria-selected',selected===lead?'true':'false');div.innerHTML=`<b>${lead.leadId} · ${lead.company}</b><span class="pill">${lead.segment}</span><span class="pill">${lead.channel}</span><span class="pill">19 EUR</span>`;div.addEventListener('click',()=>selectLead(lead));list.appendChild(div)});$('leadCount').textContent=String(leads.length);$('pipelineCount').textContent=String(leads.length)}
-function selectLead(lead){selected=lead;$('seller').value=lead.company;$('channel').value=lead.channel;$('productHint').value=lead.product;$('message').value=messageFor(lead);$('pipelinePreview').textContent=pipelineCsv([lead]);renderLeads()}
-function proof(){const data={seller:$('seller').value.trim(),channel:$('channel').value.trim(),productHint:$('productHint').value.trim(),message:$('message').value.trim(),leadId:selected?.leadId||'MANUAL'};if(!data.seller||!data.channel||!data.message)return{error:'Seller, channel and message are required.'};return{proof:{version:'qpv-outreach-send-helper-v2',leadId:data.leadId,seller:data.seller,channel:data.channel,productHint:data.productHint,offerUrl,priceEur:19,status:'send_ready_not_sent',pipelineStatus:'Lead',revenueEur:0,createdAt:new Date().toISOString(),message:data.message},mailto:`mailto:?subject=${encodeURIComponent('Quick Product Video — 19 EUR')}&body=${encodeURIComponent(data.message)}`}}
+function selectLead(lead){selected=lead;$('seller').value=lead.company;$('channel').value=lead.channel;$('buyerContact').value=lead.channel;$('productHint').value=lead.product;$('message').value=messageFor(lead);$('pipelinePreview').textContent=pipelineCsv([lead]);$('checkoutLead').hidden=true;renderLeads()}
+function proof(){const data={seller:clean($('seller').value),channel:clean($('channel').value),buyerContact:clean($('buyerContact').value),productHint:clean($('productHint').value),message:clean($('message').value),leadId:selected?.leadId||'MANUAL'};if(!data.seller||!data.channel||!data.message)return{error:'Seller, channel and message are required.'};const checkoutUrl=checkoutHref(data);return{proof:{version:'qpv-outreach-send-helper-v3-checkout-handoff',leadId:data.leadId,seller:data.seller,channel:data.channel,buyerContact:data.buyerContact,productHint:data.productHint,offerUrl,checkoutUrl,priceEur:19,status:'send_ready_not_sent',pipelineStatus:'Lead',nextRevenueAction:'If buyer replies yes, open prefilled checkout and create payment_pending order.',revenueEur:0,createdAt:new Date().toISOString(),message:data.message},mailto:`mailto:?subject=${encodeURIComponent('Quick Product Video — 19 EUR')}&body=${encodeURIComponent(data.message+'\n\nGreitas užsakymas: '+checkoutUrl)}`,checkoutUrl}}
 $('segment').addEventListener('change',renderLeads);
 $('exportSelected').addEventListener('click',()=>{if(!selected)return;$('status').className='ok';$('status').textContent='Selected pipeline CSV downloaded. Status remains Lead until manual send is completed.';download(`${selected.leadId.toLowerCase()}-pipeline.csv`,pipelineCsv([selected]))});
 $('exportAll').addEventListener('click',()=>{download('quick-product-video-pipeline-20-leads.csv',pipelineCsv(leads));$('status').className='ok';$('status').textContent='All 20 lead pipeline rows downloaded. No messages counted as sent.'});
-$('msgForm').addEventListener('submit',event=>{event.preventDefault();const result=proof();if(result.error){$('status').className='bad';$('status').textContent=result.error;$('mailto').hidden=true;return}try{localStorage.setItem('qpvLastOutreachProof',JSON.stringify(result.proof))}catch(error){console.warn('Could not store outreach proof',error)}$('proof').textContent=JSON.stringify(result.proof,null,2);$('mailto').href=result.mailto;$('mailto').hidden=false;$('status').className='ok';$('status').textContent='Send-ready message generated with pipeline status Lead. Manual send required; do not count as sent until channel action is completed.'});
+$('msgForm').addEventListener('submit',event=>{event.preventDefault();const result=proof();if(result.error){$('status').className='bad';$('status').textContent=result.error;$('mailto').hidden=true;$('checkoutLead').hidden=true;return}try{localStorage.setItem('qpvLastOutreachProof',JSON.stringify(result.proof))}catch(error){console.warn('Could not store outreach proof',error)}$('proof').textContent=JSON.stringify(result.proof,null,2);$('mailto').href=result.mailto;$('mailto').hidden=false;$('checkoutLead').href=result.checkoutUrl;$('checkoutLead').hidden=false;$('status').className='ok';$('status').textContent='Send-ready message generated. If buyer is interested, open prefilled checkout to create a payment_pending order. Revenue remains 0 EUR until verified paid.'});
 renderLeads();selectLead(leads[0]);
 </script>
 </body>
