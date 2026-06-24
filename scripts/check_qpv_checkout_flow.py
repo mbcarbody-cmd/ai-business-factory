@@ -64,7 +64,7 @@ def main() -> None:
         require(f'id="{element_id}"' in checkout, f"checkout UI missing id={element_id}")
 
     require("priceEur=19" in checkout, "checkout price must stay at 19 EUR")
-    require("photoCount") and require("min=\"1\"" in checkout and "max=\"12\"" in checkout, "photo count must be constrained to 1-12")
+    require("photoCount" in checkout and "min=\"1\"" in checkout and "max=\"12\"" in checkout, "photo count must be constrained to 1-12")
     require("payment_pending" in admin and "proof_submitted" in admin and "paid" in admin, "admin must support payment status gate")
     require("confirmedRevenueEur" in admin, "admin must expose confirmed revenue evidence")
     require("revenueCountedEur:0" in payment, "payment proof must not count revenue before manual verification")
