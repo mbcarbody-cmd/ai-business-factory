@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lead Tracker — Quick Product Video</title>
+<meta name="description" content="Local lead tracker for the 19 EUR Quick Product Video offer: outreach attempts, replies, paid orders and confirmed revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1b2a3e 0,#071019 46%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 60px #0007}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.hero h1{font-size:clamp(34px,6vw,62px);line-height:.98;margin:14px 0 10px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420}.kpi b{display:block;font-size:24px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.danger{background:#3a1620;color:#ffd9df;border:1px solid #743342}input,select,textarea{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}textarea{min-height:96px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;margin:10px 0 5px;font-size:13px;font-weight:800}.lead{display:grid;grid-template-columns:1fr 140px 110px 110px;gap:8px;align-items:center;border-top:1px solid #26384d;padding:10px 0}.lead:first-child{border-top:0}.pill{display:inline-block;border-radius:999px;padding:4px 8px;margin:4px 4px 0 0;border:1px solid #38516e;color:#dce9f7;font-size:12px}.sent{background:#25321b}.reply{background:#332d12}.paid{background:#113b27;color:#bdf6d8}.bad{color:#ffc3cb}.ok{color:#bdf6d8}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}@media(max-width:900px){.grid,.row,.lead,.kpis{grid-template-columns:1fr}.hero h1{font-size:38px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="badge">LOCAL LEAD TRACKER · 19 EUR OFFER · REVENUE GATED BY PAID STATUS</span>
+<h1>Quick Product Video lead tracker</h1>
+<p class="muted">Track real outreach attempts, replies and paid conversions for the 19 EUR Quick Product Video. This is browser-local and exportable; unsent or unpaid rows never count as revenue.</p>
+<a class="cta ghost" href="./lead-send.html">Lead send helper</a>
+<a class="cta ghost" href="./outreach-pack-lt.html">Outreach pack LT</a>
+<a class="cta ghost" href="./checkout.html">Checkout</a>
+<a class="cta ghost" href="./order-admin.html">Order admin</a>
+</section>
+<section class="card">
+<div class="kpis">
+<div class="kpi">Leads<br><b id="kLeads">0</b></div><div class="kpi">Contacted<br><b id="kContacted">0</b></div><div class="kpi">Replies<br><b id="kReplies">0</b></div><div class="kpi">Paid<br><b id="kPaid">0</b></div><div class="kpi">Confirmed EUR<br><b id="kRevenue">0</b></div><div class="kpi">Reply rate<br><b id="kRate">0%</b></div>
+</div>
+<button class="cta" id="exportCsv">Download CSV</button><button class="cta ghost" id="copyJson">Copy JSON</button><button class="cta ghost" id="seedLeads">Seed 20 starter leads</button><button class="cta danger" id="clearAll">Clear tracker</button>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="grid" style="margin-top:16px">
+<div class="card">
+<h2>Add / update lead</h2>
+<form id="leadForm" novalidate>
+<div class="row"><div><label for="leadId">Lead ID</label><input id="leadId" placeholder="auto if empty"></div><div><label for="company">Company / seller</label><input id="company" required maxlength="80"></div></div>
+<div class="row"><div><label for="channel">Channel</label><select id="channel"><option>facebook</option><option>email</option><option>sms</option><option>whatsapp</option><option>phone</option></select></div><div><label for="status">Status</label><select id="status"><option value="lead">lead</option><option value="contacted">contacted</option><option value="replied">replied</option><option value="interested">interested</option><option value="paid">paid</option><option value="delivered">delivered</option><option value="lost">lost</option></select></div></div>
+<label for="contact">Contact / link</label><input id="contact" maxlength="160" placeholder="profile URL, email, phone or marketplace link">
+<label for="notes">Notes / next action</label><textarea id="notes" placeholder="What was sent, reply summary, next action"></textarea>
+<button class="cta" type="submit">Save lead</button><button class="cta ghost" type="button" id="newLead">New</button>
+</form>
+</div>
+<div class="card">
+<h2>Pipeline</h2>
+<div id="leads" class="muted">No leads yet.</div>
+</div>
+</section>
+<section class="card" style="margin-top:16px">
+<h2>QA / revenue gate</h2>
+<pre id="qa" class="status">QA pending.</pre>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),key='qpvLeadTracker',priceEur=19;
+function clean(v){return String(v||'').trim()}
+function read(){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function write(rows){localStorage.setItem(key,JSON.stringify(rows.slice(-500)))}
+function id(){return `QPV-L-${new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)}-${Math.random().toString(36).slice(2,5).toUpperCase()}`}
+function paid(row){return row.status==='paid'||row.status==='delivered'}
+function contacted(row){return ['contacted','replied','interested','paid','delivered','lost'].includes(row.status)}
+function replied(row){return ['replied','interested','paid','delivered'].includes(row.status)}
+function revenue(rows){return rows.filter(paid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function esc(text){return clean(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function save(row){const rows=read().filter(x=>x.leadId!==row.leadId);rows.push({...row,updatedAt:new Date().toISOString(),priceEur});write(rows);render(row.leadId)}
+function select(row){$('leadId').value=row.leadId;$('company').value=row.company||'';$('channel').value=row.channel||'facebook';$('status').value=row.status||'lead';$('contact').value=row.contact||'';$('notes').value=row.notes||''}
+function render(focus=''){const rows=read().sort((a,b)=>clean(b.updatedAt).localeCompare(clean(a.updatedAt)));const contactedRows=rows.filter(contacted),replyRows=rows.filter(replied),paidRows=rows.filter(paid);$('kLeads').textContent=rows.length;$('kContacted').textContent=contactedRows.length;$('kReplies').textContent=replyRows.length;$('kPaid').textContent=paidRows.length;$('kRevenue').textContent=revenue(rows);$('kRate').textContent=contactedRows.length?`${Math.round(replyRows.length/contactedRows.length*100)}%`:'0%';$('leads').innerHTML=rows.length?rows.map(row=>`<div class="lead"><div><b>${esc(row.company)}</b><br><span class="muted">${esc(row.leadId)} · ${esc(row.contact)}</span><br><span class="pill ${row.status==='contacted'?'sent':row.status==='replied'||row.status==='interested'?'reply':paid(row)?'paid':''}">${esc(row.status)}</span><span class="pill">${esc(row.channel)}</span>${paid(row)?'<span class="pill paid">19 EUR counted</span>':''}</div><select data-id="${esc(row.leadId)}" data-action="status"><option value="lead" ${row.status==='lead'?'selected':''}>lead</option><option value="contacted" ${row.status==='contacted'?'selected':''}>contacted</option><option value="replied" ${row.status==='replied'?'selected':''}>replied</option><option value="interested" ${row.status==='interested'?'selected':''}>interested</option><option value="paid" ${row.status==='paid'?'selected':''}>paid</option><option value="delivered" ${row.status==='delivered'?'selected':''}>delivered</option><option value="lost" ${row.status==='lost'?'selected':''}>lost</option></select><button class="cta ghost" data-id="${esc(row.leadId)}" data-action="edit">Edit</button><a class="cta ghost" href="./checkout.html?brand=${encodeURIComponent(row.company||'')}&contact=${encodeURIComponent(row.contact||'')}&product=Quick%20Product%20Video&ctaText=Message%20me&photoCount=6">Checkout</a></div>`).join(''):'No leads yet.';$('qa').textContent=JSON.stringify({leads:rows.length,contacted:contactedRows.length,replies:replyRows.length,paid:paidRows.length,confirmedRevenueEur:revenue(rows),rules:['lead counts 0 EUR','contacted counts 0 EUR','replied/interested counts 0 EUR','paid/delivered counts 19 EUR each','CSV/JSON export exists for pipeline evidence'],currentFocus:focus||null},null,2)}
+function csvEscape(v){return `"${String(v??'').replaceAll('"','""')}"`}
+function csv(rows){return ['lead_id,company,channel,status,contact,notes,price_eur,revenue_eur,updated_at,checkout_url',...rows.map(row=>[row.leadId,row.company,row.channel,row.status,row.contact,row.notes,row.priceEur||priceEur,paid(row)?priceEur:0,row.updatedAt,`https://mbcarbody-cmd.github.io/ai-business-factory/website/checkout.html?brand=${encodeURIComponent(row.company||'')}&contact=${encodeURIComponent(row.contact||'')}&product=Quick%20Product%20Video&ctaText=Message%20me&photoCount=6`].map(csvEscape).join(','))].join('\n')+'\n'}
+function download(name,text,type='text/csv'){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),900)}
+$('leadForm').addEventListener('submit',event=>{event.preventDefault();const row={leadId:clean($('leadId').value)||id(),company:clean($('company').value),channel:clean($('channel').value),status:clean($('status').value)||'lead',contact:clean($('contact').value),notes:clean($('notes').value),createdAt:new Date().toISOString()};if(!row.company){setMsg('Company / seller is required.');return}save(row);setMsg('Lead saved. Revenue remains gated by paid/delivered status.',true)});
+$('newLead').addEventListener('click',()=>{$('leadForm').reset();$('status').value='lead';$('channel').value='facebook';$('leadId').value='';setMsg('Ready for new lead.',true)});
+$('leads').addEventListener('click',event=>{const el=event.target;if(el.dataset.action==='edit'){const row=read().find(x=>x.leadId===el.dataset.id);if(row)select(row)}});
+$('leads').addEventListener('change',event=>{const el=event.target;if(el.dataset.action==='status'){const row=read().find(x=>x.leadId===el.dataset.id);if(row){save({...row,status:el.value});setMsg(`Status updated to ${el.value}. ${el.value==='paid'||el.value==='delivered'?'Revenue counted after manual payment proof.':'Revenue still 0 for this lead.'}`,true)}}});
+$('exportCsv').addEventListener('click',()=>{download(`quick-product-video-lead-tracker-${new Date().toISOString().slice(0,10)}.csv`,csv(read()));setMsg('CSV exported.',true)});
+$('copyJson').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(JSON.stringify({exportedAt:new Date().toISOString(),product:'Quick Product Video',leads:read(),confirmedRevenueEur:revenue(read())},null,2));setMsg('Tracker JSON copied.',true)}catch(error){setMsg('Clipboard blocked. Use CSV export.')}});
+$('seedLeads').addEventListener('click',()=>{const seeds=Array.from({length:20},(_,i)=>({leadId:`QPV-SEED-${String(i+1).padStart(2,'0')}`,company:i<8?`Auto/dalių pardavėjas ${i+1}`:i<14?`Marketplace pardavėjas ${i-7}`:`Vietinė paslauga ${i-13}`,channel:i%3===0?'email':'facebook',status:'lead',contact:'',notes:'Starter lead row — replace with real seller/contact before sending.',priceEur,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));const byId=new Map(read().map(row=>[row.leadId,row]));seeds.forEach(row=>{if(!byId.has(row.leadId))byId.set(row.leadId,row)});write([...byId.values()]);render();setMsg('20 starter rows added. They are leads only, not sent and not revenue.',true)});
+$('clearAll').addEventListener('click',()=>{if(confirm('Clear all local lead tracker rows? Export CSV first if needed.')){localStorage.removeItem(key);render();setMsg('Lead tracker cleared.',true)}});
+render();
+</script>
+</body>
+</html>
