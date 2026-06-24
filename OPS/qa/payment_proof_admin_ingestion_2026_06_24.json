@@ -1,0 +1,50 @@
+{
+  "date": "2026-06-24",
+  "product": "Quick Product Video",
+  "task": "Integrate buyer payment-proof JSON ingestion directly into the local order admin.",
+  "status": "shipped",
+  "commits": [
+    "1bec23d130f6f5fdf06b948ca1cac0f934b5c24b",
+    "4218bd27e7dd5d7d1f0d26422fbf88b0a10f6c63"
+  ],
+  "working_url": "https://mbcarbody-cmd.github.io/ai-business-factory/website/order-admin.html",
+  "buyer_price_eur": 19,
+  "confirmed_revenue_eur": 0,
+  "tests": [
+    {
+      "name": "proof_missing_order_id_rejected",
+      "input": {"buyer":"test@example.com"},
+      "expected": "Payment proof missing orderId error",
+      "status": "passed_by_code_path"
+    },
+    {
+      "name": "proof_without_matching_order_rejected",
+      "input": {"orderId":"QP-test-missing","paymentReference":"BANK-1"},
+      "expected": "Matching order not found. Import the checkout order first.",
+      "status": "passed_by_code_path"
+    },
+    {
+      "name": "proof_attached_does_not_count_revenue",
+      "input": {"orderId":"existing-order","paymentReference":"BANK-2"},
+      "expected": "paymentStatus becomes proof_submitted and revenueCountedEur remains 0 until manual paid/delivered",
+      "status": "passed_by_code_path"
+    },
+    {
+      "name": "delivered_still_forces_paid",
+      "expected": "fulfillmentStatus delivered sets paymentStatus paid and only then revenue counts",
+      "status": "passed_by_code_path"
+    },
+    {
+      "name": "pwa_cache_bumped",
+      "expected": "studio-video-v7 includes payment-proof-review.html and order-admin.html",
+      "status": "passed_by_code_path"
+    }
+  ],
+  "rejected_weak_patterns": [
+    "Do not count proof_submitted as confirmed revenue.",
+    "Do not accept orphan proof without a matching checkout order.",
+    "Do not skip manual payment verification before paid status.",
+    "Do not ship only a standalone proof page without admin ingestion."
+  ],
+  "next_executable_task": "Add a buyer-ready Lithuanian lead/outreach pack page for the 19 EUR Quick Product Video offer with copyable messages and rows for real SMB outreach."
+}
