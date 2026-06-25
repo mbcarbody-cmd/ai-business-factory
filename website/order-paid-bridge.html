@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order → Paid Bridge — Quick Product Video</title>
+<meta name="description" content="Admin bridge that turns local QPV order/proof records into prefilled idempotent paid-confirmation links without counting proof as revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:#071019;color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:#101b28;border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.bad{color:#ffc3cb}.ok{color:#bdf6d8}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.row{display:grid;grid-template-columns:1fr 180px 170px 360px;gap:8px;align-items:center;border-top:1px solid #26384d;padding:10px 0}.pill{display:inline-block;border-radius:999px;padding:5px 9px;font-weight:900;background:#3b3211;color:#ffe6ad}.proof{background:#2d2a11;color:#fff0b8}.paid{background:#113b27;color:#bdf6d8}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}@media(max-width:900px){.row,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>Quick Product Video order → paid bridge</h1>
+<p class="muted">Reads local checkout orders and attached payment proofs, then creates prefilled verified-paid links. This bridge does not count revenue; it only reduces admin mistakes before the idempotent paid gate.</p>
+<a class="cta ghost" href="./order-admin.html">Order admin</a>
+<a class="cta ghost" href="./payment-ledger.html">Payment proof</a>
+<a class="cta ghost" href="./paid-confirmation.html">Paid confirmation</a>
+<a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a>
+<div class="kpis"><div class="kpi">Orders<br><b id="kpiOrders">0</b></div><div class="kpi">Ready for paid check<br><b id="kpiReady">0</b></div><div class="kpi">Missing leadId<br><b id="kpiMissingLead">0</b></div><div class="kpi">Already paid<br><b id="kpiPaid">0</b></div><div class="kpi">Revenue counted<br><b>0</b></div></div>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="card"><h2>Orders needing payment verification</h2><div id="orders" class="muted">No local orders found.</div></section>
+<section class="card"><h2>Bridge regression contract</h2><pre id="qa" class="status">QA pending render.</pre></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),ledgerKey='qpvOrderLedger',paidKey='qpvPaidEventLedger',conversionKey='qpvConversionLedger',priceEur=19;
+function clean(v){return String(v||'').trim()}
+function readRows(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function proofRef(row){const proof=row.paymentProof||{};return clean(proof.paymentReference||proof.paymentNote||proof.reference||row.paymentReference||'')}
+function leadId(row){return clean(row.leadId||row.paymentProof?.leadId||row.checkoutLeadId||'')}
+function buyer(row){return clean(row.buyer||row.paymentProof?.buyer||row.customer||row.email||'')}
+function bridgeStatus(row){if(isPaid(row))return 'already_paid';if(!leadId(row))return 'missing_leadId';if(!proofRef(row))return 'missing_verified_reference';return 'ready_for_manual_verification'}
+function paidHref(row){const params=new URLSearchParams({orderId:clean(row.orderId),leadId:leadId(row),buyer:buyer(row),paymentReference:proofRef(row)});return `./paid-confirmation.html?${params.toString()}`}
+function absolutePaidHref(row){return new URL(paidHref(row),location.href).href}
+function escapeHtml(text){return clean(text).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))}
+async function copyPaidLink(orderId){const row=readRows(ledgerKey).find(item=>clean(item.orderId)===orderId);if(!row){setMsg('Order not found.');return}const href=absolutePaidHref(row);try{await navigator.clipboard.writeText(href);setMsg(`Prefilled paid confirmation link copied for ${orderId}.`,true)}catch(error){setMsg(`Clipboard blocked. Open/copy manually: ${href}`)}}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function render(){const rows=readRows(ledgerKey),paidEvents=readRows(paidKey),conversions=readRows(conversionKey),ready=rows.filter(row=>bridgeStatus(row)==='ready_for_manual_verification'),missingLead=rows.filter(row=>bridgeStatus(row)==='missing_leadId'),paid=rows.filter(isPaid);$('kpiOrders').textContent=rows.length;$('kpiReady').textContent=ready.length;$('kpiMissingLead').textContent=missingLead.length;$('kpiPaid').textContent=paid.length;$('orders').innerHTML=rows.length?rows.slice().reverse().map(row=>{const status=bridgeStatus(row),safeId=escapeHtml(row.orderId),href=paidHref(row),canOpen=status==='ready_for_manual_verification';return `<div class="row"><div><b>${safeId}</b><br><span class="muted">leadId=${escapeHtml(leadId(row)||'MISSING')} · ref=${escapeHtml(proofRef(row)||'MISSING')} · buyer=${escapeHtml(buyer(row))}</span><br><span class="pill ${status==='already_paid'?'paid':(status==='ready_for_manual_verification'?'proof':'')}">${status}</span></div><div>${Number(row.priceEur||priceEur)} EUR</div><div>${isPaid(row)?Number(row.priceEur||priceEur):0} EUR counted</div><div>${canOpen?`<a class="cta" href="${href}">Open paid gate</a><button class="cta ghost" data-action="copyPaid" data-id="${safeId}">Copy paid link</button>`:'<span class="muted">Fix missing leadId/reference before paid gate.</span>'}</div></div>`}).join(''):'No local orders found. Import checkout orders in order-admin.html first.';$('qa').textContent=JSON.stringify({rules:['bridge never writes qpvPaidEventLedger','bridge never writes qpvConversionLedger','revenue counted on this page is always 0','paid-confirmation link requires orderId, leadId, buyer and paymentReference','proof/payment_pending is not revenue','missing leadId blocks paid-gate shortcut'],orders:rows.length,readyForManualVerification:ready.length,missingLeadId:missingLead.length,alreadyPaid:paid.length,paidEventsBeforeBridge:paidEvents.length,conversionEventsBeforeBridge:conversions.length,revenueCountedByBridgeEur:0},null,2)}
+$('orders').addEventListener('click',event=>{const el=event.target;if(el.dataset.action==='copyPaid')copyPaidLink(el.dataset.id)});
+render();
+</script>
+</body>
+</html>
