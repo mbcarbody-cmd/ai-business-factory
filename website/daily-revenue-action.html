@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Revenue Action — Quick Product Video</title>
+<meta name="description" content="One-screen daily action cockpit for Quick Product Video unpaid proof follow-up, paid confirmation, outreach leads, and zero-fake-revenue KPI guardrails.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd36a;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.warn{background:#3b3211;color:#ffe6ad;border:1px solid #7c6720}.bad{color:var(--bad)}.ok{color:#bdf6d8}.row{display:grid;grid-template-columns:1fr 170px 330px;gap:8px;align-items:center;border-top:1px solid #26384d;padding:10px 0}.pill{display:inline-block;border-radius:999px;padding:5px 9px;font-weight:900;background:#2d2a11;color:#fff0b8}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}textarea{width:100%;min-height:120px;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:12px ui-monospace,Menlo,monospace}@media(max-width:900px){.grid,.row,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>Quick Product Video daily revenue action cockpit</h1>
+<p class="muted">Use this page before outreach or delivery work. It surfaces only revenue-moving next actions: proof-ready unpaid orders, paid confirmation links, outreach leads that need checkout, and KPI guardrails. Payment proof still counts as <b>0 EUR</b> until a verified paid event exists.</p>
+<a class="cta ghost" href="./order-admin.html">Order admin</a>
+<a class="cta ghost" href="./order-followup-export.html">Unpaid proof export</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<a class="cta ghost" href="./outreach-lead-pipeline.html">Outreach leads</a>
+<a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a>
+<div class="kpis">
+<div class="kpi">Proof-ready unpaid<br><b id="kpiProofReady">0</b></div>
+<div class="kpi">Paid events<br><b id="kpiPaidEvents">0</b></div>
+<div class="kpi">Confirmed EUR<br><b id="kpiRevenue">0</b></div>
+<div class="kpi">Outreach checkout leads<br><b id="kpiCheckoutLeads">0</b></div>
+<div class="kpi">Blocked rows<br><b id="kpiBlocked">0</b></div>
+</div>
+<button class="cta" id="downloadCsv">Download daily action CSV</button><button class="cta ghost" id="copyCsv">Copy CSV</button>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="grid">
+<div class="card"><h2>1) Collect/verify money now</h2><p class="muted">Only unpaid rows with payment proof, payment reference and leadId appear here. Open paid gate only after bank/payment verification.</p><div id="proofReady" class="muted">No proof-ready unpaid orders.</div></div>
+<div class="card"><h2>2) Push leads to checkout</h2><p class="muted">Outreach leads with a stable leadId but no paid event. Send checkout link, not summaries.</p><div id="leadActions" class="muted">No outreach leads found.</div></div>
+</section>
+<section class="grid">
+<div class="card"><h2>Revenue guardrail</h2><pre id="guardrail" class="status">Pending render.</pre></div>
+<div class="card"><h2>Daily action CSV preview</h2><textarea id="csvPreview" readonly></textarea></div>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),orderKey='qpvOrderLedger',paidKey='qpvPaidEventLedger',leadKey='qpvOutreachLeadLedger',priceEur=19;
+function clean(v){return String(v||'').trim()}
+function readJson(key,fallback=[]){try{const raw=JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));return Array.isArray(raw)?raw:fallback}catch(error){return fallback}}
+function paidEventId(row){return clean(row.orderId)+'::'+clean(row.paymentReference||row.reference||row.verifiedPaymentReference)}
+function readPaidEvents(){const seen=new Set();return readJson(paidKey).filter(row=>{const id=paidEventId(row);if(!id||id==='::'||seen.has(id))return false;seen.add(id);return clean(row.leadId)&&clean(row.orderId)})}
+function paidOrderIds(){return new Set(readPaidEvents().map(row=>clean(row.orderId)))}
+function paidLeadIds(){return new Set(readPaidEvents().map(row=>clean(row.leadId)))}
+function hasProof(row){return !!(row.paymentProof&&row.paymentProof.orderId)}
+function paymentReference(row){return clean(row.paymentReference||row.paymentProof?.paymentReference||row.paymentProof?.reference||row.reference)}
+function isProofReadyUnpaid(row,paidIds=paidOrderIds()){return clean(row.orderId)&&clean(row.leadId)&&hasProof(row)&&paymentReference(row)&&!paidIds.has(clean(row.orderId))}
+function outreachCheckoutHref(row){const params=new URLSearchParams({leadId:clean(row.leadId),buyer:clean(row.email||row.contact||row.company),product:'Quick Product Video',priceEur:String(row.priceEur||priceEur),source:clean(row.source||'outreach')});return './checkout.html?'+params.toString()}
+function paidHref(row){const params=new URLSearchParams({orderId:clean(row.orderId),leadId:clean(row.leadId),buyer:clean(row.buyer||row.paymentProof?.buyer),paymentReference:paymentReference(row),priceEur:String(row.priceEur||priceEur)});return './paid-confirmation.html?'+params.toString()}
+function escapeHtml(text){return clean(text).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]))}
+function actionRows(){const paidIds=paidOrderIds(),paidLeads=paidLeadIds();const orders=readJson(orderKey);const proofRows=orders.filter(row=>isProofReadyUnpaid(row,paidIds)).map(row=>({type:'verify_payment',leadId:clean(row.leadId),orderId:clean(row.orderId),buyer:clean(row.buyer||row.paymentProof?.buyer),reference:paymentReference(row),amountEur:Number(row.priceEur||priceEur),url:new URL(paidHref(row),location.href).href,revenueEur:0,nextAction:'Verify payment manually, then mark paid idempotently'}));const leads=readJson(leadKey).filter(row=>clean(row.leadId)&&!paidLeads.has(clean(row.leadId))).slice(0,100).map(row=>({type:'send_checkout',leadId:clean(row.leadId),orderId:'',buyer:clean(row.company||row.email||row.contact),reference:clean(row.source||'outreach'),amountEur:Number(row.priceEur||priceEur),url:new URL(outreachCheckoutHref(row),location.href).href,revenueEur:0,nextAction:'Send buyer-ready checkout link'}));return proofRows.concat(leads)}
+function csvEscape(v){const s=clean(v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function buildCsv(rows){const headers=['type','leadId','orderId','buyer','reference','amountEur','revenueEur','nextAction','url'];return [headers.join(','),...rows.map(row=>headers.map(key=>csvEscape(row[key])).join(','))].join('\n')}
+function render(){const rows=actionRows(),orders=readJson(orderKey),paidEvents=readPaidEvents(),proofReady=rows.filter(row=>row.type==='verify_payment'),leadActions=rows.filter(row=>row.type==='send_checkout'),blocked=orders.filter(row=>hasProof(row)&&(!clean(row.leadId)||!paymentReference(row))).length;$('kpiProofReady').textContent=proofReady.length;$('kpiPaidEvents').textContent=paidEvents.length;$('kpiRevenue').textContent=paidEvents.reduce((sum,row)=>sum+Number(row.amountEur||row.priceEur||priceEur),0);$('kpiCheckoutLeads').textContent=leadActions.length;$('kpiBlocked').textContent=blocked;$('proofReady').innerHTML=proofReady.length?proofReady.map(row=>`<div class="row"><div><b>${escapeHtml(row.orderId)}</b><br><span class="muted">${escapeHtml(row.buyer)} · lead ${escapeHtml(row.leadId)} · ref ${escapeHtml(row.reference)}</span><br><span class="pill">0 EUR until paid gate</span></div><div>${row.amountEur} EUR</div><div><a class="cta" href="${row.url}">Open paid gate</a></div></div>`).join(''):'No proof-ready unpaid orders.';$('leadActions').innerHTML=leadActions.length?leadActions.map(row=>`<div class="row"><div><b>${escapeHtml(row.buyer||row.leadId)}</b><br><span class="muted">lead ${escapeHtml(row.leadId)} · ${escapeHtml(row.reference)}</span><br><span class="pill">checkout follow-up</span></div><div>${row.amountEur} EUR offer</div><div><a class="cta ghost" href="${row.url}">Open checkout</a></div></div>`).join(''):'No outreach leads found.';$('guardrail').textContent=JSON.stringify({rules:['payment proof is not revenue','daily action export never writes paid events','confirmed EUR is derived only from unique paid events with leadId and orderId','duplicate paid references are deduplicated by orderId + reference'],proofReadyUnpaid:proofReady.length,paidEvents:paidEvents.length,confirmedRevenueEur:Number($('kpiRevenue').textContent),blockedRowsMissingLeadIdOrReference:blocked,revenueDeltaFromThisPageEur:0},null,2);$('csvPreview').value=buildCsv(rows)}
+function downloadCsv(){const blob=new Blob([$('csvPreview').value],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='quick-product-video-daily-revenue-actions-'+new Date().toISOString().slice(0,10)+'.csv';a.click();$('msg').className='ok';$('msg').textContent='Daily action CSV prepared. Export does not change paid events or revenue.'}
+async function copyCsv(){try{await navigator.clipboard.writeText($('csvPreview').value);$('msg').className='ok';$('msg').textContent='Daily action CSV copied. Revenue remains gated by paid events.'}catch(error){$('msg').textContent='Clipboard blocked. Use Download daily action CSV.'}}
+$('downloadCsv').addEventListener('click',downloadCsv);$('copyCsv').addEventListener('click',copyCsv);render();
+</script>
+</body>
+</html>
