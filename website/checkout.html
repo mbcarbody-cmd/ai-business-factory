@@ -56,31 +56,35 @@
 </div>
 <div class="card">
 <h2>Rejected weak patterns</h2>
-<p class="muted">No hidden price, no contact-only CTA, no fake checkout success, no payment-pending revenue, no order without buyer/product/photo count, no manual work starting without order ID, no orphan proof outside the ledger, no buyer status detached from qpvOrderLedger.</p>
+<p class="muted">No hidden price, no contact-only CTA, no fake checkout success, no payment-pending revenue, no order without buyer/product/photo count, no manual work starting without order ID, no orphan proof outside the ledger, no buyer status detached from qpvOrderLedger, no lead checkout without leadId propagation into the order and conversion ledger.</p>
 </div>
 </section>
 </main>
 <script>
 'use strict';
-const $=id=>document.getElementById(id),priceEur=19,ledgerKey='qpvOrderLedger',lastOrderKey='qpvLastCheckoutOrder';
+const $=id=>document.getElementById(id),priceEur=19,ledgerKey='qpvOrderLedger',lastOrderKey='qpvLastCheckoutOrder',conversionKey='qpvConversionLedger';
 let lastOrder=null;
 function clean(v){return String(v||'').trim()}
 function orderId(){const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14);return `QPV-${stamp}-${Math.random().toString(36).slice(2,6).toUpperCase()}`}
 function readLedger(){try{const rows=JSON.parse(localStorage.getItem(ledgerKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
 function writeLedger(rows){localStorage.setItem(ledgerKey,JSON.stringify(rows.slice(-200)))}
+function readConversionLedger(){try{const rows=JSON.parse(localStorage.getItem(conversionKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function writeConversionEvent(event){const rows=readConversionLedger();rows.push({...event,version:'qpv-conversion-ledger-v1',storedAt:new Date().toISOString(),revenueEur:0});localStorage.setItem(conversionKey,JSON.stringify(rows.slice(-300)))}
 function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
 function confirmedRevenue(rows){return rows.filter(isPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
 function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
 function validate(data){const missing=['brand','contact','productName','ctaText','photoCount'].filter(key=>!data[key]);if(missing.length)return `Missing required fields: ${missing.join(', ')}`;const count=Number(data.photoCount);if(!Number.isFinite(count)||count<1||count>12)return 'Photo count must be from 1 to 12.';return ''}
-function buildOrder(data){const createdAt=new Date().toISOString();return{orderId:orderId(),product:'Quick Product Video',item:data.productName,priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',seller:data.brand,buyer:data.contact,ctaText:data.ctaText,photoCount:Number(data.photoCount),notes:data.notes||'',createdAt,updatedAt:createdAt,revenueCountedEur:0,nextStep:'Open buyer status, send payment proof with this order ID, then admin verifies payment manually.'}}
-function saveOrder(order){const rows=readLedger().filter(row=>row.orderId!==order.orderId);rows.push(order);writeLedger(rows);localStorage.setItem(lastOrderKey,JSON.stringify(order));renderKpis(rows)}
-function statusHref(order){const p=new URLSearchParams({orderId:order.orderId});return `./order-status.html?${p.toString()}`}
-function paymentHref(order){const p=new URLSearchParams({orderId:order.orderId,buyer:order.buyer});return `./payment-ledger.html?${p.toString()}`}
-function builderHref(order){const p=new URLSearchParams({orderId:order.orderId,brand:order.seller,headline:order.item,subline:`${order.photoCount} photos · ${order.priceEur} EUR order`,cta:order.ctaText});return `./video-maker.html?${p.toString()}`}
+function params(){return new URLSearchParams(location.search)}
+function leadIdFrom(data){const fromParam=clean(params().get('leadId'));if(fromParam)return fromParam;const match=clean(data.notes).match(/Lead\s+(LP-\d{4}|MANUAL)/i);return match?match[1].toUpperCase():'CHECKOUT_DIRECT'}
+function buildOrder(data){const createdAt=new Date().toISOString(),leadId=leadIdFrom(data);return{orderId:orderId(),leadId,product:'Quick Product Video',item:data.productName,priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',seller:data.brand,buyer:data.contact,ctaText:data.ctaText,photoCount:Number(data.photoCount),notes:data.notes||'',createdAt,updatedAt:createdAt,revenueCountedEur:0,source:'checkout',kpiEvent:'payment_pending_order_created',nextStep:'Open buyer status, send payment proof with this order ID, then admin verifies payment manually.'}}
+function saveOrder(order){const rows=readLedger().filter(row=>row.orderId!==order.orderId);rows.push(order);writeLedger(rows);writeConversionEvent({leadId:order.leadId,orderId:order.orderId,kpiEvent:'payment_pending_order_created',stateFrom:'checkout_handoff',stateTo:'payment_pending',priceEur:order.priceEur,paymentStatus:order.paymentStatus,source:'checkout'});localStorage.setItem(lastOrderKey,JSON.stringify(order));renderKpis(rows)}
+function statusHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId});return `./order-status.html?${p.toString()}`}
+function paymentHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,buyer:order.buyer});return `./payment-ledger.html?${p.toString()}`}
+function builderHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,brand:order.seller,headline:order.item,subline:`${order.photoCount} photos · ${order.priceEur} EUR order`,cta:order.ctaText});return `./video-maker.html?${p.toString()}`}
 function renderKpis(rows=readLedger()){$('ledgerRows').textContent=String(rows.length);$('confirmedRevenue').textContent=String(confirmedRevenue(rows))}
-function fillFromParams(){const p=new URLSearchParams(location.search);const map={brand:'brand',contact:'contact',product:'productName',ctaText:'ctaText',photoCount:'photoCount',notes:'notes'};Object.entries(map).forEach(([key,id])=>{if(p.get(key))$(id).value=p.get(key)})}
+function fillFromParams(){const p=params();const map={brand:'brand',contact:'contact',product:'productName',ctaText:'ctaText',photoCount:'photoCount',notes:'notes'};Object.entries(map).forEach(([key,id])=>{if(p.get(key))$(id).value=p.get(key)});if(p.get('leadId')&&!$('notes').value.includes(p.get('leadId'))){$('notes').value=`Lead ${p.get('leadId')} from prefilled checkout. ${$('notes').value}`.trim()}}
 function showOrder(order){lastOrder=order;$('proof').textContent=JSON.stringify(order,null,2);$('statusLink').href=statusHref(order);$('statusLink').hidden=false;$('paymentLink').href=paymentHref(order);$('paymentLink').hidden=false;$('builderLink').href=builderHref(order);$('builderLink').hidden=false;$('copyOrder').hidden=false;$('downloadOrder').hidden=false}
-$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),productName:clean($('productName').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)};const error=validate(data);if(error){setMsg(error);return}const order=buildOrder(data);saveOrder(order);showOrder(order);setMsg(`Order ${order.orderId} created and saved locally. Buyer status is ready. Revenue remains 0 EUR until manual paid confirmation.`,true)});
+$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),productName:clean($('productName').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)};const error=validate(data);if(error){setMsg(error);return}const order=buildOrder(data);saveOrder(order);showOrder(order);setMsg(`Order ${order.orderId} created for lead ${order.leadId} and saved locally. Buyer status is ready. Revenue remains 0 EUR until manual paid confirmation.`,true)});
 $('copyOrder').addEventListener('click',async()=>{if(!lastOrder)return;try{await navigator.clipboard.writeText(JSON.stringify(lastOrder,null,2));setMsg('Order JSON copied.',true)}catch(error){setMsg('Clipboard blocked. Use Download order JSON.')}});
 $('downloadOrder').addEventListener('click',()=>{if(!lastOrder)return;const blob=new Blob([JSON.stringify(lastOrder,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${lastOrder.orderId.toLowerCase()}-checkout-order.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);setMsg('Order JSON download prepared.',true)});
 fillFromParams();renderKpis();
