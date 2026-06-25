@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lead Conversion KPI — Quick Product Video</title>
+<meta name="description" content="End-to-end local KPI for QPV leadId conversion from outreach to checkout, payment proof, paid and delivered without fake revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1b2a3e 0,#071019 45%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{display:block;font-size:23px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.notice{border-left:4px solid var(--warn);padding:10px 12px;background:#201b0d;border-radius:12px;color:#ffe6ad}.ok{color:#bdf6d8}.bad{color:#ffc3cb}@media(max-width:980px){.kpis,.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="muted"><b>QPV KPI · LEADID FUNNEL · PROOF IS NOT REVENUE</b></span>
+<h1>Lead conversion KPI dashboard</h1>
+<p class="muted">Measures the real local funnel by leadId: outreach proof → checkout handoff → checkout order → payment proof submitted → paid → delivered. Confirmed EUR is counted only from paid or delivered orders.</p>
+<a class="cta ghost" href="./lead-send.html">Lead sender</a>
+<a class="cta ghost" href="./checkout.html">Checkout</a>
+<a class="cta ghost" href="./payment-ledger.html">Payment proof</a>
+<a class="cta ghost" href="./order-admin.html">Order admin</a>
+<a class="cta ghost" href="./order-status.html">Order status</a>
+<div class="kpis">
+<div class="kpi">Leads<br><b id="kLeads">0</b></div>
+<div class="kpi">Checkout<br><b id="kCheckout">0</b></div>
+<div class="kpi">Proofs<br><b id="kProofs">0</b></div>
+<div class="kpi">Paid<br><b id="kPaid">0</b></div>
+<div class="kpi">Delivered<br><b id="kDelivered">0</b></div>
+<div class="kpi">Lead→Proof<br><b id="kProofRate">0%</b></div>
+<div class="kpi">Confirmed EUR<br><b id="kRevenue">0</b></div>
+</div>
+<button class="cta" id="refresh">Refresh KPI</button>
+<button class="cta ghost" id="copyKpi">Copy KPI JSON</button>
+<p id="msg" class="muted" role="status"></p>
+</section>
+<section class="grid">
+<div class="card"><h2>Versioned product-state movement</h2><pre id="out" class="status">Loading…</pre></div>
+<div class="card"><h2>Regression revenue gate</h2><div class="notice"><b>Rejected weak pattern:</b> generated outreach, checkout link, checkout order, payment_pending and payment proof do not count as revenue. Only paid/delivered order states count EUR.</div><pre id="qa" class="status">QA pending.</pre></div>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),priceEur=19,orderKey='qpvOrderLedger',lastOutreachKey='qpvLastOutreachProof',handoffKey='qpvLeadHandoffLedger',conversionKey='qpvConversionLedger',proofKey='qpvPaymentProofLedger';
+function clean(v){return String(v||'').trim()}
+function readJson(key,fallback){try{const parsed=JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));return Array.isArray(fallback)?(Array.isArray(parsed)?parsed:fallback):(parsed&&typeof parsed==='object'?parsed:fallback)}catch(error){return fallback}}
+function leadId(row){return clean(row&&row.leadId)||clean(row&&row.paymentProof&&row.paymentProof.leadId)||''}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function isDelivered(row){return row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function confirmedRevenue(rows){return rows.filter(isPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
+function uniqueByLead(rows){const seen=new Set();return rows.filter(row=>{const id=leadId(row);if(!id||seen.has(id))return false;seen.add(id);return true})}
+function leadRows(){const rows=[],last=readJson(lastOutreachKey,null),handoffs=readJson(handoffKey,[]);if(last&&leadId(last))rows.push(last);handoffs.forEach(row=>{if(leadId(row))rows.push(row)});return uniqueByLead(rows)}
+function checkoutRows(){const orders=readJson(orderKey,[]);return uniqueByLead(orders.filter(row=>leadId(row)&&clean(row.paymentStatus)!=='cancelled'))}
+function proofRows(){const proofs=readJson(proofKey,[]).filter(row=>leadId(row));const conversions=readJson(conversionKey,[]).filter(row=>leadId(row)&&row.kpiEvent==='payment_proof_submitted_manual_review'&&Number(row.revenueEur||0)===0);return uniqueByLead(proofs.concat(conversions))}
+function paidRows(){return uniqueByLead(readJson(orderKey,[]).filter(row=>leadId(row)&&isPaid(row)))}
+function deliveredRows(){return uniqueByLead(readJson(orderKey,[]).filter(row=>leadId(row)&&isDelivered(row)))}
+function pct(part,total){return total?`${Math.round((part/total)*100)}%`:'0%'}
+function snapshot(){const leads=leadRows(),checkouts=checkoutRows(),proofs=proofRows(),paid=paidRows(),delivered=deliveredRows(),orders=readJson(orderKey,[]);return{version:'qpv-leadid-conversion-kpi-v2',leadIdQualifiedLeads:leads.length,leadIdCheckoutOrders:checkouts.length,leadIdPaymentProofs:proofs.length,leadIdPaidOrders:paid.length,leadIdDeliveredOrders:delivered.length,leadToCheckoutPct:pct(checkouts.length,leads.length),checkoutToProofPct:pct(proofs.length,checkouts.length),leadToProofPct:pct(proofs.length,leads.length),proofToPaidPct:pct(paid.length,proofs.length),paidToDeliveredPct:pct(delivered.length,paid.length),confirmedRevenueEur:confirmedRevenue(orders),revenueRule:'Only qpvOrderLedger rows with paymentStatus paid/delivered or fulfillmentStatus delivered count confirmed EUR.',rejectedRevenueSources:['outreach_message','checkout_handoff','payment_pending_order_created','payment_proof_submitted_manual_review','manual_transfer_text'],nextRevenueAction:proofs.length&&!paid.length?'Verify real payment in order-admin.html and mark paid only after funds clear.':(!proofs.length?'Drive one interested lead through checkout.html then payment-ledger.html.':'Deliver paid QPV order and mark delivered.'),updatedAt:new Date().toISOString()}}
+function render(){const data=snapshot();$('kLeads').textContent=String(data.leadIdQualifiedLeads);$('kCheckout').textContent=String(data.leadIdCheckoutOrders);$('kProofs').textContent=String(data.leadIdPaymentProofs);$('kPaid').textContent=String(data.leadIdPaidOrders);$('kDelivered').textContent=String(data.leadIdDeliveredOrders);$('kProofRate').textContent=data.leadToProofPct;$('kRevenue').textContent=String(data.confirmedRevenueEur);$('out').textContent=JSON.stringify(data,null,2);$('qa').textContent=JSON.stringify({pass:data.rejectedRevenueSources.includes('payment_proof_submitted_manual_review')&&data.revenueRule.includes('paid/delivered')&&data.confirmedRevenueEur>=0,guards:['reads qpvConversionLedger proof_submitted_manual_review','reads qpvPaymentProofLedger','requires leadId for funnel attribution','payment proof revenueEur must be 0','confirmed revenue only from paid/delivered qpvOrderLedger rows']},null,2);return data}
+async function copyKpi(){const data=render();try{await navigator.clipboard.writeText(JSON.stringify(data,null,2));$('msg').className='ok';$('msg').textContent='KPI JSON copied.'}catch(error){$('msg').className='bad';$('msg').textContent='Clipboard blocked. Copy KPI JSON manually.'}}
+$('refresh').addEventListener('click',render);$('copyKpi').addEventListener('click',copyKpi);render();
+</script>
+</body>
+</html>
