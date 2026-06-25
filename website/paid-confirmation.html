@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Idempotent Paid Confirmation — Quick Product Video</title>
+<meta name="description" content="Manual admin gate that confirms real QPV payments once per order/payment reference, preserves leadId, and writes paid conversion events without duplicate revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#1b2a3e 0,#071019 45%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1040px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 18px 60px #0007}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.warn{background:#2d240e;color:#ffe6ad;border:1px solid #6b5519}.bad{color:#ffc3cb}.ok{color:#bdf6d8}.proof{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}label{display:block;margin:10px 0 5px;font-weight:800;font-size:13px}input,textarea{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}textarea{min-height:120px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}@media(max-width:860px){.grid,.row,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">QPV PAID CONFIRMATION · IDEMPOTENT · LEADID REQUIRED · 19 EUR</span>
+<h1>Quick Product Video verified paid gate</h1>
+<p class="muted">Use this only after manually verifying bank/Revolut/payment proof. It writes one paid event per unique orderId + payment reference, keeps leadId attached, and prevents duplicate revenue from repeated clicks or duplicate imports.</p>
+<a class="cta ghost" href="./checkout.html">Checkout</a><a class="cta ghost" href="./payment-ledger.html">Payment proof</a><a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a><a class="cta ghost" href="./order-status.html">Status</a>
+<div class="kpis"><div class="kpi">Orders<br><b id="ordersKpi">0</b></div><div class="kpi">Paid events<br><b id="paidKpi">0</b></div><div class="kpi">Confirmed EUR<br><b id="revenueKpi">0</b></div><div class="kpi">Duplicate blocks<br><b id="dupeKpi">0</b></div><div class="kpi">Price<br><b>19</b></div></div>
+</section>
+<section class="grid">
+<div class="card">
+<h2>Confirm verified payment</h2>
+<form id="paidForm" novalidate>
+<label for="orderId">Order ID</label><input id="orderId" required maxlength="50" placeholder="QPV-...">
+<div class="row"><div><label for="leadId">Lead ID</label><input id="leadId" required maxlength="50" placeholder="LP-... / CHECKOUT_DIRECT"></div><div><label for="amountEur">Amount EUR</label><input id="amountEur" inputmode="decimal" value="19" required></div></div>
+<label for="paymentReference">Verified payment reference</label><input id="paymentReference" required maxlength="90" placeholder="Bank/Revolut transaction/reference">
+<label for="buyer">Buyer contact</label><input id="buyer" maxlength="90" placeholder="email / phone / company">
+<label for="adminNote">Admin verification note</label><textarea id="adminNote" required placeholder="What exactly was verified? Date, bank/revolut reference, amount, buyer."></textarea>
+<button class="cta" type="submit">Mark paid once</button><button id="loadProof" class="cta ghost" type="button">Load last proof</button><button id="copyResult" class="cta ghost" type="button" hidden>Copy result</button>
+<p id="msg" class="bad" role="status"></p>
+</form>
+</div>
+<div class="card">
+<h2>Result</h2>
+<div class="warn"><b>Hard rule:</b> confirmed revenue is calculated only from idempotent paid events. Proof-submitted and payment_pending still count 0 EUR.</div>
+<pre id="result" class="proof">No paid confirmation yet.</pre>
+</div>
+</section>
+<section class="card"><h2>Regression contract</h2><pre id="qa" class="proof">QA pending render.</pre></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),priceEur=19,ledgerKey='qpvOrderLedger',paidKey='qpvPaidEventLedger',conversionKey='qpvConversionLedger',lastProofKey='qpvLastPaymentProof',dupeKey='qpvPaidDuplicateBlocks';
+let lastResult=null;
+function clean(v){return String(v||'').trim()}
+function readJson(key,fallback){try{const parsed=JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));return Array.isArray(fallback)?(Array.isArray(parsed)?parsed:fallback):(parsed&&typeof parsed==='object'?parsed:fallback)}catch(error){return fallback}}
+function writeJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
+function paymentEventId(orderId,ref){return `${clean(orderId).toUpperCase()}::${clean(ref).toUpperCase()}`}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function confirmedRevenue(){return readJson(paidKey,[]).reduce((sum,row)=>sum+Number(row.amountEur||0),0)}
+function writeConversionEvent(event){const rows=readJson(conversionKey,[]);rows.push({...event,version:'qpv-conversion-ledger-v2-paid-idempotent',storedAt:new Date().toISOString()});writeJson(conversionKey,rows.slice(-500))}
+function upsertPaidOrder(event){const rows=readJson(ledgerKey,[]);const idx=rows.findIndex(row=>row.orderId===event.orderId);const patch={orderId:event.orderId,leadId:event.leadId,buyer:event.buyer,product:'Quick Product Video',item:'Quick Product Video',priceEur:event.amountEur,paymentStatus:'paid',fulfillmentStatus:'in_production',paidEventId:event.paidEventId,paidAt:event.paidAt,updatedAt:event.paidAt,revenueCountedEur:event.amountEur};if(idx>=0){rows[idx]={...rows[idx],...patch,leadId:event.leadId||rows[idx].leadId}}else{rows.push({...patch,createdAt:event.paidAt})}writeJson(ledgerKey,rows.slice(-200));return rows}
+function blockDuplicate(eventId,orderId,leadId){const blocked=readJson(dupeKey,[]);blocked.push({eventId,orderId,leadId,blockedAt:new Date().toISOString(),reason:'duplicate_paid_event_not_counted'});writeJson(dupeKey,blocked.slice(-200));return blocked}
+function confirmPaid(data){const paidEventId=paymentEventId(data.orderId,data.paymentReference),paidRows=readJson(paidKey,[]);if(paidRows.some(row=>row.paidEventId===paidEventId)){const blocked=blockDuplicate(paidEventId,data.orderId,data.leadId);return{ok:false,duplicate:true,paidEventId,confirmedRevenueEur:confirmedRevenue(),duplicateBlocks:blocked.length,message:'Duplicate paid event blocked; revenue unchanged.'}}
+const paidAt=new Date().toISOString();const event={paidEventId,orderId:data.orderId,leadId:data.leadId,amountEur:Number(data.amountEur||priceEur),buyer:data.buyer,paymentReference:data.paymentReference,adminNote:data.adminNote,paymentStatus:'paid',fulfillmentStatus:'in_production',paidAt,revenueCountedEur:Number(data.amountEur||priceEur),source:'paid-confirmation'};paidRows.push(event);writeJson(paidKey,paidRows.slice(-300));upsertPaidOrder(event);writeConversionEvent({leadId:event.leadId,orderId:event.orderId,kpiEvent:'verified_paid_once',stateFrom:'proof_submitted_manual_review',stateTo:'paid',amountEur:event.amountEur,revenueEur:event.amountEur,paidEventId:event.paidEventId,source:'paid-confirmation'});return{ok:true,duplicate:false,...event,confirmedRevenueEur:confirmedRevenue()}}
+function renderKpis(){const orders=readJson(ledgerKey,[]),paid=readJson(paidKey,[]),dupes=readJson(dupeKey,[]);$('ordersKpi').textContent=String(orders.length);$('paidKpi').textContent=String(paid.length);$('revenueKpi').textContent=String(confirmedRevenue());$('dupeKpi').textContent=String(dupes.length);$('qa').textContent=JSON.stringify({rules:['leadId is required before paid confirmation','paidEventId = orderId + verified payment reference','duplicate paidEventId is blocked and not counted','proof_submitted/payment_pending remain 0 EUR','confirmed EUR comes from qpvPaidEventLedger only','paid order is pushed to in_production, not delivered'],confirmedRevenueEur:confirmedRevenue(),paidEvents:paid.length,duplicateBlocks:dupes.length,ordersPaidOrDelivered:orders.filter(isPaid).length},null,2)}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function fillFromParams(){const p=new URLSearchParams(location.search);['orderId','leadId','buyer'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)});if(p.get('paymentReference'))$('paymentReference').value=p.get('paymentReference')}
+$('paidForm').addEventListener('submit',event=>{event.preventDefault();const data={orderId:clean($('orderId').value),leadId:clean($('leadId').value),amountEur:clean($('amountEur').value),paymentReference:clean($('paymentReference').value),buyer:clean($('buyer').value),adminNote:clean($('adminNote').value)};if(!data.orderId||!data.leadId||!data.paymentReference||!data.adminNote){setMsg('Order ID, leadId, verified payment reference and admin verification note are required.');return}lastResult=confirmPaid(data);$('result').textContent=JSON.stringify(lastResult,null,2);$('copyResult').hidden=false;renderKpis();setMsg(lastResult.message||`Paid confirmed once for ${data.orderId}. Confirmed revenue now ${lastResult.confirmedRevenueEur} EUR.`,lastResult.ok)});
+$('loadProof').addEventListener('click',()=>{const proof=readJson(lastProofKey,null);if(!proof){setMsg('No local proof found. Open payment-ledger.html first or paste order data manually.');return}$('orderId').value=proof.orderId||'';$('leadId').value=proof.leadId||'';$('buyer').value=proof.buyer||'';$('paymentReference').value=proof.paymentNote||proof.paymentReference||'';$('adminNote').value=`Manual verification required for proof submitted at ${proof.createdAt||'unknown time'}.`;setMsg('Last proof loaded. Verify payment manually before marking paid.',true)});
+$('copyResult').addEventListener('click',async()=>{if(!lastResult)return;try{await navigator.clipboard.writeText(JSON.stringify(lastResult,null,2));setMsg('Paid confirmation result copied.',true)}catch(error){setMsg('Clipboard blocked. Copy JSON manually.')}});
+fillFromParams();renderKpis();
+</script>
+</body>
+</html>
