@@ -12,11 +12,12 @@
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">OUTREACH HELPER · 20 LEADS · PREFILLED CHECKOUT · 19 EUR OFFER · NO FAKE SENDING</span>
+<span class="badge">OUTREACH HELPER · 20 LEADS · PREFILLED CHECKOUT · KPI LEDGER · 19 EUR OFFER · NO FAKE SENDING</span>
 <h1>Lead Send Helper</h1>
-<p class="muted">Pick a Lithuanian seller segment, generate a ready-to-send outreach message, export the pipeline row and open a prefilled checkout when the buyer is interested. This page does not claim sent messages or paid revenue.</p>
+<p class="muted">Pick a Lithuanian seller segment, generate a ready-to-send outreach message, export the pipeline row and open a prefilled checkout when the buyer is interested. Handoffs are measured in the KPI ledger, but this page does not claim sent messages or paid revenue.</p>
 <a class="cta ghost" href="./offer.html">Offer</a>
 <a class="cta ghost" href="./checkout.html">Checkout</a>
+<a class="cta ghost" href="./lead-kpi.html">Lead KPI</a>
 <a class="cta ghost" href="./order-status.html">Order status</a>
 </section>
 <section class="card" style="margin-bottom:16px">
@@ -43,6 +44,7 @@
 <button class="cta ghost" type="button" id="exportAll">Download all pipeline rows</button>
 <a id="mailto" class="cta secondary" hidden>Open email draft</a>
 <a id="checkoutLead" class="cta secondary" hidden>Open prefilled checkout</a>
+<a id="kpiLink" class="cta ghost" href="./lead-kpi.html">Open KPI dashboard</a>
 <a id="offerLink" class="cta ghost" href="./offer.html" target="_blank" rel="noopener">Open offer URL</a>
 <p id="status" class="bad" role="status"></p>
 </form>
@@ -57,6 +59,7 @@
 'use strict';
 const offerUrl='https://mbcarbody-cmd.github.io/ai-business-factory/website/offer.html';
 const checkoutBase='./checkout.html';
+const handoffKey='qpvLeadHandoffLedger';
 const today=new Date().toISOString().slice(0,10);
 const leads=[
 {leadId:'LP-0001',company:'Auto prekyba 1',segment:'used cars',channel:'facebook',product:'automobilio skelbimas'},
@@ -87,14 +90,16 @@ function csvEscape(value){return `"${String(value??'').replaceAll('"','""')}"`}
 function pipelineRow(lead,status='Lead'){return [lead.leadId,status,'Quick Product Video',19,'Lead Send Helper',lead.company,lead.channel,today,'Send first contact; if interested open prefilled checkout',0,offerUrl].map(csvEscape).join(',')}
 function pipelineCsv(rows){return ['lead_id,status,offer,price_eur,source,contact_name,contact_channel,last_update,next_action,revenue_eur,offer_url',...rows.map(lead=>pipelineRow(lead))].join('\n')+'\n# Workflow States: Lead -> Contacted -> Interested -> Checkout Created -> Paid -> Delivered\n# KPI: leads,response_rate,checkout_orders,paid_orders,revenue_eur\n'}
 function download(name,text){const blob=new Blob([text],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800)}
+function readHandoffLedger(){try{const rows=JSON.parse(localStorage.getItem(handoffKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return []}}
+function saveHandoff(proof){const rows=readHandoffLedger().filter(row=>!(row.leadId===proof.leadId&&row.checkoutUrl===proof.checkoutUrl));const handoff={...proof,version:'qpv-lead-handoff-ledger-v1',handoffStatus:'checkout_url_created_not_paid',kpiEvent:'checkout_handoff',revenueEur:0,storedAt:new Date().toISOString()};rows.push(handoff);localStorage.setItem(handoffKey,JSON.stringify(rows.slice(-100)));return handoff}
 function checkoutHref(data){const p=new URLSearchParams({brand:data.seller,contact:data.buyerContact||data.channel,product:data.productHint||'Quick Product Video item',ctaText:'Message me',photoCount:'6',notes:`Lead ${data.leadId} from Lead Send Helper. Source channel: ${data.channel}. Revenue remains 0 EUR until paid verification.`});return `${checkoutBase}?${p.toString()}`}
 function renderLeads(){const filter=$('segment').value,list=$('leadList');list.innerHTML='';leads.filter(lead=>filter==='all'||lead.segment===filter).forEach(lead=>{const div=document.createElement('button');div.type='button';div.className='lead';div.setAttribute('aria-selected',selected===lead?'true':'false');div.innerHTML=`<b>${lead.leadId} · ${lead.company}</b><span class="pill">${lead.segment}</span><span class="pill">${lead.channel}</span><span class="pill">19 EUR</span>`;div.addEventListener('click',()=>selectLead(lead));list.appendChild(div)});$('leadCount').textContent=String(leads.length);$('pipelineCount').textContent=String(leads.length)}
 function selectLead(lead){selected=lead;$('seller').value=lead.company;$('channel').value=lead.channel;$('buyerContact').value=lead.channel;$('productHint').value=lead.product;$('message').value=messageFor(lead);$('pipelinePreview').textContent=pipelineCsv([lead]);$('checkoutLead').hidden=true;renderLeads()}
-function proof(){const data={seller:clean($('seller').value),channel:clean($('channel').value),buyerContact:clean($('buyerContact').value),productHint:clean($('productHint').value),message:clean($('message').value),leadId:selected?.leadId||'MANUAL'};if(!data.seller||!data.channel||!data.message)return{error:'Seller, channel and message are required.'};const checkoutUrl=checkoutHref(data);return{proof:{version:'qpv-outreach-send-helper-v3-checkout-handoff',leadId:data.leadId,seller:data.seller,channel:data.channel,buyerContact:data.buyerContact,productHint:data.productHint,offerUrl,checkoutUrl,priceEur:19,status:'send_ready_not_sent',pipelineStatus:'Lead',nextRevenueAction:'If buyer replies yes, open prefilled checkout and create payment_pending order.',revenueEur:0,createdAt:new Date().toISOString(),message:data.message},mailto:`mailto:?subject=${encodeURIComponent('Quick Product Video — 19 EUR')}&body=${encodeURIComponent(data.message+'\n\nGreitas užsakymas: '+checkoutUrl)}`,checkoutUrl}}
+function proof(){const data={seller:clean($('seller').value),channel:clean($('channel').value),buyerContact:clean($('buyerContact').value),productHint:clean($('productHint').value),message:clean($('message').value),leadId:selected?.leadId||'MANUAL'};if(!data.seller||!data.channel||!data.message)return{error:'Seller, channel and message are required.'};const checkoutUrl=checkoutHref(data);return{proof:{version:'qpv-outreach-send-helper-v4-kpi-handoff',leadId:data.leadId,seller:data.seller,channel:data.channel,buyerContact:data.buyerContact,productHint:data.productHint,offerUrl,checkoutUrl,priceEur:19,status:'send_ready_not_sent',pipelineStatus:'Lead',nextRevenueAction:'If buyer replies yes, open prefilled checkout and create payment_pending order.',revenueEur:0,createdAt:new Date().toISOString(),message:data.message},mailto:`mailto:?subject=${encodeURIComponent('Quick Product Video — 19 EUR')}&body=${encodeURIComponent(data.message+'\n\nGreitas užsakymas: '+checkoutUrl)}`,checkoutUrl}}
 $('segment').addEventListener('change',renderLeads);
 $('exportSelected').addEventListener('click',()=>{if(!selected)return;$('status').className='ok';$('status').textContent='Selected pipeline CSV downloaded. Status remains Lead until manual send is completed.';download(`${selected.leadId.toLowerCase()}-pipeline.csv`,pipelineCsv([selected]))});
 $('exportAll').addEventListener('click',()=>{download('quick-product-video-pipeline-20-leads.csv',pipelineCsv(leads));$('status').className='ok';$('status').textContent='All 20 lead pipeline rows downloaded. No messages counted as sent.'});
-$('msgForm').addEventListener('submit',event=>{event.preventDefault();const result=proof();if(result.error){$('status').className='bad';$('status').textContent=result.error;$('mailto').hidden=true;$('checkoutLead').hidden=true;return}try{localStorage.setItem('qpvLastOutreachProof',JSON.stringify(result.proof))}catch(error){console.warn('Could not store outreach proof',error)}$('proof').textContent=JSON.stringify(result.proof,null,2);$('mailto').href=result.mailto;$('mailto').hidden=false;$('checkoutLead').href=result.checkoutUrl;$('checkoutLead').hidden=false;$('status').className='ok';$('status').textContent='Send-ready message generated. If buyer is interested, open prefilled checkout to create a payment_pending order. Revenue remains 0 EUR until verified paid.'});
+$('msgForm').addEventListener('submit',event=>{event.preventDefault();const result=proof();if(result.error){$('status').className='bad';$('status').textContent=result.error;$('mailto').hidden=true;$('checkoutLead').hidden=true;return}let handoff=null;try{localStorage.setItem('qpvLastOutreachProof',JSON.stringify(result.proof));handoff=saveHandoff(result.proof)}catch(error){console.warn('Could not store outreach proof or handoff KPI row',error)}$('proof').textContent=JSON.stringify({outreachProof:result.proof,leadHandoffLedgerRow:handoff},null,2);$('mailto').href=result.mailto;$('mailto').hidden=false;$('checkoutLead').href=result.checkoutUrl;$('checkoutLead').hidden=false;$('status').className='ok';$('status').textContent='Send-ready message generated and checkout handoff saved to KPI ledger. Revenue remains 0 EUR until verified paid.'});
 renderLeads();selectLead(leads[0]);
 </script>
 </body>
