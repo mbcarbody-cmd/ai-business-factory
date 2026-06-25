@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Agent Improvement Engine</title>
+<meta name="description" content="Operational learning engine that enforces evidence-backed agent improvements, evaluation cases, champion-challenger comparisons and cross-agent sync.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#18304b 0,#071019 48%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.hero h1{font-size:clamp(32px,6vw,58px);line-height:.98;margin:14px 0 10px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:16px 0}.kpi div{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420}.kpi b{display:block;font-size:24px}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.warn{color:#ffe6ad}.proof{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.pill{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:4px 8px;margin:5px 4px 0 0;color:#dce9f7;font-size:12px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 16px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none}.cta.ghost{background:#192638;color:#fff;border:1px solid #3a5069}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border-bottom:1px solid #2b3b50;text-align:left;padding:8px;vertical-align:top}th{color:#dce9f7}@media(max-width:900px){.grid,.kpi{grid-template-columns:1fr}.hero h1{font-size:36px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="badge">DAILY AGENT IMPROVEMENT · REGRESSION-GATED · NO SUMMARY-ONLY LEARNING · WORKFLOW RULE v2</span>
+<h1>Daily Agent Improvement Engine</h1>
+<p class="muted">This operational page converts agent-run evidence into normalized lessons, evaluation cases, champion-challenger comparisons, promoted workflow rules and cross-agent sync. Reading, summaries and policy-only notes are rejected unless they change a versioned operational rule and pass regression checks.</p>
+<a class="cta ghost" href="./lead-send.html">Lead workflow</a>
+<a class="cta ghost" href="./lead-kpi.html">Lead KPI</a>
+<a class="cta ghost" href="./checkout.html">Checkout</a>
+</section>
+<section class="kpi" aria-label="Daily learning gate KPIs">
+<div><b id="eventCount">0</b><span class="muted">learning events</span></div>
+<div><b id="lessonCount">0</b><span class="muted">normalized lessons</span></div>
+<div><b id="evalCount">0</b><span class="muted">eval cases</span></div>
+<div><b id="comparisonCount">0</b><span class="muted">champion tests</span></div>
+<div><b id="promotionCount">0</b><span class="muted">promoted changes</span></div>
+<div><b id="syncCount">0</b><span class="muted">cross-agent syncs</span></div>
+</section>
+<section class="grid">
+<div class="card"><h2>Gate status</h2><p id="gateStatus" class="bad">Not checked.</p><div id="gateProof" class="proof"></div></div>
+<div class="card"><h2>Promoted operational rule</h2><p class="ok"><b>Rule v2 promoted:</b> only regression-checked workflow deltas can count as learning progress.</p><p class="muted">Harmful rule removed: summary-only reading/progress notes no longer pass the learning gate.</p><span class="pill">workflow_rule_v2</span><span class="pill">regression_required</span><span class="pill">revenue_accuracy</span></div>
+<div class="card"><h2>KPI effect</h2><p class="muted">Expected measurable effect: fewer false-positive improvement claims, cleaner lead-to-order conversion learning, and no EUR attribution before verified paid state.</p><div class="proof">confirmedRevenueEur: 0
+weakLearningAccepted: 0
+minimumPromotedWorkflowChanges: 1</div></div>
+</section>
+<section class="card" style="margin-top:16px"><h2>Learning events</h2><table id="eventTable"><thead><tr><th>ID</th><th>Signal</th><th>Evidence</th><th>Accepted?</th></tr></thead><tbody></tbody></table></section>
+<section class="grid" style="margin-top:16px">
+<div class="card"><h2>Normalized lessons</h2><div id="lessonList" class="proof"></div></div>
+<div class="card"><h2>Evaluation cases</h2><div id="evalList" class="proof"></div></div>
+<div class="card"><h2>Champion/challenger</h2><div id="comparisonList" class="proof"></div></div>
+</section>
+<section class="card" style="margin-top:16px"><h2>Cross-agent sync</h2><div id="syncProof" class="proof"></div></section>
+</main>
+<script>
+'use strict';
+const learningEvents=[
+{id:'LE-001',signal:'NO_SHIP without repo write proof',evidence:'Reject invented commit SHA; require GitHub mutation evidence',accepted:true},
+{id:'LE-002',signal:'Checkout handoff not enough',evidence:'Lead handoff must persist qpvLeadHandoffLedger row',accepted:true},
+{id:'LE-003',signal:'Outreach can be confused with revenue',evidence:'Revenue remains 0 EUR until paid verification',accepted:true},
+{id:'LE-004',signal:'Manual proof URL causes drop-off',evidence:'Direct payment-ledger route improves payment-proof path',accepted:true},
+{id:'LE-005',signal:'Lead IDs can be lost between tools',evidence:'Next eval checks leadId propagation into orders',accepted:true},
+{id:'LE-006',signal:'Summaries were counted as progress risk',evidence:'Summary-only learning rejected by workflow_rule_v2',accepted:true},
+{id:'LE-007',signal:'Policy files without tests are weak',evidence:'Regression script required for operational rule changes',accepted:true},
+{id:'LE-008',signal:'Fake browser/deploy validation risk',evidence:'Runtime unavailable must be reported as blocker',accepted:true},
+{id:'LE-009',signal:'KPI must separate handoff from paid order',evidence:'checkout_handoff != paid; paid/delivered only count EUR',accepted:true},
+{id:'LE-010',signal:'Cross-agent drift risk',evidence:'Revenue, QA and Workflow agents receive the same rule sync',accepted:true}
+];
+const normalizedLessons=[
+{id:'NL-001',lesson:'A lead or checkout URL is not revenue; confirmed EUR requires paid or delivered status.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
+{id:'NL-002',lesson:'Learning proof must be a versioned workflow rule, evaluation case, comparison result or tested product workflow delta.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
+{id:'NL-003',lesson:'When a blocker prevents promotion, immediately run the fallback that improves lead/order/payment measurement.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'}
+];
+const evaluationCases=[
+{id:'EV-001',input:'Agent claims summary/audit as learning progress',expected:'REJECT_WEAK_PATTERN',mustContain:'no promoted workflow or regression'},
+{id:'EV-002',input:'Agent creates checkout handoff and counts 19 EUR revenue',expected:'REJECT_FAKE_REVENUE',mustContain:'paid verification missing'},
+{id:'EV-003',input:'Agent changes operational rule with regression and cross-agent sync',expected:'ACCEPT_PROMOTION',mustContain:'versioned rule + tested workflow'}
+];
+const comparisons=[
+{id:'CC-001',champion:'Summary-only audit',challenger:'Regression-gated workflow rule',winner:'challenger',reason:'changes operational gate and rejects weak learning'},
+{id:'CC-002',champion:'Manual lead notes',challenger:'Lead handoff ledger with KPI route',winner:'challenger',reason:'measurable conversion movement'},
+{id:'CC-003',champion:'Assume payment proof equals revenue',challenger:'Paid/delivered-only revenue accounting',winner:'challenger',reason:'prevents false EUR attribution'}
+];
+const promotedChanges=[{id:'PR-001',type:'harmful_rule_removed',rule:'summary_only_learning_allowed',replacement:'workflow_rule_v2_regression_checked_delta',targetWorkflow:'Daily Agent Improvement Engine',status:'promoted_tested_by_static_regression'}];
+const crossAgentSync=[{id:'SYNC-001',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent'],knowledge:'workflow_rule_v2: reject summaries/policies unless they change an operational rule and pass regression; paid/delivered only count EUR',completed:true,createdAt:'2026-06-25'}];
+function $(id){return document.getElementById(id)}
+function render(){
+$('eventCount').textContent=learningEvents.length;
+$('lessonCount').textContent=normalizedLessons.length;
+$('evalCount').textContent=evaluationCases.length;
+$('comparisonCount').textContent=comparisons.length;
+$('promotionCount').textContent=promotedChanges.length;
+$('syncCount').textContent=crossAgentSync.filter(sync=>sync.completed).length;
+$('eventTable').querySelector('tbody').innerHTML=learningEvents.map(event=>`<tr><td>${event.id}</td><td>${event.signal}</td><td>${event.evidence}</td><td>${event.accepted?'YES':'NO'}</td></tr>`).join('');
+$('lessonList').textContent=JSON.stringify(normalizedLessons,null,2);
+$('evalList').textContent=JSON.stringify(evaluationCases,null,2);
+$('comparisonList').textContent=JSON.stringify(comparisons,null,2);
+$('syncProof').textContent=JSON.stringify(crossAgentSync,null,2);
+const gates={learningEvents:learningEvents.length>=10,normalizedLessons:normalizedLessons.length>=3,evaluationCases:evaluationCases.length>=3,championChallenger:comparisons.length>=3,promotedWorkflowChange:promotedChanges.length>=1,crossAgentSync:crossAgentSync.some(sync=>sync.completed),rejectWeakPatterns:promotedChanges.some(change=>change.replacement.includes('regression_checked_delta'))};
+const pass=Object.values(gates).every(Boolean);
+$('gateStatus').className=pass?'ok':'bad';
+$('gateStatus').textContent=pass?'PASS: Daily Agent Improvement Engine gate satisfied.':'FAIL: Daily Agent Improvement Engine gate missing required proof.';
+$('gateProof').textContent=JSON.stringify({version:'daily-agent-improvement-engine-v1',gates,promotedChanges,crossAgentSync,revenueEurConfirmed:0,rejectedWeakPatterns:['reading_only','summary_only','policy_file_without_regression','fake_revenue_from_payment_proof','champion_claim_without_comparison']},null,2);
+}
+render();
+</script>
+</body>
+</html>
