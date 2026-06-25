@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QPV Unpaid Proof-Ready Order Export</title>
+<meta name="description" content="Export unpaid Quick Product Video orders with payment proof for daily buyer follow-up without counting revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1100px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.bad{color:#ffc3cb}.ok{color:#bdf6d8}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.row{display:grid;grid-template-columns:1.2fr 1fr 1fr 2fr;gap:8px;border-top:1px solid #26384d;padding:10px 0;align-items:center}@media(max-width:900px){.kpis,.row{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>QPV unpaid proof-ready order follow-up export</h1>
+<p class="muted">Exports only orders that already have buyer payment proof attached but are still not manually marked paid/delivered. This is a follow-up workflow, not revenue recognition.</p>
+<a class="cta ghost" href="./order-admin.html">Order admin</a>
+<a class="cta ghost" href="./payment-ledger.html">Payment proof</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a>
+<div class="kpis">
+<div class="kpi">Orders<br><b id="kpiOrders">0</b></div>
+<div class="kpi">Proof-ready unpaid<br><b id="kpiReady">0</b></div>
+<div class="kpi">Exportable EUR<br><b id="kpiExportable">0</b></div>
+<div class="kpi">Confirmed EUR<br><b id="kpiRevenue">0</b></div>
+</div>
+<button class="cta" id="downloadCsv">Download follow-up CSV</button>
+<button class="cta ghost" id="copyCsv">Copy CSV</button>
+<button class="cta ghost" id="downloadAudit">Download export audit JSON</button>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="card">
+<h2>Export rows</h2>
+<div id="rows" class="muted">No proof-ready unpaid orders found.</div>
+</section>
+<section class="card">
+<h2>CSV preview</h2>
+<pre id="csv" class="status"></pre>
+</section>
+<section class="card">
+<h2>Regression rules</h2>
+<pre id="qa" class="status"></pre>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),ledgerKey='qpvOrderLedger',auditKey='qpvUnpaidProofReadyExportAudit',priceEur=19;
+function clean(v){return String(v||'').trim()}
+function readLedger(){try{const raw=JSON.parse(localStorage.getItem(ledgerKey)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function hasProof(row){return !!(row.paymentProof&&row.paymentProof.orderId)}
+function proofReference(row){return clean(row.paymentProof?.paymentReference||row.paymentReference||row.reference||'')}
+function validLead(row){return clean(row.leadId||row.paymentProof?.leadId)}
+function buyer(row){return clean(row.buyer||row.paymentProof?.buyer||row.email||row.customer)}
+function exportable(row){return !isPaid(row)&&hasProof(row)&&clean(row.orderId)&&validLead(row)&&proofReference(row)}
+function followupRows(){return readLedger().filter(exportable).map(row=>({orderId:clean(row.orderId),leadId:validLead(row),buyer:buyer(row),contact:clean(row.email||row.paymentProof?.email||row.paymentProof?.buyer||''),paymentReference:proofReference(row),proofStatus:clean(row.proofStatus||'needs_manual_verification'),amountEur:Number(row.priceEur||priceEur),createdAt:clean(row.createdAt||row.importedAt||''),statusUrl:new URL(`./order-status.html?${new URLSearchParams({orderId:row.orderId}).toString()}`,location.href).href,paidGateUrl:new URL(`./paid-confirmation.html?${new URLSearchParams({orderId:row.orderId,leadId:validLead(row),reference:proofReference(row),amountEur:String(Number(row.priceEur||priceEur))}).toString()}`,location.href).href,followupMessage:`Hi, we received your Quick Product Video payment proof for order ${row.orderId}. We are manually verifying payment reference ${proofReference(row)} before marking it paid. Status: `+new URL(`./order-status.html?${new URLSearchParams({orderId:row.orderId}).toString()}`,location.href).href,revenueCountedEur:0}))}
+function escapeCsv(value){const text=String(value??'');return /[",\n]/.test(text)?`"${text.replace(/"/g,'""')}"`:text}
+function csv(rows){const headers=['orderId','leadId','buyer','contact','paymentReference','proofStatus','amountEur','createdAt','statusUrl','paidGateUrl','followupMessage','revenueCountedEur'];return [headers.join(','),...rows.map(row=>headers.map(key=>escapeCsv(row[key])).join(','))].join('\n')}
+function confirmedRevenue(rows){return rows.filter(isPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
+function auditExport(rows){const audit={exportedAt:new Date().toISOString(),type:'unpaid_proof_ready_followup_export',rows:rows.length,orderIds:rows.map(row=>row.orderId),confirmedRevenueDeltaEur:0,rejectedWeakPatterns:['proof_submitted counted as revenue','missing leadId exported','missing payment reference exported','duplicate export creates revenue']};const existing=JSON.parse(localStorage.getItem(auditKey)||'[]');existing.push(audit);localStorage.setItem(auditKey,JSON.stringify(existing.slice(-100)));return audit}
+function download(name,text,type='text/plain'){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function render(){const ledger=readLedger(),rows=followupRows(),csvText=csv(rows);$('kpiOrders').textContent=ledger.length;$('kpiReady').textContent=rows.length;$('kpiExportable').textContent=rows.reduce((sum,row)=>sum+Number(row.amountEur||0),0);$('kpiRevenue').textContent=confirmedRevenue(ledger);$('csv').textContent=csvText;$('rows').innerHTML=rows.length?rows.map(row=>`<div class="row"><div><b>${row.orderId}</b><br><span class="muted">leadId ${row.leadId}</span></div><div>${row.buyer||'buyer missing'}</div><div>${row.paymentReference}</div><div><a class="cta ghost" href="${row.statusUrl}">Status</a><a class="cta ghost" href="${row.paidGateUrl}">Paid gate</a></div></div>`).join(''):'No proof-ready unpaid orders found.';$('qa').textContent=JSON.stringify({rules:['exports only payment proof attached orders','requires leadId','requires paymentReference','excludes paid/delivered orders','export/re-export creates 0 EUR revenue delta','confirmedRevenueEur comes only from paid/delivered ledger rows'],exportRows:rows.length,exportRevenueDeltaEur:0,confirmedRevenueEur:confirmedRevenue(ledger)},null,2)}
+$('downloadCsv').addEventListener('click',()=>{const rows=followupRows();auditExport(rows);download(`qpv-unpaid-proof-ready-followup-${new Date().toISOString().slice(0,10)}.csv`,csv(rows),'text/csv');setMsg(`Exported ${rows.length} proof-ready unpaid order(s). Revenue delta: 0 EUR.`,true);render()});
+$('copyCsv').addEventListener('click',async()=>{const rows=followupRows();auditExport(rows);try{await navigator.clipboard.writeText(csv(rows));setMsg(`Copied ${rows.length} follow-up row(s). Revenue delta: 0 EUR.`,true)}catch(error){setMsg('Clipboard blocked. Use Download follow-up CSV.')}});
+$('downloadAudit').addEventListener('click',()=>download(`qpv-followup-export-audit-${new Date().toISOString().slice(0,10)}.json`,localStorage.getItem(auditKey)||'[]','application/json'));
+render();
+</script>
+</body>
+</html>
