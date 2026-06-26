@@ -9,7 +9,8 @@ The check enforces the daily learning contract:
 - at least 1 promoted workflow improvement or harmful rule removal,
 - at least 1 completed cross-agent sync,
 - weak patterns must be explicitly rejected,
-- confirmed EUR must remain 0 unless paid/delivered evidence exists.
+- confirmed EUR must remain 0 unless paid/delivered evidence exists,
+- blocked learning runs must route to an executable revenue fallback workflow.
 """
 import re
 from pathlib import Path
@@ -17,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ENGINE = ROOT / "website" / "daily-agent-improvement-engine.html"
 html = ENGINE.read_text(encoding="utf-8")
+compact = html.replace(" ", "")
 
 def count_objects(array_name: str) -> int:
     match = re.search(rf"const {array_name}=\[(.*?)\];", html, re.S)
@@ -40,18 +42,27 @@ for array_name, minimum in requirements.items():
 
 required_patterns = [
     "workflow_rule_v2",
+    "workflow_rule_v3",
     "summary_only_learning_allowed",
     "workflow_rule_v2_regression_checked_delta",
+    "fallback_task_list_allowed",
+    "workflow_rule_v3_executable_revenue_fallback_required",
+    "fallback_executes_product_workflow",
+    "revenue-command-center.html",
+    "daily-revenue-action.html",
     "harmful_rule_removed",
+    "workflow_improvement_promoted",
     "RevenueAgent",
     "QARegressionAgent",
     "WorkflowOpsAgent",
+    "OutreachAgent",
     "REJECT_WEAK_PATTERN",
     "REJECT_FAKE_REVENUE",
     "ACCEPT_PROMOTION",
     "confirmedRevenueEur: 0",
     "paid/delivered only count EUR",
     "policy_file_without_regression",
+    "fallback_task_list_without_workflow_route",
 ]
 
 for pattern in required_patterns:
@@ -60,11 +71,16 @@ for pattern in required_patterns:
 
 for forbidden in [
     "summary_only_learning_allowed',replacement:'summary_only_learning_allowed'",
+    "fallback_task_list_allowed',replacement:'fallback_task_list_allowed'",
     "revenueEurConfirmed:19",
     "payment proof equals revenue",
     "policy_file_without_regression','ACCEPT",
+    "next task list is accepted learning",
 ]:
-    if forbidden in html.replace(" ", ""):
+    if forbidden in compact:
         raise SystemExit(f"FAIL: weak/harmful pattern present: {forbidden}")
 
-print("PASS: Daily Agent Improvement Engine has enough events, lessons, evals, comparisons, promoted rule removal and cross-agent sync without fake revenue.")
+if "workingUrl:'./revenue-command-center.html'" not in html:
+    raise SystemExit("FAIL: promoted executable fallback does not point at revenue command center")
+
+print("PASS: Daily Agent Improvement Engine v3 has enough events, lessons, evals, comparisons, promoted executable fallback, harmful-rule removal and cross-agent sync without fake revenue.")
