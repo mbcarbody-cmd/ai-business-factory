@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quote Checkout — Quick Product Video</title>
+<meta name="description" content="Buyer-ready Quick Product Video quote checkout with leadId attribution and zero fake revenue until verified paid.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:11px 14px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.bad{color:#ffc3cb}.ok{color:#bdf6d8}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}label{display:block;margin:10px 0 4px;font-weight:900}input,textarea{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}textarea{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:12px}.pill{display:inline-block;border-radius:999px;padding:5px 9px;font-weight:900;background:#3b3211;color:#ffe6ad}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>Quick Product Video quote checkout</h1>
+<p class="muted">Create a buyer-ready quote URL, preserve lead attribution, and record quote opened/accepted events. Confirmed revenue remains 0 EUR until manual paid verification.</p>
+<a class="cta ghost" href="./checkout.html">Checkout order</a>
+<a class="cta ghost" href="./payment-ledger.html">Payment proof</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="grid">
+<div class="card">
+<h2>Create shareable quote</h2>
+<label for="leadId">leadId</label><input id="leadId" placeholder="lead_...">
+<label for="orderId">orderId</label><input id="orderId" placeholder="qpv_...">
+<label for="buyer">Buyer / email</label><input id="buyer" placeholder="buyer@example.com">
+<label for="item">Product/item</label><input id="item" value="Quick Product Video">
+<label for="priceEur">Price EUR</label><input id="priceEur" type="number" min="1" value="19">
+<label for="expiresAt">Expires at</label><input id="expiresAt" type="datetime-local">
+<button class="cta" id="createQuote">Create quote URL</button>
+<button class="cta ghost" id="copyQuote">Copy quote URL</button>
+<pre id="quoteOut" class="status">No quote created yet.</pre>
+</div>
+<div class="card">
+<h2>Buyer quote</h2>
+<p class="muted">Buyer accepts the quote first. This writes a quote acceptance event only; it does not create paid revenue.</p>
+<div id="buyerView" class="status">Open this page with leadId, orderId, priceEur and expiresAt URL parameters.</div>
+<button class="cta" id="acceptQuote">Accept quote</button>
+<a class="cta ghost" id="checkoutLink" href="./checkout.html">Continue to checkout</a>
+</div>
+</section>
+<section class="grid">
+<div class="card"><h2>Quote ledger</h2><pre id="quoteLedger" class="status">[]</pre></div>
+<div class="card"><h2>Revenue guardrail</h2><pre id="qa" class="status">QA pending.</pre></div>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),quoteLedgerKey='qpvQuoteLedger',conversionLedgerKey='qpvConversionLedger',priceDefault=19;let currentQuoteUrl='';
+function clean(v){return String(v||'').trim()}
+function read(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function write(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(-300)))}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function isoFromLocal(value){return value?new Date(value).toISOString():new Date(Date.now()+7*24*60*60*1000).toISOString()}
+function quoteFromInputs(){const leadId=clean($('leadId').value),orderId=clean($('orderId').value),priceEur=Number($('priceEur').value||priceDefault),expiresAt=isoFromLocal($('expiresAt').value);if(!leadId)throw new Error('leadId is required');if(!orderId)throw new Error('orderId is required');if(!Number.isFinite(priceEur)||priceEur<=0)throw new Error('Valid priceEur is required');return{quoteId:`quote_${orderId}_${Date.now()}`,leadId,orderId,buyer:clean($('buyer').value),item:clean($('item').value)||'Quick Product Video',priceEur,expiresAt,createdAt:new Date().toISOString(),status:'created',revenueEur:0}}
+function paramsQuote(){const p=new URLSearchParams(location.search);return{quoteId:clean(p.get('quoteId'))||`quote_${clean(p.get('orderId'))}`,leadId:clean(p.get('leadId')),orderId:clean(p.get('orderId')),buyer:clean(p.get('buyer')),item:clean(p.get('item'))||'Quick Product Video',priceEur:Number(p.get('priceEur')||priceDefault),expiresAt:clean(p.get('expiresAt')),status:'opened',openedAt:new Date().toISOString(),revenueEur:0}}
+function quoteUrl(quote){const params=new URLSearchParams({quoteId:quote.quoteId,leadId:quote.leadId,orderId:quote.orderId,buyer:quote.buyer,item:quote.item,priceEur:String(quote.priceEur),expiresAt:quote.expiresAt});return new URL(`./quote-checkout.html?${params.toString()}`,location.href).href}
+function checkoutHref(quote){const params=new URLSearchParams({leadId:quote.leadId,orderId:quote.orderId,buyer:quote.buyer,item:quote.item,priceEur:String(quote.priceEur),source:'quote_checkout'});return `./checkout.html?${params.toString()}`}
+function upsertQuote(event){const rows=read(quoteLedgerKey);const idx=rows.findIndex(row=>row.quoteId===event.quoteId&&row.status===event.status);if(idx>=0)rows[idx]={...rows[idx],...event,updatedAt:new Date().toISOString()};else rows.push(event);write(quoteLedgerKey,rows);return rows}
+function appendConversion(event){const rows=read(conversionLedgerKey);if(!rows.some(row=>row.eventId===event.eventId))rows.push(event);write(conversionLedgerKey,rows)}
+function isExpired(quote){return quote.expiresAt&&new Date(quote.expiresAt).getTime()<Date.now()}
+function renderBuyerQuote(){const quote=paramsQuote();if(!quote.leadId||!quote.orderId){$('buyerView').textContent='No active quote in URL.';$('checkoutLink').href='./checkout.html';return null}upsertQuote(quote);appendConversion({eventId:`quote_opened_${quote.quoteId}`,eventType:'quote_opened',leadId:quote.leadId,orderId:quote.orderId,quoteId:quote.quoteId,revenueEur:0,createdAt:new Date().toISOString()});$('buyerView').innerHTML=`<b>${quote.item}</b><br>Order: ${quote.orderId}<br>Lead: ${quote.leadId}<br>Price: ${quote.priceEur} EUR<br>Expires: ${quote.expiresAt||'not set'}<br><span class="pill">${isExpired(quote)?'expired':'open'}</span>`;$('checkoutLink').href=checkoutHref(quote);return quote}
+function renderLedgers(){const quotes=read(quoteLedgerKey);$('quoteLedger').textContent=JSON.stringify(quotes,null,2);$('qa').textContent=JSON.stringify({quotes:quotes.length,accepted:quotes.filter(row=>row.status==='accepted').length,expiredBlocked:quotes.filter(row=>row.status==='expired_blocked').length,quoteAcceptedRevenueEur:0,confirmedRevenueEur:0,rules:['quote_created counts 0 EUR','quote_opened counts 0 EUR','quote_accepted counts 0 EUR','expired quote cannot continue to paid','manual paid gate is the only confirmed revenue path','all quote events preserve leadId and orderId']},null,2)}
+$('createQuote').addEventListener('click',()=>{try{const quote=quoteFromInputs();upsertQuote(quote);appendConversion({eventId:`quote_created_${quote.quoteId}`,eventType:'quote_created',leadId:quote.leadId,orderId:quote.orderId,quoteId:quote.quoteId,revenueEur:0,createdAt:quote.createdAt});currentQuoteUrl=quoteUrl(quote);$('quoteOut').textContent=JSON.stringify({...quote,quoteUrl:currentQuoteUrl,checkoutUrl:new URL(checkoutHref(quote),location.href).href},null,2);renderLedgers();setMsg('Quote URL created. Revenue remains 0 EUR until verified paid.',true)}catch(error){setMsg(`Quote failed: ${error.message}`)}});
+$('copyQuote').addEventListener('click',async()=>{try{if(!currentQuoteUrl)throw new Error('Create a quote first');await navigator.clipboard.writeText(currentQuoteUrl);setMsg('Quote URL copied.',true)}catch(error){setMsg(`Copy blocked: ${error.message}`)}});
+$('acceptQuote').addEventListener('click',()=>{const quote=paramsQuote();if(!quote.leadId||!quote.orderId){setMsg('No quote URL loaded. Create or open a quote first.');return}if(isExpired(quote)){upsertQuote({...quote,status:'expired_blocked',blockedAt:new Date().toISOString(),revenueEur:0});appendConversion({eventId:`quote_expired_${quote.quoteId}`,eventType:'quote_expired',leadId:quote.leadId,orderId:quote.orderId,quoteId:quote.quoteId,revenueEur:0,createdAt:new Date().toISOString()});renderLedgers();setMsg('Quote expired. No checkout or revenue event created.');return}upsertQuote({...quote,status:'accepted',acceptedAt:new Date().toISOString(),revenueEur:0});appendConversion({eventId:`quote_accepted_${quote.quoteId}`,eventType:'quote_accepted',leadId:quote.leadId,orderId:quote.orderId,quoteId:quote.quoteId,revenueEur:0,createdAt:new Date().toISOString()});renderLedgers();setMsg('Quote accepted. Continue to checkout; confirmed revenue is still 0 EUR until manual paid verification.',true)});
+(function init(){const expiry=new Date(Date.now()+7*24*60*60*1000);$('expiresAt').value=expiry.toISOString().slice(0,16);const quote=renderBuyerQuote();if(quote){$('leadId').value=quote.leadId;$('orderId').value=quote.orderId;$('buyer').value=quote.buyer;$('item').value=quote.item;$('priceEur').value=quote.priceEur;$('expiresAt').value=quote.expiresAt?new Date(quote.expiresAt).toISOString().slice(0,16):$('expiresAt').value}renderLedgers()}());
+</script>
+</body>
+</html>
