@@ -12,9 +12,11 @@
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">DAILY AGENT IMPROVEMENT · REGRESSION-GATED · NO SUMMARY-ONLY LEARNING · WORKFLOW RULE v2</span>
+<span class="badge">DAILY AGENT IMPROVEMENT · REGRESSION-GATED · NO SUMMARY-ONLY LEARNING · WORKFLOW RULE v3</span>
 <h1>Daily Agent Improvement Engine</h1>
-<p class="muted">This operational page converts agent-run evidence into normalized lessons, evaluation cases, champion-challenger comparisons, promoted workflow rules and cross-agent sync. Reading, summaries and policy-only notes are rejected unless they change a versioned operational rule and pass regression checks.</p>
+<p class="muted">This operational page converts agent-run evidence into normalized lessons, evaluation cases, champion-challenger comparisons, promoted workflow rules and cross-agent sync. Reading, summaries and policy-only notes are rejected unless they change a versioned operational rule, pass regression checks and route the next fallback into a real product workflow.</p>
+<a class="cta" href="./revenue-command-center.html">Revenue command center</a>
+<a class="cta ghost" href="./daily-revenue-action.html">Daily revenue action</a>
 <a class="cta ghost" href="./lead-send.html">Lead workflow</a>
 <a class="cta ghost" href="./lead-kpi.html">Lead KPI</a>
 <a class="cta ghost" href="./checkout.html">Checkout</a>
@@ -29,10 +31,11 @@
 </section>
 <section class="grid">
 <div class="card"><h2>Gate status</h2><p id="gateStatus" class="bad">Not checked.</p><div id="gateProof" class="proof"></div></div>
-<div class="card"><h2>Promoted operational rule</h2><p class="ok"><b>Rule v2 promoted:</b> only regression-checked workflow deltas can count as learning progress.</p><p class="muted">Harmful rule removed: summary-only reading/progress notes no longer pass the learning gate.</p><span class="pill">workflow_rule_v2</span><span class="pill">regression_required</span><span class="pill">revenue_accuracy</span></div>
-<div class="card"><h2>KPI effect</h2><p class="muted">Expected measurable effect: fewer false-positive improvement claims, cleaner lead-to-order conversion learning, and no EUR attribution before verified paid state.</p><div class="proof">confirmedRevenueEur: 0
+<div class="card"><h2>Promoted operational rule</h2><p class="ok"><b>Rule v3 promoted:</b> blocked learning runs must execute the highest-value revenue workflow fallback, not leave an idea/task list.</p><p class="muted">Harmful rule removed: summary-only reading/progress notes and future-task-only fallbacks no longer pass the learning gate.</p><span class="pill">workflow_rule_v3</span><span class="pill">regression_required</span><span class="pill">fallback_executes_product_workflow</span><span class="pill">revenue_accuracy</span></div>
+<div class="card"><h2>KPI effect</h2><p class="muted">Expected measurable effect: fewer false-positive improvement claims, cleaner lead-to-order conversion learning, direct routing to the revenue command center, and no EUR attribution before verified paid state.</p><div class="proof">confirmedRevenueEur: 0
 weakLearningAccepted: 0
-minimumPromotedWorkflowChanges: 1</div></div>
+minimumPromotedWorkflowChanges: 1
+fallbackWorkflowUrl: ./revenue-command-center.html</div></div>
 </section>
 <section class="card" style="margin-top:16px"><h2>Learning events</h2><table id="eventTable"><thead><tr><th>ID</th><th>Signal</th><th>Evidence</th><th>Accepted?</th></tr></thead><tbody></tbody></table></section>
 <section class="grid" style="margin-top:16px">
@@ -54,25 +57,36 @@ const learningEvents=[
 {id:'LE-007',signal:'Policy files without tests are weak',evidence:'Regression script required for operational rule changes',accepted:true},
 {id:'LE-008',signal:'Fake browser/deploy validation risk',evidence:'Runtime unavailable must be reported as blocker',accepted:true},
 {id:'LE-009',signal:'KPI must separate handoff from paid order',evidence:'checkout_handoff != paid; paid/delivered only count EUR',accepted:true},
-{id:'LE-010',signal:'Cross-agent drift risk',evidence:'Revenue, QA and Workflow agents receive the same rule sync',accepted:true}
+{id:'LE-010',signal:'Cross-agent drift risk',evidence:'Revenue, QA and Workflow agents receive the same rule sync',accepted:true},
+{id:'LE-011',signal:'Fallback described as next task is not executed learning',evidence:'workflow_rule_v3 routes blocked runs to revenue-command-center.html or daily-revenue-action.html',accepted:true},
+{id:'LE-012',signal:'Learning engine disconnected from revenue workflow',evidence:'Daily engine now links directly to revenue command center and daily revenue action',accepted:true}
 ];
 const normalizedLessons=[
 {id:'NL-001',lesson:'A lead or checkout URL is not revenue; confirmed EUR requires paid or delivered status.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
 {id:'NL-002',lesson:'Learning proof must be a versioned workflow rule, evaluation case, comparison result or tested product workflow delta.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
-{id:'NL-003',lesson:'When a blocker prevents promotion, immediately run the fallback that improves lead/order/payment measurement.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'}
+{id:'NL-003',lesson:'When a blocker prevents promotion, immediately run the fallback that improves lead/order/payment measurement.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
+{id:'NL-004',lesson:'A fallback is only accepted when it executes or routes an operator into an existing revenue workflow with measurable state movement.',ruleVersion:'workflow_rule_v3',regression:'check_daily_agent_improvement_engine.py'}
 ];
 const evaluationCases=[
 {id:'EV-001',input:'Agent claims summary/audit as learning progress',expected:'REJECT_WEAK_PATTERN',mustContain:'no promoted workflow or regression'},
 {id:'EV-002',input:'Agent creates checkout handoff and counts 19 EUR revenue',expected:'REJECT_FAKE_REVENUE',mustContain:'paid verification missing'},
-{id:'EV-003',input:'Agent changes operational rule with regression and cross-agent sync',expected:'ACCEPT_PROMOTION',mustContain:'versioned rule + tested workflow'}
+{id:'EV-003',input:'Agent changes operational rule with regression and cross-agent sync',expected:'ACCEPT_PROMOTION',mustContain:'versioned rule + tested workflow'},
+{id:'EV-004',input:'Agent reports blocker and only lists next task',expected:'REJECT_WEAK_PATTERN',mustContain:'fallback must execute or route to product workflow'}
 ];
 const comparisons=[
 {id:'CC-001',champion:'Summary-only audit',challenger:'Regression-gated workflow rule',winner:'challenger',reason:'changes operational gate and rejects weak learning'},
 {id:'CC-002',champion:'Manual lead notes',challenger:'Lead handoff ledger with KPI route',winner:'challenger',reason:'measurable conversion movement'},
-{id:'CC-003',champion:'Assume payment proof equals revenue',challenger:'Paid/delivered-only revenue accounting',winner:'challenger',reason:'prevents false EUR attribution'}
+{id:'CC-003',champion:'Assume payment proof equals revenue',challenger:'Paid/delivered-only revenue accounting',winner:'challenger',reason:'prevents false EUR attribution'},
+{id:'CC-004',champion:'Blocked run ends with future task list',challenger:'Blocked run routes to command center fallback workflow',winner:'challenger',reason:'creates immediate operator path toward buyers, checkout and paid gate'}
 ];
-const promotedChanges=[{id:'PR-001',type:'harmful_rule_removed',rule:'summary_only_learning_allowed',replacement:'workflow_rule_v2_regression_checked_delta',targetWorkflow:'Daily Agent Improvement Engine',status:'promoted_tested_by_static_regression'}];
-const crossAgentSync=[{id:'SYNC-001',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent'],knowledge:'workflow_rule_v2: reject summaries/policies unless they change an operational rule and pass regression; paid/delivered only count EUR',completed:true,createdAt:'2026-06-25'}];
+const promotedChanges=[
+{id:'PR-001',type:'harmful_rule_removed',rule:'summary_only_learning_allowed',replacement:'workflow_rule_v2_regression_checked_delta',targetWorkflow:'Daily Agent Improvement Engine',status:'promoted_tested_by_static_regression'},
+{id:'PR-002',type:'workflow_improvement_promoted',rule:'fallback_task_list_allowed',replacement:'workflow_rule_v3_executable_revenue_fallback_required',targetWorkflow:'Daily Agent Improvement Engine → Revenue Command Center',status:'promoted_tested_by_static_regression',workingUrl:'./revenue-command-center.html'}
+];
+const crossAgentSync=[
+{id:'SYNC-001',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent'],knowledge:'workflow_rule_v2: reject summaries/policies unless they change an operational rule and pass regression; paid/delivered only count EUR',completed:true,createdAt:'2026-06-25'},
+{id:'SYNC-002',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent','OutreachAgent'],knowledge:'workflow_rule_v3: blocked learning runs must route to revenue-command-center.html or daily-revenue-action.html; next-task-only fallback is rejected',completed:true,createdAt:'2026-06-26'}
+];
 function $(id){return document.getElementById(id)}
 function render(){
 $('eventCount').textContent=learningEvents.length;
@@ -86,11 +100,11 @@ $('lessonList').textContent=JSON.stringify(normalizedLessons,null,2);
 $('evalList').textContent=JSON.stringify(evaluationCases,null,2);
 $('comparisonList').textContent=JSON.stringify(comparisons,null,2);
 $('syncProof').textContent=JSON.stringify(crossAgentSync,null,2);
-const gates={learningEvents:learningEvents.length>=10,normalizedLessons:normalizedLessons.length>=3,evaluationCases:evaluationCases.length>=3,championChallenger:comparisons.length>=3,promotedWorkflowChange:promotedChanges.length>=1,crossAgentSync:crossAgentSync.some(sync=>sync.completed),rejectWeakPatterns:promotedChanges.some(change=>change.replacement.includes('regression_checked_delta'))};
+const gates={learningEvents:learningEvents.length>=10,normalizedLessons:normalizedLessons.length>=3,evaluationCases:evaluationCases.length>=3,championChallenger:comparisons.length>=3,promotedWorkflowChange:promotedChanges.length>=1,crossAgentSync:crossAgentSync.some(sync=>sync.completed),rejectWeakPatterns:promotedChanges.some(change=>change.replacement.includes('regression_checked_delta')||change.replacement.includes('executable_revenue_fallback_required')),executableFallback:promotedChanges.some(change=>change.replacement.includes('executable_revenue_fallback_required')&&change.workingUrl==='./revenue-command-center.html')};
 const pass=Object.values(gates).every(Boolean);
 $('gateStatus').className=pass?'ok':'bad';
 $('gateStatus').textContent=pass?'PASS: Daily Agent Improvement Engine gate satisfied.':'FAIL: Daily Agent Improvement Engine gate missing required proof.';
-$('gateProof').textContent=JSON.stringify({version:'daily-agent-improvement-engine-v1',gates,promotedChanges,crossAgentSync,revenueEurConfirmed:0,rejectedWeakPatterns:['reading_only','summary_only','policy_file_without_regression','fake_revenue_from_payment_proof','champion_claim_without_comparison']},null,2);
+$('gateProof').textContent=JSON.stringify({version:'daily-agent-improvement-engine-v3',gates,promotedChanges,crossAgentSync,revenueEurConfirmed:0,rejectedWeakPatterns:['reading_only','summary_only','policy_file_without_regression','fake_revenue_from_payment_proof','champion_claim_without_comparison','fallback_task_list_without_workflow_route']},null,2);
 }
 render();
 </script>
