@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abandoned Checkout Recovery — Quick Product Video</title>
+<meta name="description" content="Recover abandoned Quick Product Video checkout sessions without counting recovery events as revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1100px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.muted{color:var(--muted)}textarea,input{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}textarea{min-height:150px;font-family:ui-monospace,Menlo,monospace;font-size:12px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.row{border-top:1px solid #26384d;padding:10px 0}.bad{color:#ffc3cb}.ok{color:#bdf6d8}@media(max-width:900px){.grid,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>QPV abandoned checkout recovery</h1>
+<p class="muted">Executable revenue workflow: detect unpaid checkout sessions abandoned after 30 minutes, create one active recovery link per checkout, and preserve <code>leadId</code>, <code>orderId</code>, quote, and price. Recovery events are conversion signals only; confirmed revenue remains paid-ledger-only.</p>
+<a class="cta ghost" href="./revenue-command-center.html">Revenue Command Center</a>
+<a class="cta ghost" href="./quote-checkout.html">Quote checkout</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<div class="kpis"><div class="kpi">Checkout sessions<br><b id="kpiSessions">0</b></div><div class="kpi">Abandoned<br><b id="kpiAbandoned">0</b></div><div class="kpi">Recoveries<br><b id="kpiRecoveries">0</b></div><div class="kpi">Completed<br><b id="kpiCompleted">0</b></div><div class="kpi">Revenue delta EUR<br><b id="kpiRevenue">0</b></div></div>
+</section>
+<section class="grid"><div class="card"><h2>Import checkout sessions</h2><p class="muted">Paste an array or object from checkout/quote ledgers. Eligible rows need <code>leadId</code>, <code>orderId</code>, created/opened time, unpaid status, and price.</p><textarea id="sessionJson" placeholder='[{"checkoutId":"chk_1","leadId":"lead_1","orderId":"order_1","priceEur":19,"paymentStatus":"payment_pending","createdAt":"2026-06-26T09:00:00.000Z"}]'></textarea><button class="cta" id="buildRecoveries">Build recovery queue</button><button class="cta ghost" id="exportCsv">Download recovery CSV</button><p id="msg" class="bad" role="status"></p></div><div class="card"><h2>Recovery QA</h2><pre id="qa" class="status">No run yet.</pre></div></section>
+<section class="card"><h2>Recovery queue</h2><div id="queue" class="muted">No eligible abandoned checkout sessions yet.</div></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),recoveryKey='qpvAbandonedCheckoutRecoveries',eventKey='qpvConversionEvents',priceEur=19,abandonAfterMinutes=30;
+function clean(v){return String(v||'').trim()}
+function now(){return new Date()}
+function parseDate(v){const d=new Date(v||0);return Number.isNaN(d.getTime())?new Date(0):d}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'||row.eventType==='paid'}
+function readRecoveries(){try{const rows=JSON.parse(localStorage.getItem(recoveryKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function writeRecoveries(rows){localStorage.setItem(recoveryKey,JSON.stringify(rows.slice(-300)))}
+function readEvents(){try{const rows=JSON.parse(localStorage.getItem(eventKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function writeEvents(rows){localStorage.setItem(eventKey,JSON.stringify(rows.slice(-500)))}
+function parseSessions(text){const parsed=JSON.parse(text);const rows=Array.isArray(parsed)?parsed:Array.isArray(parsed.sessions)?parsed.sessions:Array.isArray(parsed.orders)?parsed.orders:[parsed];return rows.map(row=>({...row,checkoutId:clean(row.checkoutId||row.sessionId||row.orderId),leadId:clean(row.leadId),orderId:clean(row.orderId||row.id),priceEur:Number(row.priceEur||priceEur),createdAt:row.createdAt||row.openedAt||row.importedAt||new Date().toISOString()}))}
+function isAbandoned(row){const age=(now()-parseDate(row.createdAt))/60000;return age>=abandonAfterMinutes&&!isPaid(row)&&!!row.leadId&&!!row.orderId&&!!row.checkoutId}
+function recoveryId(row){return `recovery_${row.checkoutId}_${row.orderId}`.replace(/[^a-zA-Z0-9_-]/g,'_')}
+function recoveryHref(row){const params=new URLSearchParams({leadId:row.leadId,orderId:row.orderId,checkoutId:row.checkoutId,recoveryId:recoveryId(row),priceEur:String(row.priceEur||priceEur)});return new URL(`./quote-checkout.html?${params.toString()}`,location.href).href}
+function buildRecoveries(sessions){const existing=new Map(readRecoveries().map(row=>[row.recoveryId,row]));let created=0,skipped=0;for(const session of sessions){if(!isAbandoned(session)){skipped++;continue}const id=recoveryId(session);if(existing.has(id)&&existing.get(id).status!=='expired'){skipped++;continue}existing.set(id,{recoveryId:id,checkoutId:session.checkoutId,leadId:session.leadId,orderId:session.orderId,priceEur:session.priceEur||priceEur,status:'recovery_created',recoveryUrl:recoveryHref(session),createdAt:new Date().toISOString(),revenueCountedEur:0});created++}const rows=[...existing.values()];writeRecoveries(rows);const events=readEvents().concat(rows.filter(row=>row.status==='recovery_created').map(row=>({eventType:'recovery_created',recoveryId:row.recoveryId,leadId:row.leadId,orderId:row.orderId,checkoutId:row.checkoutId,revenueDeltaEur:0,createdAt:new Date().toISOString()})));writeEvents(events);return{rows,created,skipped}}
+function copyMessage(row){return [`Hi, your Quick Product Video checkout is still open.`,`Order ID: ${row.orderId}`,`Price: ${row.priceEur} EUR`,`Finish here: ${row.recoveryUrl}`,`This recovery link keeps your original quote and price.`].join('\n')}
+function csv(rows){const cols=['recoveryId','checkoutId','leadId','orderId','priceEur','status','recoveryUrl','createdAt','revenueCountedEur'];return [cols.join(','),...rows.map(row=>cols.map(col=>`"${String(row[col]??'').replace(/"/g,'""')}"`).join(','))].join('\n')}
+function render(rows=readRecoveries()){const completed=rows.filter(row=>row.status==='recovery_completed');$('kpiSessions').textContent=rows.length;$('kpiAbandoned').textContent=rows.filter(row=>row.status==='recovery_created'||row.status==='recovery_sent').length;$('kpiRecoveries').textContent=rows.length;$('kpiCompleted').textContent=completed.length;$('kpiRevenue').textContent='0';$('queue').innerHTML=rows.length?rows.map(row=>`<div class="row"><b>${row.recoveryId}</b><br><span class="muted">lead=${row.leadId} · order=${row.orderId} · checkout=${row.checkoutId} · ${row.priceEur} EUR</span><pre class="status">${copyMessage(row)}</pre><a class="cta ghost" href="${row.recoveryUrl}">Open recovery link</a></div>`).join(''):'No eligible abandoned checkout sessions yet.';$('qa').textContent=JSON.stringify({abandonAfterMinutes,recoveries:rows.length,recoveryEventsAreRevenue:false,recoveryRevenueDeltaEur:0,confirmedRevenueSource:'verified paid events only',rules:['one active recovery per checkoutId/orderId','recovery links preserve leadId/orderId/checkoutId/priceEur','recovery_created/recovery_sent/recovery_opened/recovery_completed/recovery_expired are conversion events only','checkout abandoned is not paid','recovery completed is not paid without verified paid event','payment proof is not revenue','quote accepted is not paid']},null,2)}
+$('buildRecoveries').addEventListener('click',()=>{try{const sessions=parseSessions($('sessionJson').value);const result=buildRecoveries(sessions);render(result.rows);$('msg').className='ok';$('msg').textContent=`Recovery queue built: ${result.created} created, ${result.skipped} skipped. Revenue delta remains 0 EUR.`}catch(error){$('msg').className='bad';$('msg').textContent=`Recovery build failed: ${error.message}`}});
+$('exportCsv').addEventListener('click',()=>{const rows=readRecoveries();const blob=new Blob([csv(rows)],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`qpv-abandoned-checkout-recoveries-${new Date().toISOString().slice(0,10)}.csv`;a.click();$('msg').className='ok';$('msg').textContent='Recovery CSV prepared. Export is not revenue.'});
+render();
+</script>
+</body>
+</html>
