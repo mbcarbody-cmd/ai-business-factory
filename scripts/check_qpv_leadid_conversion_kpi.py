@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Regression gate for the QPV leadId conversion KPI workflow.
 
-This rejects the weak pattern where a dashboard counts checkout/payment proof as
-revenue, ignores qpvConversionLedger, or loses leadId attribution between lead,
-checkout, proof, paid and delivered stages.
+This rejects the weak pattern where a dashboard counts checkout/recovery/payment
+proof as revenue, ignores qpvConversionLedger, or loses leadId attribution
+between lead, checkout, abandoned checkout recovery, proof, paid and delivered
+stages.
 """
 from pathlib import Path
 
@@ -11,13 +12,23 @@ ROOT = Path(__file__).resolve().parents[1]
 KPI = ROOT / "website" / "lead-conversion-kpi.html"
 PAYMENT_LEDGER = ROOT / "website" / "payment-ledger.html"
 CHECKOUT = ROOT / "website" / "checkout.html"
+RECOVERY = ROOT / "website" / "abandoned-checkout-recovery.html"
 
 kpi = KPI.read_text(encoding="utf-8")
 payment = PAYMENT_LEDGER.read_text(encoding="utf-8")
 checkout = CHECKOUT.read_text(encoding="utf-8")
+recovery = RECOVERY.read_text(encoding="utf-8")
 
 required_kpi_patterns = [
-    "qpv-leadid-conversion-kpi-v2",
+    "qpv-leadid-conversion-kpi-v3-recovery",
+    "recoveryKey='qpvAbandonedCheckoutRecoveries'",
+    "function recoveryRows()",
+    "leadIdAbandonedRecoveries",
+    "checkoutToRecoveryPct",
+    "recoveryToProofPct",
+    "abandoned_checkout_recovery",
+    "recoveryRule:'qpvAbandonedCheckoutRecoveries rows are conversion KPI only and require revenueCountedEur=0.'",
+    "Number(row.revenueCountedEur||0)===0",
     "conversionKey='qpvConversionLedger'",
     "proofKey='qpvPaymentProofLedger'",
     "row.kpiEvent==='payment_proof_submitted_manual_review'",
@@ -52,6 +63,18 @@ required_checkout_patterns = [
     "payment_pending_order_created",
 ]
 
+required_recovery_patterns = [
+    "recoveryKey='qpvAbandonedCheckoutRecoveries'",
+    "eventType:'recovery_created'",
+    "leadId:row.leadId",
+    "orderId:row.orderId",
+    "checkoutId:row.checkoutId",
+    "revenueDeltaEur:0",
+    "revenueCountedEur:0",
+    "recoveryEventsAreRevenue:false",
+    "confirmedRevenueSource:'verified paid events only'",
+]
+
 for pattern in required_kpi_patterns:
     if pattern not in kpi:
         raise SystemExit(f"FAIL: lead-conversion-kpi.html missing pattern: {pattern}")
@@ -64,15 +87,24 @@ for pattern in required_checkout_patterns:
     if pattern not in checkout:
         raise SystemExit(f"FAIL: checkout.html no longer preserves leadId order conversion: {pattern}")
 
+for pattern in required_recovery_patterns:
+    if pattern not in recovery:
+        raise SystemExit(f"FAIL: abandoned-checkout-recovery.html no longer preserves zero-revenue recovery attribution: {pattern}")
+
 compact = kpi.replace(" ", "")
 for forbidden in [
     "payment_proof_submitted_manual_review')?19",
     "payment_pending_order_created')?19",
+    "abandoned_checkout_recovery')?19",
+    "recovery_created')?19",
+    "recovery_completed')?19",
     "revenueEur:19",
+    "revenueDeltaEur:19",
+    "revenueCountedEur:19",
     "confirmedRevenueEur:19",
     "checkout_handoff:19",
 ]:
     if forbidden in compact:
         raise SystemExit(f"FAIL: KPI appears to count a weak/fake revenue source: {forbidden}")
 
-print("PASS: QPV leadId conversion KPI reads lead/checkout/proof/paid/delivered stages, preserves leadId attribution, and counts EUR only from paid/delivered orders.")
+print("PASS: QPV leadId conversion KPI reads lead/checkout/recovery/proof/paid/delivered stages, preserves leadId attribution, and counts EUR only from paid/delivered orders.")
