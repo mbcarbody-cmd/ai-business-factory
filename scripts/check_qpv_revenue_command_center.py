@@ -3,9 +3,10 @@
 
 The command center must create measurable product-state movement by exposing the
 buyer acquisition -> quote/checkout -> proof follow-up -> paid gate -> verified
-receipt -> buyer recovery workflow while preserving revenue integrity. It is
-allowed to read ledgers and build action links; it must not write fake paid
-events or count proof/checkout/receipt/recovery as paid revenue.
+receipt -> buyer recovery -> recovery email logging workflow while preserving
+revenue integrity. It is allowed to read ledgers and build action links; it must
+not write fake paid events or count proof/checkout/receipt/recovery/email events
+as paid revenue.
 """
 from pathlib import Path
 
@@ -43,6 +44,17 @@ def main() -> None:
         ("buyerRecoveryRows", "buyer recovery row builder"),
         ("buyerRecoveryCases", "buyer recovery KPI count"),
         ("buyerRecoveryRevenueEur:0", "buyer recovery zero revenue effect"),
+        ("recoveryEmailSentFor", "recovery email verified-paid matcher"),
+        ("recoveryEmailEvents", "recovery email KPI counter"),
+        ("recoveryEmailLogged", "recovery email action-state detector"),
+        ("Recovery emails", "recovery email KPI label"),
+        ("recoveryEmailSentEvents", "recovery email QA KPI"),
+        ("recoveryEmailRevenueEur:0", "recovery email zero revenue effect"),
+        ("Log recovery email", "recovery email action CTA"),
+        ("paymentReference:row.event.paymentReference||row.event.reference", "recovery email handoff payment reference"),
+        ("recovery email KPI reads recovery_email_sent zero-EUR events matched to verified paid buyers", "recovery email KPI source guardrail"),
+        ("recovery email action links preserve orderId leadId and paymentReference when present", "recovery email handoff guardrail"),
+        ("recovery_email_sent is aftercare only and never paid revenue", "recovery email zero-revenue guardrail"),
         ("Buyer recovery queue", "buyer recovery KPI/nav label"),
         ("./buyer-recovery-queue.html", "buyer recovery queue link"),
         ("Open buyer recovery", "buyer recovery action CTA"),
@@ -85,6 +97,8 @@ def main() -> None:
         ("receipt counts as revenue", "receipt-as-revenue claim"),
         ("buyer recovery counts as revenue", "buyer-recovery-as-revenue claim"),
         ("recovery queue counts as paid", "recovery-queue-as-paid claim"),
+        ("recovery_email_sent counts as revenue", "recovery-email-as-revenue claim"),
+        ("recoveryEmailRevenueEur:19", "fake recovery email revenue"),
         ("buyerRecoveryRevenueEur:19", "fake buyer recovery revenue"),
         ("receiptRevenueEur:19", "fake receipt revenue"),
         ("revenueEur:19", "hard-coded revenue event"),
@@ -92,7 +106,7 @@ def main() -> None:
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with buyer recovery KPI")
+    print("PASS qpv revenue command center regression with buyer recovery email KPI")
 
 
 if __name__ == "__main__":
