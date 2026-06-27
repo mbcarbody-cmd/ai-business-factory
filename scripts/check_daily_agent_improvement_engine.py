@@ -10,7 +10,8 @@ The check enforces the daily learning contract:
 - at least 1 completed cross-agent sync,
 - weak patterns must be explicitly rejected,
 - confirmed EUR must remain 0 unless paid/delivered evidence exists,
-- blocked learning runs must route to an executable revenue fallback workflow.
+- blocked learning runs must route to an executable revenue fallback workflow,
+- post-paid buyer workflows must require verified paid events and keep receipt actions at 0 EUR.
 """
 import re
 from pathlib import Path
@@ -43,6 +44,7 @@ for array_name, minimum in requirements.items():
 required_patterns = [
     "workflow_rule_v2",
     "workflow_rule_v3",
+    "workflow_rule_v4",
     "summary_only_learning_allowed",
     "workflow_rule_v2_regression_checked_delta",
     "fallback_task_list_allowed",
@@ -50,12 +52,20 @@ required_patterns = [
     "fallback_executes_product_workflow",
     "revenue-command-center.html",
     "daily-revenue-action.html",
+    "receipt.html",
+    "receipt_action_can_infer_revenue",
+    "workflow_rule_v4_verified_paid_only_receipt_zero_revenue",
+    "verified_paid_only_receipts",
+    "receipt_generated/downloaded/emailed are 0 EUR service KPIs",
+    "fake_revenue_from_receipt_event",
+    "check_qpv_buyer_receipt_workflow.py",
     "harmful_rule_removed",
     "workflow_improvement_promoted",
     "RevenueAgent",
     "QARegressionAgent",
     "WorkflowOpsAgent",
     "OutreachAgent",
+    "CustomerSuccessAgent",
     "REJECT_WEAK_PATTERN",
     "REJECT_FAKE_REVENUE",
     "ACCEPT_PROMOTION",
@@ -72,8 +82,10 @@ for pattern in required_patterns:
 for forbidden in [
     "summary_only_learning_allowed',replacement:'summary_only_learning_allowed'",
     "fallback_task_list_allowed',replacement:'fallback_task_list_allowed'",
+    "receipt_action_can_infer_revenue',replacement:'receipt_action_can_infer_revenue'",
     "revenueEurConfirmed:19",
     "payment proof equals revenue",
+    "receipt event equals revenue",
     "policy_file_without_regression','ACCEPT",
     "next task list is accepted learning",
 ]:
@@ -83,4 +95,7 @@ for forbidden in [
 if "workingUrl:'./revenue-command-center.html'" not in html:
     raise SystemExit("FAIL: promoted executable fallback does not point at revenue command center")
 
-print("PASS: Daily Agent Improvement Engine v3 has enough events, lessons, evals, comparisons, promoted executable fallback, harmful-rule removal and cross-agent sync without fake revenue.")
+if "workingUrl:'./receipt.html'" not in html:
+    raise SystemExit("FAIL: promoted post-paid buyer workflow does not point at receipt.html")
+
+print("PASS: Daily Agent Improvement Engine v4 has enough events, lessons, evals, comparisons, promoted executable fallback, verified-paid receipt workflow, harmful-rule removal and cross-agent sync without fake revenue.")
