@@ -26,6 +26,11 @@ REQUIRED = [
     "receipt_generated",
     "receipt_downloaded",
     "receipt_emailed",
+    "recovery_email_sent",
+    "function recoveryEmailLogged(conversions,row)",
+    "function logRecoveryEmail(row)",
+    "only verified paid missing-aftercare rows are eligible",
+    "recovery email logging is a buyer-aftercare KPI only and cannot confirm revenue",
     "Number(row.revenueEur||0)===0",
     "Number(row.receiptRevenueEur||0)===0",
     "revenueImpactEur:0",
@@ -56,4 +61,5 @@ print("PASS qpv buyer recovery queue regression")
 print("- verified paid ledger is the only queue source")
 print("- duplicate paid events are deduplicated by orderId + reference")
 print("- missing receipt-generated/downloaded/emailed actions create outreach rows")
+print("- recovery_email_sent logs one-click outreach into qpvConversionLedger as 0 EUR")
 print("- outreach, receipt and recovery rows remain 0 EUR and cannot confirm revenue")
