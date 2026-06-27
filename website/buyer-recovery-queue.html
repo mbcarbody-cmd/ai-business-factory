@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buyer Recovery Queue — Quick Product Video</title>
+<meta name="description" content="Outreach-ready buyer recovery queue for verified paid QPV buyers missing receipt generated, downloaded or emailed events without counting fake revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd479;--bad:#ff9aaa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{background:#0a1420;border:1px solid #31465f;border-radius:16px;padding:12px}.kpi b{display:block;font-size:26px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.warn{background:#332a0b;color:#ffe9a8;border:1px solid #705812}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.row{border-top:1px solid #26384d;padding:12px 0}.pill{display:inline-block;border-radius:999px;padding:4px 8px;font-weight:900;background:#26384d;color:#dbeaff}@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}}@media(max-width:620px){.kpis{grid-template-columns:1fr}.cta{width:100%}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="muted"><b>QPV · VERIFIED PAID BUYER AFTERCARE · 0 EUR RECOVERY EVENTS</b></span>
+<h1>Buyer recovery queue</h1>
+<p class="muted">Creates outreach-ready rows only from verified <code>qpvPaidEventLedger</code> paid events that are missing receipt-generated, receipt-downloaded or receipt-emailed aftercare actions. This page never writes paid revenue and never treats receipt or outreach events as EUR.</p>
+<a class="cta ghost" href="./revenue-command-center.html">Revenue command center</a>
+<a class="cta ghost" href="./receipt.html">Buyer receipt</a>
+<a class="cta ghost" href="./lead-conversion-kpi.html">Lead KPI</a>
+<button class="cta" id="refresh">Refresh queue</button>
+<button class="cta ghost" id="copy">Copy outreach CSV</button>
+<p id="msg" class="muted" role="status"></p>
+<div class="kpis">
+<div class="kpi">Verified paid<b id="kPaid">0</b></div>
+<div class="kpi">Needs recovery<b id="kQueue">0</b></div>
+<div class="kpi">Generated missing<b id="kGenerated">0</b></div>
+<div class="kpi">Downloaded missing<b id="kDownloaded">0</b></div>
+<div class="kpi">Emailed missing<b id="kEmailed">0</b></div>
+</div>
+</section>
+<section class="card"><h2>Outreach-ready rows</h2><div id="queue" class="muted">No browser-local data loaded yet.</div></section>
+<section class="card"><h2>Regression guardrail</h2><pre id="qa" class="status">QA pending.</pre></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),paidKey='qpvPaidEventLedger',receiptKey='qpvReceiptLedger',conversionKey='qpvConversionLedger',recoveryQueueKey='qpvBuyerRecoveryQueue',priceEur=19;
+function clean(value){return String(value||'').trim()}
+function readArray(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function verifiedPaid(event){return clean(event.orderId)&&clean(event.leadId)&&clean(event.paymentReference||event.reference)&&event.paymentStatus==='paid'}
+function paidKeyFor(event){return `${clean(event.orderId)}::${clean(event.paymentReference||event.reference)}`}
+function dedupPaidEvents(events){const seen=new Set();return events.filter(event=>{const key=paidKeyFor(event);if(!verifiedPaid(event)||seen.has(key))return false;seen.add(key);return true})}
+function receiptMatches(receipt,event){return clean(receipt.orderId)===clean(event.orderId)&&(clean(receipt.paidEventId)===clean(event.paidEventId)||clean(receipt.paymentReference||receipt.reference)===clean(event.paymentReference||event.reference))}
+function conversionMatches(row,event,type){return row.kpiEvent===type&&Number(row.revenueEur||0)===0&&clean(row.orderId)===clean(event.orderId)&&(clean(row.leadId)===clean(event.leadId)||!clean(row.leadId))}
+function receiptGenerated(receipts,conversions,event){return receipts.some(row=>receiptMatches(row,event)&&row.receiptStatus==='generated_from_verified_paid_event'&&Number(row.receiptRevenueEur||0)===0)||conversions.some(row=>conversionMatches(row,event,'receipt_generated'))}
+function receiptDownloaded(conversions,event){return conversions.some(row=>conversionMatches(row,event,'receipt_downloaded'))}
+function receiptEmailed(conversions,event){return conversions.some(row=>conversionMatches(row,event,'receipt_emailed'))}
+function ageValue(event){return Date.parse(event.paidAt||event.createdAt||event.updatedAt||0)||0}
+function missingActions(event,receipts,conversions){const missing=[];if(!receiptGenerated(receipts,conversions,event))missing.push('receipt_generated');if(!receiptDownloaded(conversions,event))missing.push('receipt_downloaded');if(!receiptEmailed(conversions,event))missing.push('receipt_emailed');return missing}
+function buildQueue(){const paid=dedupPaidEvents(readArray(paidKey)),receipts=readArray(receiptKey),conversions=readArray(conversionKey);return paid.map(event=>({queueId:`recover-${paidKeyFor(event)}`,leadId:clean(event.leadId),orderId:clean(event.orderId),paymentReference:clean(event.paymentReference||event.reference),buyerEmail:clean(event.email||event.buyerEmail||event.customerEmail),buyerName:clean(event.buyer||event.buyerName||event.company),paidAt:clean(event.paidAt||event.createdAt||event.updatedAt),missing:missingActions(event,receipts,conversions),revenueImpactEur:0,priceEur:Number(event.priceEur||event.amountEur||priceEur),priorityAt:ageValue(event),status:'needs_buyer_aftercare'})).filter(row=>row.missing.length).sort((a,b)=>a.priorityAt-b.priorityAt)}
+function saveQueue(rows){localStorage.setItem(recoveryQueueKey,JSON.stringify(rows.map(row=>({...row,lastQueuedAt:new Date().toISOString()}))))}
+function receiptUrl(row){const qs=new URLSearchParams({orderId:row.orderId,leadId:row.leadId,paymentReference:row.paymentReference}).toString();return `./receipt.html?${qs}`}
+function mailto(row){const subject=encodeURIComponent('Your Quick Product Video receipt');const body=encodeURIComponent(`Hi ${row.buyerName||'there'},\n\nThanks for your verified Quick Product Video payment. Your receipt/order page is ready here: ${location.origin}${location.pathname.replace('buyer-recovery-queue.html','receipt.html')}?orderId=${row.orderId}&leadId=${row.leadId}\n\nMissing aftercare action(s): ${row.missing.join(', ')}\n\nRevenue impact of this outreach: 0 EUR.`);return row.buyerEmail?`mailto:${encodeURIComponent(row.buyerEmail)}?subject=${subject}&body=${body}`:'#'}
+function csv(rows){const header=['queueId','leadId','orderId','buyerEmail','buyerName','paymentReference','missingActions','priceEur','revenueImpactEur','receiptUrl'];return [header.join(','),...rows.map(row=>[row.queueId,row.leadId,row.orderId,row.buyerEmail,row.buyerName,row.paymentReference,row.missing.join('|'),row.priceEur,row.revenueImpactEur,receiptUrl(row)].map(value=>`"${String(value).replaceAll('"','""')}"`).join(','))].join('\n')}
+function render(){const rows=buildQueue();saveQueue(rows);$('kPaid').textContent=String(dedupPaidEvents(readArray(paidKey)).length);$('kQueue').textContent=String(rows.length);$('kGenerated').textContent=String(rows.filter(row=>row.missing.includes('receipt_generated')).length);$('kDownloaded').textContent=String(rows.filter(row=>row.missing.includes('receipt_downloaded')).length);$('kEmailed').textContent=String(rows.filter(row=>row.missing.includes('receipt_emailed')).length);$('queue').innerHTML=rows.length?rows.map(row=>`<div class="row"><b>${row.buyerName||row.buyerEmail||row.leadId}</b> <span class="pill">${row.missing.join(' + ')}</span><br><span class="muted">leadId=${row.leadId} · orderId=${row.orderId} · ref=${row.paymentReference} · aftercare revenue impact 0 EUR</span><br><a class="cta ghost" href="${receiptUrl(row)}">Open receipt</a><a class="cta warn" href="${mailto(row)}">Email buyer</a></div>`).join(''):'No verified paid buyers are missing receipt aftercare actions in this browser.';$('qa').textContent=JSON.stringify({version:'qpv-buyer-recovery-queue-v1',queueRows:rows.length,revenueDeltaFromThisPageEur:0,recoveryQueueKey,sourceRules:['reads only verified qpvPaidEventLedger paymentStatus=paid events','deduplicates paid events by orderId + payment reference','requires leadId orderId payment reference','writes qpvBuyerRecoveryQueue only for missing aftercare','receipt_generated receipt_downloaded receipt_emailed are 0 EUR buyer-aftercare events','outreach-ready rows never increase confirmed EUR'],rejectedRevenueSources:['receipt_generated','receipt_downloaded','receipt_emailed','buyer_recovery_email','recovery_queue_row','payment_proof','checkout_created'],nextAction:rows.length?'Email oldest queue row, then generate/download/email receipt and refresh KPI.':'Acquire next paid buyer or verify payment before recovery queue can populate.'},null,2);return rows}
+async function copyRows(){const rows=render();try{await navigator.clipboard.writeText(csv(rows));$('msg').textContent=`Copied ${rows.length} outreach-ready rows.`}catch(error){$('msg').textContent='Clipboard blocked. Copy from the queue manually.'}}
+$('refresh').addEventListener('click',render);$('copy').addEventListener('click',copyRows);render();
+</script>
+</body>
+</html>
