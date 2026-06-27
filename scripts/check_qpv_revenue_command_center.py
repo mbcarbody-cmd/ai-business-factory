@@ -3,9 +3,9 @@
 
 The command center must create measurable product-state movement by exposing the
 buyer acquisition -> quote/checkout -> proof follow-up -> paid gate -> verified
-receipt workflow while preserving revenue integrity. It is allowed to read
-ledgers and build action links; it must not write fake paid events or count
-proof/checkout/receipt as paid revenue.
+receipt -> buyer recovery workflow while preserving revenue integrity. It is
+allowed to read ledgers and build action links; it must not write fake paid
+events or count proof/checkout/receipt/recovery as paid revenue.
 """
 from pathlib import Path
 
@@ -32,11 +32,24 @@ def main() -> None:
         ("qpvOutreachLeadLedger", "outreach lead ledger read"),
         ("qpvPaidEventLedger", "paid event ledger read"),
         ("qpvReceiptLedger", "receipt ledger read"),
+        ("qpvConversionLedger", "conversion ledger read"),
+        ("qpvBuyerRecoveryQueue", "buyer recovery queue ledger read"),
         ("isProofReadyUnpaid", "proof-ready unpaid filter"),
         ("checkoutReadyLead", "checkout-ready lead filter"),
         ("dedupPaidEvents", "paid event idempotency"),
         ("receiptReadyPaidEvent", "receipt-ready verified-paid filter"),
         ("receiptExistsFor", "receipt idempotency guard"),
+        ("buyerRecoveryMissingActions", "buyer recovery missing-action detector"),
+        ("buyerRecoveryRows", "buyer recovery row builder"),
+        ("buyerRecoveryCases", "buyer recovery KPI count"),
+        ("buyerRecoveryRevenueEur:0", "buyer recovery zero revenue effect"),
+        ("Buyer recovery queue", "buyer recovery KPI/nav label"),
+        ("./buyer-recovery-queue.html", "buyer recovery queue link"),
+        ("Open buyer recovery", "buyer recovery action CTA"),
+        ("buyer recovery queue link is visible from command center", "buyer recovery nav guardrail"),
+        ("buyer recovery KPI reads verified paid buyers missing receipt aftercare", "buyer recovery source guardrail"),
+        ("buyer recovery action links preserve orderId and leadId when present", "buyer recovery handoff guardrail"),
+        ("buyer recovery outreach is aftercare only and never paid revenue", "buyer recovery zero revenue guardrail"),
         ("./daily-revenue-action.html", "daily action link"),
         ("./order-followup-export.html", "proof-ready export link"),
         ("./order-paid-bridge.html", "paid bridge link"),
@@ -70,13 +83,16 @@ def main() -> None:
         ("proof_submitted counts as revenue", "proof-as-revenue claim"),
         ("checkout counts as paid", "checkout-as-revenue claim"),
         ("receipt counts as revenue", "receipt-as-revenue claim"),
+        ("buyer recovery counts as revenue", "buyer-recovery-as-revenue claim"),
+        ("recovery queue counts as paid", "recovery-queue-as-paid claim"),
+        ("buyerRecoveryRevenueEur:19", "fake buyer recovery revenue"),
         ("receiptRevenueEur:19", "fake receipt revenue"),
         ("revenueEur:19", "hard-coded revenue event"),
         ("confirmedRevenueEur:19", "fake confirmed revenue"),
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with receipt KPI")
+    print("PASS qpv revenue command center regression with buyer recovery KPI")
 
 
 if __name__ == "__main__":
