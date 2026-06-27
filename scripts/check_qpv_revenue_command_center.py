@@ -40,6 +40,12 @@ def main() -> None:
         ("dedupPaidEvents", "paid event idempotency"),
         ("receiptReadyPaidEvent", "receipt-ready verified-paid filter"),
         ("receiptExistsFor", "receipt idempotency guard"),
+        ("legacyPaymentProofReference", "legacy proof reference normalizer"),
+        ("paymentProof?.paymentNote", "legacy payment note fallback"),
+        ("paymentProof?.note", "legacy proof note fallback"),
+        ("function paidReference", "paid event reference normalizer"),
+        ("event.paymentNote", "legacy paid event note fallback"),
+        ("legacy paymentProof.paymentNote is normalized as paymentReference", "legacy reference QA rule"),
         ("buyerRecoveryMissingActions", "buyer recovery missing-action detector"),
         ("buyerRecoveryRows", "buyer recovery row builder"),
         ("buyerRecoveryCases", "buyer recovery KPI count"),
@@ -52,6 +58,7 @@ def main() -> None:
         ("recoveryEmailRevenueEur:0", "recovery email zero revenue effect"),
         ("Log recovery email", "recovery email action CTA"),
         ("paymentReference:row.event.paymentReference||row.event.reference", "recovery email handoff payment reference"),
+        ("row.event.paymentNote", "legacy payment note handoff"),
         ("recovery email KPI reads recovery_email_sent zero-EUR events matched to verified paid buyers", "recovery email KPI source guardrail"),
         ("recovery email action links preserve orderId leadId and paymentReference when present", "recovery email handoff guardrail"),
         ("recovery_email_sent is aftercare only and never paid revenue", "recovery email zero-revenue guardrail"),
@@ -106,7 +113,7 @@ def main() -> None:
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with buyer recovery email KPI")
+    print("PASS qpv revenue command center regression with legacy payment proof references")
 
 
 if __name__ == "__main__":
