@@ -1,0 +1,12 @@
+Deploy trigger for Moto Ride Recorder / SUP morning field test.
+
+Date: 2026-06-27
+Purpose: touch the app folder so the GitHub Pages workflow deploys the existing working PWA before the morning SUP test.
+
+Manual check:
+1. Open the GitHub Pages URL on Android Chrome.
+2. Allow Location.
+3. Press Start ride before entering the water.
+4. Keep the screen on if possible.
+5. Stop + save after return.
+6. Export GPX/CSV/JSON.
