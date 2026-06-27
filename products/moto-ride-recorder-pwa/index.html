@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang='lt'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover'>
+  <meta name='theme-color' content='#111827'>
+  <link rel='manifest' href='./manifest.json'>
+  <link rel='icon' href='./icons/icon.svg' type='image/svg+xml'>
+  <link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'>
+  <title>Moto Ride Recorder</title>
+  <style>
+    :root{--bg:#070b14;--panel:#0f172a;--panel2:#111827;--line:#273244;--txt:#e5edf7;--muted:#94a3b8;--good:#22c55e;--warn:#f97316;--bad:#ef4444;--blue:#38bdf8}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top,#172033,#070b14 48%);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif} .wrap{max-width:1150px;margin:auto;padding:14px;padding-bottom:90px} h1{font-size:28px;line-height:1.05;margin:12px 0 6px} h2{font-size:18px;margin:0 0 10px}.muted{color:var(--muted);font-size:13px;line-height:1.35}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.card{background:rgba(15,23,42,.94);border:1px solid var(--line);border-radius:18px;padding:13px;box-shadow:0 14px 40px rgba(0,0,0,.25)}.stat .label{font-size:12px;color:var(--muted)}.stat .value{font-weight:900;font-size:25px;margin-top:3px}.stat .unit{font-size:12px;color:var(--muted);margin-left:3px}.bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.btn{border:0;border-radius:14px;padding:12px 14px;color:white;font-weight:850;background:#334155;cursor:pointer}.btn.primary{background:linear-gradient(90deg,#2563eb,#22c55e)}.btn.warn{background:#f97316}.btn.bad{background:#ef4444}.btn.ghost{background:#1e293b;border:1px solid #334155}.btn:disabled{opacity:.45;cursor:not-allowed}#map{height:45vh;min-height:360px;border-radius:18px;border:1px solid var(--line);overflow:hidden;background:#111827}.status{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #334155;background:#101827;border-radius:999px;padding:6px 9px;color:#cbd5e1;font-size:12px}.dot{width:9px;height:9px;border-radius:50%;background:#64748b}.dot.live{background:#22c55e;box-shadow:0 0 16px #22c55e}.dot.pause{background:#f97316}.dot.err{background:#ef4444}.two{display:grid;grid-template-columns:1.45fr .55fr;gap:10px;margin-top:10px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid #263244;padding:7px;text-align:left}th{color:#94a3b8;font-weight:700}canvas{width:100%;height:120px;border-radius:14px;background:#0b1220;border:1px solid #263244}.history{max-height:320px;overflow:auto}.ride-row{display:grid;grid-template-columns:1fr auto;gap:8px;border-bottom:1px solid #263244;padding:9px 0}.tiny{font-size:12px;color:#94a3b8}.input{width:100%;background:#0b1220;color:#e5edf7;border:1px solid #334155;border-radius:12px;padding:10px}.map-fallback{padding:18px;color:#94a3b8}.footerbar{position:fixed;bottom:0;left:0;right:0;background:rgba(7,11,20,.94);backdrop-filter:blur(12px);border-top:1px solid #263244;padding:9px 12px;display:flex;gap:8px;justify-content:center;z-index:1000}.footerbar .btn{min-width:112px}.leaflet-container{background:#0b1220;color:#111827}.event-accel{background:#16a34a}.event-brake{background:#dc2626}@media(max-width:820px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}#map{height:46vh;min-height:310px}.footerbar{justify-content:space-between}.footerbar .btn{min-width:auto;flex:1}h1{font-size:24px}.stat .value{font-size:23px}}
+  </style>
+</head>
+<body>
+  <main class='wrap'>
+    <div class='status'>
+      <span class='pill'><span id='liveDot' class='dot'></span><span id='stateText'>Ready</span></span>
+      <span class='pill' id='gpsText'>GPS: waiting</span>
+      <span class='pill' id='installHint'>PWA: ready</span>
+    </div>
+    <h1>Moto Ride Recorder</h1>
+    <p class='muted'>GPS maršrutas, greitis, pagreitėjimas, lėtėjimas, žemėlapis, įrašų istorija ir GPX/CSV/JSON eksportas. Prieš važiuodamas paspausk Start, važiuojant telefono nemaigyk.</p>
+
+    <section class='grid'>
+      <div class='card stat'><div class='label'>Dabartinis greitis</div><div><span id='speedNow' class='value'>0</span><span class='unit'>km/h</span></div></div>
+      <div class='card stat'><div class='label'>Max greitis</div><div><span id='speedMax' class='value'>0</span><span class='unit'>km/h</span></div></div>
+      <div class='card stat'><div class='label'>Atstumas</div><div><span id='distance' class='value'>0.00</span><span class='unit'>km</span></div></div>
+      <div class='card stat'><div class='label'>Laikas</div><div><span id='duration' class='value'>00:00</span></div></div>
+      <div class='card stat'><div class='label'>Pagreitis</div><div><span id='accelNow' class='value'>0.00</span><span class='unit'>m/s²</span></div></div>
+      <div class='card stat'><div class='label'>Stabdymas</div><div><span id='brakeNow' class='value'>0.00</span><span class='unit'>m/s²</span></div></div>
+      <div class='card stat'><div class='label'>Vid. greitis</div><div><span id='speedAvg' class='value'>0</span><span class='unit'>km/h</span></div></div>
+      <div class='card stat'><div class='label'>Telefono G</div><div><span id='gNow' class='value'>0.00</span><span class='unit'>g</span></div></div>
+    </section>
+
+    <div class='bar'>
+      <button class='btn primary' id='startBtn'>Start ride</button>
+      <button class='btn warn' id='pauseBtn' disabled>Pause</button>
+      <button class='btn bad' id='stopBtn' disabled>Stop + save</button>
+      <button class='btn ghost' id='motionBtn'>Enable G sensor</button>
+      <button class='btn ghost' id='installBtn' hidden>Install app</button>
+    </div>
+
+    <section class='two'>
+      <div class='card'>
+        <div id='map'><div class='map-fallback'>Loading map… Jeigu nėra interneto, įrašymas vis tiek veikia, tik OSM žemėlapis neužsikraus.</div></div>
+      </div>
+      <div class='card'>
+        <h2>Ride note</h2>
+        <input id='rideName' class='input' placeholder='pvz. Kaunas–Jurbarkas vakarinis testas'>
+        <p class='muted'>Automatiniai įvykiai: stiprus pagreitėjimas &gt; 2.5 m/s² ir stabdymas &lt; -2.5 m/s². GPS paklaida rodoma viršuje.</p>
+        <canvas id='chart' width='700' height='220'></canvas>
+        <div class='bar'>
+          <button class='btn ghost' id='exportCsvBtn'>CSV</button>
+          <button class='btn ghost' id='exportGpxBtn'>GPX</button>
+          <button class='btn ghost' id='exportJsonBtn'>JSON</button>
+        </div>
+      </div>
+    </section>
+
+    <section class='two'>
+      <div class='card'>
+        <h2>Live samples</h2>
+        <table><thead><tr><th>Laikas</th><th>Greitis</th><th>Acc</th><th>Brake</th><th>GPS</th></tr></thead><tbody id='sampleRows'></tbody></table>
+      </div>
+      <div class='card history'>
+        <h2>Išsaugoti važiavimai</h2>
+        <div id='historyList' class='muted'>Dar nėra įrašų.</div>
+      </div>
+    </section>
+  </main>
+
+  <div class='footerbar'>
+    <button class='btn primary' id='bottomStart'>Start</button>
+    <button class='btn warn' id='bottomPause' disabled>Pause</button>
+    <button class='btn bad' id='bottomStop' disabled>Save</button>
+  </div>
+
+  <script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>
+  <script>
+    const KEY='motoRideRecorder.v1';
+    const $=id=>document.getElementById(id);
+    const fmt=n=>Number.isFinite(n)?n:0;
+    const kmh=ms=>ms*3.6;
+    const ms=kmh=>kmh/3.6;
+    const pad=n=>String(n).padStart(2,'0');
+    const q=String.fromCharCode(34);
+    let watchId=null, recording=false, paused=false, startedAt=0, pausedMs=0, pauseStarted=0, last=null, samples=[], events=[];
+    let map=null, routeLine=null, segLayer=null, marker=null, deferredInstall=null, wakeLock=null, tickTimer=null;
+
+    function safeJson(v,fallback){try{return JSON.parse(v)}catch(e){return fallback}}
+    function hav(a,b){const R=6371000, dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180; const la1=a.lat*Math.PI/180, la2=b.lat*Math.PI/180; const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(h))}
+    function durationMs(){if(!startedAt)return 0; let p=pausedMs; if(paused&&pauseStarted)p+=Date.now()-pauseStarted; return Math.max(0,Date.now()-startedAt-p)}
+    function humanDuration(msv){const s=Math.floor(msv/1000); return pad(Math.floor(s/60))+':'+pad(s%60)}
+    function colorBySpeed(speed){const k=kmh(speed); if(k<40)return '#38bdf8'; if(k<90)return '#22c55e'; if(k<140)return '#f97316'; return '#ef4444'}
+    function setState(text,mode){$('stateText').textContent=text; $('liveDot').className='dot '+(mode||'')}
+    function setButtons(){const live=recording&&!paused; $('startBtn').disabled=recording&&!paused; $('bottomStart').disabled=recording&&!paused; $('pauseBtn').disabled=!recording; $('bottomPause').disabled=!recording; $('stopBtn').disabled=!recording; $('bottomStop').disabled=!recording; $('pauseBtn').textContent=paused?'Resume':'Pause'; $('bottomPause').textContent=paused?'Resume':'Pause'}
+
+    function initMap(){
+      if(!window.L){$('map').innerHTML='<div class=map-fallback>Leaflet nepasikrovė. GPS įrašymas veiks, bet žemėlapis ne.</div>'; return}
+      map=L.map('map',{zoomControl:true}).setView([54.8985,23.9036],12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+      segLayer=L.layerGroup().addTo(map);
+      routeLine=L.polyline([],{color:'#38bdf8',weight:5,opacity:.85}).addTo(map);
+    }
+
+    async function keepAwake(on){
+      try{if(on&&navigator.wakeLock){wakeLock=await navigator.wakeLock.request('screen')} if(!on&&wakeLock){await wakeLock.release(); wakeLock=null}}catch(e){}
+    }
+
+    function startRide(){
+      if(!navigator.geolocation){alert('Šitas telefonas/naršyklė neduoda GPS geolocation API.');return}
+      samples=[]; events=[]; last=null; startedAt=Date.now(); pausedMs=0; pauseStarted=0; recording=true; paused=false;
+      if(routeLine)routeLine.setLatLngs([]); if(segLayer)segLayer.clearLayers(); if(marker&&map){map.removeLayer(marker);marker=null}
+      setState('Recording','live'); setButtons(); keepAwake(true); drawChart(); renderSamples();
+      watchId=navigator.geolocation.watchPosition(onPosition,onGeoError,{enableHighAccuracy:true,maximumAge:0,timeout:10000});
+      tickTimer=setInterval(updateStats,500);
+    }
+
+    function pauseRide(){
+      if(!recording)return;
+      paused=!paused;
+      if(paused){pauseStarted=Date.now(); setState('Paused','pause')} else {pausedMs+=Date.now()-pauseStarted; pauseStarted=0; setState('Recording','live')}
+      setButtons();
+    }
+
+    function stopRide(){
+      if(watchId!==null)navigator.geolocation.clearWatch(watchId);
+      watchId=null; recording=false; paused=false; clearInterval(tickTimer); keepAwake(false); setState('Saved',''); setButtons(); updateStats();
+      if(samples.length>1){saveRide()} else {alert('Per mažai GPS taškų. Važiavimas neišsaugotas.')}
+    }
+
+    function onGeoError(err){$('gpsText').textContent='GPS error: '+err.message; $('liveDot').className='dot err'}
+
+    function onPosition(pos){
+      if(!recording||paused)return;
+      const c=pos.coords, t=pos.timestamp||Date.now();
+      const p={t,lat:c.latitude,lon:c.longitude,accuracy:c.accuracy||0,alt:c.altitude,heading:c.heading,speedGps:c.speed};
+      let speed=Number.isFinite(c.speed)&&c.speed>=0?c.speed:0, distStep=0, accel=0;
+      if(last){
+        const dt=Math.max(.25,(t-last.t)/1000); distStep=hav(last,p);
+        if(!Number.isFinite(c.speed)||c.speed<0)speed=distStep/dt;
+        if(speed>95&&distStep<5)speed=last.speed||0;
+        accel=(speed-(last.speed||0))/dt;
+      }
+      p.speed=Math.max(0,speed); p.distStep=distStep; p.accel=accel; p.brake=Math.min(0,accel); p.total=samples.reduce((a,x)=>a+(x.distStep||0),0)+distStep;
+      samples.push(p); last=p;
+      if(Math.abs(accel)>2.5&&samples.length>3)events.push({t,lat:p.lat,lon:p.lon,type:accel>0?'accel':'brake',value:accel});
+      addToMap(p); updateStats(); renderSamples(); drawChart();
+    }
+
+    function addToMap(p){
+      if(!map||!routeLine)return;
+      const ll=[p.lat,p.lon]; routeLine.addLatLng(ll);
+      if(samples.length===1){map.setView(ll,16)} else {map.panTo(ll,{animate:false})}
+      if(marker)marker.setLatLng(ll); else marker=L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#38bdf8',fillOpacity:1}).addTo(map);
+      if(samples.length>1&&segLayer){const prev=samples[samples.length-2]; L.polyline([[prev.lat,prev.lon],ll],{color:colorBySpeed(p.speed),weight:6,opacity:.9}).addTo(segLayer)}
+      const ev=events[events.length-1];
+      if(ev&&ev.t===p.t&&segLayer){L.circleMarker(ll,{radius:8,color:ev.type==='accel'?'#22c55e':'#ef4444',fillColor:ev.type==='accel'?'#22c55e':'#ef4444',fillOpacity:.75}).bindPopup((ev.type==='accel'?'Pagreitis ':'Stabdymas ')+ev.value.toFixed(2)+' m/s²').addTo(segLayer)}
+    }
+
+    function updateStats(){
+      const total=samples.length?samples[samples.length-1].total:0;
+      const dur=durationMs()/1000;
+      const maxSpeed=samples.reduce((m,x)=>Math.max(m,x.speed||0),0);
+      const now=samples.length?samples[samples.length-1].speed:0;
+      const avg=dur>0?total/dur:0;
+      const acc=samples.length?samples[samples.length-1].accel||0:0;
+      $('speedNow').textContent=Math.round(kmh(now)); $('speedMax').textContent=Math.round(kmh(maxSpeed)); $('speedAvg').textContent=Math.round(kmh(avg)); $('distance').textContent=(total/1000).toFixed(2); $('duration').textContent=humanDuration(durationMs()); $('accelNow').textContent=Math.max(0,acc).toFixed(2); $('brakeNow').textContent=Math.abs(Math.min(0,acc)).toFixed(2);
+      const a=samples.length?samples[samples.length-1].accuracy:0; $('gpsText').textContent=samples.length?'GPS ±'+Math.round(a)+' m / taškų '+samples.length:'GPS: waiting';
+    }
+
+    function renderSamples(){
+      const rows=samples.slice(-8).reverse().map(p=>`<tr><td>${new Date(p.t).toLocaleTimeString('lt-LT')}</td><td>${Math.round(kmh(p.speed))} km/h</td><td>${Math.max(0,p.accel).toFixed(2)}</td><td>${Math.abs(Math.min(0,p.accel)).toFixed(2)}</td><td>±${Math.round(p.accuracy)} m</td></tr>`).join('');
+      $('sampleRows').innerHTML=rows||'<tr><td colspan=5 class=tiny>Dar nėra GPS taškų.</td></tr>';
+    }
+
+    function drawChart(){
+      const cv=$('chart'), ctx=cv.getContext('2d'), w=cv.width, h=cv.height; ctx.clearRect(0,0,w,h); ctx.globalAlpha=1; ctx.lineWidth=2; ctx.strokeStyle='#273244';
+      for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(0,h*i/5);ctx.lineTo(w,h*i/5);ctx.stroke()}
+      if(samples.length<2)return;
+      const max=Math.max(40,...samples.map(s=>kmh(s.speed))); ctx.strokeStyle='#38bdf8'; ctx.beginPath(); samples.forEach((s,i)=>{const x=i/(samples.length-1)*w, y=h-(kmh(s.speed)/max*h*.92)-8; if(i)ctx.lineTo(x,y); else ctx.moveTo(x,y)}); ctx.stroke();
+      ctx.strokeStyle='#f97316'; ctx.beginPath(); samples.forEach((s,i)=>{const x=i/(samples.length-1)*w, y=h/2- Math.max(-5,Math.min(5,s.accel||0))*18; if(i)ctx.lineTo(x,y); else ctx.moveTo(x,y)}); ctx.stroke();
+      ctx.fillStyle='#94a3b8'; ctx.font='18px system-ui'; ctx.fillText('speed km/h + accel m/s²',14,24);
+    }
+
+    function saveRide(){
+      const rides=getRides(); const name=$('rideName').value.trim()||('Moto ride '+new Date().toLocaleString('lt-LT'));
+      const ride={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,createdAt:Date.now(),durationMs:durationMs(),distanceM:samples[samples.length-1].total,maxKmh:Math.round(kmh(samples.reduce((m,x)=>Math.max(m,x.speed||0),0))),events:[...events],samples:[...samples]};
+      rides.unshift(ride); localStorage.setItem(KEY,JSON.stringify(rides.slice(0,50))); renderHistory();
+    }
+    function getRides(){return safeJson(localStorage.getItem(KEY),[])}
+    function renderHistory(){
+      const rides=getRides(); if(!rides.length){$('historyList').innerHTML='Dar nėra įrašų.';return}
+      $('historyList').innerHTML=rides.map(r=>`<div class=ride-row><div><b>${escapeHtml(r.name)}</b><div class=tiny>${new Date(r.createdAt).toLocaleString('lt-LT')} · ${(r.distanceM/1000).toFixed(2)} km · ${humanDuration(r.durationMs)} · max ${r.maxKmh} km/h · events ${r.events.length}</div></div><div><button class='btn ghost' onclick='loadRide(${JSON.stringify(r.id)})'>Open</button></div></div>`).join('');
+    }
+    function escapeHtml(s){return String(s).replace(/[&<>']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;' }[c]))}
+    window.loadRide=id=>{const r=getRides().find(x=>x.id===id); if(!r)return; samples=r.samples||[]; events=r.events||[]; last=samples[samples.length-1]||null; $('rideName').value=r.name||''; repaintMap(); updateStats(); renderSamples(); drawChart()}
+    function repaintMap(){if(!map||!routeLine)return; routeLine.setLatLngs([]); if(segLayer)segLayer.clearLayers(); if(marker){map.removeLayer(marker);marker=null} samples.forEach(p=>addToMap(p)); if(samples.length)map.fitBounds(routeLine.getBounds(),{padding:[20,20]})}
+
+    function csvEscape(v){const s=String(v??''); return /[;\n,]/.test(s)?q+s.replaceAll(q,q+q)+q:s}
+    function asCsv(){const head=['time_iso','lat','lon','gps_accuracy_m','speed_kmh','accel_ms2','brake_ms2','distance_total_m','altitude_m','heading_deg']; const lines=[head.join(';')]; samples.forEach(p=>lines.push([new Date(p.t).toISOString(),p.lat,p.lon,p.accuracy,kmh(p.speed).toFixed(1),(p.accel||0).toFixed(3),Math.abs(Math.min(0,p.accel||0)).toFixed(3),(p.total||0).toFixed(1),p.alt??'',p.heading??''].map(csvEscape).join(';'))); return lines.join('\n')}
+    function asJson(){return JSON.stringify({name:$('rideName').value||'Moto ride',exportedAt:new Date().toISOString(),samples,events,summary:{distanceM:samples.length?samples[samples.length-1].total:0,durationMs:durationMs()}},null,2)}
+    function asGpx(){const pts=samples.map(p=>`<trkpt lat='${p.lat}' lon='${p.lon}'><ele>${p.alt??0}</ele><time>${new Date(p.t).toISOString()}</time><extensions><speed_kmh>${kmh(p.speed).toFixed(1)}</speed_kmh><accel_ms2>${(p.accel||0).toFixed(3)}</accel_ms2><accuracy_m>${Math.round(p.accuracy||0)}</accuracy_m></extensions></trkpt>`).join('\n'); return `<?xml version='1.0' encoding='UTF-8'?><gpx version='1.1' creator='Moto Ride Recorder PWA'><trk><name>${escapeXml($('rideName').value||'Moto ride')}</name><trkseg>${pts}</trkseg></trk></gpx>`}
+    function escapeXml(s){return String(s).replace(/[<>&']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;'}[c]))}
+    function download(name,text,type){const blob=new Blob([text],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+    function baseName(){return ($('rideName').value.trim()||'moto-ride').toLowerCase().replace(/[^a-z0-9ąčęėįšųūž-]+/gi,'-').slice(0,48)}
+    function requireSamples(){if(!samples.length){alert('Nėra įrašytų taškų eksportui.');return false} return true}
+
+    async function enableMotion(){
+      try{
+        if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){const p=await DeviceMotionEvent.requestPermission(); if(p!=='granted')return}
+        window.addEventListener('devicemotion',e=>{const a=e.accelerationIncludingGravity||e.acceleration; if(!a)return; const g=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2)/9.80665; $('gNow').textContent=g.toFixed(2)});
+        $('motionBtn').textContent='G sensor on'; $('motionBtn').disabled=true;
+      }catch(e){alert('G sensor nepavyko įjungti: '+e.message)}
+    }
+
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault(); deferredInstall=e; $('installBtn').hidden=false; $('installHint').textContent='PWA: install available'});
+    $('installBtn').onclick=async()=>{if(!deferredInstall)return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall=null; $('installBtn').hidden=true};
+    $('startBtn').onclick=startRide; $('bottomStart').onclick=startRide; $('pauseBtn').onclick=pauseRide; $('bottomPause').onclick=pauseRide; $('stopBtn').onclick=stopRide; $('bottomStop').onclick=stopRide; $('motionBtn').onclick=enableMotion;
+    $('exportCsvBtn').onclick=()=>requireSamples()&&download(baseName()+'.csv',asCsv(),'text/csv');
+    $('exportGpxBtn').onclick=()=>requireSamples()&&download(baseName()+'.gpx',asGpx(),'application/gpx+xml');
+    $('exportJsonBtn').onclick=()=>requireSamples()&&download(baseName()+'.json',asJson(),'application/json');
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').then(()=>$('installHint').textContent='PWA: service worker OK').catch(()=>$('installHint').textContent='PWA: service worker blocked')}
+    initMap(); renderHistory(); renderSamples(); drawChart(); setButtons();
+  </script>
+</body>
+</html>
