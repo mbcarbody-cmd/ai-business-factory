@@ -6,6 +6,7 @@ This static gate intentionally rejects weak revenue patterns:
 - paid confirmation without leadId
 - paid confirmation without idempotent paidEventId
 - duplicate paid events that can increase revenue
+- receipt handoff that treats receipt actions as revenue
 """
 from pathlib import Path
 
@@ -30,6 +31,9 @@ required_patterns = {
     "paid state requires admin note": "admin verification note are required",
     "proof pending remains zero rule": "proof_submitted/payment_pending remain 0 EUR",
     "order moved to production not delivered": "fulfillmentStatus:'in_production'",
+    "buyer receipt nav exists": "./receipt.html",
+    "receipt link generated with leadId": "function receiptHref(result)",
+    "receipt events remain zero rule": "receipt_generated/receipt_downloaded/receipt_emailed remain 0 EUR",
 }
 
 missing = [name for name, pattern in required_patterns.items() if pattern not in content]
@@ -39,10 +43,13 @@ if missing:
 for forbidden in [
     "payment_pending counts as revenue",
     "proof_submitted counts as revenue",
+    "receipt_generated counts as revenue",
+    "receipt_downloaded counts as revenue",
+    "receipt_emailed counts as revenue",
     "fake paid",
     "summary_only",
 ]:
     if forbidden in content:
         raise SystemExit(f"Forbidden weak revenue pattern present: {forbidden}")
 
-print("PASS: QPV paid confirmation idempotency workflow preserves leadId, blocks duplicates, and counts only verified paid events.")
+print("PASS: QPV paid confirmation idempotency workflow preserves leadId, blocks duplicates, links buyer receipts, and counts only verified paid events as revenue.")
