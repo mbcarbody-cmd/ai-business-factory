@@ -3,8 +3,8 @@
 
 This gate prevents a buyer-facing offer from producing a checkout URL that the
 checkout page rejects. It only accepts executable product-state movement:
-versioned leadId generation, checkout URL propagation, and zero-EUR revenue
-until manual paid verification.
+versioned leadId generation, checkout URL propagation, ledger-synced payment
+proof routing, and zero-EUR revenue until manual paid verification.
 """
 from pathlib import Path
 import re
@@ -12,6 +12,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 OFFER = ROOT / "website" / "offer.html"
 CHECKOUT = ROOT / "website" / "checkout.html"
+PAYMENT_LEDGER = ROOT / "website" / "payment-ledger.html"
 
 
 def require(condition: bool, message: str) -> None:
@@ -27,10 +28,13 @@ def read(path: Path) -> str:
 def main() -> None:
     offer = read(OFFER)
     checkout = read(CHECKOUT)
+    payment_ledger = read(PAYMENT_LEDGER)
 
     required_offer_markers = [
         "Generate checkout-ready lead",
         "Continue to checkout with leadId",
+        "Payment proof ledger",
+        "./payment-ledger.html",
         "function leadId(){return `LP-${compactStamp()}",
         "leadId:data.leadId",
         "checkoutHref(data)",
@@ -39,6 +43,7 @@ def main() -> None:
         "revenueCountedEur:0",
         "confirmed revenue remains 0 EUR until manual paid verification",
         "checkout.html receives leadId and creates payment_pending order",
+        "payment-ledger.html with same order ID and paymentReference",
     ]
     for marker in required_offer_markers:
         require(marker in offer, f"offer checkout handoff missing marker: {marker}")
@@ -47,6 +52,9 @@ def main() -> None:
     require("LP-\\d{4,}" in checkout, "checkout must accept LP leadId format from offer")
     require("paymentStatus:'payment_pending'" in checkout, "checkout must create payment-pending order only")
     require("revenueCountedEur:0" in checkout, "checkout must not count revenue at handoff")
+    require("ledgerKey='qpvOrderLedger'" in payment_ledger, "payment proof ledger must write to shared order ledger")
+    require("paymentStatus:'proof_submitted_manual_review'" in payment_ledger, "payment proof ledger must keep proof in manual review")
+    require("revenueCountedEur:0" in payment_ledger, "payment proof ledger must not count revenue")
 
     href_body = re.search(r"function checkoutHref\(data\)\{(.+?)\}\nfunction buildMailto", offer, re.S)
     require(href_body is not None, "offer must define executable checkoutHref(data)")
@@ -55,6 +63,8 @@ def main() -> None:
 
     rejected_weak_patterns = [
         "checkoutHref(data){const p=new URLSearchParams({brand:data.brand",
+        "href=\"./payment.html\"",
+        "./payment.html?",
         "status:'paid'",
         "paymentStatus:'paid'",
         "revenueCountedEur:19",
@@ -65,7 +75,7 @@ def main() -> None:
         require(pattern not in offer, f"offer must reject weak checkout pattern: {pattern}")
 
     print("PASS qpv offer checkout handoff regression")
-    print("checked: offer creates leadId, checkout URL carries leadId, checkout remains payment-pending and 0 EUR until verified paid event")
+    print("checked: offer creates leadId, checkout URL carries leadId, payment proof routes to ledger, checkout remains payment-pending and 0 EUR until verified paid event")
 
 
 if __name__ == "__main__":
