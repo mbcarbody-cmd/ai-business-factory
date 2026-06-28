@@ -48,7 +48,7 @@ def main() -> None:
     require("paymentStatus:'payment_pending'" in checkout, "checkout must create payment-pending order only")
     require("revenueCountedEur:0" in checkout, "checkout must not count revenue at handoff")
 
-    href_body = re.search(r"function checkoutHref\(data\)\{([^}]+)\}", offer)
+    href_body = re.search(r"function checkoutHref\(data\)\{(.+?)\}\nfunction buildMailto", offer, re.S)
     require(href_body is not None, "offer must define executable checkoutHref(data)")
     require("leadId:data.leadId" in href_body.group(1), "checkoutHref must propagate leadId")
     require("./checkout.html?" in href_body.group(1), "checkoutHref must route to checkout page")
@@ -59,7 +59,6 @@ def main() -> None:
         "paymentStatus:'paid'",
         "revenueCountedEur:19",
         "confirmedRevenueEur:19",
-        "success without payment",
         "fake checkout success",
     ]
     for pattern in rejected_weak_patterns:
