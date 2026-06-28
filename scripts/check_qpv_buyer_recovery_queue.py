@@ -20,16 +20,26 @@ REQUIRED = [
     "event.paymentStatus==='paid'",
     "clean(event.orderId)",
     "clean(event.leadId)",
-    "clean(event.paymentReference||event.reference)",
+    "function refFor(row)",
+    "row.paymentProof?.paymentReference",
+    "row.paymentProof?.paymentNote",
+    "row.paymentProof?.note",
+    "refFor(event)",
     "function dedupPaidEvents(events)",
     "orderId + payment reference",
     "receipt_generated",
     "receipt_downloaded",
     "receipt_emailed",
     "recovery_email_sent",
+    "function aftercareContinuityMatches(row,event,type)",
+    "refFor(row)===refFor(event)",
+    "function brokenReferenceAftercare(conversions,event)",
+    "Reference breaks",
+    "kReferenceBreaks",
+    "referenceBreakRows",
     "function recoveryEmailLogged(conversions,row)",
     "function logRecoveryEmail(row)",
-    "only verified paid missing-aftercare rows are eligible",
+    "only verified paid missing-aftercare rows with matching paymentReference are eligible",
     "recovery email logging is a buyer-aftercare KPI only and cannot confirm revenue",
     "Number(row.revenueEur||0)===0",
     "Number(row.receiptRevenueEur||0)===0",
@@ -38,8 +48,6 @@ REQUIRED = [
     "outreach-ready rows never increase confirmed EUR",
     "payment_proof",
     "checkout_created",
-    # Continuity guard: aftercare/recovery cannot be matched by order only.
-    "paymentReference",
     "recovery_email_sent is idempotent by leadId orderId payment reference",
     "leadId=${row.leadId} · orderId=${row.orderId} · ref=${row.paymentReference}",
 ]
@@ -52,6 +60,8 @@ FORBIDDEN = [
     "paymentStatus==='pending'",
     "checkout is paid",
     "proof is paid",
+    "function conversionMatches(row,event,type)",
+    "clean(row.leadId)===clean(event.leadId)||!clean(row.leadId)",
     "recovery_email_sent',leadId:eligible.leadId,orderId:eligible.orderId,buyerEmail",
 ]
 
@@ -65,7 +75,8 @@ assert not forbidden, f"forbidden fake-revenue or broken-continuity patterns pre
 print("PASS qpv buyer recovery queue regression")
 print("- verified paid ledger is the only queue source")
 print("- duplicate paid events are deduplicated by orderId + reference")
-print("- missing receipt-generated/downloaded/emailed actions create outreach rows")
+print("- receipt/download/email/recovery aftercare must match paymentReference")
+print("- broken reference aftercare remains actionable in the queue")
 print("- recovery_email_sent logs one-click outreach into qpvConversionLedger as 0 EUR")
 print("- recovery_email_sent keeps leadId/orderId/paymentReference continuity")
 print("- outreach, receipt and recovery rows remain 0 EUR and cannot confirm revenue")
