@@ -3,10 +3,10 @@
 
 The command center must create measurable product-state movement by exposing the
 buyer acquisition -> quote/checkout -> proof follow-up -> paid gate -> verified
-receipt -> buyer recovery -> recovery email logging workflow while preserving
-revenue integrity. It is allowed to read ledgers and build action links; it must
-not write fake paid events or count proof/checkout/receipt/recovery/email events
-as paid revenue.
+receipt -> buyer recovery -> recovery email logging -> payment reference repair
+workflow while preserving revenue integrity. It is allowed to read ledgers and
+build action links; it must not write fake paid events or count proof/checkout/
+receipt/recovery/email/reference-repair events as paid revenue.
 """
 from pathlib import Path
 
@@ -45,6 +45,7 @@ def main() -> None:
         ("paymentProof?.note", "legacy proof note fallback"),
         ("function paidReference", "paid event reference normalizer"),
         ("event.paymentNote", "legacy paid event note fallback"),
+        ("function aftercareReference", "aftercare reference normalizer"),
         ("legacy paymentProof.paymentNote is normalized as paymentReference", "legacy reference QA rule"),
         ("buyerRecoveryMissingActions", "buyer recovery missing-action detector"),
         ("buyerRecoveryRows", "buyer recovery row builder"),
@@ -62,6 +63,17 @@ def main() -> None:
         ("recovery email KPI reads recovery_email_sent zero-EUR events matched to verified paid buyers", "recovery email KPI source guardrail"),
         ("recovery email action links preserve orderId leadId and paymentReference when present", "recovery email handoff guardrail"),
         ("recovery_email_sent is aftercare only and never paid revenue", "recovery email zero-revenue guardrail"),
+        ("Reference breaks", "payment reference continuity KPI label"),
+        ("referenceBreaks", "payment reference continuity KPI id"),
+        ("paymentReferenceBreakRows", "payment reference break detector"),
+        ("looseAftercareRows", "aftercare continuity candidate detector"),
+        ("paymentReferenceBreaks", "payment reference break QA KPI"),
+        ("Repair reference continuity", "reference repair action CTA"),
+        ("referenceContinuityRepairRevenueEur:0", "reference repair zero revenue effect"),
+        ("paid aftercare continuity is checked by orderId leadId and paymentReference", "reference continuity QA rule"),
+        ("reference break KPI reads receipt/recovery aftercare rows whose paymentReference does not match verified paid event", "reference break KPI source guardrail"),
+        ("reference continuity repair is aftercare only and never paid revenue", "reference repair zero-revenue guardrail"),
+        ("receipt action links preserve orderId leadId and paymentReference when present", "receipt reference handoff guardrail"),
         ("Buyer recovery queue", "buyer recovery KPI/nav label"),
         ("./buyer-recovery-queue.html", "buyer recovery queue link"),
         ("Open buyer recovery", "buyer recovery action CTA"),
@@ -78,7 +90,6 @@ def main() -> None:
         ("receiptReadyPaidEvents", "receipt KPI count"),
         ("missingReceipts", "missing receipt queue KPI"),
         ("receiptLedgerRows", "receipt ledger KPI"),
-        ("receipt action links preserve orderId and leadId when present", "receipt handoff guardrail"),
         ("receipts are aftercare only and never paid revenue", "receipt zero-revenue guardrail"),
         ("./outreach-lead-pipeline.html", "outreach pipeline link"),
         ("./quote-checkout.html", "quote checkout link"),
@@ -105,15 +116,17 @@ def main() -> None:
         ("buyer recovery counts as revenue", "buyer-recovery-as-revenue claim"),
         ("recovery queue counts as paid", "recovery-queue-as-paid claim"),
         ("recovery_email_sent counts as revenue", "recovery-email-as-revenue claim"),
+        ("reference continuity repair counts as revenue", "reference-repair-as-revenue claim"),
         ("recoveryEmailRevenueEur:19", "fake recovery email revenue"),
         ("buyerRecoveryRevenueEur:19", "fake buyer recovery revenue"),
+        ("referenceContinuityRepairRevenueEur:19", "fake reference repair revenue"),
         ("receiptRevenueEur:19", "fake receipt revenue"),
         ("revenueEur:19", "hard-coded revenue event"),
         ("confirmedRevenueEur:19", "fake confirmed revenue"),
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with legacy payment proof references")
+    print("PASS qpv revenue command center regression with payment reference continuity KPI")
 
 
 if __name__ == "__main__":
