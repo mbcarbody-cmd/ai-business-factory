@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "revenue-regression.yml"
 
 REQUIRED_CHECKS = [
+    "scripts/check_qpv_offer_checkout_handoff.py",
     "scripts/check_qpv_checkout_flow.py",
     "scripts/check_qpv_order_status_flow.py",
     "scripts/check_qpv_revenue_command_center.py",
