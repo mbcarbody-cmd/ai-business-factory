@@ -48,7 +48,7 @@
 <div class="steps">
 <div class="step"><b>1. Fill order details</b><br><span class="muted">Brand, contact, product, CTA and photo count are required.</span></div>
 <div class="step"><b>2. Check results path</b><br><span class="muted">The results page explains the before/after workflow without fake testimonials.</span></div>
-<div class="step"><b>3. Continue to checkout</b><br><span class="muted">Checkout creates a payment-pending order ID and exportable order proof.</span></div>
+<div class="step"><b>3. Continue to checkout</b><br><span class="muted">Offer creates a versioned leadId and sends it into checkout so the payment-pending order passes lead validation.</span></div>
 <div class="step"><b>4. Send payment proof</b><br><span class="muted">The payment proof page creates a reference/proof message tied to the same order ID.</span></div>
 <div class="step"><b>5. Track the order</b><br><span class="muted">Use the order ID in the status page. Order is counted as revenue only after payment confirmation.</span></div>
 <div class="step"><b>6. Review in local admin</b><br><span class="muted">The local admin ledger keeps browser-created orders, exports JSON and marks paid/delivered only after manual proof.</span></div>
@@ -62,13 +62,13 @@
 <label for="product">Product being sold</label><input id="product" maxlength="90" required placeholder="Example: Genesis GV70 headlight">
 <div class="row"><div><label for="ctaText">CTA text</label><input id="ctaText" maxlength="35" required placeholder="Buy now / Message me"></div><div><label for="photoCount">Photo count</label><input id="photoCount" type="number" min="1" max="12" required placeholder="1-12"></div></div>
 <label for="notes">Notes / delivery link</label><textarea id="notes" placeholder="Add target marketplace link, logo note, file link, or language preference"></textarea>
-<button class="cta" type="submit">Generate paid-order email</button>
+<button class="cta" type="submit">Generate checkout-ready lead</button>
 <a id="mailLink" class="cta secondary" hidden>Send order email</a>
-<a id="checkoutLink" class="cta" hidden>Continue to checkout</a>
+<a id="checkoutLink" class="cta" hidden>Continue to checkout with leadId</a>
 <p id="formMsg" class="error" role="status"></p>
 </form>
 <h3>Order proof</h3>
-<div id="proof" class="proof">No order generated yet.</div>
+<div id="proof" class="proof">No checkout-ready lead generated yet.</div>
 </div>
 </section>
 <section class="card" style="margin-top:16px">
@@ -81,11 +81,13 @@
 'use strict';
 const $=id=>document.getElementById(id);
 function clean(value){return String(value||'').trim()}
-function orderId(){const d=new Date(),stamp=d.toISOString().replace(/[-:TZ.]/g,'').slice(0,14);return `QPV-${stamp}-${Math.random().toString(36).slice(2,6).toUpperCase()}`}
+function compactStamp(){return new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)}
+function orderId(){return `QPV-${compactStamp()}-${Math.random().toString(36).slice(2,6).toUpperCase()}`}
+function leadId(){return `LP-${compactStamp()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`}
 function validate(data){const missing=['brand','contact','product','ctaText','photoCount'].filter(key=>!data[key]);if(missing.length)return `Missing required fields: ${missing.join(', ')}`;const count=Number(data.photoCount);if(!Number.isFinite(count)||count<1||count>12)return 'Photo count must be from 1 to 12.';return ''}
-function checkoutHref(data){const p=new URLSearchParams({brand:data.brand,contact:data.contact,product:data.product,ctaText:data.ctaText,photoCount:data.photoCount,notes:data.notes||''});return `./checkout.html?${p.toString()}`}
-function buildMailto(data){const id=orderId(),subject=`Paid order request ${id} — Quick Product Video`,body=[`Order ID: ${id}`,'Price: 19 EUR','Status: payment instructions requested','',`Brand: ${data.brand}`,`Contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Notes/link: ${data.notes||'-'}`,'','I want to order one Quick Product Video. Please send payment instructions and I will attach or link the photos in this email thread.'].join('\n');return{id,subject,body,href:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}}
-$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;$('checkoutLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Order email generated. You can email directly or continue to checkout handoff.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('checkoutLink').href=checkoutHref(data);$('checkoutLink').hidden=false;$('proof').textContent=JSON.stringify({orderId:mail.id,priceEur:19,status:'payment_pending',buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),paymentProofNext:'checkout.html then payment.html with same order ID',createdAt:new Date().toISOString()},null,2)});
+function checkoutHref(data){const p=new URLSearchParams({leadId:data.leadId,brand:data.brand,contact:data.contact,product:data.product,ctaText:data.ctaText,photoCount:data.photoCount,notes:data.notes||''});return `./checkout.html?${p.toString()}`}
+function buildMailto(data){const id=orderId(),subject=`Paid order request ${id} — Quick Product Video`,body=[`Lead ID: ${data.leadId}`,`Order draft ID: ${id}`,'Price: 19 EUR','Status: checkout handoff required before payment confirmation','',`Brand: ${data.brand}`,`Contact: ${data.contact}`,`Product: ${data.product}`,`CTA: ${data.ctaText}`,`Photo count: ${data.photoCount}`,`Notes/link: ${data.notes||'-'}`,'',`Checkout link: ${checkoutHref(data)}`,'','I want to order one Quick Product Video. I will continue to checkout, then send payment proof with the generated order/payment reference.'].join('\n');return{id,subject,body,href:`mailto:automariu@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}}
+$('orderForm').addEventListener('submit',event=>{event.preventDefault();const data={leadId:leadId(),brand:clean($('brand').value),contact:clean($('contact').value),product:clean($('product').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)},error=validate(data);if(error){$('formMsg').textContent=error;$('mailLink').hidden=true;$('checkoutLink').hidden=true;return}const mail=buildMailto(data);$('formMsg').textContent='Checkout-ready lead generated. Continue to checkout; confirmed revenue remains 0 EUR until manual paid verification.';$('formMsg').className='ok';$('mailLink').href=mail.href;$('mailLink').hidden=false;$('checkoutLink').href=checkoutHref(data);$('checkoutLink').hidden=false;$('proof').textContent=JSON.stringify({leadId:data.leadId,orderDraftId:mail.id,priceEur:19,status:'checkout_handoff_ready',revenueCountedEur:0,buyer:data.contact,product:data.product,photoCount:Number(data.photoCount),checkoutNext:'checkout.html receives leadId and creates payment_pending order',paymentProofNext:'payment-ledger.html with same order ID and paymentReference',createdAt:new Date().toISOString()},null,2)});
 </script>
 </body>
 </html>
