@@ -38,6 +38,10 @@ REQUIRED = [
     "outreach-ready rows never increase confirmed EUR",
     "payment_proof",
     "checkout_created",
+    # Continuity guard: aftercare/recovery cannot be matched by order only.
+    "paymentReference",
+    "recovery_email_sent is idempotent by leadId orderId payment reference",
+    "leadId=${row.leadId} · orderId=${row.orderId} · ref=${row.paymentReference}",
 ]
 
 FORBIDDEN = [
@@ -48,6 +52,7 @@ FORBIDDEN = [
     "paymentStatus==='pending'",
     "checkout is paid",
     "proof is paid",
+    "recovery_email_sent',leadId:eligible.leadId,orderId:eligible.orderId,buyerEmail",
 ]
 
 missing = [pattern for pattern in REQUIRED if pattern not in TEXT]
@@ -55,11 +60,12 @@ forbidden = [pattern for pattern in FORBIDDEN if pattern in TEXT]
 
 assert PAGE.exists(), "buyer recovery queue page must exist"
 assert not missing, f"missing required buyer recovery queue guards: {missing}"
-assert not forbidden, f"forbidden fake-revenue patterns present: {forbidden}"
+assert not forbidden, f"forbidden fake-revenue or broken-continuity patterns present: {forbidden}"
 
 print("PASS qpv buyer recovery queue regression")
 print("- verified paid ledger is the only queue source")
 print("- duplicate paid events are deduplicated by orderId + reference")
 print("- missing receipt-generated/downloaded/emailed actions create outreach rows")
 print("- recovery_email_sent logs one-click outreach into qpvConversionLedger as 0 EUR")
+print("- recovery_email_sent keeps leadId/orderId/paymentReference continuity")
 print("- outreach, receipt and recovery rows remain 0 EUR and cannot confirm revenue")
