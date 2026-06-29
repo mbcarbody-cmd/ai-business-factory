@@ -12,9 +12,9 @@
 <body>
 <main class="wrap">
 <section class="card">
-<span class="badge">VALIDATED CHECKOUT HANDOFF · LEADID REQUIRED · 19 EUR · NO FAKE PAYMENT CLAIM</span>
+<span class="badge">VALIDATED CHECKOUT HANDOFF · LEADID REQUIRED · SOURCE ATTRIBUTION · 19 EUR · NO FAKE PAYMENT CLAIM</span>
 <h1>Quick Product Video checkout</h1>
-<p class="muted">Create a payment-pending order for the 19 EUR launch offer only when a real leadId exists. The order carries leadId, orderId and paymentReference through buyer status, payment proof and manual paid verification.</p>
+<p class="muted">Create a payment-pending order for the 19 EUR launch offer only when a real leadId exists. The order carries leadId, orderId, paymentReference and source attribution through buyer status, payment proof and manual paid verification.</p>
 <p class="price">19 EUR</p>
 <a class="cta ghost" href="./offer.html">Back to offer</a>
 <a class="cta ghost" href="./payment-ledger.html">Payment proof ledger</a>
@@ -43,7 +43,7 @@
 </div>
 <div class="card">
 <h2>Checkout output</h2>
-<div class="notice"><b>Revenue gate:</b> checkout validates leadId and creates only a payment_pending order. Handoff events stay 0 EUR; admin counts 19 EUR only after real payment verification.</div>
+<div class="notice"><b>Revenue gate:</b> checkout validates leadId and creates only a payment_pending order. Handoff/source attribution events stay 0 EUR; admin counts 19 EUR only after real payment verification.</div>
 <pre id="proof" class="proof">No checkout order generated yet.</pre>
 </div>
 </section>
@@ -52,7 +52,7 @@
 <h2>Buyer next steps</h2>
 <div class="step"><b>1. Save order ID and paymentReference</b><br><span class="muted">Use both generated values in every message/payment proof.</span></div>
 <div class="step"><b>2. Check buyer status</b><br><span class="muted">Open order-status.html with order ID and leadId to see payment/fulfillment state from the local ledger.</span></div>
-<div class="step"><b>3. Send payment proof</b><br><span class="muted">Payment ledger page receives the same orderId, leadId and paymentReference.</span></div>
+<div class="step"><b>3. Send payment proof</b><br><span class="muted">Payment ledger page receives the same orderId, leadId, paymentReference and source.</span></div>
 <div class="step"><b>4. Upload usable photos</b><br><span class="muted">After payment confirmation, create the video in the browser builder.</span></div>
 </div>
 <div class="card">
@@ -63,7 +63,7 @@
 </section>
 <section class="card" style="margin-top:16px">
 <h2>Rejected weak patterns</h2>
-<p class="muted">No hidden price, no contact-only CTA, no fake checkout success, no payment-pending revenue, no order without buyer/product/photo count, no manual work starting without order ID, no orphan proof outside the ledger, no buyer status detached from qpvOrderLedger, no lead checkout without leadId/orderId/paymentReference propagation, no CHECKOUT_DIRECT fallback.</p>
+<p class="muted">No hidden price, no contact-only CTA, no fake checkout success, no payment-pending revenue, no order without buyer/product/photo count, no manual work starting without order ID, no orphan proof outside the ledger, no buyer status detached from qpvOrderLedger, no lead checkout without leadId/orderId/paymentReference/source propagation, no CHECKOUT_DIRECT fallback.</p>
 </section>
 </main>
 <script>
@@ -75,7 +75,7 @@ function orderId(){const stamp=new Date().toISOString().replace(/[-:TZ.]/g,'').s
 function readLedger(){try{const rows=JSON.parse(localStorage.getItem(ledgerKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
 function writeLedger(rows){localStorage.setItem(ledgerKey,JSON.stringify(rows.slice(-200)))}
 function readConversionLedger(){try{const rows=JSON.parse(localStorage.getItem(conversionKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
-function writeConversionEvent(event){const rows=readConversionLedger();const key=`${event.kpiEvent}_${event.leadId}_${event.orderId}_${event.paymentReference||''}`;if(!rows.some(row=>row.idempotencyKey===key)){rows.push({...event,idempotencyKey:key,version:'qpv-conversion-ledger-v1',storedAt:new Date().toISOString(),revenueEur:0})}localStorage.setItem(conversionKey,JSON.stringify(rows.slice(-300)))}
+function writeConversionEvent(event){const rows=readConversionLedger();const key=`${event.kpiEvent}_${event.leadId}_${event.orderId}_${event.paymentReference||''}_${event.source||''}`;if(!rows.some(row=>row.idempotencyKey===key)){rows.push({...event,idempotencyKey:key,version:'qpv-conversion-ledger-v2-source-attribution',storedAt:new Date().toISOString(),revenueEur:0})}localStorage.setItem(conversionKey,JSON.stringify(rows.slice(-300)))}
 function isVerifiedPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
 function confirmedRevenue(rows){return rows.filter(isVerifiedPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
 function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
@@ -83,17 +83,19 @@ function validLeadId(value){return /^(LP-\d{4,}|MANUAL|lead_[A-Za-z0-9_-]{3,}|qu
 function validate(data){const missing=['leadId','brand','contact','productName','ctaText','photoCount'].filter(key=>!data[key]);if(missing.length)return `Missing required fields: ${missing.join(', ')}`;if(!validLeadId(data.leadId))return 'Valid leadId is required before checkout can create a payment session.';const count=Number(data.photoCount);if(!Number.isFinite(count)||count<1||count>12)return 'Photo count must be from 1 to 12.';return ''}
 function params(){return new URLSearchParams(location.search)}
 function leadIdFrom(data){const fromField=clean(data.leadId),fromParam=clean(params().get('leadId'));return fromField||fromParam}
+function sourceFrom(){const p=params();return clean(p.get('source'))||clean(p.get('utm_source'))||'checkout_manual'}
+function attributionFrom(){return clean(params().get('attribution'))||'checkout_source_preserved'}
 function paymentReferenceFor(orderIdValue,leadId){return `QPV-PAY-${leadId}-${orderIdValue}`.replace(/[^A-Za-z0-9_-]/g,'-')}
 function brokenHandoffRows(rows=readLedger()){return rows.filter(row=>!clean(row.leadId)||!clean(row.orderId)||!clean(row.paymentReference)).map(row=>({orderId:row.orderId||'MISSING_ORDER',leadId:row.leadId||'MISSING_LEAD',paymentReference:row.paymentReference||'MISSING_PAYMENT_REFERENCE',status:row.paymentStatus||'unknown',revenueEur:0,action:'repair leadId/orderId/paymentReference before payment follow-up'}))}
-function buildOrder(data){const createdAt=new Date().toISOString(),leadId=leadIdFrom(data),newOrderId=orderId(),paymentReference=paymentReferenceFor(newOrderId,leadId);return{orderId:newOrderId,leadId,paymentReference,product:'Quick Product Video',item:data.productName,priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',seller:data.brand,buyer:data.contact,ctaText:data.ctaText,photoCount:Number(data.photoCount),notes:data.notes||'',createdAt,updatedAt:createdAt,revenueCountedEur:0,source:'checkout',handoffValidated:true,kpiEvent:'payment_pending_order_created',nextStep:'Open buyer status, send payment proof with this order ID and paymentReference, then admin verifies payment manually.'}}
-function saveOrder(order){const rows=readLedger().filter(row=>row.orderId!==order.orderId);rows.push(order);writeLedger(rows);writeConversionEvent({leadId:order.leadId,orderId:order.orderId,paymentReference:order.paymentReference,kpiEvent:'lead_payment_handoff_validated',stateFrom:'lead_capture',stateTo:'payment_pending',priceEur:order.priceEur,paymentStatus:order.paymentStatus,source:'checkout'});writeConversionEvent({leadId:order.leadId,orderId:order.orderId,paymentReference:order.paymentReference,kpiEvent:'payment_pending_order_created',stateFrom:'checkout_handoff',stateTo:'payment_pending',priceEur:order.priceEur,paymentStatus:order.paymentStatus,source:'checkout'});localStorage.setItem(lastOrderKey,JSON.stringify(order));renderKpis(rows)}
-function statusHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference});return `./order-status.html?${p.toString()}`}
-function paymentHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference,buyer:order.buyer});return `./payment-ledger.html?${p.toString()}`}
-function builderHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference,brand:order.seller,headline:order.item,subline:`${order.photoCount} photos · ${order.priceEur} EUR order`,cta:order.ctaText});return `./video-maker.html?${p.toString()}`}
+function buildOrder(data){const createdAt=new Date().toISOString(),leadId=leadIdFrom(data),newOrderId=orderId(),paymentReference=paymentReferenceFor(newOrderId,leadId),source=data.source||sourceFrom(),attribution=data.attribution||attributionFrom();return{orderId:newOrderId,leadId,paymentReference,product:'Quick Product Video',item:data.productName,priceEur,paymentStatus:'payment_pending',fulfillmentStatus:'lead',seller:data.brand,buyer:data.contact,ctaText:data.ctaText,photoCount:Number(data.photoCount),notes:data.notes||'',createdAt,updatedAt:createdAt,revenueCountedEur:0,source,attribution,sourcePath:'offer_to_checkout_to_payment_proof',handoffValidated:true,kpiEvent:'payment_pending_order_created',nextStep:'Open buyer status, send payment proof with this order ID and paymentReference, then admin verifies payment manually.'}}
+function saveOrder(order){const rows=readLedger().filter(row=>row.orderId!==order.orderId);rows.push(order);writeLedger(rows);writeConversionEvent({leadId:order.leadId,orderId:order.orderId,paymentReference:order.paymentReference,kpiEvent:'lead_payment_handoff_validated',stateFrom:'lead_capture',stateTo:'payment_pending',priceEur:order.priceEur,paymentStatus:order.paymentStatus,source:order.source,attribution:order.attribution});writeConversionEvent({leadId:order.leadId,orderId:order.orderId,paymentReference:order.paymentReference,kpiEvent:'payment_pending_order_created',stateFrom:'checkout_handoff',stateTo:'payment_pending',priceEur:order.priceEur,paymentStatus:order.paymentStatus,source:order.source,attribution:order.attribution});localStorage.setItem(lastOrderKey,JSON.stringify(order));renderKpis(rows)}
+function statusHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference,source:order.source});return `./order-status.html?${p.toString()}`}
+function paymentHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference,buyer:order.buyer,source:order.source});return `./payment-ledger.html?${p.toString()}`}
+function builderHref(order){const p=new URLSearchParams({orderId:order.orderId,leadId:order.leadId,paymentReference:order.paymentReference,source:order.source,brand:order.seller,headline:order.item,subline:`${order.photoCount} photos · ${order.priceEur} EUR order`,cta:order.ctaText});return `./video-maker.html?${p.toString()}`}
 function renderKpis(rows=readLedger()){const broken=brokenHandoffRows(rows);$('ledgerRows').textContent=String(rows.length);$('confirmedRevenue').textContent=String(confirmedRevenue(rows));$('brokenHandoffs').textContent=String(broken.length);$('handoffQa').textContent=JSON.stringify(broken,null,2)}
 function fillFromParams(){const p=params();const map={leadId:'leadId',brand:'brand',contact:'contact',product:'productName',item:'productName',ctaText:'ctaText',photoCount:'photoCount',notes:'notes'};Object.entries(map).forEach(([key,id])=>{if(p.get(key))$(id).value=p.get(key)});if(p.get('leadId')&&!$('notes').value.includes(p.get('leadId'))){$('notes').value=`Lead ${p.get('leadId')} from prefilled checkout. ${$('notes').value}`.trim()}}
 function showOrder(order){lastOrder=order;$('proof').textContent=JSON.stringify(order,null,2);$('statusLink').href=statusHref(order);$('statusLink').hidden=false;$('paymentLink').href=paymentHref(order);$('paymentLink').hidden=false;$('builderLink').href=builderHref(order);$('builderLink').hidden=false;$('copyOrder').hidden=false;$('downloadOrder').hidden=false}
-$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={leadId:leadIdFrom({leadId:clean($('leadId').value)}),brand:clean($('brand').value),contact:clean($('contact').value),productName:clean($('productName').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value)};const error=validate(data);if(error){setMsg(error);return}const order=buildOrder(data);saveOrder(order);showOrder(order);setMsg(`Order ${order.orderId} created for lead ${order.leadId}; paymentReference ${order.paymentReference} preserved. Revenue remains 0 EUR until manual paid confirmation.`,true)});
+$('checkoutForm').addEventListener('submit',event=>{event.preventDefault();const data={leadId:leadIdFrom({leadId:clean($('leadId').value)}),brand:clean($('brand').value),contact:clean($('contact').value),productName:clean($('productName').value),ctaText:clean($('ctaText').value),photoCount:clean($('photoCount').value),notes:clean($('notes').value),source:sourceFrom(),attribution:attributionFrom()};const error=validate(data);if(error){setMsg(error);return}const order=buildOrder(data);saveOrder(order);showOrder(order);setMsg(`Order ${order.orderId} created for lead ${order.leadId}; source ${order.source} and paymentReference ${order.paymentReference} preserved. Revenue remains 0 EUR until manual paid confirmation.`,true)});
 $('copyOrder').addEventListener('click',async()=>{if(!lastOrder)return;try{await navigator.clipboard.writeText(JSON.stringify(lastOrder,null,2));setMsg('Order JSON copied.',true)}catch(error){setMsg('Clipboard blocked. Use Download order JSON.')}});
 $('downloadOrder').addEventListener('click',()=>{if(!lastOrder)return;const blob=new Blob([JSON.stringify(lastOrder,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${lastOrder.orderId.toLowerCase()}-checkout-order.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);setMsg('Order JSON download prepared.',true)});
 fillFromParams();renderKpis();
