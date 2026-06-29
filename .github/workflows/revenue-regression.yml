@@ -26,6 +26,7 @@ jobs:
           set -euo pipefail
           python3 scripts/check_qpv_root_offer_cta.py
           python3 scripts/check_qpv_offer_checkout_handoff.py
+          python3 scripts/check_qpv_offer_checkout_attribution.py
           python3 scripts/check_qpv_checkout_flow.py
           python3 scripts/check_qpv_order_status_flow.py
           python3 scripts/check_qpv_revenue_command_center.py
