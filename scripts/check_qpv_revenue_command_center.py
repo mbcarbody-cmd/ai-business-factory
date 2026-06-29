@@ -2,7 +2,7 @@
 """Regression gate for the QPV revenue command center.
 
 The command center must create measurable product-state movement by exposing the
-buyer acquisition -> quote/checkout -> proof follow-up -> paid gate -> verified
+buyer acquisition -> quote/checkout -> source KPI filter -> proof follow-up -> paid gate -> verified
 receipt -> buyer recovery -> recovery email logging -> payment reference repair
 workflow while preserving revenue integrity. It is allowed to read ledgers and
 build action links; it must not write fake paid events or count proof/checkout/
@@ -35,6 +35,12 @@ def main() -> None:
         ("qpvReceiptLedger", "receipt ledger read"),
         ("qpvConversionLedger", "conversion ledger read"),
         ("qpvBuyerRecoveryQueue", "buyer recovery queue ledger read"),
+        ('href="./source-kpi-admin.html"', "top-level source KPI admin navigation"),
+        ("Filter source KPI", "source KPI card CTA"),
+        ("./source-kpi-admin.html", "source KPI action links"),
+        ("source:row.source||row.paymentProof?.source||'unknown'", "order source KPI handoff"),
+        ("source:row.source||'unknown'", "lead/paid source KPI handoff"),
+        ("command center exposes source-kpi-admin.html for source attribution filtering", "source KPI QA rule"),
         ("isProofReadyUnpaid", "proof-ready unpaid filter"),
         ("checkoutReadyLead", "checkout-ready lead filter"),
         ("dedupPaidEvents", "paid event idempotency"),
@@ -126,7 +132,7 @@ def main() -> None:
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with payment reference continuity KPI")
+    print("PASS qpv revenue command center regression with source KPI navigation and payment reference continuity KPI")
 
 
 if __name__ == "__main__":
