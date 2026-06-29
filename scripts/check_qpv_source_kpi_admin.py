@@ -29,6 +29,7 @@ required = [
     "unverifiedProofRevenueEur:0",
     "followUpMessageRevenueEur:0",
     "preparedFollowUpRevenueEur:0",
+    "priorityBucketRevenueEur:0",
     "proof_submitted_manual_review is not paid",
     "paymentReference text is not revenue",
     "source visit is not revenue",
@@ -36,6 +37,7 @@ required = [
     "checkout order is not revenue until paid",
     "generated follow-up message is not revenue",
     "prepared follow-up ledger row is not revenue",
+    "priority aging bucket row is not revenue",
     "kpiSources",
     "kpiLeads",
     "kpiOrders",
@@ -57,7 +59,7 @@ required = [
     "toFollowUpMessages",
     "qpv-unpaid-proof-follow-up-messages.txt",
     "One-click buyer follow-up messages",
-    "Generate one copy-ready buyer follow-up message per deduped unpaid proof row; paid rows are excluded.",
+    "Generate one copy-ready buyer follow-up message per deduped unpaid proof row; paid rows are excluded, with priority bucket included.",
     "paid rows are excluded",
     "markFollowUps",
     "markFollowUpsPrepared",
@@ -69,6 +71,20 @@ required = [
     "source_kpi_admin",
     "already prepared rows are excluded",
     "Prepared follow-up rows are outreach state only; they suppress duplicate chasing and never count as revenue.",
+    "Unpaid proof priority aging buckets",
+    "priorityAgingBuckets",
+    "function proofAgeDays",
+    "function priorityBucket",
+    "function priorityRank",
+    "priorityAgingView",
+    "hot_now_under_24h",
+    "due_today_1d_plus",
+    "overdue_3d_plus",
+    "stale_rescue_7d_plus",
+    "Priority aging bucket rows rank unpaid proof follow-up work only and never count as revenue.",
+    "proofAgeDays",
+    "priorityBucket",
+    "priorityRank",
 ]
 
 for marker in required:
@@ -80,13 +96,15 @@ for forbidden in [
     "unverifiedProofRevenueEur:19",
     "followUpMessageRevenueEur:19",
     "preparedFollowUpRevenueEur:19",
+    "priorityBucketRevenueEur:19",
     "paymentReference text is revenue",
     "proof_submitted_manual_review is paid",
     "source visit is revenue",
     "generated follow-up message is revenue",
     "prepared follow-up ledger row is revenue",
+    "priority aging bucket row is revenue",
 ]:
     if forbidden in html.replace(" ", ""):
         raise SystemExit(f"FAIL: source KPI admin accepts weak revenue pattern: {forbidden}")
 
-print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, and keeps unverified proof/source/follow-up activity at 0 EUR.")
+print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, prioritizes unpaid proof aging buckets, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, and keeps unverified proof/source/follow-up/priority activity at 0 EUR.")
