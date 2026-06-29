@@ -55,6 +55,37 @@ def test_source_kpi_admin_exposes_measurable_kpis():
         assert marker in html
 
 
+def test_source_kpi_admin_exports_source_filtered_unpaid_proof_followups():
+    html = read_page()
+    for marker in [
+        "copyUnpaidProofs",
+        "downloadUnpaidProofs",
+        "unpaidProofRows",
+        "toUnpaidProofCsv",
+        "qpv-unpaid-proof-follow-up.csv",
+        "needs_manual_payment_follow_up",
+        "Source-filtered unpaid proof follow-up export",
+        "Export only unpaid/unverified proof rows for buyer follow-up",
+    ]:
+        assert marker in html
+
+    for csv_header in [
+        "source",
+        "leadId",
+        "buyer",
+        "proofStatus",
+        "proofSubmittedAt",
+        "paymentReference",
+        "followUpStatus",
+        "confirmedRevenueEur",
+    ]:
+        assert csv_header in html
+
+    assert "orderPaidIndex" in html, "paid order rows must suppress follow-up exports"
+    assert "seen=new Set" in html, "duplicate unpaid proof rows must be suppressed"
+    assert "confirmedRevenueEur:0" in html, "unpaid proof export must not count revenue"
+
+
 def test_source_kpi_admin_blocks_weak_patterns():
     html = read_page()
     weak_patterns = [
@@ -63,6 +94,7 @@ def test_source_kpi_admin_blocks_weak_patterns():
         "checkout order is not revenue until paid",
         "proof_submitted_manual_review is not paid",
         "paymentReference text is not revenue",
+        "unpaid proof export is not revenue",
     ]
     for pattern in weak_patterns:
         assert pattern in html
