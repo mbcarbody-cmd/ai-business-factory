@@ -2,8 +2,9 @@
 """Regression gate for QPV order-admin revenue-path navigation.
 
 The order admin must expose the executable revenue workflow pages directly. A hidden
-paid bridge, reminder workflow, or recovery workflow slows verified revenue collection
-and causes operators to fall back to weak proof/recovery-as-revenue patterns.
+paid bridge, reminder workflow, recovery workflow, or source KPI filter slows verified
+revenue collection and causes operators to fall back to weak proof/recovery-as-revenue
+patterns.
 """
 from pathlib import Path
 
@@ -25,6 +26,8 @@ def main() -> None:
     text = PAGE.read_text(encoding="utf-8")
 
     require(text, 'href="./revenue-command-center.html"', "top-level command center navigation")
+    require(text, 'href="./source-kpi-admin.html"', "top-level source KPI navigation")
+    require(text, "Source KPI admin", "source KPI CTA label")
     require(text, 'href="./payment-reminder-workflow.html"', "top-level payment reminder navigation")
     require(text, 'href="./abandoned-checkout-recovery.html"', "top-level abandoned checkout recovery navigation")
     require(text, 'href="./order-paid-bridge.html"', "top-level paid bridge navigation")
@@ -39,9 +42,11 @@ def main() -> None:
     require(text, '<a class="cta ghost" href="${bridge}">Paid bridge</a>', "per-order paid bridge action")
     require(text, "paymentReminderUrl", "selected order exposes reminder URL")
     require(text, "abandonedRecoveryUrl", "selected order exposes recovery URL")
+    require(text, "admin navigation exposes source-kpi-admin.html", "QA rule for source KPI navigation")
     require(text, "admin navigation exposes payment-reminder-workflow.html", "QA rule for reminder navigation")
     require(text, "admin navigation exposes abandoned-checkout-recovery.html", "QA rule for recovery navigation")
     require(text, "each order exposes reminder and abandoned recovery links by orderId", "QA rule for orderId handoff")
+    require(text, "Open Source KPI admin to filter source-attributed leads, proofs and paid rows", "operator checklist source KPI step")
     require(text, "Open Payment reminders for unpaid proof/order follow-up without counting revenue", "operator checklist reminder step")
     require(text, "Open Abandoned checkout recovery when checkout stalled before verified payment", "operator checklist recovery step")
     require(text, "Open Order → paid bridge to prefill the manual paid gate", "operator checklist bridge step")
@@ -56,7 +61,7 @@ def main() -> None:
     forbid(text, "revenueCountedEur:19", "hard-coded fake revenue")
     forbid(text, "payment proof is a sale", "proof-as-sale wording")
 
-    print("PASS qpv order-admin revenue navigation regression")
+    print("PASS qpv order-admin revenue navigation regression with source KPI admin link")
 
 
 if __name__ == "__main__":
