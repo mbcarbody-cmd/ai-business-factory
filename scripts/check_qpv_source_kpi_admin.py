@@ -18,7 +18,11 @@ required = [
     "./checkout.html?source=source_kpi_admin",
     "./payment-ledger.html?source=source_kpi_admin",
     "./paid-confirmation.html",
+    "./order-admin.html",
     "Order admin",
+    "./revenue-command-center.html",
+    "Revenue command center",
+    "Source KPI admin exposes order-admin.html and revenue-command-center.html",
     "Only paid/delivered order rows count confirmed EUR",
     "proofSubmittedRevenueEur:0",
     "unverifiedProofRevenueEur:0",
@@ -52,4 +56,4 @@ for forbidden in [
     if forbidden in html.replace(" ", ""):
         raise SystemExit(f"FAIL: source KPI admin accepts weak revenue pattern: {forbidden}")
 
-print("PASS: source KPI admin filters source-attributed QPV ledgers and keeps unverified proof/source activity at 0 EUR.")
+print("PASS: source KPI admin filters source-attributed QPV ledgers, exposes command backtracking, and keeps unverified proof/source activity at 0 EUR.")
