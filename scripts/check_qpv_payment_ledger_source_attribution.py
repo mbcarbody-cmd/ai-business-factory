@@ -53,25 +53,25 @@ def main() -> None:
     for marker in required_payment_markers:
         require(marker in payment, f"payment ledger missing attribution/revenue marker: {marker}")
 
-    rejected_weak_patterns = [
+    rejected_code_patterns = [
         "source:'payment-ledger'",
         "source:'unknown'",
         "source:'checkout'",
         "revenueCountedEur:19",
         "confirmedRevenueEur:19",
         "paymentStatus:'paid'",
-        "fake paid",
-        "proof that loses source attribution",
     ]
-    # The final rejected-pattern sentence is allowed to name the bad behavior;
-    # executable code must still avoid hard-coded fake source/revenue shortcuts.
-    allowed_copy = "No proof that loses source attribution"
-    for pattern in rejected_weak_patterns:
-        if pattern == "proof that loses source attribution":
-            require(allowed_copy in payment, "payment page must explicitly reject lost source attribution")
-            continue
-        require(pattern not in payment, f"payment ledger must reject weak pattern: {pattern}")
-        require(pattern not in checkout, f"checkout must reject weak pattern: {pattern}")
+    for pattern in rejected_code_patterns:
+        require(pattern not in payment, f"payment ledger must reject weak executable pattern: {pattern}")
+        require(pattern not in checkout, f"checkout must reject weak executable pattern: {pattern}")
+
+    required_rejection_copy = [
+        "No fake paid state",
+        "No proof that loses source attribution",
+        "no confirmed EUR from manual-transfer text",
+    ]
+    for marker in required_rejection_copy:
+        require(marker in payment, f"payment page must warn against weak pattern: {marker}")
 
     print("PASS qpv payment ledger source attribution regression")
     print("checked: checkout source reaches payment proof, proof/ledger/conversion/paid-gate rows keep source, revenue remains 0 EUR until manual paid verification")
