@@ -6,16 +6,17 @@
 <title>Daily Agent Improvement Engine</title>
 <meta name="description" content="Operational learning engine that enforces evidence-backed agent improvements, evaluation cases, champion-challenger comparisons and cross-agent sync.">
 <style>
-:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#18304b 0,#071019 48%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.hero h1{font-size:clamp(32px,6vw,58px);line-height:.98;margin:14px 0 10px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:16px 0}.kpi div{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420}.kpi b{display:block;font-size:24px}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.warn{color:#ffe6ad}.proof{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.pill{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:4px 8px;margin:5px 4px 0 0;color:#dce9f7;font-size:12px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 16px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none}.cta.ghost{background:#192638;color:#fff;border:1px solid #3a5069}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border-bottom:1px solid #2b3b50;text-align:left;padding:8px;vertical-align:top}th{color:#dce9f7}@media(max-width:900px){.grid,.kpi{grid-template-columns:1fr}.hero h1{font-size:36px}}
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:#071019;color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1180px;margin:auto;padding:24px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.hero h1{font-size:clamp(32px,6vw,58px);line-height:.98;margin:14px 0 10px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#101b28;border:1px solid var(--line);border-radius:22px;padding:18px}.muted{color:var(--muted)}.kpi{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:16px 0}.kpi div{border:1px solid #31465f;border-radius:14px;padding:10px;background:#0a1420}.kpi b{display:block;font-size:24px}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.proof{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.pill{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:4px 8px;margin:5px 4px 0 0;color:#dce9f7;font-size:12px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:12px 16px;margin:8px 8px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none}.cta.ghost{background:#192638;color:#fff;border:1px solid #3a5069}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border-bottom:1px solid #2b3b50;text-align:left;padding:8px;vertical-align:top}th{color:#dce9f7}@media(max-width:900px){.grid,.kpi{grid-template-columns:1fr}.hero h1{font-size:36px}}
 </style>
 </head>
 <body>
 <main class="wrap">
 <section class="hero">
-<span class="badge">DAILY AGENT IMPROVEMENT · REGRESSION-GATED · NO SUMMARY-ONLY LEARNING · WORKFLOW RULE v4</span>
+<span class="badge">DAILY AGENT IMPROVEMENT · REGRESSION-GATED · NO SUMMARY-ONLY LEARNING · WORKFLOW RULE v5</span>
 <h1>Daily Agent Improvement Engine</h1>
 <p class="muted">This operational page converts agent-run evidence into normalized lessons, evaluation cases, champion-challenger comparisons, promoted workflow rules and cross-agent sync. Reading, summaries and policy-only notes are rejected unless they change a versioned operational rule, pass regression checks and route the next fallback into a real product workflow.</p>
-<a class="cta" href="./revenue-command-center.html">Revenue command center</a>
+<a class="cta" href="./payment-ledger.html?source=daily_agent_improvement_v5">Payment ledger with source</a>
+<a class="cta ghost" href="./revenue-command-center.html">Revenue command center</a>
 <a class="cta ghost" href="./daily-revenue-action.html">Daily revenue action</a>
 <a class="cta ghost" href="./lead-send.html">Lead workflow</a>
 <a class="cta ghost" href="./lead-kpi.html">Lead KPI</a>
@@ -32,12 +33,13 @@
 </section>
 <section class="grid">
 <div class="card"><h2>Gate status</h2><p id="gateStatus" class="bad">Not checked.</p><div id="gateProof" class="proof"></div></div>
-<div class="card"><h2>Promoted operational rule</h2><p class="ok"><b>Rule v4 promoted:</b> post-paid buyer workflows must be generated from verified paid events only; receipt events are conversion service events with 0 EUR impact.</p><p class="muted">Harmful rule removed: receipt/proof/customer-service events can no longer be counted as revenue or as learning proof without regression and a buyer workflow route.</p><span class="pill">workflow_rule_v4</span><span class="pill">verified_paid_only_receipts</span><span class="pill">regression_required</span><span class="pill">fallback_executes_product_workflow</span><span class="pill">revenue_accuracy</span></div>
-<div class="card"><h2>KPI effect</h2><p class="muted">Expected measurable effect: fewer false-positive improvement claims, cleaner lead-to-order conversion learning, direct routing to revenue/receipt workflows, and no EUR attribution before verified paid state.</p><div class="proof">confirmedRevenueEur: 0
+<div class="card"><h2>Promoted operational rule</h2><p class="ok"><b>Rule v5 promoted:</b> admin/payment review must preserve source attribution and show source KPI counts before any verified paid EUR is counted.</p><p class="muted">Harmful rule removed: unattributed proof review and source-blind admin queues are no longer acceptable as learning progress.</p><span class="pill">workflow_rule_v5</span><span class="pill">admin_source_kpi_filter</span><span class="pill">source_attributed_payment_review</span><span class="pill">regression_required</span><span class="pill">revenue_accuracy</span></div>
+<div class="card"><h2>KPI effect</h2><p class="muted">Expected effect: clearer source-to-proof learning, faster manual review priority by source, no EUR attribution before verified paid state.</p><div class="proof">confirmedRevenueEur: 0
 weakLearningAccepted: 0
 minimumPromotedWorkflowChanges: 1
 fallbackWorkflowUrl: ./revenue-command-center.html
-postPaidWorkflowUrl: ./receipt.html</div></div>
+postPaidWorkflowUrl: ./receipt.html
+sourceReviewWorkflowUrl: ./payment-ledger.html?source=daily_agent_improvement_v5</div></div>
 </section>
 <section class="card" style="margin-top:16px"><h2>Learning events</h2><table id="eventTable"><thead><tr><th>ID</th><th>Signal</th><th>Evidence</th><th>Accepted?</th></tr></thead><tbody></tbody></table></section>
 <section class="grid" style="margin-top:16px">
@@ -62,38 +64,49 @@ const learningEvents=[
 {id:'LE-010',signal:'Cross-agent drift risk',evidence:'Revenue, QA and Workflow agents receive the same rule sync',accepted:true},
 {id:'LE-011',signal:'Fallback described as next task is not executed learning',evidence:'workflow_rule_v3 routes blocked runs to revenue-command-center.html or daily-revenue-action.html',accepted:true},
 {id:'LE-012',signal:'Learning engine disconnected from revenue workflow',evidence:'Daily engine now links directly to revenue command center and daily revenue action',accepted:true},
-{id:'LE-013',signal:'Paid buyer aftercare was missing',evidence:'receipt.html generates buyer receipts only from qpvPaidEventLedger and routes receipt events as 0 EUR service KPIs',accepted:true}
+{id:'LE-013',signal:'Paid buyer aftercare was missing',evidence:'receipt.html generates buyer receipts only from qpvPaidEventLedger and routes receipt events as 0 EUR service KPIs',accepted:true},
+{id:'LE-014',signal:'Payment proof review lost source attribution',evidence:'workflow_rule_v5 requires source_attributed_payment_review with admin_source_kpi_filter',accepted:true},
+{id:'LE-015',signal:'Source-blind admin queue hides which channel moves buyers',evidence:'Source KPI counts must separate visits/leads/checkout/proof/verified payment before revenue claims',accepted:true},
+{id:'LE-016',signal:'Learning proof not wired to CI can drift',evidence:'Revenue regression workflow now runs check_daily_agent_improvement_engine.py',accepted:true}
 ];
 const normalizedLessons=[
 {id:'NL-001',lesson:'A lead or checkout URL is not revenue; confirmed EUR requires paid or delivered status.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
 {id:'NL-002',lesson:'Learning proof must be a versioned workflow rule, evaluation case, comparison result or tested product workflow delta.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
 {id:'NL-003',lesson:'When a blocker prevents promotion, immediately run the fallback that improves lead/order/payment measurement.',ruleVersion:'workflow_rule_v2',regression:'check_daily_agent_improvement_engine.py'},
 {id:'NL-004',lesson:'A fallback is only accepted when it executes or routes an operator into an existing revenue workflow with measurable state movement.',ruleVersion:'workflow_rule_v3',regression:'check_daily_agent_improvement_engine.py'},
-{id:'NL-005',lesson:'Post-paid buyer workflows must be generated from verified paid events only; receipt-generated/downloaded/emailed events are 0 EUR service KPIs.',ruleVersion:'workflow_rule_v4',regression:'check_qpv_buyer_receipt_workflow.py'}
+{id:'NL-005',lesson:'Post-paid buyer workflows must be generated from verified paid events only; receipt-generated/downloaded/emailed events are 0 EUR service KPIs.',ruleVersion:'workflow_rule_v4',regression:'check_qpv_buyer_receipt_workflow.py'},
+{id:'NL-006',lesson:'Admin payment review must preserve source attribution and expose source KPI counts before a payment can be treated as verified revenue.',ruleVersion:'workflow_rule_v5',regression:'check_daily_agent_improvement_engine.py'}
 ];
 const evaluationCases=[
 {id:'EV-001',input:'Agent claims summary/audit as learning progress',expected:'REJECT_WEAK_PATTERN',mustContain:'no promoted workflow or regression'},
 {id:'EV-002',input:'Agent creates checkout handoff and counts 19 EUR revenue',expected:'REJECT_FAKE_REVENUE',mustContain:'paid verification missing'},
 {id:'EV-003',input:'Agent changes operational rule with regression and cross-agent sync',expected:'ACCEPT_PROMOTION',mustContain:'versioned rule + tested workflow'},
 {id:'EV-004',input:'Agent reports blocker and only lists next task',expected:'REJECT_WEAK_PATTERN',mustContain:'fallback must execute or route to product workflow'},
-{id:'EV-005',input:'Agent creates buyer receipt before verified paid event or counts receipt download as revenue',expected:'REJECT_FAKE_REVENUE',mustContain:'qpvPaidEventLedger paymentStatus paid + receipt revenueEur 0'}
+{id:'EV-005',input:'Agent creates buyer receipt before verified paid event or counts receipt download as revenue',expected:'REJECT_FAKE_REVENUE',mustContain:'qpvPaidEventLedger paymentStatus paid + receipt revenueEur 0'},
+{id:'EV-006',input:'Agent reviews payment proofs without source filter or source KPI counts',expected:'REJECT_WEAK_PATTERN',mustContain:'admin_source_kpi_filter + source_attributed_payment_review'},
+{id:'EV-007',input:'Agent promotes admin source filter with regression and 0 EUR until verified paid event',expected:'ACCEPT_PROMOTION',mustContain:'workflow_rule_v5 + confirmedRevenueEur: 0'}
 ];
 const comparisons=[
 {id:'CC-001',champion:'Summary-only audit',challenger:'Regression-gated workflow rule',winner:'challenger',reason:'changes operational gate and rejects weak learning'},
 {id:'CC-002',champion:'Manual lead notes',challenger:'Lead handoff ledger with KPI route',winner:'challenger',reason:'measurable conversion movement'},
 {id:'CC-003',champion:'Assume payment proof equals revenue',challenger:'Paid/delivered-only revenue accounting',winner:'challenger',reason:'prevents false EUR attribution'},
 {id:'CC-004',champion:'Blocked run ends with future task list',challenger:'Blocked run routes to command center fallback workflow',winner:'challenger',reason:'creates immediate operator path toward buyers, checkout and paid gate'},
-{id:'CC-005',champion:'No buyer receipt after paid confirmation',challenger:'Verified-paid receipt workflow with zero-revenue receipt events',winner:'challenger',reason:'improves buyer readiness without fake EUR movement'}
+{id:'CC-005',champion:'No buyer receipt after paid confirmation',challenger:'Verified-paid receipt workflow with zero-revenue receipt events',winner:'challenger',reason:'improves buyer readiness without fake EUR movement'},
+{id:'CC-006',champion:'Source-blind payment admin',challenger:'Admin source KPI filter with attributed proof rows',winner:'challenger',reason:'makes source-to-proof movement reviewable before verified paid revenue'},
+{id:'CC-007',champion:'Learning check exists but is not in CI',challenger:'CI-wired Daily Agent Improvement gate',winner:'challenger',reason:'prevents regression drift on every push'}
 ];
 const promotedChanges=[
 {id:'PR-001',type:'harmful_rule_removed',rule:'summary_only_learning_allowed',replacement:'workflow_rule_v2_regression_checked_delta',targetWorkflow:'Daily Agent Improvement Engine',status:'promoted_tested_by_static_regression'},
 {id:'PR-002',type:'workflow_improvement_promoted',rule:'fallback_task_list_allowed',replacement:'workflow_rule_v3_executable_revenue_fallback_required',targetWorkflow:'Daily Agent Improvement Engine → Revenue Command Center',status:'promoted_tested_by_static_regression',workingUrl:'./revenue-command-center.html'},
-{id:'PR-003',type:'workflow_improvement_promoted',rule:'receipt_action_can_infer_revenue',replacement:'workflow_rule_v4_verified_paid_only_receipt_zero_revenue',targetWorkflow:'Paid Confirmation → Buyer Receipt',status:'promoted_tested_by_static_regression',workingUrl:'./receipt.html'}
+{id:'PR-003',type:'workflow_improvement_promoted',rule:'receipt_action_can_infer_revenue',replacement:'workflow_rule_v4_verified_paid_only_receipt_zero_revenue',targetWorkflow:'Paid Confirmation → Buyer Receipt',status:'promoted_tested_by_static_regression',workingUrl:'./receipt.html'},
+{id:'PR-004',type:'workflow_improvement_promoted',rule:'source_blind_payment_review_allowed',replacement:'workflow_rule_v5_admin_source_kpi_filter_required',targetWorkflow:'Payment Proof Ledger → Admin Source KPI Review',status:'promoted_tested_by_static_regression',workingUrl:'./payment-ledger.html?source=daily_agent_improvement_v5'},
+{id:'PR-005',type:'harmful_rule_removed',rule:'learning_gate_not_required_in_ci',replacement:'workflow_rule_v5_daily_learning_gate_ci_required',targetWorkflow:'Revenue regression CI',status:'promoted_tested_by_static_regression'}
 ];
 const crossAgentSync=[
 {id:'SYNC-001',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent'],knowledge:'workflow_rule_v2: reject summaries/policies unless they change an operational rule and pass regression; paid/delivered only count EUR',completed:true,createdAt:'2026-06-25'},
 {id:'SYNC-002',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent','OutreachAgent'],knowledge:'workflow_rule_v3: blocked learning runs must route to revenue-command-center.html or daily-revenue-action.html; next-task-only fallback is rejected',completed:true,createdAt:'2026-06-26'},
-{id:'SYNC-003',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent','CustomerSuccessAgent'],knowledge:'workflow_rule_v4: buyer receipts require qpvPaidEventLedger paid status; receipt_generated/downloaded/emailed are service events with revenueEur 0',completed:true,createdAt:'2026-06-27'}
+{id:'SYNC-003',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent','CustomerSuccessAgent'],knowledge:'workflow_rule_v4: buyer receipts require qpvPaidEventLedger paid status; receipt_generated/downloaded/emailed are service events with revenueEur 0',completed:true,createdAt:'2026-06-27'},
+{id:'SYNC-004',agents:['RevenueAgent','QARegressionAgent','WorkflowOpsAgent','AdminReviewAgent'],knowledge:'workflow_rule_v5: payment-ledger/admin review must keep source attribution, expose admin_source_kpi_filter, and keep confirmedRevenueEur: 0 until verified paid/delivered evidence exists',completed:true,createdAt:'2026-06-29'}
 ];
 function $(id){return document.getElementById(id)}
 function render(){
@@ -108,11 +121,11 @@ $('lessonList').textContent=JSON.stringify(normalizedLessons,null,2);
 $('evalList').textContent=JSON.stringify(evaluationCases,null,2);
 $('comparisonList').textContent=JSON.stringify(comparisons,null,2);
 $('syncProof').textContent=JSON.stringify(crossAgentSync,null,2);
-const gates={learningEvents:learningEvents.length>=10,normalizedLessons:normalizedLessons.length>=3,evaluationCases:evaluationCases.length>=3,championChallenger:comparisons.length>=3,promotedWorkflowChange:promotedChanges.length>=1,crossAgentSync:crossAgentSync.some(sync=>sync.completed),rejectWeakPatterns:promotedChanges.some(change=>change.replacement.includes('regression_checked_delta')||change.replacement.includes('executable_revenue_fallback_required')||change.replacement.includes('verified_paid_only_receipt_zero_revenue')),executableFallback:promotedChanges.some(change=>change.replacement.includes('executable_revenue_fallback_required')&&change.workingUrl==='./revenue-command-center.html'),postPaidBuyerWorkflow:promotedChanges.some(change=>change.replacement.includes('verified_paid_only_receipt_zero_revenue')&&change.workingUrl==='./receipt.html')};
+const gates={learningEvents:learningEvents.length>=10,normalizedLessons:normalizedLessons.length>=3,evaluationCases:evaluationCases.length>=3,championChallenger:comparisons.length>=3,promotedWorkflowChange:promotedChanges.length>=1,crossAgentSync:crossAgentSync.some(sync=>sync.completed),rejectWeakPatterns:promotedChanges.some(change=>change.replacement.includes('regression_checked_delta')||change.replacement.includes('executable_revenue_fallback_required')||change.replacement.includes('verified_paid_only_receipt_zero_revenue')||change.replacement.includes('admin_source_kpi_filter_required')),executableFallback:promotedChanges.some(change=>change.replacement.includes('executable_revenue_fallback_required')&&change.workingUrl==='./revenue-command-center.html'),postPaidBuyerWorkflow:promotedChanges.some(change=>change.replacement.includes('verified_paid_only_receipt_zero_revenue')&&change.workingUrl==='./receipt.html'),adminSourceKpiWorkflow:promotedChanges.some(change=>change.replacement.includes('admin_source_kpi_filter_required')&&change.workingUrl==='./payment-ledger.html?source=daily_agent_improvement_v5')};
 const pass=Object.values(gates).every(Boolean);
 $('gateStatus').className=pass?'ok':'bad';
 $('gateStatus').textContent=pass?'PASS: Daily Agent Improvement Engine gate satisfied.':'FAIL: Daily Agent Improvement Engine gate missing required proof.';
-$('gateProof').textContent=JSON.stringify({version:'daily-agent-improvement-engine-v4',gates,promotedChanges,crossAgentSync,revenueEurConfirmed:0,rejectedWeakPatterns:['reading_only','summary_only','policy_file_without_regression','fake_revenue_from_payment_proof','fake_revenue_from_receipt_event','champion_claim_without_comparison','fallback_task_list_without_workflow_route']},null,2);
+$('gateProof').textContent=JSON.stringify({version:'daily-agent-improvement-engine-v5',gates,promotedChanges,crossAgentSync,revenueEurConfirmed:0,rejectedWeakPatterns:['reading_only','summary_only','policy_file_without_regression','fake_revenue_from_payment_proof','fake_revenue_from_receipt_event','champion_claim_without_comparison','fallback_task_list_without_workflow_route','source_blind_payment_review_allowed','learning_gate_not_required_in_ci']},null,2);
 }
 render();
 </script>
