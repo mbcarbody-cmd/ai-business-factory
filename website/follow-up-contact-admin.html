@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QPV Follow-up Contact Admin</title>
+<meta name="description" content="One-click contacted workflow for overdue unpaid Quick Product Video proof follow-ups, preserving source and age tracking while keeping unverified activity at 0 EUR.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#1c2b3f 0,#071019 45%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}label{display:block;margin:10px 0 5px;font-weight:800;font-size:13px}select{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.warn{color:#ffe6ad}@media(max-width:900px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">QPV 19 EUR · MARK CONTACTED · UNPAID ONLY · VERIFIED PAID ONLY · NO FAKE REVENUE</span>
+<h1>QPV follow-up contact admin</h1>
+<p class="muted">Turn prepared unpaid proof follow-ups into measurable contacted attempts. The page reads <code>qpvFollowUpLedger</code>, marks only the highest-priority unpaid buyer as contacted, preserves source/age tracking, and writes <code>qpvContactedFollowUpLedger</code>. Contacted rows are outreach state only and remain 0 EUR until a paid/delivered order is verified.</p>
+<a class="cta ghost" href="./source-kpi-admin.html">Source KPI admin</a>
+<a class="cta ghost" href="./payment-ledger.html?source=follow_up_contact_admin">Payment proof</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<div class="kpis">
+<div class="kpi">Prepared unpaid<br><b id="kpiPrepared">0</b></div>
+<div class="kpi">Contacted today<br><b id="kpiContactedToday">0</b></div>
+<div class="kpi">Awaiting response<br><b id="kpiAwaiting">0</b></div>
+<div class="kpi">Converted after follow-up<br><b id="kpiConverted">0</b></div>
+<div class="kpi">Confirmed EUR<br><b id="kpiRevenue">0</b></div>
+</div>
+<label for="sourceFilter">Source filter</label>
+<select id="sourceFilter"><option value="">All sources</option></select>
+<button class="cta" id="markContacted">Mark first overdue buyer as contacted</button>
+<button class="cta ghost" id="downloadContacted">Download contacted ledger JSON</button>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="card">
+<h2>Next contact candidate</h2>
+<div class="status" id="candidateView">No unpaid prepared follow-up candidate.</div>
+</section>
+<section class="card">
+<h2>Contacted follow-up ledger</h2>
+<div class="status" id="contactedView">No contacted follow-ups yet.</div>
+</section>
+<section class="card">
+<h2>QA revenue guard</h2>
+<div class="status" id="qaView">Render pending.</div>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),followUpKey='qpvFollowUpLedger',contactedKey='qpvContactedFollowUpLedger',orderKey='qpvOrderLedger',priceEur=19;
+let latestCandidate=null,latestContacted=[],latestQa={};
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function sourceOf(row){return clean(row.source||row.utm_source||row.attributionSource||row.preparedSource||'unknown_source')}
+function leadIdOf(row){return clean(row.leadId||row.lead_id||'')}
+function buyerOf(row){return clean(row.buyer||row.email||row.buyerEmail||row.customerEmail||'unknown_buyer')}
+function paymentReferenceOf(row){return clean(row.paymentReference||row.reference||'')}
+function contactKeyOf(row){return [sourceOf(row),leadIdOf(row),buyerOf(row),paymentReferenceOf(row)].join('|')}
+function proofAgeDays(row){return Number(row.proofAgeDays||0)}
+function priorityRank(row){return Number(row.priorityRank||9)}
+function confirmedRevenue(rows){return rows.filter(isPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
+function paidIndex(orders){return new Set(orders.filter(isPaid).map(row=>leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row)).filter(Boolean))}
+function contactedIndex(rows){return new Set(rows.map(contactKeyOf).filter(Boolean))}
+function isContactedToday(row){const d=new Date(row.contactedAt||0),now=new Date();return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate()}
+function sourceOptions(rows){return [...new Set(rows.map(sourceOf).filter(Boolean))].sort()}
+function renderOptions(sources,current){$('sourceFilter').innerHTML='<option value="">All sources</option>'+sources.map(source=>`<option value="${escapeHtml(source)}" ${source===current?'selected':''}>${escapeHtml(source)}</option>`).join('')}
+function eligiblePreparedRows(source,prepared,contacted,orders){const paid=paidIndex(orders),already=contactedIndex(contacted);return prepared.filter(row=>(!source||sourceOf(row)===source)).filter(row=>row.followUpStatus==='follow_up_prepared'||row.isFollowUpPrepared===true).filter(row=>!isPaid(row)).filter(row=>{const key=leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row);return !key||!paid.has(key)}).filter(row=>!already.has(contactKeyOf(row))).sort((a,b)=>priorityRank(a)-priorityRank(b)||proofAgeDays(b)-proofAgeDays(a))}
+function candidateSnapshot(row){if(!row)return null;return {source:sourceOf(row),leadId:leadIdOf(row),buyer:buyerOf(row),paymentReference:paymentReferenceOf(row),priorityBucket:row.priorityBucket||'unbucketed',priorityRank:priorityRank(row),proofAgeDays:proofAgeDays(row),followUpStatus:'ready_to_mark_contacted',contactedRevenueEur:0,confirmedRevenueEur:0}}
+function render(){const prepared=readJson(followUpKey),contacted=readJson(contactedKey),orders=readJson(orderKey),current=clean($('sourceFilter').value),eligible=eligiblePreparedRows(current,prepared,contacted,orders),candidate=candidateSnapshot(eligible[0]);latestCandidate=candidate;latestContacted=contacted;renderOptions(sourceOptions(prepared),current);const converted=contacted.filter(row=>paidIndex(orders).has(leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row))).length,contactedToday=contacted.filter(isContactedToday).length;latestQa={version:'qpv-follow-up-contact-admin-v1',storageKey:contactedKey,source:current||'ALL_SOURCES',preparedUnpaidCandidates:eligible.length,contactedToday,awaitingResponse:contacted.length-converted,convertedAfterFollowUp:converted,confirmedRevenueEur:confirmedRevenue(orders),contactedFollowUpRevenueEur:0,contactAttemptRevenueEur:0,rule:'Only paid/delivered order rows count confirmed EUR; mark-contacted attempts, contacted ledger rows, prepared follow-ups and payment references are never revenue.',rejectedWeakPatterns:['contacted follow-up row is not revenue','contact attempt is not revenue','prepared follow-up row is not revenue','paymentReference text is not revenue','proof_submitted_manual_review is not paid']};$('kpiPrepared').textContent=String(eligible.length);$('kpiContactedToday').textContent=String(contactedToday);$('kpiAwaiting').textContent=String(contacted.length-converted);$('kpiConverted').textContent=String(converted);$('kpiRevenue').textContent=String(latestQa.confirmedRevenueEur);$('candidateView').textContent=candidate?JSON.stringify(candidate,null,2):'No unpaid prepared follow-up candidate.';$('contactedView').textContent=contacted.length?JSON.stringify({ledger:contactedKey,rowCount:contacted.length,confirmedRevenueEur:0,rows:contacted},null,2):'No contacted follow-ups yet.';$('qaView').textContent=JSON.stringify(latestQa,null,2)}
+function markFirstContacted(){if(!latestCandidate){setMsg('No unpaid prepared buyer to mark contacted.',false);return}const existing=readJson(contactedKey),seen=contactedIndex(existing);if(seen.has(contactKeyOf(latestCandidate))){setMsg('Buyer/source/payment reference already contacted.',false);render();return}const contactedAt=new Date().toISOString(),row={...latestCandidate,contactedAt,contactedSource:'follow_up_contact_admin',contactAttemptStatus:'contacted_awaiting_response',contactAttemptCount:1,contactedFollowUpRevenueEur:0,contactAttemptRevenueEur:0,confirmedRevenueEur:0};writeJson(contactedKey,[...existing,row]);setMsg(`Marked ${row.buyer} as contacted without counting revenue.`,true);render()}
+function downloadContacted(){const blob=new Blob([JSON.stringify({ledger:contactedKey,rows:latestContacted,qa:latestQa},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qpv-contacted-follow-up-ledger.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);setMsg('Contacted follow-up ledger export prepared.',true)}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function escapeHtml(value){return clean(value).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))}
+$('sourceFilter').addEventListener('change',render);$('markContacted').addEventListener('click',markFirstContacted);$('downloadContacted').addEventListener('click',downloadContacted);render();
+</script>
+</body>
+</html>
