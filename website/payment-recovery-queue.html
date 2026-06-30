@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QPV Payment Recovery Queue</title>
+<meta name="description" content="Prioritized unpaid Quick Product Video buyer recovery queue with one-click reminder logging, duplicate suppression, source attribution and verified-paid-only revenue guard.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#1c2b3f 0,#071019 45%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1160px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}label{display:block;margin:10px 0 5px;font-weight:800;font-size:13px}select{width:100%;background:#071019;border:1px solid #384d66;color:#fff;border-radius:13px;padding:11px;font:inherit}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.warn{color:#ffe6ad}@media(max-width:900px){.grid,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">QPV 19 EUR · PAYMENT RECOVERY QUEUE · UNPAID ONLY · DUPLICATE REMINDER SUPPRESSION · VERIFIED PAID ONLY</span>
+<h1>QPV payment recovery queue</h1>
+<p class="muted">Recover buyers who submitted proof or were contacted but are still unpaid. This page prioritizes unpaid buyers by age/source/value, generates one reminder with payment reference, logs the reminder into <code>qpvPaymentRecoveryReminderLedger</code>, and keeps every reminder/contact/proof row at 0 EUR until a paid/delivered order is verified.</p>
+<a class="cta ghost" href="./source-kpi-admin.html">Source KPI admin</a>
+<a class="cta ghost" href="./follow-up-contact-admin.html">Follow-up contact admin</a>
+<a class="cta ghost" href="./payment-ledger.html?source=payment_recovery_queue">Payment proof</a>
+<a class="cta ghost" href="./paid-confirmation.html">Manual paid gate</a>
+<div class="kpis">
+<div class="kpi">Queue buyers<br><b id="kpiQueue">0</b></div>
+<div class="kpi">Overdue 3d+<br><b id="kpiOverdue">0</b></div>
+<div class="kpi">Reminders logged<br><b id="kpiReminders">0</b></div>
+<div class="kpi">Awaiting response<br><b id="kpiAwaiting">0</b></div>
+<div class="kpi">Converted after reminder<br><b id="kpiConverted">0</b></div>
+<div class="kpi">Confirmed EUR<br><b id="kpiRevenue">0</b></div>
+</div>
+<label for="sourceFilter">Source filter</label>
+<select id="sourceFilter"><option value="">All sources</option></select>
+<button class="cta" id="logReminder">Generate + log first recovery reminder</button>
+<button class="cta ghost" id="copyReminder">Copy next reminder message</button>
+<button class="cta ghost" id="downloadQueue">Download recovery queue JSON</button>
+<p id="msg" class="bad" role="status"></p>
+</section>
+<section class="grid">
+<div class="card"><h2>Next recovery candidate</h2><div class="status" id="candidateView">No unpaid recovery candidate.</div></div>
+<div class="card"><h2>Reminder message</h2><div class="status" id="messageView">No reminder message.</div></div>
+</section>
+<section class="card"><h2>Payment recovery queue export</h2><div class="status" id="queueView">Render pending.</div></section>
+<section class="card"><h2>QA revenue guard</h2><div class="status" id="qaView">Render pending.</div></section>
+<section class="card"><h2>Rejected weak patterns</h2><p class="muted">Recovery queue rows, reminder attempts, contacted follow-ups, prepared follow-ups, payment references, proof text, source visits and checkout rows are not revenue. Confirmed EUR is only verified paid/delivered orders.</p></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),followUpKey='qpvFollowUpLedger',contactedKey='qpvContactedFollowUpLedger',reminderKey='qpvPaymentRecoveryReminderLedger',orderKey='qpvOrderLedger',priceEur=19;
+let latestQueue=[],latestCandidate=null,latestMessage='',latestExport={},latestQa={};
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
+function isPaid(row){return row.paymentStatus==='paid'||row.paymentStatus==='delivered'||row.fulfillmentStatus==='delivered'}
+function sourceOf(row){return clean(row.source||row.contactedSource||row.preparedSource||row.utm_source||row.attributionSource||'unknown_source')}
+function leadIdOf(row){return clean(row.leadId||row.lead_id||row.orderId||'')}
+function buyerOf(row){return clean(row.buyer||row.email||row.buyerEmail||row.customerEmail||'unknown_buyer')}
+function paymentReferenceOf(row){return clean(row.paymentReference||row.reference||row.paymentNote||'')}
+function priorityBucketOf(row){return clean(row.priorityBucket||'unbucketed')}
+function proofAgeDays(row){return Number(row.proofAgeDays||0)}
+function expectedValue(row){return Number(row.priceEur||row.expectedValueEur||priceEur)}
+function recoveryKeyOf(row){return [sourceOf(row),leadIdOf(row),buyerOf(row),paymentReferenceOf(row)].join('|')}
+function paidIndex(orders){return new Set(orders.filter(isPaid).map(row=>leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row)).filter(Boolean))}
+function reminderIndex(rows){return new Set(rows.map(recoveryKeyOf).filter(Boolean))}
+function uniqueRows(rows){const seen=new Set();return rows.filter(row=>{const key=recoveryKeyOf(row);if(seen.has(key))return false;seen.add(key);return true})}
+function priorityScore(row){const bucket=priorityBucketOf(row),bucketScore={stale_rescue_7d_plus:120,overdue_3d_plus:90,due_today_1d_plus:50,hot_now_under_24h:20,unbucketed:10}[bucket]||10;return bucketScore+Math.min(30,proofAgeDays(row))+Math.min(30,expectedValue(row))}
+function sourceOptions(rows){return [...new Set(rows.map(sourceOf).filter(Boolean))].sort()}
+function renderOptions(sources,current){$('sourceFilter').innerHTML='<option value="">All sources</option>'+sources.map(source=>`<option value="${escapeHtml(source)}" ${source===current?'selected':''}>${escapeHtml(source)}</option>`).join('')}
+function queueRows(source,prepared,contacted,reminders,orders){const paid=paidIndex(orders),already=reminderIndex(reminders);return uniqueRows([...contacted,...prepared]).filter(row=>(!source||sourceOf(row)===source)).filter(row=>!isPaid(row)).filter(row=>{const key=leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row);return !key||!paid.has(key)}).filter(row=>!already.has(recoveryKeyOf(row))).map(row=>({source:sourceOf(row),leadId:leadIdOf(row),buyer:buyerOf(row),paymentReference:paymentReferenceOf(row),priorityBucket:priorityBucketOf(row),proofAgeDays:proofAgeDays(row),expectedValueEur:expectedValue(row),recoveryPriorityScore:priorityScore(row),recoveryStatus:'needs_payment_recovery_reminder',confirmedRevenueEur:0,recoveryReminderRevenueEur:0})).sort((a,b)=>b.recoveryPriorityScore-a.recoveryPriorityScore||b.proofAgeDays-a.proofAgeDays)}
+function confirmedRevenue(orders){return orders.filter(isPaid).reduce((sum,row)=>sum+Number(row.priceEur||priceEur),0)}
+function reminderMessage(row){if(!row)return '';const ref=row.paymentReference?`payment reference ${row.paymentReference}`:'your payment reference';const lead=row.leadId?` for order ${row.leadId}`:'';return `Hi ${row.buyer},\n\nQuick reminder on your Quick Product Video${lead}. We still have it in unpaid/manual review from source ${row.source}. Please complete the 19 EUR payment or reply with confirmation for ${ref}: ./payment-ledger.html?source=${encodeURIComponent(row.source)}${row.leadId?`&leadId=${encodeURIComponent(row.leadId)}`:''}\n\nThis reminder is not counted as revenue until payment is verified.\n\nThanks,\nQPV fulfillment`}
+function render(){const prepared=readJson(followUpKey),contacted=readJson(contactedKey),reminders=readJson(reminderKey),orders=readJson(orderKey),current=clean($('sourceFilter').value),all=[...prepared,...contacted];renderOptions(sourceOptions(all),current);latestQueue=queueRows(current,prepared,contacted,reminders,orders);latestCandidate=latestQueue[0]||null;latestMessage=reminderMessage(latestCandidate);const paid=paidIndex(orders),converted=reminders.filter(row=>paid.has(leadIdOf(row)||paymentReferenceOf(row)||buyerOf(row))).length;latestQa={version:'qpv-payment-recovery-queue-v1',storageKey:reminderKey,source:current||'ALL_SOURCES',queueRows:latestQueue.length,remindersLogged:reminders.length,convertedAfterReminder:converted,awaitingResponse:reminders.length-converted,confirmedRevenueEur:confirmedRevenue(orders),recoveryQueueRevenueEur:0,recoveryReminderRevenueEur:0,contactedFollowUpRevenueEur:0,preparedFollowUpRevenueEur:0,rule:'Only paid/delivered order rows count confirmed EUR; recovery queue rows, reminder attempts, contacted/prepared follow-ups and payment references are never revenue.',rejectedWeakPatterns:['recovery queue row is not revenue','recovery reminder attempt is not revenue','contacted follow-up row is not revenue','prepared follow-up row is not revenue','paymentReference text is not revenue','proof_submitted_manual_review is not paid','checkout order is not revenue until paid']};latestExport={version:'qpv-payment-recovery-queue-v1',generatedAt:new Date().toISOString(),filter:current||'ALL_SOURCES',buyer:'SMB/product seller',priceEur,queue:latestQueue,nextCandidate:latestCandidate,nextReminderMessage:latestMessage,remindersLogged:reminders.length,qa:latestQa};$('kpiQueue').textContent=String(latestQueue.length);$('kpiOverdue').textContent=String(latestQueue.filter(row=>row.priorityBucket==='overdue_3d_plus'||row.priorityBucket==='stale_rescue_7d_plus').length);$('kpiReminders').textContent=String(reminders.length);$('kpiAwaiting').textContent=String(reminders.length-converted);$('kpiConverted').textContent=String(converted);$('kpiRevenue').textContent=String(latestQa.confirmedRevenueEur);$('candidateView').textContent=latestCandidate?JSON.stringify(latestCandidate,null,2):'No unpaid recovery candidate.';$('messageView').textContent=latestMessage||'No reminder message.';$('queueView').textContent=JSON.stringify(latestExport,null,2);$('qaView').textContent=JSON.stringify(latestQa,null,2)}
+function logReminder(){if(!latestCandidate){setMsg('No unpaid buyer to recover.',false);return}const existing=readJson(reminderKey),seen=reminderIndex(existing);if(seen.has(recoveryKeyOf(latestCandidate))){setMsg('Duplicate recovery reminder blocked for this buyer/source/reference.',false);render();return}const row={...latestCandidate,reminderMessage:latestMessage,reminderLoggedAt:new Date().toISOString(),reminderSource:'payment_recovery_queue',reminderStatus:'sent_or_ready_to_send_awaiting_response',recoveryQueueRevenueEur:0,recoveryReminderRevenueEur:0,confirmedRevenueEur:0};writeJson(reminderKey,[...existing,row]);setMsg(`Recovery reminder logged for ${row.buyer} without counting revenue.`,true);render()}
+async function copyReminder(){try{await navigator.clipboard.writeText(latestMessage);setMsg('Next recovery reminder copied.',true)}catch(error){setMsg('Clipboard blocked. Use the visible message or download export.',false)}}
+function downloadQueue(){const blob=new Blob([JSON.stringify(latestExport,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qpv-payment-recovery-queue.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);setMsg('Payment recovery queue export prepared.',true)}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function escapeHtml(value){return clean(value).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))}
+$('sourceFilter').addEventListener('change',render);$('logReminder').addEventListener('click',logReminder);$('copyReminder').addEventListener('click',copyReminder);$('downloadQueue').addEventListener('click',downloadQueue);render();
+</script>
+</body>
+</html>
