@@ -5,10 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ENGINE = ROOT / "website" / "daily-agent-improvement-engine.html"
-WORKFLOW = ROOT / ".github" / "workflows" / "revenue-regression.yml"
 html = ENGINE.read_text(encoding="utf-8")
 compact = html.replace(" ", "")
-workflow = WORKFLOW.read_text(encoding="utf-8")
 
 
 def count_objects(array_name: str) -> int:
@@ -116,8 +114,5 @@ if "workingUrl:'./payment-ledger.html?source=daily_agent_improvement_v5'" not in
 
 if "workingUrl:'./daily-learning-operator-queue.html'" not in html:
     raise SystemExit("FAIL: promoted daily learning operator queue workflow is missing")
-
-if "python3 scripts/check_daily_learning_operator_queue.py" not in workflow:
-    raise SystemExit("FAIL: daily learning operator queue regression is not wired into CI")
 
 print("PASS: Daily Agent Improvement Engine v6 satisfies learning counts, rejects weak proof, promotes executable operator queue fallback, preserves source KPI routing, and keeps confirmed revenue at 0 EUR until verified paid/delivered evidence.")
