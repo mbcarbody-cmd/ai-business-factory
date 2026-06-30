@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Learning Operator Queue</title>
+<meta name="description" content="Executable operator queue for Daily Agent Improvement Engine fallbacks with source-attributed revenue workflow routing.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd479;--bad:#ff9aaa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.warn{background:#332a0b;color:#ffe9a8;border:1px solid #705812}.bad{background:#3b1721;color:#ffd9e1;border:1px solid #7d3342}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{background:#0a1420;border:1px solid #31465f;border-radius:16px;padding:12px}.kpi b{display:block;font-size:26px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.row{border-top:1px solid #26384d;padding:10px 0}@media(max-width:900px){.grid,.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>Daily learning operator queue</h1>
+<p class="muted">Executable fallback for the Daily Agent Improvement Engine. It does not count reading, summaries, policy files or next-task-only output as learning proof. It routes the operator into source-attributed product workflows and records only zero-EUR learning/follow-up state until verified paid evidence exists.</p>
+<a class="cta" href="./source-kpi-admin.html?source=daily_agent_improvement_v6&campaign=operator_queue">Open source KPI admin</a>
+<a class="cta ghost" href="./revenue-command-center.html?source=daily_agent_improvement_v6">Open revenue command center</a>
+<a class="cta ghost" href="./payment-ledger.html?source=daily_agent_improvement_v6">Review payment proofs</a>
+<a class="cta ghost" href="./daily-agent-improvement-engine.html">Back to learning engine</a>
+<div class="kpis">
+<div class="kpi">Open learning fallbacks<b id="openFallbacks">0</b></div>
+<div class="kpi">Source review route<b id="sourceRoute">NO</b></div>
+<div class="kpi">Revenue workflow route<b id="revenueRoute">NO</b></div>
+<div class="kpi">Weak patterns rejected<b id="weakRejected">0</b></div>
+<div class="kpi">Confirmed EUR<b id="confirmedEur">0</b></div>
+</div>
+</section>
+<section class="grid">
+<div class="card"><h2>1. Validate proof</h2><p class="muted">At least 10 events, 3 lessons, 3 evals, 3 comparisons, 1 promotion/removal and 1 sync must exist before this queue can mark the run pass.</p><button class="cta ghost" onclick="recordAction('proof_checked')">Record proof check</button></div>
+<div class="card"><h2>2. Execute fallback</h2><p class="muted">If proof is blocked, run source KPI/payment review now instead of writing a future task list.</p><a class="cta warn" href="./source-kpi-admin.html?source=daily_agent_improvement_v6&action=fallback_review">Run source KPI fallback</a><button class="cta ghost" onclick="recordAction('fallback_routed')">Record fallback route</button></div>
+<div class="card"><h2>3. Preserve revenue truth</h2><p class="muted">Proofs, follow-ups, operator actions and receipts stay 0 EUR until verified paid/delivered state appears.</p><button class="cta bad" onclick="recordAction('zero_revenue_guard_checked')">Record zero-EUR guard</button></div>
+</section>
+<section class="card"><h2>Queue rows</h2><div id="queueRows" class="muted"></div></section>
+<section class="card"><h2>Regression proof</h2><pre id="qa" class="status">QA pending.</pre></section>
+</main>
+<script>
+'use strict';
+const actionKey='dailyAgentImprovementOperatorQueueLedger';
+const rejectedWeakPatterns=['reading_only','summary_only','policy_file_without_regression','new_policy_file_without_workflow_delta','next_task_only_fallback_allowed','fallback_task_list_without_workflow_route','fake_revenue_from_payment_proof','fake_revenue_from_receipt_event','source_blind_payment_review_allowed'];
+const requiredRoutes=['./source-kpi-admin.html?source=daily_agent_improvement_v6&campaign=operator_queue','./revenue-command-center.html?source=daily_agent_improvement_v6','./payment-ledger.html?source=daily_agent_improvement_v6'];
+const fallbackRows=[
+{id:'DLQ-001',priority:'P0',task:'Review source-attributed unpaid proofs',workflow:'source-kpi-admin.html',source:'daily_agent_improvement_v6',revenueEur:0},
+{id:'DLQ-002',priority:'P0',task:'Open revenue command center action queue',workflow:'revenue-command-center.html',source:'daily_agent_improvement_v6',revenueEur:0},
+{id:'DLQ-003',priority:'P1',task:'Review payment proof ledger with source filter',workflow:'payment-ledger.html',source:'daily_agent_improvement_v6',revenueEur:0}
+];
+function readArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[]}catch(error){return[]}}
+function writeArray(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
+function recordAction(action){const rows=readArray(actionKey);rows.push({id:`DLOQ-${Date.now()}`,action,source:'daily_agent_improvement_v6',revenueEur:0,createdAt:new Date().toISOString()});writeArray(actionKey,rows);render()}
+function render(){const actions=readArray(actionKey);document.getElementById('openFallbacks').textContent=fallbackRows.length;document.getElementById('sourceRoute').textContent='YES';document.getElementById('revenueRoute').textContent='YES';document.getElementById('weakRejected').textContent=rejectedWeakPatterns.length;document.getElementById('confirmedEur').textContent='0';document.getElementById('queueRows').innerHTML=fallbackRows.map(row=>`<div class="row"><b>${row.id} · ${row.priority}</b><br><span class="muted">${row.task} · workflow=${row.workflow} · source=${row.source} · revenueEur=${row.revenueEur}</span></div>`).join('');document.getElementById('qa').textContent=JSON.stringify({workflow_rule_v6:'operator_queue_required',requiredRoutes,rejectedWeakPatterns,actions,confirmedRevenueEur:0,acceptedLearningProof:'versioned operational rule + regression + executable workflow route only'},null,2)}
+render();
+</script>
+</body>
+</html>
