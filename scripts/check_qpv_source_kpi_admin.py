@@ -28,6 +28,14 @@ required = [
     "Payment recovery queue",
     "openRecoveryQueue",
     "openTopRecovery",
+    "copyTopRecoveryMessage",
+    "function topRecoveryMessage",
+    "latestTopRecoveryMessage",
+    "topRecoveryMessageRevenueEur:0",
+    "Copy top recovery message",
+    "No top unpaid recovery message to copy.",
+    "Top unpaid recovery message copied. Revenue remains 0 EUR until verified paid.",
+    "copied top recovery message is not revenue",
     "kpiRecoverable",
     "kpiOverdue",
     "kpiStale",
@@ -112,8 +120,9 @@ for forbidden in [
     "preparedFollowUpRevenueEur:19",
     "priorityBucketRevenueEur:19",
     "recoveryQueueRevenueEur:19",
+    "topRecoveryMessageRevenueEur:19",
 ]:
     if forbidden in html.replace(" ", ""):
         raise SystemExit(f"FAIL: source KPI admin accepts weak revenue pattern: {forbidden}")
 
-print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, prioritizes unpaid proof aging buckets, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, exposes payment-recovery-queue.html with recoverable unpaid counters/highest-priority buyer links, and keeps unverified proof/source/follow-up/priority/recovery activity at 0 EUR.")
+print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, prioritizes unpaid proof aging buckets, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, exposes payment-recovery-queue.html with recoverable unpaid counters/highest-priority buyer links, copies the top unpaid recovery message, and keeps unverified proof/source/follow-up/priority/recovery activity at 0 EUR.")
