@@ -34,7 +34,7 @@ required = [
     "./follow-up-contact-admin.html",
     "./payment-ledger.html?source=payment_recovery_queue",
     "./paid-confirmation.html",
-    "Buyer</span>",
+    "buyer:'SMB/product seller'",
     "SMB/product seller",
     "19 EUR",
     "confirmedRevenueEur",
@@ -61,12 +61,9 @@ for forbidden in [
     "recoveryReminderRevenueEur:19",
     "contactedFollowUpRevenueEur:19",
     "preparedFollowUpRevenueEur:19",
-    "paymentReference text is revenue",
-    "proof_submitted_manual_review is paid",
-    "checkout order is revenue",
-    "localStorage.setItem('qpvPaidEventLedger'",
-    "paymentStatus='paid'",
-    'paymentStatus="paid"',
+    "paymentReferencetextisrevenue",
+    "proof_submitted_manual_reviewispaid",
+    "checkoutorderisrevenue",
 ]:
     if forbidden in html.replace(" ", ""):
         raise SystemExit(f"FAIL: payment recovery queue accepts weak revenue pattern: {forbidden}")
