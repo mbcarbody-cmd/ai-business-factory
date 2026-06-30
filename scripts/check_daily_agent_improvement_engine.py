@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
-"""Regression gate for the Daily Agent Improvement Engine.
-
-The check enforces the daily learning contract:
-- at least 10 accepted learning events,
-- at least 3 normalized lessons,
-- at least 3 evaluation cases,
-- at least 3 champion/challenger comparisons,
-- at least 1 promoted workflow improvement or harmful rule removal,
-- at least 1 completed cross-agent sync,
-- weak patterns must be explicitly rejected,
-- confirmed EUR must remain 0 unless paid/delivered evidence exists,
-- blocked learning runs must route to an executable revenue fallback workflow,
-- post-paid buyer workflows must require verified paid events and keep receipt actions at 0 EUR,
-- admin payment review must preserve source attribution and expose source KPI filtering.
-"""
+"""Regression gate for the Daily Agent Improvement Engine."""
 import re
 from pathlib import Path
 
@@ -51,6 +37,7 @@ required_patterns = [
     "workflow_rule_v3",
     "workflow_rule_v4",
     "workflow_rule_v5",
+    "workflow_rule_v6",
     "summary_only_learning_allowed",
     "workflow_rule_v2_regression_checked_delta",
     "fallback_task_list_allowed",
@@ -73,6 +60,12 @@ required_patterns = [
     "learning_gate_not_required_in_ci",
     "workflow_rule_v5_daily_learning_gate_ci_required",
     "check_daily_agent_improvement_engine.py",
+    "next_task_only_fallback_allowed",
+    "workflow_rule_v6_operator_queue_required",
+    "daily-learning-operator-queue.html",
+    "source-kpi-admin.html?source=daily_agent_improvement_v6",
+    "operator_queue_required",
+    "check_daily_learning_operator_queue.py",
     "harmful_rule_removed",
     "workflow_improvement_promoted",
     "RevenueAgent",
@@ -81,6 +74,7 @@ required_patterns = [
     "OutreachAgent",
     "CustomerSuccessAgent",
     "AdminReviewAgent",
+    "LearningOpsAgent",
     "REJECT_WEAK_PATTERN",
     "REJECT_FAKE_REVENUE",
     "ACCEPT_PROMOTION",
@@ -100,13 +94,14 @@ for forbidden in [
     "receipt_action_can_infer_revenue',replacement:'receipt_action_can_infer_revenue'",
     "source_blind_payment_review_allowed',replacement:'source_blind_payment_review_allowed'",
     "learning_gate_not_required_in_ci',replacement:'learning_gate_not_required_in_ci'",
+    "next_task_only_fallback_allowed',replacement:'next_task_only_fallback_allowed'",
     "revenueEurConfirmed:19",
     "payment proof equals revenue",
     "receipt event equals revenue",
     "policy_file_without_regression','ACCEPT",
     "next task list is accepted learning",
     "source-blind admin accepted",
-]
+]:
     if forbidden in compact:
         raise SystemExit(f"FAIL: weak/harmful pattern present: {forbidden}")
 
@@ -119,7 +114,10 @@ if "workingUrl:'./receipt.html'" not in html:
 if "workingUrl:'./payment-ledger.html?source=daily_agent_improvement_v5'" not in html:
     raise SystemExit("FAIL: promoted admin source KPI workflow does not point at attributed payment ledger")
 
-if "python3 scripts/check_daily_agent_improvement_engine.py" not in workflow:
-    raise SystemExit("FAIL: Daily Agent Improvement Engine regression is not wired into revenue CI")
+if "workingUrl:'./daily-learning-operator-queue.html'" not in html:
+    raise SystemExit("FAIL: promoted daily learning operator queue workflow is missing")
 
-print("PASS: Daily Agent Improvement Engine v5 has enough events, lessons, evals, comparisons, promoted executable fallback, verified-paid receipt workflow, admin source KPI workflow, harmful-rule removals and cross-agent sync without fake revenue.")
+if "python3 scripts/check_daily_learning_operator_queue.py" not in workflow:
+    raise SystemExit("FAIL: daily learning operator queue regression is not wired into CI")
+
+print("PASS: Daily Agent Improvement Engine v6 satisfies learning counts, rejects weak proof, promotes executable operator queue fallback, preserves source KPI routing, and keeps confirmed revenue at 0 EUR until verified paid/delivered evidence.")
