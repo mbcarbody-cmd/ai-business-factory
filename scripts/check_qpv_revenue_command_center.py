@@ -41,6 +41,14 @@ def main() -> None:
         ("source:row.source||row.paymentProof?.source||'unknown'", "order source KPI handoff"),
         ("source:row.source||'unknown'", "lead/paid source KPI handoff"),
         ("command center exposes source-kpi-admin.html for source attribution filtering", "source KPI QA rule"),
+        ('href="./payment-recovery-queue.html"', "top-level payment recovery queue navigation"),
+        ("Run payment recovery", "payment recovery card CTA"),
+        ("./payment-recovery-queue.html", "payment recovery action links"),
+        ("paymentRecoveryQueueRevenueEur:0", "payment recovery zero revenue effect"),
+        ("paymentRecoveryReminderRevenueEur:0", "payment recovery reminder zero revenue effect"),
+        ("command center exposes payment-recovery-queue.html for unpaid buyer recovery reminders", "payment recovery QA rule"),
+        ("payment recovery queue link is visible from command center", "payment recovery visibility guardrail"),
+        ("payment recovery queue is follow-up only and never paid revenue", "payment recovery zero-revenue guardrail"),
         ("isProofReadyUnpaid", "proof-ready unpaid filter"),
         ("checkoutReadyLead", "checkout-ready lead filter"),
         ("dedupPaidEvents", "paid event idempotency"),
@@ -120,11 +128,15 @@ def main() -> None:
         ("checkout counts as paid", "checkout-as-revenue claim"),
         ("receipt counts as revenue", "receipt-as-revenue claim"),
         ("buyer recovery counts as revenue", "buyer-recovery-as-revenue claim"),
+        ("payment recovery counts as revenue", "payment-recovery-as-revenue claim"),
+        ("payment recovery queue counts as paid", "payment-recovery-as-paid claim"),
         ("recovery queue counts as paid", "recovery-queue-as-paid claim"),
         ("recovery_email_sent counts as revenue", "recovery-email-as-revenue claim"),
         ("reference continuity repair counts as revenue", "reference-repair-as-revenue claim"),
         ("recoveryEmailRevenueEur:19", "fake recovery email revenue"),
         ("buyerRecoveryRevenueEur:19", "fake buyer recovery revenue"),
+        ("paymentRecoveryQueueRevenueEur:19", "fake payment recovery queue revenue"),
+        ("paymentRecoveryReminderRevenueEur:19", "fake payment recovery reminder revenue"),
         ("referenceContinuityRepairRevenueEur:19", "fake reference repair revenue"),
         ("receiptRevenueEur:19", "fake receipt revenue"),
         ("revenueEur:19", "hard-coded revenue event"),
@@ -132,7 +144,7 @@ def main() -> None:
     ]:
         forbid(text, needle, label)
 
-    print("PASS qpv revenue command center regression with source KPI navigation and payment reference continuity KPI")
+    print("PASS qpv revenue command center regression with source KPI navigation, payment recovery queue navigation, and payment reference continuity KPI")
 
 
 if __name__ == "__main__":
