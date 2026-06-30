@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovered Revenue KPI — QPV</title>
+<meta name="description" content="Verified-only recovered revenue KPI view for Quick Product Video payment recovery handoffs. Counts recovered EUR only after manual paid confirmation, never from reminders, proofs, links, or handoffs.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#1d3044 0,#071019 48%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1100px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.ok{color:#bdf6d8}.warn{color:#ffe6ad}.bad{color:#ffc3cb}@media(max-width:900px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">RECOVERED REVENUE KPI · VERIFIED PAID ONLY · QPV 19 EUR · NO FAKE REVENUE</span>
+<h1>Recovered revenue KPI</h1>
+<p class="muted">This page reconciles <code>qpvRecoveryConversionHandoffLedger</code> after the manual paid gate. It counts recovered EUR only when a handoff is closed as <code>paid_confirmed</code> and has a verified paid event id. Recovery reminders, proof rows, payment references, copied messages, links and pending handoffs remain 0 EUR.</p>
+<a class="cta ghost" href="./source-kpi-admin.html">Source KPI admin</a>
+<a class="cta ghost" href="./payment-recovery-queue.html?source=recovered_revenue_kpi">Payment recovery queue</a>
+<a class="cta ghost" href="./paid-confirmation.html?source=recovered_revenue_kpi">Manual paid gate</a>
+<a class="cta ghost" href="./revenue-command-center.html">Revenue command center</a>
+<div class="kpis">
+<div class="kpi">Pending handoffs<br><b id="kpiPending">0</b></div>
+<div class="kpi">Blocked / duplicate<br><b id="kpiBlocked">0</b></div>
+<div class="kpi">Paid-confirmed<br><b id="kpiConfirmed">0</b></div>
+<div class="kpi">Recovered EUR<br><b id="kpiRecovered">0</b></div>
+<div class="kpi">After-reminder CVR<br><b id="kpiCvr">0%</b></div>
+</div>
+<button class="cta" id="copyKpi">Copy verified recovery KPI JSON</button>
+<button class="cta ghost" id="downloadKpi">Download KPI JSON</button>
+<p id="msg" class="warn" role="status"></p>
+</section>
+<section class="card"><h2>Verified recovery KPI export</h2><div class="status" id="exportView">Render pending.</div></section>
+<section class="card"><h2>Rejected weak patterns</h2><p class="muted">Do not count recovery reminder rows, source KPI handoff rows, pending paid-gate rows, payment references, proof text, copied recovery messages, recovery links, checkout rows, or duplicate paid clicks as revenue. Only <code>paid_confirmed</code> handoffs with a <code>paidEventId</code> count recovered revenue.</p></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),handoffKey='qpvRecoveryConversionHandoffLedger',priceEur=19;
+let latestExport={};
+function clean(value){return String(value||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function handoffId(row){return clean(row.paidEventId||row.verifiedPaymentReference||row.paymentReference||row.leadId||row.buyer)}
+function isPaidConfirmed(row){return clean(row.conversionHandoffStatus)==='paid_confirmed'&&clean(row.paidEventId)}
+function isPending(row){return clean(row.conversionHandoffStatus)!=='paid_confirmed'}
+function dedupePaid(rows){const seen=new Set(),verified=[];for(const row of rows.filter(isPaidConfirmed)){const key=handoffId(row);if(!key||seen.has(key))continue;seen.add(key);verified.push({...row,recoveredRevenueEur:Number(row.priceEur||priceEur),recoveryReminderRevenueEur:0,convertedAfterReminderRevenueEur:0})}return verified}
+function render(){const handoffs=readJson(handoffKey),verified=dedupePaid(handoffs),confirmedKeys=new Set(verified.map(handoffId)),pending=handoffs.filter(row=>isPending(row)&&!confirmedKeys.has(handoffId(row))),duplicates=handoffs.filter(isPaidConfirmed).length-verified.length,recoveredRevenueEur=verified.reduce((sum,row)=>sum+Number(row.recoveredRevenueEur||0),0),base=verified.length+pending.length,afterReminderConversionRate=base?Math.round((verified.length/base)*100):0;latestExport={version:'qpv-recovered-revenue-kpi-v1',generatedAt:new Date().toISOString(),storageKey:handoffKey,rule:'Recovered revenue is counted only after manual paid confirmation closes a recovery conversion handoff as paid_confirmed with paidEventId.',pendingHandoffs:pending.length,blockedDuplicatePaidHandoffs:duplicates,paidConfirmedRecoveredOrders:verified.length,recoveredRevenueEur,afterReminderConversionRatePct:afterReminderConversionRate,verifiedRows:verified,pendingRows:pending,qa:{revenueRule:'Only paid_confirmed rows with paidEventId count recovered EUR.',duplicateRule:'Duplicate paid_confirmed rows with the same paidEventId/paymentReference/leadId/buyer are suppressed.',pendingRevenueEur:0,recoveryReminderRevenueEur:0,convertedAfterReminderRevenueEur:0,proofSubmittedRevenueEur:0,paymentReferenceRevenueEur:0,rejectedWeakPatterns:['recovery reminder is not revenue','pending handoff is not revenue','payment reference is not revenue','proof text is not revenue','copied recovery message is not revenue','recovery link is not revenue','checkout row is not revenue','duplicate paid click is not revenue']}};$('kpiPending').textContent=String(pending.length);$('kpiBlocked').textContent=String(Math.max(0,duplicates));$('kpiConfirmed').textContent=String(verified.length);$('kpiRecovered').textContent=String(recoveredRevenueEur);$('kpiCvr').textContent=afterReminderConversionRate+'%';$('exportView').textContent=JSON.stringify(latestExport,null,2)}
+async function copyKpi(){try{await navigator.clipboard.writeText(JSON.stringify(latestExport,null,2));$('msg').className='ok';$('msg').textContent='Verified recovery KPI JSON copied.'}catch(error){$('msg').className='bad';$('msg').textContent='Clipboard blocked. Use download instead.'}}
+function downloadKpi(){const blob=new Blob([JSON.stringify(latestExport,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qpv-recovered-revenue-kpi.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);$('msg').className='ok';$('msg').textContent='Verified recovery KPI JSON prepared.'}
+$('copyKpi').addEventListener('click',copyKpi);$('downloadKpi').addEventListener('click',downloadKpi);render();
+</script>
+</body>
+</html>
