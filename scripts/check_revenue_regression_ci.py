@@ -10,7 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "revenue-regression.yml"
 
 REQUIRED_CHECKS = [
+    "scripts/check_daily_agent_improvement_engine.py",
+    "scripts/check_daily_learning_operator_queue.py",
+    "scripts/check_qpv_source_kpi_admin.py",
+    "scripts/check_qpv_root_offer_cta.py",
     "scripts/check_qpv_offer_checkout_handoff.py",
+    "scripts/check_qpv_offer_checkout_attribution.py",
+    "scripts/check_qpv_payment_ledger_source_attribution.py",
     "scripts/check_qpv_checkout_flow.py",
     "scripts/check_qpv_order_status_flow.py",
     "scripts/check_qpv_revenue_command_center.py",
@@ -52,7 +58,7 @@ def main() -> None:
         require(weak not in text, f"CI workflow contains rejected weak pattern: {weak}")
 
     print("PASS revenue regression CI wiring")
-    print("checked: push/PR workflow, manual fallback, hard-fail shell, all QPV revenue regression scripts executed")
+    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, and all QPV revenue regression scripts executed")
 
 
 if __name__ == "__main__":
