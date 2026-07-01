@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QPV Fulfilled Order KPI</title>
+<meta name="description" content="Verified fulfilled-order KPI dashboard for Quick Product Video paid fulfillment, buyer order status and revenue integrity review.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd479;--bad:#ff9aaa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 16px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{background:#0a1420;border:1px solid #31465f;border-radius:16px;padding:14px}.kpi b{display:block;font-size:30px}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.warn{background:#332a0b;color:#ffe9a8;border:1px solid #705812}.bad{background:#3b1721;color:#ffd9e1;border:1px solid #7d3342}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.row{border-top:1px solid #26384d;padding:10px 0}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>Fulfilled order KPI</h1>
+<p class="muted">Buyer-ready fulfillment KPI for Quick Product Video. It reads <code>qpvPaidEventLedger</code> and <code>qpvCompletedOrderLedger</code>, matches completed orders to verified paid events by unique <code>paidEventId</code>, and never writes paid revenue.</p>
+<a class="cta" href="./paid-fulfillment.html">Complete paid fulfillment</a>
+<a class="cta ghost" href="./paid-fulfillment-router.html">Fulfillment router</a>
+<a class="cta ghost" href="./order-status.html">Buyer order status</a>
+<a class="cta ghost" href="./revenue-command-center.html">Revenue command center</a>
+</section>
+<section class="grid">
+<div class="kpi">Verified paid events<b id="paidEvents">0</b></div>
+<div class="kpi">Fulfilled orders<b id="fulfilledOrders">0</b></div>
+<div class="kpi">Pending fulfillment<b id="pendingFulfillment">0</b></div>
+<div class="kpi">Fulfilled EUR<b id="fulfilledEur">0</b></div>
+<div class="kpi">Duplicate completed rows<b id="duplicateCompleted">0</b></div>
+<div class="kpi">Orphan completed rows<b id="orphanCompleted">0</b></div>
+<div class="kpi">Receipt-ready status links<b id="statusLinks">0</b></div>
+<div class="kpi">Page revenue delta<b id="pageRevenueDelta">0</b></div>
+</section>
+<section class="card"><h2>Fulfillment action queue</h2><div id="queue" class="muted">No local ledger rows loaded yet.</div></section>
+<section class="card"><h2>Revenue integrity guardrail</h2><pre id="qa" class="status">QA pending.</pre></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),paidKey='qpvPaidEventLedger',completedKey='qpvCompletedOrderLedger',priceEur=19;
+function readArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[]}catch(error){return[]}}
+function clean(value){return String(value||'').trim()}
+function paidEventId(row){return clean(row.paidEventId||row.eventId||row.id)}
+function paymentReference(row){return clean(row.paymentReference||row.reference||row.paymentNote||row.note)}
+function paidAmount(row){return Number(row.priceEur||row.amountEur||row.revenueEur||priceEur)}
+function verifiedPaidEvents(rows){const seen=new Set();return rows.filter(row=>row.paymentStatus==='paid'&&clean(row.orderId)&&paidEventId(row)&&paymentReference(row)).filter(row=>{const id=paidEventId(row);if(seen.has(id))return false;seen.add(id);return true})}
+function completedOrderId(row){return clean(row.completedOrderId||row.fulfillmentId||row.id)}
+function verifiedCompletedOrders(completedRows,paidEvents){const paidById=new Map(paidEvents.map(row=>[paidEventId(row),row])),seen=new Set();return completedRows.filter(row=>row.fulfillmentStatus==='fulfilled'&&completedOrderId(row)&&paidEventId(row)&&paidById.has(paidEventId(row))).filter(row=>{const id=paidEventId(row);if(seen.has(id))return false;seen.add(id);return true}).map(row=>({...row,paidEvent:paidById.get(paidEventId(row))}))}
+function duplicateCompletedOrders(completedRows){const seen=new Set(),dupes=[];completedRows.filter(row=>paidEventId(row)).forEach(row=>{const id=paidEventId(row);if(seen.has(id))dupes.push(row);else seen.add(id)});return dupes}
+function orphanCompletedOrders(completedRows,paidEvents){const paidIds=new Set(paidEvents.map(paidEventId));return completedRows.filter(row=>paidEventId(row)&&!paidIds.has(paidEventId(row)))}
+function pendingPaidFulfillment(paidEvents,completedRows){const doneIds=new Set(verifiedCompletedOrders(completedRows,paidEvents).map(row=>paidEventId(row)));return paidEvents.filter(row=>!doneIds.has(paidEventId(row)))}
+function orderStatusHref(row){return `./order-status.html?orderId=${encodeURIComponent(clean(row.orderId||row.paidEvent?.orderId))}&paidEventId=${encodeURIComponent(paidEventId(row))}&source=fulfilled_order_kpi`}
+function fulfillmentHref(row){return `./paid-fulfillment.html?orderId=${encodeURIComponent(clean(row.orderId))}&paidEventId=${encodeURIComponent(paidEventId(row))}`}
+function actionRows(pending,completed){const pendingRows=pending.slice(0,12).map(row=>`<div class="row"><b>${clean(row.orderId)}</b><br><span class="muted">paidEventId=${paidEventId(row)} · verified paid · pending fulfillment · revenue already verified, fulfillment action revenue 0 EUR</span><br><a class="cta warn" href="${fulfillmentHref(row)}">Complete fulfillment</a></div>`);const completedRows=completed.slice(0,12).map(row=>`<div class="row"><b>${clean(row.orderId||row.paidEvent?.orderId)}</b><br><span class="muted">paidEventId=${paidEventId(row)} · fulfilled · receipt/status link revenue 0 EUR</span><br><a class="cta ghost" href="${orderStatusHref(row)}">Open buyer status</a></div>`);return [...pendingRows,...completedRows].join('')||'No pending paid fulfillments or fulfilled buyer status links in this browser yet.'}
+function render(){const rawPaid=readArray(paidKey),rawCompleted=readArray(completedKey),paidEvents=verifiedPaidEvents(rawPaid),completed=verifiedCompletedOrders(rawCompleted,paidEvents),pending=pendingPaidFulfillment(paidEvents,rawCompleted),duplicates=duplicateCompletedOrders(rawCompleted),orphans=orphanCompletedOrders(rawCompleted,paidEvents),fulfilledEur=completed.reduce((sum,row)=>sum+paidAmount(row.paidEvent||row),0);$('paidEvents').textContent=paidEvents.length;$('fulfilledOrders').textContent=completed.length;$('pendingFulfillment').textContent=pending.length;$('fulfilledEur').textContent=fulfilledEur;$('duplicateCompleted').textContent=duplicates.length;$('orphanCompleted').textContent=orphans.length;$('statusLinks').textContent=completed.length;$('pageRevenueDelta').textContent='0';$('queue').innerHTML=actionRows(pending,completed);$('qa').textContent=JSON.stringify({product:'Quick Product Video',buyer:'SMB/product seller',priceEur:19,verifiedPaidEvents:paidEvents.length,fulfilledOrders:completed.length,pendingFulfillment:pending.length,duplicateCompletedRows:duplicates.length,orphanCompletedRows:orphans.length,fulfilledRevenueEur:fulfilledEur,revenueDeltaFromFulfilledOrderKpiPageViewsEur:0,buyerStatusLinkRevenueEur:0,fulfillmentActionLinkRevenueEur:0,duplicateCompletedOrderRevenueEur:0,orphanCompletedOrderRevenueEur:0,rules:['fulfilled order KPI reads qpvPaidEventLedger and qpvCompletedOrderLedger only','fulfilled order KPI matches completed rows to verified paid events by unique paidEventId','fulfilled order KPI exposes pending verified paid events that still need paid-fulfillment.html','fulfilled order KPI exposes order-status.html links for buyer-ready fulfilled orders','fulfilled order KPI counts fulfilled EUR only from matching verified paid events','fulfilled order KPI page views links status views and fulfillment actions never create revenue','duplicate completed rows and orphan completed rows are blocked from fulfilled revenue','payment proof checkout reminder recovery and receipt text are not fulfilled revenue']},null,2)}
+render();
+</script>
+</body>
+</html>
