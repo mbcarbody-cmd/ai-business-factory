@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovery Revenue Command Launchpad — QPV</title>
+<meta name="description" content="Operator launchpad that connects QPV source KPI, revenue command center, recovered revenue KPI, recovery reconciliation and manual paid gate while keeping dashboard links and reconciliation rows at 0 EUR.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#233952 0,#071019 48%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1120px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.ok{color:#bdf6d8}.bad{color:#ffc3cb}@media(max-width:900px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">RECOVERY COMMAND LAUNCHPAD · VERIFIED PAID ONLY · QPV 19 EUR · NO FAKE REVENUE</span>
+<h1>Recovery revenue command launchpad</h1>
+<p class="muted">Use this as the operator entry point for after-reminder revenue recovery. It connects source KPI admin, revenue command center, recovered revenue KPI, recovery reconciliation and manual paid gate. Dashboard links, launchpad visits, reconciliation rows, pending handoffs, proof text and payment references remain 0 EUR.</p>
+<a class="cta ghost" id="sourceKpiAdminLink" href="./source-kpi-admin.html#recovered-revenue-dashboard">Source KPI admin</a>
+<a class="cta ghost" id="revenueCommandCenterLink" href="./revenue-command-center.html#recovered-revenue-dashboard">Revenue command center</a>
+<a class="cta ghost" id="recoveredRevenueKpiLink" href="./recovered-revenue-kpi.html">Recovered revenue KPI</a>
+<a class="cta ghost" id="recoveryRevenueReconciliationLink" href="./recovery-revenue-reconciliation.html">Recovery revenue reconciliation</a>
+<a class="cta" id="manualPaidGateLink" href="./paid-confirmation.html?source=recovery_revenue_command_launchpad">Manual paid gate</a>
+<div class="kpis">
+<div class="kpi">Pending handoffs<br><b id="kpiPending">0</b></div>
+<div class="kpi">Verified recovered<br><b id="kpiVerified">0</b></div>
+<div class="kpi">Recovered EUR<br><b id="kpiRecovered">0</b></div>
+<div class="kpi">Blocked rows<br><b id="kpiBlocked">0</b></div>
+<div class="kpi">Launchpad EUR<br><b id="kpiLaunchpadRevenue">0</b></div>
+</div>
+<button class="cta ghost" id="copyLaunchpadQa">Copy launchpad QA JSON</button>
+<p id="msg" class="muted" role="status"></p>
+</section>
+<section class="card"><h2>Next paid-recovery action</h2><div class="status" id="nextAction">Render pending.</div></section>
+<section class="card"><h2>Revenue integrity QA</h2><div class="status" id="qa">Render pending.</div></section>
+<section class="card"><h2>Rejected weak patterns</h2><p class="muted">Do not count dashboard links, launchpad visits, pending handoffs, orphaned confirmations, duplicate paidEventId rows, payment references, proof text, copied recovery messages, reminders, recovery links, checkout rows or reconciliation rows as revenue. Only a matching verified paid event can unlock recovered EUR.</p></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),handoffKey='qpvRecoveryConversionHandoffLedger',paidKey='qpvPaidEventLedger',priceEur=19;
+let latestQa={};
+function clean(value){return String(value||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function paidEventId(row){return clean(row.paidEventId||row.eventId||row.id)}
+function paidReference(row){return clean(row.paymentReference||row.verifiedPaymentReference||row.reference||row.paymentNote||row.note)}
+function handoffReference(row){return clean(row.verifiedPaymentReference||row.paymentReference||row.reference||row.paymentNote||row.note)}
+function paidMatchKey(row){return paidEventId(row)||[clean(row.orderId),clean(row.leadId),paidReference(row)].filter(Boolean).join('|')}
+function handoffMatchKey(row){return paidEventId(row)||[clean(row.orderId),clean(row.leadId),handoffReference(row)].filter(Boolean).join('|')}
+function isVerifiedPaidEvent(row){return clean(row.paymentStatus)==='paid'&&paidMatchKey(row)}
+function isPaidConfirmedHandoff(row){return clean(row.conversionHandoffStatus)==='paid_confirmed'&&paidEventId(row)}
+function paidEventIndex(events){const seen=new Set(),index=new Map(),duplicates=[];for(const event of events.filter(isVerifiedPaidEvent)){const key=paidMatchKey(event);if(seen.has(key)){duplicates.push({...event,blockReason:'duplicate_paid_event',launchpadRevenueEur:0});continue}seen.add(key);index.set(key,event)}return {index,duplicates}}
+function reconcile(handoffs,paidEvents){const paid=paidEventIndex(paidEvents),seen=new Set(),verified=[],orphaned=[],duplicates=[];for(const row of handoffs){if(!isPaidConfirmedHandoff(row))continue;const key=handoffMatchKey(row);if(!key||seen.has(key)){duplicates.push({...row,blockReason:'duplicate_paidEventId_or_handoff',launchpadRevenueEur:0});continue}seen.add(key);const event=paid.index.get(key);if(!event){orphaned.push({...row,blockReason:'orphaned_paid_confirmed_handoff_without_verified_paid_event',launchpadRevenueEur:0});continue}verified.push({...row,matchedPaidEventId:paidEventId(event),recoveredRevenueEur:Number(event.priceEur||event.amountEur||event.revenueEur||priceEur),launchpadRevenueEur:0})}return {verified,orphaned,duplicates:[...duplicates,...paid.duplicates]}}
+function paidGateHref(row){const params=new URLSearchParams({source:'recovery_revenue_command_launchpad'});['orderId','leadId','paymentReference','buyer'].forEach(key=>{if(row&&clean(row[key]))params.set(key,clean(row[key]))});return './paid-confirmation.html?'+params.toString()}
+function render(){const handoffs=readJson(handoffKey),paidEvents=readJson(paidKey),pending=handoffs.filter(row=>clean(row.conversionHandoffStatus)!=='paid_confirmed'),result=reconcile(handoffs,paidEvents),recoveredRevenueEur=result.verified.reduce((sum,row)=>sum+Number(row.recoveredRevenueEur||0),0),blocked=result.orphaned.length+result.duplicates.length,next=pending[0]||result.orphaned[0]||null;latestQa={version:'qpv-recovery-revenue-command-launchpad-v1',generatedAt:new Date().toISOString(),storageKeys:{handoffs:handoffKey,paidEvents:paidKey},buyer:'SMB/product seller',priceEur,links:{sourceKpiAdmin:'./source-kpi-admin.html#recovered-revenue-dashboard',revenueCommandCenter:'./revenue-command-center.html#recovered-revenue-dashboard',recoveredRevenueKpi:'./recovered-revenue-kpi.html',recoveryRevenueReconciliation:'./recovery-revenue-reconciliation.html',manualPaidGate:'./paid-confirmation.html?source=recovery_revenue_command_launchpad'},pendingHandoffs:pending.length,verifiedRecoveredOrders:result.verified.length,recoveredRevenueEur,blockedRows:blocked,launchpadRevenueEur:0,dashboardLinkRevenueEur:0,reconciliationRowRevenueEur:0,pendingHandoffRevenueEur:0,orphanedConfirmationRevenueEur:0,duplicatePaidEventRevenueEur:0,paymentReferenceRevenueEur:0,proofSubmittedRevenueEur:0,rule:'Launchpad only routes work; recovered revenue counts only when a paid_confirmed recovery handoff matches a unique verified qpvPaidEventLedger event.',rejectedWeakPatterns:['dashboard link is not revenue','launchpad visit is not revenue','pending handoff is not revenue','orphaned confirmation is not revenue','duplicate paidEventId is not revenue','payment reference is not revenue','proof text is not revenue','copied recovery message is not revenue','recovery reminder is not revenue','recovery link is not revenue','checkout row is not revenue','reconciliation row is not revenue'],verifiedRows:result.verified,blocked:{orphaned:result.orphaned,duplicates:result.duplicates,pending}};$('kpiPending').textContent=String(pending.length);$('kpiVerified').textContent=String(result.verified.length);$('kpiRecovered').textContent=String(recoveredRevenueEur);$('kpiBlocked').textContent=String(blocked);$('kpiLaunchpadRevenue').textContent='0';$('manualPaidGateLink').href=paidGateHref(next);$('nextAction').textContent=next?JSON.stringify({action:'Open manual paid gate or reconcile blocked recovery row',manualPaidGateHref:paidGateHref(next),row:next,launchpadRevenueEur:0},null,2):'No pending handoff or blocked recovery row. Open recovered revenue KPI or reconciliation dashboard.';$('qa').textContent=JSON.stringify(latestQa,null,2)}
+async function copyQa(){try{await navigator.clipboard.writeText(JSON.stringify(latestQa,null,2));$('msg').className='ok';$('msg').textContent='Launchpad QA copied. Revenue remains 0 EUR from this page.'}catch(error){$('msg').className='bad';$('msg').textContent='Clipboard blocked. Copy the QA panel manually.'}}
+$('copyLaunchpadQa').addEventListener('click',copyQa);render();
+</script>
+</body>
+</html>
