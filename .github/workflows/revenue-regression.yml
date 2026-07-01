@@ -36,6 +36,7 @@ jobs:
           python3 scripts/check_qpv_revenue_command_center.py
           python3 scripts/check_qpv_recovery_revenue_reconciliation.py
           python3 scripts/check_qpv_recovery_revenue_command_launchpad.py
+          python3 scripts/check_qpv_paid_fulfillment.py
           python3 scripts/check_qpv_order_admin_revenue_nav.py
           python3 scripts/check_qpv_outreach_lead_pipeline.py
           python3 scripts/check_revenue_regression_ci.py
