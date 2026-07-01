@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recovery Revenue Reconciliation — QPV</title>
+<meta name="description" content="Verified-only reconciliation dashboard for QPV recovered revenue. Cross-checks recovery conversion handoffs against paid events and blocks duplicate or orphaned revenue inflation.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#1e3348 0,#071019 48%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:1160px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:12px 0}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.ok{color:#bdf6d8}.warn{color:#ffe6ad}.bad{color:#ffc3cb}@media(max-width:900px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">RECOVERY REVENUE RECONCILIATION · VERIFIED PAID ONLY · QPV 19 EUR · NO FAKE REVENUE</span>
+<h1>Recovery revenue reconciliation</h1>
+<p class="muted">Cross-check <code>qpvRecoveryConversionHandoffLedger</code> against <code>qpvPaidEventLedger</code>. Recovered EUR is counted only for unique <code>paid_confirmed</code> handoffs with a matching verified paid event. Pending handoffs, orphaned confirmations, duplicate paidEventId rows, payment references, proof text and dashboard links remain 0 EUR.</p>
+<a class="cta ghost" id="sourceDashboardLink" href="./source-kpi-admin.html#recovered-revenue-dashboard">Source KPI admin</a>
+<a class="cta ghost" id="commandDashboardLink" href="./revenue-command-center.html#recovered-revenue-dashboard">Revenue command center</a>
+<a class="cta ghost" id="recoveredKpiLink" href="./recovered-revenue-kpi.html">Recovered revenue KPI</a>
+<a class="cta ghost" id="paidGateLink" href="./paid-confirmation.html?source=recovery_revenue_reconciliation">Manual paid gate</a>
+<div class="kpis">
+<div class="kpi">Verified recovered orders<br><b id="kpiVerified">0</b></div>
+<div class="kpi">Recovered EUR<br><b id="kpiRecovered">0</b></div>
+<div class="kpi">Pending handoffs<br><b id="kpiPending">0</b></div>
+<div class="kpi">Orphaned confirmations<br><b id="kpiOrphans">0</b></div>
+<div class="kpi">Duplicate paidEventId<br><b id="kpiDuplicates">0</b></div>
+<div class="kpi">Reconciliation status<br><b id="kpiStatus">OK</b></div>
+</div>
+<button class="cta" id="copyReconciliation">Copy reconciliation JSON</button>
+<button class="cta ghost" id="downloadReconciliation">Download reconciliation JSON</button>
+<p id="msg" class="warn" role="status"></p>
+</section>
+<section class="card"><h2>Verified recovered rows</h2><div class="status" id="verifiedRows">Render pending.</div></section>
+<section class="card"><h2>Blocked rows</h2><div class="status" id="blockedRows">Render pending.</div></section>
+<section class="card"><h2>Revenue integrity QA</h2><div class="status" id="qa">Render pending.</div></section>
+<section class="card"><h2>Rejected weak patterns</h2><p class="muted">Do not count pending handoffs, orphaned confirmations, duplicate paidEventId rows, payment references, proof text, copied recovery messages, reminders, recovery links, checkout rows, dashboard integration links, or reconciliation rows as revenue. Only a matching verified paid event can unlock recovered EUR.</p></section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),handoffKey='qpvRecoveryConversionHandoffLedger',paidKey='qpvPaidEventLedger',priceEur=19;
+let latestReconciliation={};
+function clean(value){return String(value||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function paidEventId(row){return clean(row.paidEventId||row.eventId||row.id)}
+function paidReference(row){return clean(row.paymentReference||row.verifiedPaymentReference||row.reference||row.paymentNote||row.note)}
+function handoffReference(row){return clean(row.verifiedPaymentReference||row.paymentReference||row.reference||row.paymentNote||row.note)}
+function paidMatchKey(row){return paidEventId(row)||[clean(row.orderId),clean(row.leadId),paidReference(row)].filter(Boolean).join('|')}
+function handoffMatchKey(row){return paidEventId(row)||[clean(row.orderId),clean(row.leadId),handoffReference(row)].filter(Boolean).join('|')}
+function isVerifiedPaidEvent(row){return clean(row.paymentStatus)==='paid'&&paidMatchKey(row)}
+function isPaidConfirmedHandoff(row){return clean(row.conversionHandoffStatus)==='paid_confirmed'&&paidEventId(row)}
+function paidEventIndex(events){const seen=new Set(),index=new Map(),duplicates=[];for(const event of events.filter(isVerifiedPaidEvent)){const key=paidMatchKey(event);if(seen.has(key)){duplicates.push({...event,blockReason:'duplicate_paid_event',recoveredRevenueEur:0});continue}seen.add(key);index.set(key,event)}return {index,duplicates}}
+function reconcile(handoffs,paidEvents){const paid=paidEventIndex(paidEvents),seenHandoffs=new Set(),verified=[],orphaned=[],duplicates=[];for(const row of handoffs){if(!isPaidConfirmedHandoff(row)){continue}const key=handoffMatchKey(row);if(!key||seenHandoffs.has(key)){duplicates.push({...row,blockReason:'duplicate_paidEventId_or_handoff',recoveredRevenueEur:0,reconciliationRevenueEur:0});continue}seenHandoffs.add(key);const event=paid.index.get(key);if(!event){orphaned.push({...row,blockReason:'orphaned_paid_confirmed_handoff_without_verified_paid_event',recoveredRevenueEur:0,reconciliationRevenueEur:0});continue}verified.push({...row,matchedPaidEventId:paidEventId(event),matchedPaymentReference:paidReference(event),recoveredRevenueEur:Number(event.priceEur||event.amountEur||event.revenueEur||priceEur),reconciliationRevenueEur:0})}return {verified,orphaned,duplicates:[...duplicates,...paid.duplicates]}}
+function render(){const handoffs=readJson(handoffKey),paidEvents=readJson(paidKey),pending=handoffs.filter(row=>clean(row.conversionHandoffStatus)!=='paid_confirmed'),result=reconcile(handoffs,paidEvents),recoveredRevenueEur=result.verified.reduce((sum,row)=>sum+Number(row.recoveredRevenueEur||0),0),status=result.orphaned.length||result.duplicates.length?'CHECK':'OK';latestReconciliation={version:'qpv-recovery-revenue-reconciliation-v1',generatedAt:new Date().toISOString(),storageKeys:{handoffs:handoffKey,paidEvents:paidKey},rule:'Recovered revenue counts only when a paid_confirmed recovery handoff has a unique paidEventId that matches a verified qpvPaidEventLedger event.',verifiedRecoveredOrders:result.verified.length,recoveredRevenueEur,pendingHandoffs:pending.length,orphanedConfirmations:result.orphaned.length,duplicatePaidEventIds:result.duplicates.length,reconciliationStatus:status,revenueDeltaFromThisPageEur:0,reconciliationRevenueEur:0,pendingRevenueEur:0,orphanedConfirmationRevenueEur:0,duplicatePaidEventRevenueEur:0,paymentReferenceRevenueEur:0,proofSubmittedRevenueEur:0,dashboardIntegrationRevenueEur:0,verifiedRows:result.verified,blockedRows:{orphanedConfirmations:result.orphaned,duplicates:result.duplicates,pendingHandoffs:pending},rejectedWeakPatterns:['pending handoff is not revenue','orphaned paid_confirmed handoff is not revenue','duplicate paidEventId is not revenue','payment reference is not revenue','proof text is not revenue','copied recovery message is not revenue','recovery reminder is not revenue','recovery link is not revenue','checkout row is not revenue','dashboard integration link is not revenue','reconciliation row is not revenue']};$('kpiVerified').textContent=String(result.verified.length);$('kpiRecovered').textContent=String(recoveredRevenueEur);$('kpiPending').textContent=String(pending.length);$('kpiOrphans').textContent=String(result.orphaned.length);$('kpiDuplicates').textContent=String(result.duplicates.length);$('kpiStatus').textContent=status;$('kpiStatus').className=status==='OK'?'ok':'bad';$('verifiedRows').textContent=result.verified.length?JSON.stringify(result.verified,null,2):'No matched verified recovered revenue rows.';$('blockedRows').textContent=JSON.stringify(latestReconciliation.blockedRows,null,2);$('qa').textContent=JSON.stringify(latestReconciliation,null,2)}
+async function copyReconciliation(){try{await navigator.clipboard.writeText(JSON.stringify(latestReconciliation,null,2));$('msg').className='ok';$('msg').textContent='Recovery revenue reconciliation JSON copied.'}catch(error){$('msg').className='bad';$('msg').textContent='Clipboard blocked. Use download instead.'}}
+function downloadReconciliation(){const blob=new Blob([JSON.stringify(latestReconciliation,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qpv-recovery-revenue-reconciliation.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);$('msg').className='ok';$('msg').textContent='Recovery revenue reconciliation JSON prepared.'}
+$('copyReconciliation').addEventListener('click',copyReconciliation);$('downloadReconciliation').addEventListener('click',downloadReconciliation);render();
+</script>
+</body>
+</html>
