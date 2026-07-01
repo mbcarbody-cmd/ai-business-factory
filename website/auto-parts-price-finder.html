@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Auto Parts Price Finder — 29 EUR</title>
+  <style>
+    :root{--bg:#08111f;--panel:#101b2d;--line:#293750;--txt:#edf5ff;--muted:#9fb1c7;--ok:#38e58d;--hot:#ff7a59;--blue:#65b8ff}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,#18345d,#08111f 52%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:26px 16px}h1{font-size:clamp(34px,6vw,66px);line-height:.97;margin:14px 0;letter-spacing:-1.4px}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1526cc;border-radius:999px;padding:8px 11px;color:#cfe0f5;font-size:13px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.panel{background:linear-gradient(180deg,#101c31,#0b1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 55px #0007}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#c8daf1;font-weight:800;font-size:13px}input,select,textarea{width:100%;border:1px solid #354761;background:#07101f;color:white;border-radius:13px;padding:12px;font:inherit}textarea{min-height:90px;resize:vertical}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;background:var(--hot);color:white;text-decoration:none}.btn.ok{background:var(--ok);color:#03120b}.btn.secondary{background:#162338;color:#e7f1ff;border:1px solid #344762}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0c1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{font-size:25px;display:block}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b15;border:1px solid #26374f;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:430px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#27885b;color:#baffdc}.pill.warn{border-color:#9d762b;color:#ffe0a2}.footer{margin-top:20px;color:#7d90aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">AI Business Factory · buyer-ready paid product · confirmed revenue = 0 EUR until verified paid event</span>
+  <h1>AI Auto Parts Price Finder</h1>
+  <p>Įvesk auto dalį, OEM kodą ir rinkos signalus. Appsas sugeneruoja kainos diapazoną, pardavimo strategiją, eksportuojamą lead/order eilutę ir 29 EUR pirkimo kelią dalių pardavėjui.</p>
+  <div class="cta">
+    <a class="btn ok" id="buyCta" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-price-finder">Pirkti kainos auditą — 29 €</a>
+    <a class="btn secondary" id="manualPaidGate" href="./payment-ledger.html?product=auto-parts-price-finder&priceEur=29&source=auto-parts-price-finder">Manual paid gate</a>
+    <button class="btn" onclick="scorePart()">Skaičiuoti kainą</button>
+    <button class="btn secondary" onclick="loadDemo()">Demo DBX dalis</button>
+  </div>
+
+  <section class="cards">
+    <div class="card"><strong id="kLow">0 €</strong><span class="muted">greita kaina</span></div>
+    <div class="card"><strong id="kAsk">0 €</strong><span class="muted">rekomenduojama prašyti</span></div>
+    <div class="card"><strong id="kHigh">0 €</strong><span class="muted">premium riba</span></div>
+    <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Dalies briefas</h2>
+      <div class="row">
+        <div><label>Automobilis</label><input id="vehicle" placeholder="pvz. Aston Martin DBX 2024 RHD"></div>
+        <div><label>Dalies pavadinimas</label><input id="part" placeholder="pvz. galinis bamperis"></div>
+        <div><label>OEM / kodai</label><input id="oem" placeholder="pvz. NY83-15A282-A"></div>
+        <div><label>Būklė</label><select id="condition"><option value="0.72">naudota gera</option><option value="0.55">su defektais</option><option value="0.86">labai gera / reta</option><option value="0.95">nauja be dėžės</option></select></div>
+        <div><label>Naujos dalies kaina, €</label><input id="newPrice" type="number" placeholder="pvz. 7000"></div>
+        <div><label>Rastų naudotų analogų kaina, €</label><input id="usedComp" type="number" placeholder="pvz. 4200"></div>
+        <div><label>Paklausos lygis</label><select id="demand"><option value="0.88">lėta</option><option value="1" selected>normali</option><option value="1.14">aukšta</option><option value="1.28">labai aukšta / reta</option></select></div>
+        <div><label>RHD/LHD rizika</label><select id="fitment"><option value="1">universal / no issue</option><option value="0.92">reikia tikrinti komplektaciją</option><option value="0.84">RHD/LHD rizika</option></select></div>
+        <div class="full"><label>Pastabos pirkėjui</label><textarea id="notes" placeholder="foto, defektai, komplektacija, siuntimas, garantija"></textarea></div>
+        <div><label>Lead email / klientas</label><input id="leadEmail" placeholder="buyer@example.com"></div>
+        <div><label>Kontaktas / marketplace</label><input id="channel" placeholder="RRR, eBay, Ovoko, Facebook, direct"></div>
+      </div>
+      <div class="cta"><button class="btn" onclick="scorePart()">Generuoti auditą</button><button class="btn secondary" onclick="saveLead()">Išsaugoti lead/order row</button><button class="btn secondary" onclick="exportCsv()">Eksportuoti CSV</button></div>
+    </div>
+    <div class="panel">
+      <h2>Buyer-ready output</h2>
+      <div id="verdict"><span class="pill warn">Dar nesuskaičiuota</span></div>
+      <pre id="output" class="output">Užpildyk dalį arba spausk demo. Page views, lead rows, checkout clicks and proof text keep revenueCountedEur:0 until a verified paid event exists.</pre>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: dashboard-only progress, fake paid rows, checkout click as revenue, lead capture as revenue, duplicate paidEventId, orphan paid proof. Buyer/price: used-parts seller, 29 EUR.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+let lastQuote=null;
+function scorePart(){
+  const newPrice=Number($('newPrice').value)||0;
+  const usedComp=Number($('usedComp').value)||0;
+  const condition=Number($('condition').value)||0.72;
+  const demand=Number($('demand').value)||1;
+  const fitment=Number($('fitment').value)||1;
+  const anchor=usedComp>0?usedComp:(newPrice>0?newPrice*0.62:PRICE_EUR*18);
+  const ask=anchor*condition*demand*fitment;
+  const low=ask*0.82;
+  const high=Math.max(ask*1.22, usedComp*1.08, newPrice*0.48);
+  const confidence=Math.min(96, Math.max(42, 50+(newPrice?12:0)+(usedComp?16:0)+(demand>1?8:0)+(fitment===1?8:-3)));
+  lastQuote={createdAt:new Date().toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),oem:$('oem').value.trim(),low:Math.round(low),ask:Math.round(ask),high:Math.round(high),confidence,leadEmail:$('leadEmail').value.trim(),channel:$('channel').value.trim(),notes:$('notes').value.trim(),status:'lead_created_unpaid'};
+  $('kLow').textContent=eur(low);$('kAsk').textContent=eur(ask);$('kHigh').textContent=eur(high);$('kRevenue').textContent='0 €';
+  $('verdict').innerHTML='<span class="pill ok">rekomenduojama prašyti '+eur(ask)+'</span><span class="pill">confidence '+confidence+'%</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`AI Auto Parts Price Finder audit\nVehicle: ${lastQuote.vehicle||'-'}\nPart: ${lastQuote.part||'-'}\nOEM: ${lastQuote.oem||'-'}\nFast sale: ${eur(low)}\nAsk price: ${eur(ask)}\nPremium ceiling: ${eur(high)}\nConfidence: ${confidence}%\n\nSales move:\n- list at ${eur(ask)} with OEM in title;\n- accept offers above ${eur(low)} if cashflow matters;\n- use premium ceiling only if photos/fitment/proof are strong;\n- buyer pays 29 EUR for one manual price audit;\n\nPayment path: paid-confirmation.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nRevenue rule: revenueCountedEur:0 until verified paid event in ledger.`;
+}
+function saveLead(){
+  if(!lastQuote) scorePart();
+  const rows=JSON.parse(localStorage.getItem('apfLeadRows')||'[]');
+  rows.unshift({...lastQuote,id:'APF-'+Date.now()});
+  localStorage.setItem('apfLeadRows',JSON.stringify(rows.slice(0,200)));
+  $('output').textContent+='\n\nSaved lead/order row locally. This is outreach-ready but still 0 EUR until verified paid.';
+}
+function exportCsv(){
+  if(!lastQuote) scorePart();
+  const rows=JSON.parse(localStorage.getItem('apfLeadRows')||'[]');
+  if(!rows.length) rows.push({...lastQuote,id:'APF-'+Date.now()});
+  const headers=['id','createdAt','vehicle','part','oem','low','ask','high','confidence','leadEmail','channel','priceEur','revenueCountedEur','status'];
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-price-finder-leads.csv';a.click();URL.revokeObjectURL(url);
+}
+function loadDemo(){
+  $('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='galinis bamperis';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('newPrice').value='7000';$('usedComp').value='4200';$('condition').value='0.86';$('demand').value='1.28';$('fitment').value='0.92';$('notes').value='Reta dalis, reikia aiškių foto, defektų ir komplektacijos.';$('channel').value='direct / eBay / RRR';scorePart();
+}
+</script>
+</body>
+</html>
