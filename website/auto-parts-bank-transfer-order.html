@@ -36,6 +36,7 @@
       <div class="cta">
         <button class="btn ok" onclick="createOrder()">Create 29 € order</button>
         <button class="btn secondary" onclick="exportOrders()">Export orders CSV</button>
+        <a class="btn secondary" id="outreachLink" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=bank-transfer-order">Outreach rows</a>
         <button class="btn secondary" onclick="loadDemo()">Demo order</button>
       </div>
     </div>
@@ -43,7 +44,7 @@
     <div class="panel">
       <h2>Payment + fulfillment handoff</h2>
       <div id="state"><span class="pill warn">No order yet</span></div>
-      <pre id="output" class="output">Create an order. The generated payment reference must be used in bank transfer/payment proof. Page views, order rows, proof text and checkout clicks are rejected weak patterns and keep revenueCountedEur:0 until verified paid event exists.</pre>
+      <pre id="output" class="output">Create an order. The generated payment reference must be used in bank transfer/payment proof. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns and keep revenueCountedEur:0 until verified paid event exists.</pre>
       <div class="cta">
         <a class="btn" id="confirmLink" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=bank-transfer-order">Open paid confirmation</a>
         <a class="btn secondary" id="fulfillmentLink" href="./paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=bank-transfer-order">Open fulfillment</a>
@@ -51,7 +52,7 @@
       </div>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: order intent, payment reference, proof text, CSV export, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: order intent, payment reference, proof text, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
@@ -86,7 +87,7 @@ function createOrder(){
   $('confirmLink').href='./paid-confirmation.html?'+params;
   $('fulfillmentLink').href='./paid-fulfillment.html?'+params;
   $('state').innerHTML='<span class="pill ok">order row created</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR by bank transfer using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nRevenue rule: order rows, proof text, payment references and link visits are 0 EUR until verified paid event exists.`;
+  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR by bank transfer using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nRevenue rule: order rows, proof text, payment references, outreach rows and link visits are 0 EUR until verified paid event exists.`;
 }
 function exportOrders(){
   const rows=readOrders();
