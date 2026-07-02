@@ -37,6 +37,7 @@
       </div>
       <div class="cta">
         <button class="btn ok" onclick="createOrder()">Create payable 29 € order</button>
+        <a class="btn" id="invoiceRequestLink" href="mailto:automariu@gmail.com?subject=APF%2029%20EUR%20payment%20request">Request payment invoice</a>
         <button class="btn secondary" onclick="exportOrders()">Export orders CSV</button>
         <a class="btn secondary" id="outreachLink" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Outreach rows</a>
         <button class="btn secondary" onclick="loadDemo()">Demo payable order</button>
@@ -45,8 +46,8 @@
 
     <div class="panel">
       <h2>Payment + fulfillment handoff</h2>
-      <div id="state"><span class="pill warn">No payable order yet</span></div>
-      <pre id="output" class="output">Create a payable order. The generated payment reference must be used with the configured payment destination. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns and keep revenueCountedEur:0 until verified paid event exists.</pre>
+      <div id="state"><span class="pill warn">No payable order yet</span><span class="pill warn">payment provider not configured</span></div>
+      <pre id="output" class="output">Create a payable order when a payment destination is configured. If no IBAN/Revolut/Stripe/PayPal destination exists yet, use Request payment invoice: it builds a prefilled buyer email with the order data and keeps revenueCountedEur:0 until a verified paid event exists. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns.</pre>
       <div class="cta">
         <a class="btn" id="confirmLink" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Open paid confirmation</a>
         <a class="btn secondary" id="fulfillmentLink" href="./paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=payable-order">Open fulfillment</a>
@@ -54,7 +55,7 @@
       </div>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: missing payment destination, order intent, payment reference, proof text, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: missing payment destination, order intent, payment reference, proof text, invoice request email, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
@@ -83,10 +84,21 @@ function buildOrder(){
   const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
   return {orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'awaiting_verified_payment',seller:SELLER,contactEmail:CONTACT_EMAIL,paymentMethod:$('paymentMethod').value,paymentDestination,buyerEmail,buyerName:$('buyerName').value.trim(),vehicle,part,oem:$('oem').value.trim(),channel:$('channel').value,notes:$('notes').value.trim()};
 }
+function buildPaymentRequestMailto(order){
+  const subject='APF 29 EUR payment request '+order.paymentReference;
+  const body=`Please issue payment instructions for this 29 EUR Auto Parts Price Finder order.\n\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\nChannel: ${order.channel||'-'}\nNotes: ${order.notes||'-'}\n\nRevenue rule: this invoice request is not revenue. Count 0 EUR until verified paid event exists in qpvPaidEventLedger.`;
+  return 'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function refreshInvoiceRequest(){
+  const draft=buildOrder();
+  $('invoiceRequestLink').href=buildPaymentRequestMailto(draft);
+  return draft;
+}
 function createOrder(){
+  refreshInvoiceRequest();
   if(!paymentDestinationIsConfigured()){
-    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill warn">revenueCountedEur:0</span>';
-    $('output').textContent='BLOCKER: payable order requires a real payment destination: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL. No order row is created and no revenue is counted until this is configured.';
+    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill ok">invoice request ready</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent='BLOCKER: payable order requires a real payment destination: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL. Fallback executed: Request payment invoice now opens a prefilled email to '+CONTACT_EMAIL+' with buyer/order data. No order row is created and no revenue is counted until this is configured or a verified paid event exists.';
     return;
   }
   const order=buildOrder();
@@ -97,11 +109,12 @@ function createOrder(){
     return;
   }
   rows.unshift(order);writeOrders(rows);lastOrder=order;
+  $('invoiceRequestLink').href=buildPaymentRequestMailto(order);
   const params='product='+encodeURIComponent(PRODUCT)+'&priceEur=29&buyer=used-parts-seller&source=payable-order&orderId='+encodeURIComponent(order.orderId)+'&paymentReference='+encodeURIComponent(order.paymentReference)+'&paymentMethod='+encodeURIComponent(order.paymentMethod);
   $('confirmLink').href='./paid-confirmation.html?'+params;
   $('fulfillmentLink').href='./paid-fulfillment.html?'+params;
-  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nRevenue rule: payable order rows, proof text, payment references, outreach rows and link visits are 0 EUR until verified paid event exists.`;
+  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill ok">invoice request ready</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nFallback if payment provider is not configured: use Request payment invoice to send order details to ${CONTACT_EMAIL}.\n\nRevenue rule: payable order rows, proof text, payment references, invoice request emails, outreach rows and link visits are 0 EUR until verified paid event exists.`;
 }
 function exportOrders(){
   const rows=readOrders();
@@ -112,9 +125,11 @@ function exportOrders(){
   const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-payable-orders.csv';a.click();URL.revokeObjectURL(url);
 }
 function loadDemo(){
-  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('channel').value='direct';$('paymentMethod').value='bank_transfer';$('paymentDestination').value='IBAN_OR_PAYMENT_LINK_REQUIRED';$('notes').value='Need price audit with competitor links and recommended ask/quick-sale price.';
+  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('channel').value='direct';$('paymentMethod').value='bank_transfer';$('paymentDestination').value='IBAN_OR_PAYMENT_LINK_REQUIRED';$('notes').value='Need price audit with competitor links and recommended ask/quick-sale price.';refreshInvoiceRequest();
 }
+['buyerEmail','buyerName','vehicle','part','oem','channel','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',refreshInvoiceRequest));
 writeOrders(readOrders());
+refreshInvoiceRequest();
 </script>
 </body>
 </html>
