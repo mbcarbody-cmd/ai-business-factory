@@ -3,8 +3,9 @@
 
 This is a buyer/payment-path gate, not a dashboard or summary gate. It requires
 an executable order form, a real payment destination gate, payment reference,
-CSV export, paid-confirmation and fulfillment handoff, while keeping confirmed
-revenue at 0 EUR until a verified paid event exists.
+CSV export, paid-confirmation and fulfillment handoff, plus a fallback invoice
+request email when the payment provider destination is not configured, while
+keeping confirmed revenue at 0 EUR until a verified paid event exists.
 """
 from pathlib import Path
 
@@ -45,7 +46,6 @@ def main() -> None:
         "function exportOrders()",
         "function getPaymentDestination()",
         "function paymentDestinationIsConfigured()",
-        "paymentDestinationIsConfigured().length".replace(".length", ""),
         "paymentReference",
         "APF29-",
         "status:'awaiting_verified_payment'",
@@ -71,6 +71,22 @@ def main() -> None:
     ]
     for marker in payment_gate_markers:
         require(marker in order, f"order page missing payable payment gate marker: {marker}")
+
+    invoice_request_markers = [
+        "Request payment invoice",
+        "id=\"invoiceRequestLink\"",
+        "function buildPaymentRequestMailto(order)",
+        "function refreshInvoiceRequest()",
+        "mailto:'+encodeURIComponent(CONTACT_EMAIL)",
+        "APF 29 EUR payment request",
+        "Please issue payment instructions for this 29 EUR Auto Parts Price Finder order",
+        "Fallback executed: Request payment invoice now opens a prefilled email",
+        "invoice request ready",
+        "invoice request email",
+        "this invoice request is not revenue",
+    ]
+    for marker in invoice_request_markers:
+        require(marker in order, f"order page missing invoice-request fallback marker: {marker}")
 
     buyer_path_markers = [
         "Buyer email",
@@ -99,7 +115,7 @@ def main() -> None:
         require(pattern not in order, f"weak/fake revenue pattern must not appear in order page: {pattern}")
 
     print("PASS auto parts payable order regression")
-    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, proof instructions, paid-confirmation/fulfillment handoff, CSV export, and zero confirmed revenue until verified paid event")
+    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, invoice-request fallback email, proof instructions, paid-confirmation/fulfillment handoff, CSV export, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
