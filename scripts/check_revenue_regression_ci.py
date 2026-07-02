@@ -23,6 +23,8 @@ REQUIRED_CHECKS = [
     "scripts/check_qpv_recovery_revenue_reconciliation.py",
     "scripts/check_qpv_order_admin_revenue_nav.py",
     "scripts/check_qpv_outreach_lead_pipeline.py",
+    "scripts/check_auto_parts_price_finder_product.py",
+    "scripts/check_auto_parts_bank_transfer_order.py",
     "scripts/check_revenue_regression_ci.py",
 ]
 
@@ -59,7 +61,7 @@ def main() -> None:
         require(weak not in text, f"CI workflow contains rejected weak pattern: {weak}")
 
     print("PASS revenue regression CI wiring")
-    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, recovery revenue reconciliation gate, and all QPV revenue regression scripts executed")
+    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, auto parts bank-transfer order gate, recovery revenue reconciliation gate, and all QPV revenue regression scripts executed")
 
 
 if __name__ == "__main__":
