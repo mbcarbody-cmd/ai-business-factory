@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "website" / "source-kpi-admin.html"
 html = PAGE.read_text(encoding="utf-8")
+compact = html.replace(" ", "")
 
 required = [
     "qpvOrderLedger",
@@ -13,6 +14,7 @@ required = [
     "qpvFollowUpLedger",
     "qpvRecoveryReminderLedger",
     "qpvRecoveryConversionHandoffLedger",
+    "dailyLearningOperatorQueue",
     "sourceFilter",
     "function sourceStats",
     "function allSources",
@@ -70,6 +72,22 @@ required = [
     "converted after reminder handoff is not revenue",
     "No reminded unpaid buyer available for paid verification handoff, or duplicate handoff blocked.",
     "Converted-after-reminder handoff saved. Open manual paid gate; revenue remains 0 EUR until verified paid.",
+    "Daily Learning Operator Queue export",
+    "source_kpi_admin_operator_queue",
+    "operatorQueueKey",
+    "function operatorQueueRows",
+    "function operatorQueueExport",
+    "function renderOperatorQueueExport",
+    "copyOperatorQueueRows",
+    "downloadOperatorQueueRows",
+    "openTopOperatorAction",
+    "operatorQueueExportRevenueEur:0",
+    "openedOperatorActionRevenueEur:0",
+    "operator queue export row is not revenue",
+    "opened operator queue action is not revenue",
+    "daily-learning-operator-queue-source-export.json",
+    "Operator queue export copied. Revenue remains 0 EUR until verified paid.",
+    "Operator queue export prepared.",
     "kpiRecoverable",
     "kpiOverdue",
     "kpiStale",
@@ -157,8 +175,10 @@ for forbidden in [
     "topRecoveryMessageRevenueEur:19",
     "recoveryReminderRevenueEur:19",
     "convertedAfterReminderRevenueEur:19",
+    "operatorQueueExportRevenueEur:19",
+    "openedOperatorActionRevenueEur:19",
 ]:
-    if forbidden in html.replace(" ", ""):
+    if forbidden in compact:
         raise SystemExit(f"FAIL: source KPI admin accepts weak revenue pattern: {forbidden}")
 
-print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, prioritizes unpaid proof aging buckets, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, exposes payment-recovery-queue.html with recoverable unpaid counters/highest-priority buyer links, copies the top unpaid recovery message, records qpvRecoveryReminderLedger reminder attempts with duplicate suppression, creates qpvRecoveryConversionHandoffLedger handoffs to paid-confirmation.html for reminded buyers, and keeps unverified proof/source/follow-up/priority/recovery/reminder/handoff activity at 0 EUR.")
+print("PASS: source KPI admin filters source-attributed QPV ledgers, exports unpaid proofs, prioritizes unpaid proof aging buckets, generates deduped buyer follow-up messages, tracks prepared follow-up status in qpvFollowUpLedger, exposes payment-recovery-queue.html with recoverable unpaid counters/highest-priority buyer links, copies the top unpaid recovery message, records qpvRecoveryReminderLedger reminder attempts with duplicate suppression, creates qpvRecoveryConversionHandoffLedger handoffs to paid-confirmation.html for reminded buyers, exports Daily Learning Operator Queue action rows with a top operator action route, and keeps unverified proof/source/follow-up/priority/recovery/reminder/handoff/operator-queue activity at 0 EUR.")
