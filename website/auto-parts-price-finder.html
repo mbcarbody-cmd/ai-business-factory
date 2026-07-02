@@ -16,6 +16,7 @@
   <p>Įvesk auto dalį, OEM kodą ir rinkos signalus. Appsas sugeneruoja kainos diapazoną, pardavimo strategiją, eksportuojamą lead/order eilutę ir 29 EUR pirkimo kelią dalių pardavėjui.</p>
   <div class="cta">
     <a class="btn ok" id="buyCta" href="./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-price-finder">Pirkti kainos auditą — 29 €</a>
+    <a class="btn secondary" id="outreachCta" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-price-finder">Buyer outreach rows</a>
     <a class="btn secondary" id="paidConfirmationCta" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-price-finder">Paid confirmation</a>
     <a class="btn secondary" id="manualPaidGate" href="./payment-ledger.html?product=auto-parts-price-finder&priceEur=29&source=auto-parts-price-finder">Manual paid gate</a>
     <button class="btn" onclick="scorePart()">Skaičiuoti kainą</button>
@@ -50,10 +51,10 @@
     <div class="panel">
       <h2>Buyer-ready output</h2>
       <div id="verdict"><span class="pill warn">Dar nesuskaičiuota</span></div>
-      <pre id="output" class="output">Užpildyk dalį arba spausk demo. Page views, lead rows, checkout clicks and proof text keep revenueCountedEur:0 until a verified paid event exists.</pre>
+      <pre id="output" class="output">Užpildyk dalį arba spausk demo. Page views, lead rows, checkout clicks, outreach rows and proof text keep revenueCountedEur:0 until a verified paid event exists.</pre>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: dashboard-only progress, fake paid rows, checkout click as revenue, lead capture as revenue, bank-transfer order intent as revenue, duplicate paidEventId, orphan paid proof. Buyer/price: used-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: dashboard-only progress, fake paid rows, checkout click as revenue, lead capture as revenue, buyer outreach row as revenue, bank-transfer order intent as revenue, duplicate paidEventId, orphan paid proof. Buyer/price: used-parts seller, 29 EUR.</div>
 </main>
 <script>
 const $=id=>document.getElementById(id);
@@ -75,7 +76,7 @@ function scorePart(){
   lastQuote={createdAt:new Date().toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),oem:$('oem').value.trim(),low:Math.round(low),ask:Math.round(ask),high:Math.round(high),confidence,leadEmail:$('leadEmail').value.trim(),channel:$('channel').value.trim(),notes:$('notes').value.trim(),status:'lead_created_unpaid'};
   $('kLow').textContent=eur(low);$('kAsk').textContent=eur(ask);$('kHigh').textContent=eur(high);$('kRevenue').textContent='0 €';
   $('verdict').innerHTML='<span class="pill ok">rekomenduojama prašyti '+eur(ask)+'</span><span class="pill">confidence '+confidence+'%</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`AI Auto Parts Price Finder audit\nVehicle: ${lastQuote.vehicle||'-'}\nPart: ${lastQuote.part||'-'}\nOEM: ${lastQuote.oem||'-'}\nFast sale: ${eur(low)}\nAsk price: ${eur(ask)}\nPremium ceiling: ${eur(high)}\nConfidence: ${confidence}%\n\nSales move:\n- list at ${eur(ask)} with OEM in title;\n- accept offers above ${eur(low)} if cashflow matters;\n- use premium ceiling only if photos/fitment/proof are strong;\n- buyer pays 29 EUR for one manual price audit;\n\nPayment path: auto-parts-bank-transfer-order.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nPaid confirmation: paid-confirmation.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nRevenue rule: revenueCountedEur:0 until verified paid event in ledger.`;
+  $('output').textContent=`AI Auto Parts Price Finder audit\nVehicle: ${lastQuote.vehicle||'-'}\nPart: ${lastQuote.part||'-'}\nOEM: ${lastQuote.oem||'-'}\nFast sale: ${eur(low)}\nAsk price: ${eur(ask)}\nPremium ceiling: ${eur(high)}\nConfidence: ${confidence}%\n\nSales move:\n- list at ${eur(ask)} with OEM in title;\n- accept offers above ${eur(low)} if cashflow matters;\n- use premium ceiling only if photos/fitment/proof are strong;\n- buyer pays 29 EUR for one manual price audit;\n\nPayment path: auto-parts-bank-transfer-order.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nOutreach path: auto-parts-buyer-outreach.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nPaid confirmation: paid-confirmation.html?product=${PRODUCT}&priceEur=${PRICE_EUR}\nRevenue rule: revenueCountedEur:0 until verified paid event in ledger.`;
 }
 function saveLead(){
   if(!lastQuote) scorePart();
