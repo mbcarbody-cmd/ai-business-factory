@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Regression gate for the 29 EUR Auto Parts Price Finder bank-transfer order path.
+"""Regression gate for the 29 EUR Auto Parts Price Finder payable order path.
 
 This is a buyer/payment-path gate, not a dashboard or summary gate. It requires
-an executable order form, payment reference, CSV export, paid-confirmation and
-fulfillment handoff, while keeping confirmed revenue at 0 EUR until a verified
-paid event exists.
+an executable order form, a real payment destination gate, payment reference,
+CSV export, paid-confirmation and fulfillment handoff, while keeping confirmed
+revenue at 0 EUR until a verified paid event exists.
 """
 from pathlib import Path
 
@@ -35,25 +35,42 @@ def main() -> None:
 
     order_markers = [
         "Buy Auto Parts Price Finder audit — 29 €",
-        "Executable revenue path · 29 EUR · bank-transfer order capture",
+        "Executable revenue path · 29 EUR · payable order gate",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const SELLER='MB Marių auto'",
         "const CONTACT_EMAIL='automariu@gmail.com'",
-        "const STORAGE_KEY='apfBankTransferOrders'",
+        "const STORAGE_KEY='apfPayableOrders'",
         "function createOrder()",
         "function exportOrders()",
+        "function getPaymentDestination()",
+        "function paymentDestinationIsConfigured()",
+        "paymentDestinationIsConfigured().length".replace(".length", ""),
         "paymentReference",
         "APF29-",
-        "status:'awaiting_verified_bank_transfer'",
+        "status:'awaiting_verified_payment'",
         "revenueCountedEur:0",
         "paid-confirmation.html?",
         "paid-fulfillment.html?",
-        "auto-parts-bank-transfer-orders.csv",
+        "auto-parts-payable-orders.csv",
         "qpvPaidEventLedger",
     ]
     for marker in order_markers:
         require(marker in order, f"order page missing executable marker: {marker}")
+
+    payment_gate_markers = [
+        "Payment method",
+        "Payment destination / URL",
+        "IBAN, Revolut link, Stripe Payment Link or PayPal checkout URL",
+        "payment destination required",
+        "No order row is created and no revenue is counted until this is configured",
+        "Pay 29 EUR to payment destination above using reference",
+        "localStorage.setItem('apfPaymentDestination'",
+        "paymentMethod",
+        "paymentDestination",
+    ]
+    for marker in payment_gate_markers:
+        require(marker in order, f"order page missing payable payment gate marker: {marker}")
 
     buyer_path_markers = [
         "Buyer email",
@@ -61,8 +78,7 @@ def main() -> None:
         "Vehicle",
         "Part",
         "OEM / codes",
-        "Create 29 € order",
-        "Pay 29 EUR by bank transfer using reference",
+        "Create payable 29 € order",
         "Email payment proof + order ID",
         "Fulfillment unlocks only after verified paid event",
     ]
@@ -82,8 +98,8 @@ def main() -> None:
     for pattern in rejected_weak_patterns:
         require(pattern not in order, f"weak/fake revenue pattern must not appear in order page: {pattern}")
 
-    print("PASS auto parts bank-transfer order regression")
-    print("checked: 29 EUR buyer order form, payment reference, proof instructions, paid-confirmation/fulfillment handoff, CSV export, and zero confirmed revenue until verified paid event")
+    print("PASS auto parts payable order regression")
+    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, proof instructions, paid-confirmation/fulfillment handoff, CSV export, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
