@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — payment setup</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1040px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:88px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Seller payment setup · converts manual blocker into payable 29 EUR order URL · confirmed revenue remains 0 EUR until verified paid event</span>
+  <h1>Configure Auto Parts Price Finder payment destination</h1>
+  <p>This operator page is the fallback for the missing live Stripe/Revolut/IBAN blocker. It stores one real seller payment destination locally, generates a buyer-ready order URL, and creates outreach/order copy. It rejects setup clicks, generated URLs and invoice requests as revenue.</p>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Payment destination</h2>
+      <div class="row">
+        <div><label>Payment method</label><select id="paymentMethod"><option>bank_transfer</option><option>revolut_business</option><option>stripe_payment_link</option><option>paypal_checkout</option></select></div>
+        <div><label>29 EUR price</label><input id="priceEur" value="29" readonly></div>
+        <div class="full"><label>IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL</label><input id="paymentDestination" placeholder="Paste real payment destination here"></div>
+        <div><label>Seller</label><input id="seller" value="MB Marių auto"></div>
+        <div><label>Contact email</label><input id="contactEmail" value="automariu@gmail.com"></div>
+        <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated order. Email payment proof and order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in qpvPaidEventLedger.</textarea></div>
+      </div>
+      <button class="btn ok" onclick="saveDestination()">Save payment destination</button>
+      <button class="btn secondary" onclick="clearDestination()">Clear local setup</button>
+      <a class="btn secondary" id="invoiceRequestLink" href="mailto:automariu@gmail.com?subject=APF%2029%20EUR%20payment%20destination%20setup">Request real IBAN / payment link</a>
+    </div>
+
+    <div class="panel">
+      <h2>Buyer-ready output</h2>
+      <div id="state"><span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span></div>
+      <pre id="output" class="output">Paste a real IBAN/Revolut/Stripe/PayPal destination. The generated URL pre-fills the 29 EUR Auto Parts Price Finder payable order page so outreach can send buyers directly to payment instructions. Generated URLs, setup saves, invoice requests, mailto clicks and page visits are not revenue.</pre>
+      <a class="btn" id="orderUrl" href="./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&source=payment-destination-setup">Open payable order URL</a>
+      <button class="btn secondary" onclick="copyOrderCopy()">Copy buyer payment copy</button>
+      <a class="btn secondary" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payment-destination-setup">Open outreach rows</a>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, invoice request, copied buyer text, order intent, proof text, CSV export, outreach row, page visit, fake paid event. Buyer/price: used auto-parts seller, 29 EUR.</div>
+</main>
+<script>
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const STORAGE_DESTINATION='apfPaymentDestination';
+const STORAGE_METHOD='apfPaymentMethod';
+const STORAGE_SELLER='apfPaymentSeller';
+const STORAGE_CONTACT='apfPaymentContactEmail';
+const $=id=>document.getElementById(id);
+function validDestination(v){return String(v||'').trim().length>=8}
+function buildOrderUrl(){
+  const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-destination-setup',paymentMethod:$('paymentMethod').value,paymentDestination:$('paymentDestination').value.trim()});
+  return './auto-parts-bank-transfer-order.html?'+params.toString();
+}
+function buildInvoiceRequest(){
+  const subject='APF 29 EUR payment destination setup required';
+  const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in qpvPaidEventLedger.`;
+  return 'mailto:'+encodeURIComponent($('contactEmail').value.trim()||'automariu@gmail.com')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function refresh(){
+  const configured=validDestination($('paymentDestination').value);
+  $('orderUrl').href=buildOrderUrl();
+  $('invoiceRequestLink').href=buildInvoiceRequest();
+  $('state').innerHTML=configured?'<span class="pill ok">payment destination configured</span><span class="pill ok">buyer-ready order URL generated</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=configured?`AUTO PARTS PRICE FINDER — PAYMENT DESTINATION SET\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nPayment method: ${$('paymentMethod').value}\nPayment destination: ${$('paymentDestination').value.trim()}\nSeller: ${$('seller').value.trim()}\nContact: ${$('contactEmail').value.trim()}\n\nBuyer-ready order URL:\n${location.origin+location.pathname.replace('auto-parts-payment-destination-setup.html','')+buildOrderUrl().replace('./','')}\n\nBuyer instruction:\nBuy the 29 EUR Auto Parts Price Finder audit using the payment destination above. ${$('instructionSuffix').value.trim()}\n\nRevenue rule: this setup is not revenue. Count 0 EUR until verified paid event exists.`:'BLOCKER: no real payment destination configured yet. Fallback action available: request IBAN/Revolut/Stripe/PayPal destination by email, or paste it here to generate a buyer-ready payable order URL. Revenue remains 0 EUR.';
+}
+function saveDestination(){
+  const dest=$('paymentDestination').value.trim();
+  if(!validDestination(dest)){refresh();return}
+  localStorage.setItem(STORAGE_DESTINATION,dest);
+  localStorage.setItem(STORAGE_METHOD,$('paymentMethod').value);
+  localStorage.setItem(STORAGE_SELLER,$('seller').value.trim());
+  localStorage.setItem(STORAGE_CONTACT,$('contactEmail').value.trim());
+  refresh();
+}
+function clearDestination(){localStorage.removeItem(STORAGE_DESTINATION);localStorage.removeItem(STORAGE_METHOD);$('paymentDestination').value='';refresh()}
+async function copyOrderCopy(){
+  refresh();
+  const text=$('output').textContent;
+  try{await navigator.clipboard.writeText(text);$('state').innerHTML+='<span class="pill ok">buyer copy copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}
+}
+function restore(){
+  $('paymentDestination').value=localStorage.getItem(STORAGE_DESTINATION)||'';
+  $('paymentMethod').value=localStorage.getItem(STORAGE_METHOD)||'bank_transfer';
+  $('seller').value=localStorage.getItem(STORAGE_SELLER)||'MB Marių auto';
+  $('contactEmail').value=localStorage.getItem(STORAGE_CONTACT)||'automariu@gmail.com';
+  refresh();
+}
+['paymentMethod','paymentDestination','seller','contactEmail','instructionSuffix'].forEach(id=>$(id).addEventListener('input',refresh));
+restore();
+</script>
+</body>
+</html>
