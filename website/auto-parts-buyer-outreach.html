@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — buyer outreach rows</title>
+  <style>
+    :root{--bg:#07111e;--panel:#101b2c;--line:#293b56;--txt:#edf6ff;--muted:#9fb2cb;--ok:#38e58d;--hot:#ff7859;--blue:#65b8ff}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#19365e,#07111e 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,58px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#d0e2f7}.grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:90px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:520px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable sales workflow · outreach-ready rows · 29 EUR offer · confirmed revenue remains 0 EUR until verified payment</span>
+  <h1>Auto Parts Price Finder outreach generator</h1>
+  <p>Generuoja konkrečias pirkėjų eilutes, email tekstus, CSV ir mailto linkus 29 € Auto Parts Price Finder auditui. Tai tiesioginis pardavimo kelias: produktas → lead row → outreach → order → paid confirmation.</p>
+
+  <section class="cards">
+    <div class="card"><strong id="kRows">0</strong><span class="muted">outreach rows</span></div>
+    <div class="card"><strong>29 €</strong><span class="muted">offer price</span></div>
+    <div class="card"><strong id="kPotential">0 €</strong><span class="muted">pipeline value, not revenue</span></div>
+    <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Campaign brief</h2>
+      <div class="row">
+        <div><label>Vehicle / niche</label><input id="vehicle" value="Aston Martin DBX 2024 RHD"></div>
+        <div><label>Part / offer angle</label><input id="part" value="rare bumper / expensive OEM part price audit"></div>
+        <div><label>OEM / codes</label><input id="oem" value="NY83-15A282-A / MY83-17C870-AB"></div>
+        <div><label>Target segment</label><select id="segment"><option>used auto parts sellers</option><option>premium car dismantlers</option><option>body shops</option><option>export buyers</option><option>marketplace sellers</option></select></div>
+        <div><label>Country / market</label><input id="market" value="EU / UK / Lithuania"></div>
+        <div><label>Rows to generate</label><input id="rowCount" type="number" min="5" max="50" value="25"></div>
+        <div class="full"><label>Proof / hook</label><textarea id="hook">I can benchmark OEM/new/used prices and return fast-sale, ask and premium ceiling for one part, with fitment/risk notes.</textarea></div>
+      </div>
+      <div class="cta">
+        <button class="btn ok" onclick="generateRows()">Generate outreach rows</button>
+        <button class="btn secondary" onclick="exportCsv()">Export CSV</button>
+        <a class="btn secondary" id="orderLink" href="./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-outreach">Order page</a>
+        <a class="btn secondary" href="./auto-parts-price-finder.html">Product page</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Outreach-ready output</h2>
+      <div id="state"><span class="pill warn">No rows yet</span></div>
+      <pre id="output" class="output">Generate rows. Outreach rows, mailto opens, CSV exports and pipeline value are rejected weak patterns for revenue. revenueCountedEur stays 0 until a verified paid event exists.</pre>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: outreach row as revenue, mailto click as revenue, CSV export as revenue, pipeline value as confirmed EUR, page visit, duplicate leadId, fake paid event. Buyer/price: used auto-parts seller, 29 EUR.</div>
+</main>
+<script>
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const STORAGE_KEY='apfOutreachRows';
+const CONTACT_EMAIL='automariu@gmail.com';
+const $=id=>document.getElementById(id);
+const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
+let lastRows=[];
+function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'lead'}
+function readRows(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
+function writeRows(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows.slice(0,500)));$('kRows').textContent=String(rows.length);$('kPotential').textContent=eur(rows.length*PRICE_EUR);$('kRevenue').textContent='0 €'}
+function buildRow(i){
+  const vehicle=$('vehicle').value.trim();
+  const part=$('part').value.trim();
+  const oem=$('oem').value.trim();
+  const segment=$('segment').value;
+  const market=$('market').value.trim();
+  const hook=$('hook').value.trim();
+  const leadId='APF-OUT-'+Date.now()+'-'+String(i+1).padStart(2,'0')+'-'+safeSlug(segment);
+  const orderUrl=location.origin+location.pathname.replace('auto-parts-buyer-outreach.html','auto-parts-bank-transfer-order.html')+'?product='+PRODUCT+'&priceEur='+PRICE_EUR+'&buyer=used-parts-seller&source=auto-parts-outreach&leadId='+encodeURIComponent(leadId);
+  const subject='29 EUR price audit for '+(part||'auto part')+' — '+(vehicle||'vehicle');
+  const body='Hi,\n\nI can prepare a one-part pricing audit for '+(vehicle||'your vehicle')+' / '+(part||'your part')+' ('+(oem||'OEM to confirm')+').\n\nYou get: fast-sale price, recommended ask price, premium ceiling, fitment/risk notes and listing angle.\n\nPrice: 29 EUR.\nOrder link: '+orderUrl+'\n\nProof/hook: '+hook+'\n\nRegards,\nMB Marių auto';
+  return {leadId,createdAt:new Date().toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'outreach_ready_unpaid',segment,market,vehicle,part,oem,subject,body,mailto:'mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body),contactEmail:CONTACT_EMAIL};
+}
+function generateRows(){
+  const count=Math.max(5,Math.min(50,Number($('rowCount').value)||25));
+  const rows=[];for(let i=0;i<count;i++) rows.push(buildRow(i));
+  const existing=readRows();
+  const merged=[...rows,...existing].filter((r,idx,arr)=>arr.findIndex(x=>x.leadId===r.leadId)===idx);
+  writeRows(merged);lastRows=rows;
+  $('state').innerHTML='<span class="pill ok">outreach rows ready</span><span class="pill">pipeline '+eur(rows.length*PRICE_EUR)+'</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=rows.map((r,idx)=>'#'+(idx+1)+' '+r.leadId+'\nSegment: '+r.segment+'\nMarket: '+r.market+'\nSubject: '+r.subject+'\nMailto: '+r.mailto+'\nBody:\n'+r.body+'\nRevenue rule: revenueCountedEur:'+r.revenueCountedEur).join('\n\n---\n\n');
+}
+function exportCsv(){
+  if(!readRows().length) generateRows();
+  const rows=readRows();
+  const headers=['leadId','createdAt','product','priceEur','revenueCountedEur','status','segment','market','vehicle','part','oem','subject','body','mailto','contactEmail'];
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-price-finder-outreach-rows.csv';a.click();URL.revokeObjectURL(url);
+}
+writeRows(readRows());
+</script>
+</body>
+</html>
