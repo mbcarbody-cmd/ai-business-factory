@@ -11,9 +11,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable revenue path · 29 EUR · payable order gate · confirmed revenue stays 0 EUR until paid proof is verified</span>
+  <span class="badge">Executable revenue path · 29 EUR · payable order gate · APF direct verified-paid handoff · confirmed revenue stays 0 EUR until paid proof is verified</span>
   <h1>Buy Auto Parts Price Finder audit — 29 €</h1>
-  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki realaus mokėjimo metodo, order ID, proof teksto ir fulfillment handoff. Tai nėra dashboardas: orderis laikomas mokėtinu tik kai įrašytas IBAN/Revolut/Stripe/PayPal payment destination.</p>
+  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki realaus mokėjimo metodo, order ID, proof teksto ir fulfillment handoff. Tai nėra dashboardas: orderis laikomas mokėtinu tik kai įrašytas IBAN/Revolut/Stripe/PayPal payment destination, o apmokėjimas tvirtinamas tik per APF specialų verified-paid puslapį.</p>
 
   <section class="cards">
     <div class="card"><strong>29 €</strong><span class="muted">fixed audit price</span></div>
@@ -46,23 +46,25 @@
 
     <div class="panel">
       <h2>Payment + fulfillment handoff</h2>
-      <div id="state"><span class="pill warn">No payable order yet</span><span class="pill warn">payment provider not configured</span></div>
-      <pre id="output" class="output">Create a payable order when a payment destination is configured. If no IBAN/Revolut/Stripe/PayPal destination exists yet, use Request payment invoice: it builds a prefilled buyer email with the order data and keeps revenueCountedEur:0 until a verified paid event exists. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns.</pre>
+      <div id="state"><span class="pill warn">No payable order yet</span><span class="pill warn">payment provider not configured</span><span class="pill ok">APF paid gate wired</span></div>
+      <pre id="output" class="output">Create a payable order when a payment destination is configured. If no IBAN/Revolut/Stripe/PayPal destination exists yet, use Request payment invoice: it builds a prefilled buyer email with the order data and keeps revenueCountedEur:0 until a verified paid event exists. Page views, order rows, outreach rows, proof text, generic paid-confirmation links and checkout clicks are rejected weak patterns. This APF order page now hands off directly to auto-parts-paid-confirmation.html so 29 EUR revenue can only be counted by the APF duplicate-protected paid ledger.</pre>
       <div class="cta">
-        <a class="btn" id="confirmLink" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Open paid confirmation</a>
+        <a class="btn" id="confirmLink" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Open APF paid confirmation</a>
         <a class="btn secondary" id="fulfillmentLink" href="./paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=payable-order">Open fulfillment</a>
         <a class="btn secondary" id="productLink" href="./auto-parts-price-finder.html">Back to product</a>
       </div>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: missing payment destination, order intent, payment reference, proof text, invoice request email, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: missing payment destination, order intent, payment reference, proof text, invoice request email, CSV export, outreach row, generic paid-confirmation link, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
+'use strict';
 const PRODUCT='auto-parts-price-finder';
 const PRICE_EUR=29;
 const SELLER='MB Marių auto';
 const CONTACT_EMAIL='automariu@gmail.com';
 const STORAGE_KEY='apfPayableOrders';
+const APF_PAID_CONFIRMATION_PAGE='./auto-parts-paid-confirmation.html';
 const $=id=>document.getElementById(id);
 const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
 let lastOrder=null;
@@ -86,19 +88,24 @@ function buildOrder(){
 }
 function buildPaymentRequestMailto(order){
   const subject='APF 29 EUR payment request '+order.paymentReference;
-  const body=`Please issue payment instructions for this 29 EUR Auto Parts Price Finder order.\n\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\nChannel: ${order.channel||'-'}\nNotes: ${order.notes||'-'}\n\nRevenue rule: this invoice request is not revenue. Count 0 EUR until verified paid event exists in qpvPaidEventLedger.`;
+  const body=`Please issue payment instructions for this 29 EUR Auto Parts Price Finder order.\n\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\nChannel: ${order.channel||'-'}\nNotes: ${order.notes||'-'}\n\nRevenue rule: this invoice request is not revenue. Count 0 EUR until verified paid event exists in apfPaidEventLedger. APF confirmation URL: auto-parts-paid-confirmation.html.`;
   return 'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function buildApfPaidConfirmationUrl(order){
+  const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payable-order',orderId:order.orderId,paymentReference:order.paymentReference,paymentMethod:order.paymentMethod,buyerEmail:order.buyerEmail,buyerName:order.buyerName,vehicle:order.vehicle,part:[order.part,order.oem].filter(Boolean).join(' / ')});
+  return APF_PAID_CONFIRMATION_PAGE+'?'+params.toString();
 }
 function refreshInvoiceRequest(){
   const draft=buildOrder();
   $('invoiceRequestLink').href=buildPaymentRequestMailto(draft);
+  $('confirmLink').href=buildApfPaidConfirmationUrl(draft);
   return draft;
 }
 function createOrder(){
   refreshInvoiceRequest();
   if(!paymentDestinationIsConfigured()){
-    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill ok">invoice request ready</span><span class="pill warn">revenueCountedEur:0</span>';
-    $('output').textContent='BLOCKER: payable order requires a real payment destination: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL. Fallback executed: Request payment invoice now opens a prefilled email to '+CONTACT_EMAIL+' with buyer/order data. No order row is created and no revenue is counted until this is configured or a verified paid event exists.';
+    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill ok">invoice request ready</span><span class="pill ok">APF paid gate ready</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent='BLOCKER: payable order requires a real payment destination: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL. Fallback executed: Request payment invoice now opens a prefilled email to '+CONTACT_EMAIL+' with buyer/order data. Direct APF confirmation fallback is wired to auto-parts-paid-confirmation.html but cannot count revenue without manually verified paid proof. No order row is created and no revenue is counted until this is configured or a verified paid event exists.';
     return;
   }
   const order=buildOrder();
@@ -110,11 +117,11 @@ function createOrder(){
   }
   rows.unshift(order);writeOrders(rows);lastOrder=order;
   $('invoiceRequestLink').href=buildPaymentRequestMailto(order);
+  $('confirmLink').href=buildApfPaidConfirmationUrl(order);
   const params='product='+encodeURIComponent(PRODUCT)+'&priceEur=29&buyer=used-parts-seller&source=payable-order&orderId='+encodeURIComponent(order.orderId)+'&paymentReference='+encodeURIComponent(order.paymentReference)+'&paymentMethod='+encodeURIComponent(order.paymentMethod);
-  $('confirmLink').href='./paid-confirmation.html?'+params;
   $('fulfillmentLink').href='./paid-fulfillment.html?'+params;
-  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill ok">invoice request ready</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nFallback if payment provider is not configured: use Request payment invoice to send order details to ${CONTACT_EMAIL}.\n\nRevenue rule: payable order rows, proof text, payment references, invoice request emails, outreach rows and link visits are 0 EUR until verified paid event exists.`;
+  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill ok">invoice request ready</span><span class="pill ok">APF verified-paid handoff ready</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open APF paid confirmation link and paste proof details: ${buildApfPaidConfirmationUrl(order)}\n4) Fulfillment unlocks only after verified paid event in apfPaidEventLedger.\n\nFallback if payment provider is not configured: use Request payment invoice to send order details to ${CONTACT_EMAIL}.\n\nRevenue rule: payable order rows, proof text, payment references, invoice request emails, outreach rows, generic paid-confirmation links and link visits are 0 EUR until verified paid event exists in the APF paid ledger.`;
 }
 function exportOrders(){
   const rows=readOrders();
