@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Auto Parts Price Finder — bank transfer order</title>
+  <title>Auto Parts Price Finder — payable order</title>
   <style>
     :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,58px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:90px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,58px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:90px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable revenue path · 29 EUR · bank-transfer order capture · confirmed revenue stays 0 EUR until paid proof is verified</span>
+  <span class="badge">Executable revenue path · 29 EUR · payable order gate · confirmed revenue stays 0 EUR until paid proof is verified</span>
   <h1>Buy Auto Parts Price Finder audit — 29 €</h1>
-  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki pavedimo instrukcijos, order ID, proof teksto ir fulfillment handoff. Tai nėra dashboardas: forma sukuria order row, CSV eksportą ir direct handoff į paid confirmation/fulfillment.</p>
+  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki realaus mokėjimo metodo, order ID, proof teksto ir fulfillment handoff. Tai nėra dashboardas: orderis laikomas mokėtinu tik kai įrašytas IBAN/Revolut/Stripe/PayPal payment destination.</p>
 
   <section class="cards">
     <div class="card"><strong>29 €</strong><span class="muted">fixed audit price</span></div>
-    <div class="card"><strong id="kOrders">0</strong><span class="muted">local order rows</span></div>
+    <div class="card"><strong id="kOrders">0</strong><span class="muted">payable order rows</span></div>
     <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
   </section>
 
@@ -31,74 +31,88 @@
         <div><label>Part</label><input id="part" placeholder="rear bumper"></div>
         <div><label>OEM / codes</label><input id="oem" placeholder="NY83-15A282-A"></div>
         <div><label>Sales channel</label><select id="channel"><option>direct</option><option>RRR</option><option>eBay</option><option>Ovoko</option><option>Facebook</option></select></div>
+        <div><label>Payment method</label><select id="paymentMethod"><option>bank_transfer</option><option>revolut_business</option><option>stripe_payment_link</option><option>paypal_checkout</option></select></div>
+        <div><label>Payment destination / URL</label><input id="paymentDestination" placeholder="IBAN, Revolut link, Stripe Payment Link or PayPal checkout URL"></div>
         <div class="full"><label>Buyer notes / market links</label><textarea id="notes" placeholder="Paste competitor links, condition, defects, delivery country"></textarea></div>
       </div>
       <div class="cta">
-        <button class="btn ok" onclick="createOrder()">Create 29 € order</button>
+        <button class="btn ok" onclick="createOrder()">Create payable 29 € order</button>
         <button class="btn secondary" onclick="exportOrders()">Export orders CSV</button>
-        <a class="btn secondary" id="outreachLink" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=bank-transfer-order">Outreach rows</a>
-        <button class="btn secondary" onclick="loadDemo()">Demo order</button>
+        <a class="btn secondary" id="outreachLink" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Outreach rows</a>
+        <button class="btn secondary" onclick="loadDemo()">Demo payable order</button>
       </div>
     </div>
 
     <div class="panel">
       <h2>Payment + fulfillment handoff</h2>
-      <div id="state"><span class="pill warn">No order yet</span></div>
-      <pre id="output" class="output">Create an order. The generated payment reference must be used in bank transfer/payment proof. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns and keep revenueCountedEur:0 until verified paid event exists.</pre>
+      <div id="state"><span class="pill warn">No payable order yet</span></div>
+      <pre id="output" class="output">Create a payable order. The generated payment reference must be used with the configured payment destination. Page views, order rows, outreach rows, proof text and checkout clicks are rejected weak patterns and keep revenueCountedEur:0 until verified paid event exists.</pre>
       <div class="cta">
-        <a class="btn" id="confirmLink" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=bank-transfer-order">Open paid confirmation</a>
-        <a class="btn secondary" id="fulfillmentLink" href="./paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=bank-transfer-order">Open fulfillment</a>
+        <a class="btn" id="confirmLink" href="./paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Open paid confirmation</a>
+        <a class="btn secondary" id="fulfillmentLink" href="./paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=payable-order">Open fulfillment</a>
         <a class="btn secondary" id="productLink" href="./auto-parts-price-finder.html">Back to product</a>
       </div>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: order intent, payment reference, proof text, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: missing payment destination, order intent, payment reference, proof text, CSV export, outreach row, paid-confirmation link, fulfillment link, duplicate orderId, page visit. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
 const PRICE_EUR=29;
 const SELLER='MB Marių auto';
 const CONTACT_EMAIL='automariu@gmail.com';
-const STORAGE_KEY='apfBankTransferOrders';
+const STORAGE_KEY='apfPayableOrders';
 const $=id=>document.getElementById(id);
 const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
 let lastOrder=null;
 function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36)||'order'}
 function readOrders(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
 function writeOrders(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows.slice(0,250)));$('kOrders').textContent=String(rows.length);$('kRevenue').textContent='0 €'}
+function getPaymentDestination(){
+  const url=new URL(location.href);
+  return ($('paymentDestination').value.trim()||url.searchParams.get('paymentDestination')||localStorage.getItem('apfPaymentDestination')||'').trim();
+}
+function paymentDestinationIsConfigured(){return getPaymentDestination().length>=8}
 function buildOrder(){
   const now=new Date();
   const buyerEmail=$('buyerEmail').value.trim();
   const vehicle=$('vehicle').value.trim();
   const part=$('part').value.trim();
-  const orderId='APF-BANK-'+now.getTime()+'-'+safeSlug(part||vehicle);
+  const paymentDestination=getPaymentDestination();
+  const orderId='APF-PAY-'+now.getTime()+'-'+safeSlug(part||vehicle);
   const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
-  return {orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'awaiting_verified_bank_transfer',seller:SELLER,contactEmail:CONTACT_EMAIL,buyerEmail,buyerName:$('buyerName').value.trim(),vehicle,part,oem:$('oem').value.trim(),channel:$('channel').value,notes:$('notes').value.trim()};
+  return {orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'awaiting_verified_payment',seller:SELLER,contactEmail:CONTACT_EMAIL,paymentMethod:$('paymentMethod').value,paymentDestination,buyerEmail,buyerName:$('buyerName').value.trim(),vehicle,part,oem:$('oem').value.trim(),channel:$('channel').value,notes:$('notes').value.trim()};
 }
 function createOrder(){
+  if(!paymentDestinationIsConfigured()){
+    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent='BLOCKER: payable order requires a real payment destination: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL. No order row is created and no revenue is counted until this is configured.';
+    return;
+  }
   const order=buildOrder();
+  localStorage.setItem('apfPaymentDestination',order.paymentDestination);
   const rows=readOrders();
   if(rows.some(r=>r.orderId===order.orderId||r.paymentReference===order.paymentReference)){
     $('state').innerHTML='<span class="pill warn">duplicate blocked</span><span class="pill warn">revenueCountedEur:0</span>';
     return;
   }
   rows.unshift(order);writeOrders(rows);lastOrder=order;
-  const params='product='+encodeURIComponent(PRODUCT)+'&priceEur=29&buyer=used-parts-seller&source=bank-transfer-order&orderId='+encodeURIComponent(order.orderId)+'&paymentReference='+encodeURIComponent(order.paymentReference);
+  const params='product='+encodeURIComponent(PRODUCT)+'&priceEur=29&buyer=used-parts-seller&source=payable-order&orderId='+encodeURIComponent(order.orderId)+'&paymentReference='+encodeURIComponent(order.paymentReference)+'&paymentMethod='+encodeURIComponent(order.paymentMethod);
   $('confirmLink').href='./paid-confirmation.html?'+params;
   $('fulfillmentLink').href='./paid-fulfillment.html?'+params;
-  $('state').innerHTML='<span class="pill ok">order row created</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR by bank transfer using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nRevenue rule: order rows, proof text, payment references, outreach rows and link visits are 0 EUR until verified paid event exists.`;
+  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open paid confirmation link and paste proof details.\n4) Fulfillment unlocks only after verified paid event in qpvPaidEventLedger.\n\nRevenue rule: payable order rows, proof text, payment references, outreach rows and link visits are 0 EUR until verified paid event exists.`;
 }
 function exportOrders(){
   const rows=readOrders();
   if(!rows.length){createOrder()}
   const data=readOrders();
-  const headers=['orderId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','seller','contactEmail','buyerEmail','buyerName','vehicle','part','oem','channel','notes'];
+  const headers=['orderId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','seller','contactEmail','paymentMethod','paymentDestination','buyerEmail','buyerName','vehicle','part','oem','channel','notes'];
   const csv=[headers.join(','),...data.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-bank-transfer-orders.csv';a.click();URL.revokeObjectURL(url);
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-payable-orders.csv';a.click();URL.revokeObjectURL(url);
 }
 function loadDemo(){
-  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('channel').value='direct';$('notes').value='Need price audit with competitor links and recommended ask/quick-sale price.';
+  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('channel').value='direct';$('paymentMethod').value='bank_transfer';$('paymentDestination').value='IBAN_OR_PAYMENT_LINK_REQUIRED';$('notes').value='Need price audit with competitor links and recommended ask/quick-sale price.';
 }
 writeOrders(readOrders());
 </script>
