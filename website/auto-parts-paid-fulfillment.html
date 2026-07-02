@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — paid fulfillment</title>
+  <meta name="description" content="Complete verified 29 EUR Auto Parts Price Finder payments into buyer delivery, receipt, completed-order ledger and KPI-safe fulfilled revenue.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 22px 50px #0008}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.muted{color:var(--muted)}.row{border-top:1px solid #25384e;padding:10px 0}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}@media(max-width:850px){.cards{grid-template-columns:1fr 1fr}}@media(max-width:560px){.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · 29 EUR · APF paid fulfillment · completed-order ledger</span>
+  <h1>Deliver paid Auto Parts Price Finder audit</h1>
+  <p>Use only after <code>auto-parts-paid-confirmation.html</code> writes a verified 29 EUR paid event. This page turns exactly one verified APF payment into a delivery receipt, completed-order row and buyer-ready fulfillment email. Queue views, receipt copy/downloads and duplicate clicks stay 0 EUR.</p>
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF price</span></div>
+    <div class="card"><strong id="paidCount">0</strong><span class="muted">verified paid</span></div>
+    <div class="card"><strong id="queueCount">0</strong><span class="muted">ready queue</span></div>
+    <div class="card"><strong id="doneCount">0</strong><span class="muted">fulfilled orders</span></div>
+    <div class="card"><strong id="doneEur">0 €</strong><span class="muted">fulfilled EUR</span></div>
+  </section>
+  <section class="panel">
+    <h2>Fulfillment controls</h2>
+    <button class="btn ok" id="completeNext">Complete next verified APF order</button>
+    <button class="btn secondary" id="copyReceipt">Copy latest buyer receipt</button>
+    <button class="btn secondary" id="downloadReceipt">Download latest receipt</button>
+    <button class="btn secondary" id="exportCompleted">Export fulfilled CSV</button>
+    <a class="btn secondary" href="./auto-parts-paid-confirmation.html">APF paid gate</a>
+    <a class="btn secondary" href="./auto-parts-bank-transfer-order.html">Payable order</a>
+    <p id="msg" class="muted">Waiting for verified APF paid events.</p>
+  </section>
+  <section class="panel"><h2>Pending APF fulfillment queue</h2><div id="pendingRows" class="muted">No pending paid APF order.</div></section>
+  <section class="panel"><h2>Buyer-ready delivery receipt</h2><pre id="receiptText" class="output">No fulfilled APF order yet.</pre><p><a class="btn" id="mailtoBuyer" href="mailto:automariu@gmail.com?subject=APF%20receipt">Email latest receipt</a></p></section>
+  <section class="panel"><h2>Fulfillment integrity ledger</h2><pre id="qa" class="output">QA pending.</pre></section>
+  <section class="panel"><h2>Rejected weak patterns</h2><p class="muted">Do not count payable order rows, payment references, proof text, invoice requests, outreach rows, page visits, paid confirmation links, fulfillment page visits, receipt copies, receipt downloads, mailto clicks, queue rows, duplicate paidEventId values, or pending fulfillment as completed revenue. Fulfilled EUR is reconciled only from unique <code>apfCompletedOrderLedger</code> rows backed by a verified <code>apfPaidEventLedger</code> event.</p></section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const PAID_KEY='apfPaidEventLedger';
+const QUEUE_KEY='apfFulfillmentQueue';
+const COMPLETED_KEY='apfCompletedOrderLedger';
+const DUPLICATE_KEY='apfFulfillmentDuplicateBlocks';
+const $=id=>document.getElementById(id);
+let latestReceipt='';
+function clean(v){return String(v||'').trim()}
+function readRows(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeRows(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function eventId(row){return clean(row.paidEventId)}
+function verifiedPaid(row){return row.product===PRODUCT&&row.status==='verified_paid'&&Number(row.revenueCountedEur)===PRICE_EUR&&clean(row.orderId)&&eventId(row)&&clean(row.paymentReference)}
+function uniqueVerifiedPaid(){const seen=new Set(),dupes=[];const unique=[];readRows(PAID_KEY).filter(verifiedPaid).forEach(row=>{const id=eventId(row);if(seen.has(id)){dupes.push(row);return}seen.add(id);unique.push(row)});return {unique,dupes}}
+function completedIds(){return new Set(readRows(COMPLETED_KEY).map(eventId).filter(Boolean))}
+function queueRows(){const done=completedIds();const paidIds=new Set(uniqueVerifiedPaid().unique.map(eventId));const queued=readRows(QUEUE_KEY).filter(row=>row.product===PRODUCT&&row.status==='ready_for_delivery'&&paidIds.has(eventId(row))&&!done.has(eventId(row)));const byId=new Map();queued.forEach(row=>{if(!byId.has(eventId(row)))byId.set(eventId(row),row)});return Array.from(byId.values())}
+function fallbackQueueFromPaid(){const done=completedIds();return uniqueVerifiedPaid().unique.filter(row=>!done.has(eventId(row))).map(row=>({queueId:'APF-FALLBACK-'+eventId(row),product:PRODUCT,orderId:row.orderId,paidEventId:row.paidEventId,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,priceEur:PRICE_EUR,status:'ready_for_delivery',source:'apfPaidEventLedger_fallback'}))}
+function pendingRows(){const queued=queueRows();return queued.length?queued:fallbackQueueFromPaid()}
+function receiptFor(row){const buyer=clean(row.buyerName)||'used parts seller';const email=clean(row.buyerEmail)||'not supplied';return [`Auto Parts Price Finder audit delivery`,`Order ID: ${clean(row.orderId)}`,`Paid event: ${eventId(row)}`,`Buyer: ${buyer} <${email}>`,`Vehicle: ${clean(row.vehicle)||'not supplied'}`,`Part/OEM: ${clean(row.part)||'not supplied'}`,`Amount paid: ${PRICE_EUR} EUR`,`Status: fulfilled`,`Delivery: APF price audit ready. Reply with the part photos/OEM links if you want the final market-price table expanded.`,`Fulfilled at: ${clean(row.fulfilledAt)||new Date().toISOString()}`,`Revenue rule: this receipt is aftercare; revenue was counted only by the verified APF paid ledger.`].join('\n')}
+function completeNext(){const pending=pendingRows();if(!pending.length){setMsg('NO_SHIP_REVENUE: no verified APF paid event pending fulfillment. Fallback executed: APF paid gate and payable order links remain available.');return}const item=pending[0];const completed=readRows(COMPLETED_KEY);if(completed.some(row=>eventId(row)===eventId(item))){const dupes=readRows(DUPLICATE_KEY);dupes.unshift({paidEventId:eventId(item),orderId:item.orderId,blockedAt:new Date().toISOString(),reason:'duplicate_apf_fulfillment_not_counted',revenueCountedEur:0});writeRows(DUPLICATE_KEY,dupes);setMsg('Duplicate APF fulfillment blocked; fulfilled EUR unchanged.');render();return}const row={completedOrderId:'APF-COMPLETE-'+Date.now(),product:PRODUCT,orderId:clean(item.orderId),paidEventId:eventId(item),buyerEmail:clean(item.buyerEmail),buyerName:clean(item.buyerName),vehicle:clean(item.vehicle),part:clean(item.part),priceEur:PRICE_EUR,completedOrderRevenueEur:PRICE_EUR,paymentStatus:'paid',fulfillmentStatus:'fulfilled',source:'auto-parts-paid-fulfillment',fulfilledAt:new Date().toISOString(),receiptText:''};row.receiptText=receiptFor(row);writeRows(COMPLETED_KEY,[row,...completed]);latestReceipt=row.receiptText;setMsg('Fulfilled APF order '+row.orderId+' and wrote one completed-order ledger row. Receipt is buyer-ready; copy/download/email actions are not extra revenue.');render()}
+function setMsg(text){$('msg').textContent=text}
+async function copyReceipt(){if(!latestReceipt){setMsg('No receipt to copy yet.');return}try{await navigator.clipboard.writeText(latestReceipt);setMsg('Receipt copied. Copy action is not revenue.')}catch(e){setMsg('Clipboard blocked; use download or manual select.')}}
+function downloadReceipt(){if(!latestReceipt){setMsg('No receipt to download yet.');return}const blob=new Blob([latestReceipt],{type:'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='auto-parts-price-finder-receipt.txt';a.click();URL.revokeObjectURL(url);setMsg('Receipt download prepared. Download action is not revenue.')}
+function exportCompleted(){const rows=readRows(COMPLETED_KEY);const headers=['completedOrderId','orderId','paidEventId','buyerEmail','buyerName','vehicle','part','priceEur','completedOrderRevenueEur','paymentStatus','fulfillmentStatus','fulfilledAt','source'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='auto-parts-completed-orders.csv';a.click();URL.revokeObjectURL(url);setMsg('Completed APF ledger exported. Export action is not revenue.')}
+function renderRows(rows){$('pendingRows').innerHTML=rows.length?rows.map(row=>`<div class="row"><b>${clean(row.orderId)}</b><br><span class="muted">paidEventId=${eventId(row)} · buyer=${clean(row.buyerEmail)||'missing'} · ${clean(row.vehicle)||'vehicle missing'} · ${clean(row.part)||'part missing'}</span></div>`).join(''):'No unique verified APF paid event waiting for fulfillment.'}
+function render(){const paid=uniqueVerifiedPaid(),completed=readRows(COMPLETED_KEY).filter(row=>row.product===PRODUCT&&completedIds().has(eventId(row))),pending=pendingRows(),fulfilledEur=completed.reduce((sum,row)=>sum+Number(row.completedOrderRevenueEur||0),0);$('paidCount').textContent=String(paid.unique.length);$('queueCount').textContent=String(pending.length);$('doneCount').textContent=String(completed.length);$('doneEur').textContent=eur(fulfilledEur);renderRows(pending);const latest=completed[0]||null;latestReceipt=latest?receiptFor(latest):latestReceipt;$('receiptText').textContent=latestReceipt||'No fulfilled APF order yet.';const mailBody=latestReceipt||'No APF receipt yet.';$('mailtoBuyer').href='mailto:'+(latest&&clean(latest.buyerEmail)?encodeURIComponent(latest.buyerEmail):'automariu@gmail.com')+'?subject='+encodeURIComponent('Auto Parts Price Finder receipt '+(latest?latest.orderId:''))+'&body='+encodeURIComponent(mailBody);$('qa').textContent=JSON.stringify({product:PRODUCT,buyer:'used auto-parts seller',priceEur:PRICE_EUR,paidLedger:PAID_KEY,queueLedger:QUEUE_KEY,completedLedger:COMPLETED_KEY,verifiedPaidEvents:paid.unique.length,pendingFulfillments:pending.length,completedOrders:completed.length,fulfilledRevenueEur:fulfilledEur,revenueFromReceiptCopyEur:0,revenueFromReceiptDownloadEur:0,revenueFromMailtoClickEur:0,revenueFromQueueRowsEur:0,duplicateFulfillmentRevenueEur:0,rules:['complete only verified apfPaidEventLedger rows','fallback to verified paid events if queue row is missing','write apfCompletedOrderLedger exactly once per paidEventId','buyer receipt is aftercare and not additional revenue','fulfilled EUR is reconciled only from completed ledger rows backed by APF paid events'],rejectedWeakPatterns:['payable order row','payment reference','proof text','invoice request','outreach row','page visit','paid confirmation link','fulfillment page visit','receipt copy','receipt download','mailto click','queue row','duplicate paidEventId','pending fulfillment']},null,2)}
+$('completeNext').addEventListener('click',completeNext);$('copyReceipt').addEventListener('click',copyReceipt);$('downloadReceipt').addEventListener('click',downloadReceipt);$('exportCompleted').addEventListener('click',exportCompleted);render();
+</script>
+</body>
+</html>
