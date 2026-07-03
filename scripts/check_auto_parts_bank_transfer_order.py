@@ -6,7 +6,8 @@ an executable order form, a real payment destination gate, payment reference,
 CSV export, APF-specific paid-confirmation and APF-specific fulfillment handoff,
 plus a fallback invoice request email when the payment provider destination is
 not configured, while keeping confirmed revenue at 0 EUR until a verified paid
-event exists.
+event exists. It also requires payment setup restoration so the seller's chosen
+payment method/destination survives the setup page -> payable order handoff.
 """
 from pathlib import Path
 
@@ -46,6 +47,7 @@ def main() -> None:
         "Executable revenue path · 29 EUR · payable order gate",
         "APF direct verified-paid handoff",
         "APF-specific paid fulfillment handoff",
+        "payment setup auto-restore",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const SELLER='MB Marių auto'",
@@ -96,6 +98,27 @@ def main() -> None:
     for marker in apf_fulfillment_handoff_markers:
         require(marker in order, f"order page missing APF paid-fulfillment handoff marker: {marker}")
 
+    payment_setup_restore_markers = [
+        "const PAYMENT_DESTINATION_KEY='apfPaymentDestination'",
+        "const PAYMENT_METHOD_KEY='apfPaymentMethod'",
+        "const VALID_PAYMENT_METHODS=['bank_transfer','revolut_business','stripe_payment_link','paypal_checkout']",
+        "function getUrlPaymentValue(name)",
+        "function normalizePaymentMethod(value)",
+        "function restorePaymentSetup()",
+        "urlDestination=getUrlPaymentValue('paymentDestination')",
+        "storedDestination=localStorage.getItem(PAYMENT_DESTINATION_KEY)",
+        "localStorage.setItem(PAYMENT_DESTINATION_KEY,restoredDestination)",
+        "localStorage.setItem(PAYMENT_METHOD_KEY,restoredMethod)",
+        "function getPaymentMethod()",
+        "paymentMethod:getPaymentMethod()",
+        "localStorage.setItem(PAYMENT_METHOD_KEY,order.paymentMethod)",
+        "payment setup restored",
+        "Payment method: ${order.paymentMethod}",
+        "Payment destination: ${order.paymentDestination}",
+    ]
+    for marker in payment_setup_restore_markers:
+        require(marker in order, f"order page missing payment setup restore marker: {marker}")
+
     require(
         "./paid-confirmation.html?product=auto-parts-price-finder" not in order,
         "order page must not send APF buyers to the generic paid confirmation URL",
@@ -120,7 +143,7 @@ def main() -> None:
         "payment destination required",
         "No order row is created and no revenue is counted until this is configured",
         "Pay 29 EUR to payment destination above using reference",
-        "localStorage.setItem('apfPaymentDestination'",
+        "localStorage.setItem(PAYMENT_DESTINATION_KEY",
         "paymentMethod",
         "paymentDestination",
     ]
@@ -135,6 +158,8 @@ def main() -> None:
         "mailto:'+encodeURIComponent(CONTACT_EMAIL)",
         "APF 29 EUR payment request",
         "Please issue payment instructions for this 29 EUR Auto Parts Price Finder order",
+        "Payment method: ${order.paymentMethod}",
+        "Payment destination: ${order.paymentDestination||'-'}",
         "Fallback executed: Request payment invoice now opens a prefilled email",
         "invoice request ready",
         "invoice request email",
@@ -170,7 +195,7 @@ def main() -> None:
         require(pattern not in order, f"weak/fake revenue pattern must not appear in order page: {pattern}")
 
     print("PASS auto parts payable order regression")
-    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, APF direct paid-fulfillment handoff, proof instructions, CSV export, and zero confirmed revenue until verified paid event")
+    print("checked: 29 EUR buyer order form, required payment destination gate, restored setup payment method/destination, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, APF direct paid-fulfillment handoff, proof instructions, CSV export, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
