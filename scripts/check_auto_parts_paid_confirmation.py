@@ -3,13 +3,14 @@
 
 This is a revenue-state gate, not a dashboard or idea list. It requires a real
 manual verification workflow that counts APF revenue only after a duplicate-
-protected paid event exists, updates payable order state, and creates a
-fulfillment handoff.
+protected paid event exists, updates payable order state, and hands the buyer
+order to the APF-specific paid fulfillment page.
 """
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "website" / "auto-parts-paid-confirmation.html"
+FULFILLMENT_PAGE = ROOT / "website" / "auto-parts-paid-fulfillment.html"
 WORKFLOW = ROOT / ".github" / "workflows" / "revenue-regression.yml"
 
 
@@ -20,6 +21,7 @@ def require(condition: bool, message: str) -> None:
 
 def main() -> None:
     require(PAGE.exists(), "missing Auto Parts paid confirmation page")
+    require(FULFILLMENT_PAGE.exists(), "missing Auto Parts paid fulfillment page")
     require(WORKFLOW.exists(), "missing revenue regression workflow")
     page = PAGE.read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
@@ -27,6 +29,7 @@ def main() -> None:
     executable_markers = [
         "Auto Parts Price Finder verified payment — 29 €",
         "Executable revenue path · 29 EUR · APF verified paid gate",
+        "APF paid fulfillment handoff",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const PAID_KEY='apfPaidEventLedger'",
@@ -40,14 +43,14 @@ def main() -> None:
         "function confirmedRevenue()",
         "function exportPaidLedger()",
         "auto-parts-verified-paid-ledger.csv",
-        "paid-fulfillment.html?",
+        "auto-parts-paid-fulfillment.html?",
     ]
     for marker in executable_markers:
         require(marker in page, f"paid confirmation page missing executable marker: {marker}")
 
     paid_gate_markers = [
         "Mark APF paid once",
-        "Verified payment reference",
+        "Payment reference",
         "Admin verification note",
         "amount!==PRICE_EUR",
         "exact 29 EUR required",
@@ -56,6 +59,8 @@ def main() -> None:
         "29 EUR counted once",
         "ready_for_delivery",
         "payable order updated",
+        "APF fulfillment",
+        "fulfillmentUrl",
     ]
     for marker in paid_gate_markers:
         require(marker in page, f"paid confirmation page missing paid gate marker: {marker}")
@@ -85,6 +90,7 @@ def main() -> None:
         "duplicate clicks count revenue",
         "fake paid event",
         "revenueCountedEur:0 until paid gate is skipped",
+        "./paid-fulfillment.html?",
     ]
     for pattern in rejected_fake_patterns:
         require(pattern not in page, f"fake/weak revenue pattern must not appear: {pattern}")
@@ -95,7 +101,7 @@ def main() -> None:
     )
 
     print("PASS auto parts paid confirmation regression")
-    print("checked: 29 EUR APF verified-paid gate, duplicate protection, payable-order update, fulfillment queue handoff, CSV export, and zero revenue for weak patterns")
+    print("checked: 29 EUR APF verified-paid gate, duplicate protection, payable-order update, APF-specific fulfillment handoff, CSV export, and zero revenue for weak patterns")
 
 
 if __name__ == "__main__":
