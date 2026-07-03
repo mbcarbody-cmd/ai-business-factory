@@ -3,14 +3,16 @@
 
 This is a revenue-path workflow improvement: it converts the missing live
 IBAN/Revolut/Stripe/PayPal blocker into a seller setup page that stores a real
-payment destination locally and generates a buyer-ready payable order URL while
-keeping confirmed revenue at 0 EUR until verified payment exists.
+payment destination locally and generates a buyer-ready instant checkout URL
+plus a payable order fallback while keeping confirmed revenue at 0 EUR until
+verified payment exists.
 """
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SETUP_PAGE = ROOT / "website" / "auto-parts-payment-destination-setup.html"
 ORDER_PAGE = ROOT / "website" / "auto-parts-bank-transfer-order.html"
+CHECKOUT_PAGE = ROOT / "website" / "auto-parts-instant-payment-link-checkout.html"
 
 
 def require(condition: bool, message: str) -> None:
@@ -21,17 +23,21 @@ def require(condition: bool, message: str) -> None:
 def main() -> None:
     require(SETUP_PAGE.exists(), "missing payment destination setup page")
     require(ORDER_PAGE.exists(), "missing payable order page")
+    require(CHECKOUT_PAGE.exists(), "missing instant checkout page")
     setup = SETUP_PAGE.read_text(encoding="utf-8")
     order = ORDER_PAGE.read_text(encoding="utf-8")
+    checkout = CHECKOUT_PAGE.read_text(encoding="utf-8")
 
     setup_markers = [
         "Configure Auto Parts Price Finder payment destination",
-        "Seller payment setup · converts manual blocker into payable 29 EUR order URL",
+        "Seller payment setup · converts manual blocker into instant 29 EUR checkout URL",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const STORAGE_DESTINATION='apfPaymentDestination'",
         "const STORAGE_METHOD='apfPaymentMethod'",
         "function validDestination(v)",
+        "function sharedPaymentParams()",
+        "function buildInstantCheckoutUrl()",
         "function buildOrderUrl()",
         "function buildInvoiceRequest()",
         "function saveDestination()",
@@ -40,7 +46,9 @@ def main() -> None:
         "paymentDestination",
         "paymentMethod",
         "IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL",
-        "buyer-ready payable order URL",
+        "buyer-ready instant checkout URL",
+        "payable order fallback",
+        "auto-parts-instant-payment-link-checkout.html?",
         "auto-parts-bank-transfer-order.html?",
         "auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29",
         "apfPaidEventLedger",
@@ -48,12 +56,24 @@ def main() -> None:
     for marker in setup_markers:
         require(marker in setup, f"setup page missing executable marker: {marker}")
 
+    instant_checkout_handoff_markers = [
+        "id=\"instantCheckoutUrl\"",
+        "Open instant checkout URL",
+        "instant checkout URL generated",
+        "Buyer-ready instant checkout URL:",
+        "generated instant checkout URL",
+        "checkout attempt are not revenue",
+        "buildInstantCheckoutUrl()",
+    ]
+    for marker in instant_checkout_handoff_markers:
+        require(marker in setup, f"setup page missing instant checkout handoff marker: {marker}")
+
     zero_revenue_markers = [
         "confirmed revenue remains 0 EUR until verified paid event",
         "revenueCountedEur:0",
         "generated URLs are 0 EUR until verified paid event exists",
-        "this setup is not revenue. Count 0 EUR until verified paid event exists",
-        "Rejected weak patterns: setup saved, generated payment URL, invoice request",
+        "this setup, generated instant checkout URL, payable order URL and checkout attempt are not revenue",
+        "Rejected weak patterns: setup saved, generated payment URL, instant checkout URL",
     ]
     for marker in zero_revenue_markers:
         require(marker in setup, f"setup page missing zero-revenue guard: {marker}")
@@ -75,11 +95,24 @@ def main() -> None:
     for marker in integration_markers:
         require(marker in order, f"order page missing payment setup integration marker: {marker}")
 
+    checkout_markers = [
+        "const PAYMENT_DESTINATION_KEY='apfPaymentDestination'",
+        "function restoreFromUrlOrStorage()",
+        "Pay 29 € now",
+        "checkout_attempted_not_revenue",
+        "auto-parts-paid-confirmation.html?",
+        "auto-parts-paid-fulfillment.html?",
+    ]
+    for marker in checkout_markers:
+        require(marker in checkout, f"instant checkout page missing setup handoff marker: {marker}")
+
     weak_patterns = [
         "revenueCountedEur:29",
         "confirmedRevenueEur:29",
         "setup save is revenue",
         "generated URL is revenue",
+        "instant checkout is revenue",
+        "checkout attempt is revenue",
         "mailto click is revenue",
         "fake paid",
         "qpvPaidEventLedger",
@@ -88,7 +121,7 @@ def main() -> None:
         require(pattern not in setup, f"weak/fake revenue pattern must not appear in setup page: {pattern}")
 
     print("PASS auto parts payment destination setup regression")
-    print("checked: seller payment setup, local payment destination storage, buyer-ready payable order URL, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event")
+    print("checked: seller payment setup, local payment destination storage, buyer-ready instant checkout URL, payable order fallback, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
