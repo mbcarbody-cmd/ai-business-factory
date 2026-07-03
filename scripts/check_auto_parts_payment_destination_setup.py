@@ -3,9 +3,9 @@
 
 This is a revenue-path workflow improvement: it converts the missing live
 IBAN/Revolut/Stripe/PayPal blocker into a seller setup page that stores a real
-payment destination locally and generates a buyer-ready instant checkout URL
-plus a payable order fallback while keeping confirmed revenue at 0 EUR until
-verified payment exists.
+payment destination locally, imports it from setup URLs, and generates a buyer-ready
+instant checkout URL plus a payable order fallback while keeping confirmed revenue
+at 0 EUR until verified payment exists.
 """
 from pathlib import Path
 
@@ -31,11 +31,15 @@ def main() -> None:
     setup_markers = [
         "Configure Auto Parts Price Finder payment destination",
         "Seller payment setup · converts manual blocker into instant 29 EUR checkout URL",
+        "URL-importable destination",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const STORAGE_DESTINATION='apfPaymentDestination'",
         "const STORAGE_METHOD='apfPaymentMethod'",
+        "const VALID_PAYMENT_METHODS=['bank_transfer','revolut_business','stripe_payment_link','paypal_checkout']",
         "function validDestination(v)",
+        "function validPaymentMethod(v)",
+        "function params()",
         "function sharedPaymentParams()",
         "function buildInstantCheckoutUrl()",
         "function buildOrderUrl()",
@@ -43,6 +47,7 @@ def main() -> None:
         "function saveDestination()",
         "function clearDestination()",
         "function copyOrderCopy()",
+        "function restoreFromUrlOrStorage()",
         "paymentDestination",
         "paymentMethod",
         "IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL",
@@ -55,6 +60,19 @@ def main() -> None:
     ]
     for marker in setup_markers:
         require(marker in setup, f"setup page missing executable marker: {marker}")
+
+    url_import_markers = [
+        "const urlDestination=(p.get('paymentDestination')||'').trim();",
+        "const urlMethod=(p.get('paymentMethod')||'').trim();",
+        "const destination=urlDestination||localStorage.getItem(STORAGE_DESTINATION)||'';",
+        "if(validDestination(urlDestination)){",
+        "localStorage.setItem(STORAGE_DESTINATION,urlDestination);",
+        "localStorage.setItem(STORAGE_METHOD,$('paymentMethod').value);",
+        "open setup with paymentDestination/paymentMethod URL parameters",
+        "setup URL import",
+    ]
+    for marker in url_import_markers:
+        require(marker in setup, f"setup page missing URL-import payment setup marker: {marker}")
 
     instant_checkout_handoff_markers = [
         "id=\"instantCheckoutUrl\"",
@@ -72,8 +90,8 @@ def main() -> None:
         "confirmed revenue remains 0 EUR until verified paid event",
         "revenueCountedEur:0",
         "generated URLs are 0 EUR until verified paid event exists",
-        "this setup, generated instant checkout URL, payable order URL and checkout attempt are not revenue",
-        "Rejected weak patterns: setup saved, generated payment URL, instant checkout URL",
+        "this setup, setup URL import, generated instant checkout URL, payable order URL and checkout attempt are not revenue",
+        "Rejected weak patterns: setup saved, generated payment URL, instant checkout URL, setup URL import",
     ]
     for marker in zero_revenue_markers:
         require(marker in setup, f"setup page missing zero-revenue guard: {marker}")
@@ -112,6 +130,7 @@ def main() -> None:
         "setup save is revenue",
         "generated URL is revenue",
         "instant checkout is revenue",
+        "setup URL import is revenue",
         "checkout attempt is revenue",
         "mailto click is revenue",
         "fake paid",
@@ -121,7 +140,10 @@ def main() -> None:
         require(pattern not in setup, f"weak/fake revenue pattern must not appear in setup page: {pattern}")
 
     print("PASS auto parts payment destination setup regression")
-    print("checked: seller payment setup, local payment destination storage, buyer-ready instant checkout URL, payable order fallback, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event")
+    print(
+        "checked: seller payment setup, URL/localStorage payment destination restore, buyer-ready instant checkout URL, "
+        "payable order fallback, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event"
+    )
 
 
 if __name__ == "__main__":
