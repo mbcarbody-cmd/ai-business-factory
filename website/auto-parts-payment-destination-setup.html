@@ -10,9 +10,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Seller payment setup · converts manual blocker into payable 29 EUR order URL · confirmed revenue remains 0 EUR until verified paid event</span>
+  <span class="badge">Seller payment setup · converts manual blocker into instant 29 EUR checkout URL · confirmed revenue remains 0 EUR until verified paid event</span>
   <h1>Configure Auto Parts Price Finder payment destination</h1>
-  <p>This operator page is the fallback for the missing live Stripe/Revolut/IBAN blocker. It stores one real seller payment destination locally, generates a buyer-ready order URL, and creates outreach/order copy. It rejects setup clicks, generated URLs and invoice requests as revenue.</p>
+  <p>This operator page is the fallback for the missing live Stripe/Revolut/IBAN blocker. It stores one real seller payment destination locally, generates a buyer-ready instant checkout URL plus payable order URL, and creates outreach/order copy. It rejects setup clicks, generated URLs and invoice requests as revenue.</p>
 
   <section class="grid">
     <div class="panel">
@@ -23,7 +23,7 @@
         <div class="full"><label>IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL</label><input id="paymentDestination" placeholder="Paste real payment destination here"></div>
         <div><label>Seller</label><input id="seller" value="MB Marių auto"></div>
         <div><label>Contact email</label><input id="contactEmail" value="automariu@gmail.com"></div>
-        <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated order. Email payment proof and order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in apfPaidEventLedger.</textarea></div>
+        <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated checkout/order. Email payment proof and checkout/order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in apfPaidEventLedger.</textarea></div>
       </div>
       <button class="btn ok" onclick="saveDestination()">Save payment destination</button>
       <button class="btn secondary" onclick="clearDestination()">Clear local setup</button>
@@ -33,13 +33,14 @@
     <div class="panel">
       <h2>Buyer-ready output</h2>
       <div id="state"><span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span></div>
-      <pre id="output" class="output">Paste a real IBAN/Revolut/Stripe/PayPal destination. The generated URL pre-fills the 29 EUR Auto Parts Price Finder payable order page so outreach can send buyers directly to payment instructions. Generated URLs, setup saves, invoice requests, mailto clicks and page visits are not revenue.</pre>
+      <pre id="output" class="output">Paste a real IBAN/Revolut/Stripe/PayPal destination. The generated instant checkout URL pre-fills the 29 EUR Auto Parts Price Finder Pay 29 now page, and the payable order URL remains as a bank/text fallback. Generated URLs, setup saves, invoice requests, mailto clicks and page visits are not revenue.</pre>
+      <a class="btn ok" id="instantCheckoutUrl" href="./auto-parts-instant-payment-link-checkout.html?product=auto-parts-price-finder&priceEur=29&source=payment-destination-setup">Open instant checkout URL</a>
       <a class="btn" id="orderUrl" href="./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&source=payment-destination-setup">Open payable order URL</a>
       <button class="btn secondary" onclick="copyOrderCopy()">Copy buyer payment copy</button>
       <a class="btn secondary" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payment-destination-setup">Open outreach rows</a>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, invoice request, copied buyer text, order intent, proof text, CSV export, outreach row, page visit, fake paid event, wrong ledger instruction. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, instant checkout URL, invoice request, copied buyer text, order intent, checkout attempt, proof text, CSV export, outreach row, page visit, fake paid event, wrong ledger instruction. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
@@ -50,8 +51,13 @@ const STORAGE_SELLER='apfPaymentSeller';
 const STORAGE_CONTACT='apfPaymentContactEmail';
 const $=id=>document.getElementById(id);
 function validDestination(v){return String(v||'').trim().length>=8}
+function sharedPaymentParams(){return {product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-destination-setup',paymentMethod:$('paymentMethod').value,paymentDestination:$('paymentDestination').value.trim()}}
+function buildInstantCheckoutUrl(){
+  const params=new URLSearchParams(sharedPaymentParams());
+  return './auto-parts-instant-payment-link-checkout.html?'+params.toString();
+}
 function buildOrderUrl(){
-  const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-destination-setup',paymentMethod:$('paymentMethod').value,paymentDestination:$('paymentDestination').value.trim()});
+  const params=new URLSearchParams(sharedPaymentParams());
   return './auto-parts-bank-transfer-order.html?'+params.toString();
 }
 function buildInvoiceRequest(){
@@ -59,12 +65,14 @@ function buildInvoiceRequest(){
   const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in apfPaidEventLedger.`;
   return 'mailto:'+encodeURIComponent($('contactEmail').value.trim()||'automariu@gmail.com')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
+function absoluteUrl(relative){return location.origin+location.pathname.replace('auto-parts-payment-destination-setup.html','')+relative.replace('./','')}
 function refresh(){
   const configured=validDestination($('paymentDestination').value);
+  $('instantCheckoutUrl').href=buildInstantCheckoutUrl();
   $('orderUrl').href=buildOrderUrl();
   $('invoiceRequestLink').href=buildInvoiceRequest();
-  $('state').innerHTML=configured?'<span class="pill ok">payment destination configured</span><span class="pill ok">buyer-ready order URL generated</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=configured?`AUTO PARTS PRICE FINDER — PAYMENT DESTINATION SET\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nPayment method: ${$('paymentMethod').value}\nPayment destination: ${$('paymentDestination').value.trim()}\nSeller: ${$('seller').value.trim()}\nContact: ${$('contactEmail').value.trim()}\n\nBuyer-ready order URL:\n${location.origin+location.pathname.replace('auto-parts-payment-destination-setup.html','')+buildOrderUrl().replace('./','')}\n\nBuyer instruction:\nBuy the 29 EUR Auto Parts Price Finder audit using the payment destination above. ${$('instructionSuffix').value.trim()}\n\nRevenue rule: this setup is not revenue. Count 0 EUR until verified paid event exists.`:'BLOCKER: no real payment destination configured yet. Fallback action available: request IBAN/Revolut/Stripe/PayPal destination by email, or paste it here to generate a buyer-ready payable order URL. Revenue remains 0 EUR.';
+  $('state').innerHTML=configured?'<span class="pill ok">payment destination configured</span><span class="pill ok">instant checkout URL generated</span><span class="pill ok">payable order fallback generated</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=configured?`AUTO PARTS PRICE FINDER — PAYMENT DESTINATION SET\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nPayment method: ${$('paymentMethod').value}\nPayment destination: ${$('paymentDestination').value.trim()}\nSeller: ${$('seller').value.trim()}\nContact: ${$('contactEmail').value.trim()}\n\nBuyer-ready instant checkout URL:\n${absoluteUrl(buildInstantCheckoutUrl())}\n\nBank/text fallback payable order URL:\n${absoluteUrl(buildOrderUrl())}\n\nBuyer instruction:\nBuy the 29 EUR Auto Parts Price Finder audit using the instant checkout URL first. If the destination is IBAN/text instead of https checkout, use the payable order fallback. ${$('instructionSuffix').value.trim()}\n\nRevenue rule: this setup, generated instant checkout URL, payable order URL and checkout attempt are not revenue. Count 0 EUR until verified paid event exists.`:'BLOCKER: no real payment destination configured yet. Fallback action available: request IBAN/Revolut/Stripe/PayPal destination by email, or paste it here to generate a buyer-ready instant checkout URL plus payable order fallback. Revenue remains 0 EUR.';
 }
 function saveDestination(){
   const dest=$('paymentDestination').value.trim();
