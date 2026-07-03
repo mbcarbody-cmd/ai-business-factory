@@ -3,10 +3,10 @@
 
 This is a buyer/payment-path gate, not a dashboard or summary gate. It requires
 an executable order form, a real payment destination gate, payment reference,
-CSV export, APF-specific paid-confirmation and fulfillment handoff, plus a
-fallback invoice request email when the payment provider destination is not
-configured, while keeping confirmed revenue at 0 EUR until a verified paid event
-exists.
+CSV export, APF-specific paid-confirmation and APF-specific fulfillment handoff,
+plus a fallback invoice request email when the payment provider destination is
+not configured, while keeping confirmed revenue at 0 EUR until a verified paid
+event exists.
 """
 from pathlib import Path
 
@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PRODUCT_PAGE = ROOT / "website" / "auto-parts-price-finder.html"
 ORDER_PAGE = ROOT / "website" / "auto-parts-bank-transfer-order.html"
 APF_PAID_PAGE = ROOT / "website" / "auto-parts-paid-confirmation.html"
+APF_FULFILLMENT_PAGE = ROOT / "website" / "auto-parts-paid-fulfillment.html"
 
 
 def require(condition: bool, message: str) -> None:
@@ -25,9 +26,11 @@ def main() -> None:
     require(PRODUCT_PAGE.exists(), "missing Auto Parts Price Finder product page")
     require(ORDER_PAGE.exists(), "missing bank-transfer order page")
     require(APF_PAID_PAGE.exists(), "missing APF paid confirmation page")
+    require(APF_FULFILLMENT_PAGE.exists(), "missing APF paid fulfillment page")
     product = PRODUCT_PAGE.read_text(encoding="utf-8")
     order = ORDER_PAGE.read_text(encoding="utf-8")
     paid = APF_PAID_PAGE.read_text(encoding="utf-8")
+    fulfillment = APF_FULFILLMENT_PAGE.read_text(encoding="utf-8")
 
     product_markers = [
         "auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29",
@@ -42,23 +45,26 @@ def main() -> None:
         "Buy Auto Parts Price Finder audit — 29 €",
         "Executable revenue path · 29 EUR · payable order gate",
         "APF direct verified-paid handoff",
+        "APF-specific paid fulfillment handoff",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const SELLER='MB Marių auto'",
         "const CONTACT_EMAIL='automariu@gmail.com'",
         "const STORAGE_KEY='apfPayableOrders'",
         "const APF_PAID_CONFIRMATION_PAGE='./auto-parts-paid-confirmation.html'",
+        "const APF_PAID_FULFILLMENT_PAGE='./auto-parts-paid-fulfillment.html'",
         "function createOrder()",
         "function exportOrders()",
         "function getPaymentDestination()",
         "function paymentDestinationIsConfigured()",
         "function buildApfPaidConfirmationUrl(order)",
+        "function buildApfPaidFulfillmentUrl(order)",
         "paymentReference",
         "APF29-",
         "status:'awaiting_verified_payment'",
         "revenueCountedEur:0",
         "auto-parts-paid-confirmation.html?",
-        "paid-fulfillment.html?",
+        "auto-parts-paid-fulfillment.html?",
         "auto-parts-payable-orders.csv",
         "apfPaidEventLedger",
     ]
@@ -79,13 +85,32 @@ def main() -> None:
     for marker in apf_confirmation_handoff_markers:
         require(marker in order, f"order page missing APF paid-confirmation handoff marker: {marker}")
 
+    apf_fulfillment_handoff_markers = [
+        "Open APF fulfillment",
+        "APF fulfillment wired",
+        "APF paid fulfillment handoff ready",
+        "buildApfPaidFulfillmentUrl(order)",
+        "APF paid fulfillment: ${buildApfPaidFulfillmentUrl(order)}",
+        "generic paid-fulfillment links",
+    ]
+    for marker in apf_fulfillment_handoff_markers:
+        require(marker in order, f"order page missing APF paid-fulfillment handoff marker: {marker}")
+
     require(
         "./paid-confirmation.html?product=auto-parts-price-finder" not in order,
         "order page must not send APF buyers to the generic paid confirmation URL",
     )
     require(
+        "./paid-fulfillment.html?" not in order,
+        "order page must not send APF buyers to the generic paid fulfillment URL",
+    )
+    require(
         "auto-parts-paid-confirmation.html" in paid and "PAID_KEY='apfPaidEventLedger'" in paid,
         "APF paid confirmation page must own the APF paid ledger",
+    )
+    require(
+        "auto-parts-paid-fulfillment.html" in fulfillment and "COMPLETED_KEY='apfCompletedOrderLedger'" in fulfillment,
+        "APF paid fulfillment page must own the APF completed-order ledger",
     )
 
     payment_gate_markers = [
@@ -145,7 +170,7 @@ def main() -> None:
         require(pattern not in order, f"weak/fake revenue pattern must not appear in order page: {pattern}")
 
     print("PASS auto parts payable order regression")
-    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, proof instructions, fulfillment handoff, CSV export, and zero confirmed revenue until verified paid event")
+    print("checked: 29 EUR buyer order form, required payment destination gate, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, APF direct paid-fulfillment handoff, proof instructions, CSV export, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
