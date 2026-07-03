@@ -23,7 +23,7 @@
         <div class="full"><label>IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL</label><input id="paymentDestination" placeholder="Paste real payment destination here"></div>
         <div><label>Seller</label><input id="seller" value="MB Marių auto"></div>
         <div><label>Contact email</label><input id="contactEmail" value="automariu@gmail.com"></div>
-        <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated order. Email payment proof and order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in qpvPaidEventLedger.</textarea></div>
+        <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated order. Email payment proof and order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in apfPaidEventLedger.</textarea></div>
       </div>
       <button class="btn ok" onclick="saveDestination()">Save payment destination</button>
       <button class="btn secondary" onclick="clearDestination()">Clear local setup</button>
@@ -39,7 +39,7 @@
       <a class="btn secondary" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payment-destination-setup">Open outreach rows</a>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, invoice request, copied buyer text, order intent, proof text, CSV export, outreach row, page visit, fake paid event. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, invoice request, copied buyer text, order intent, proof text, CSV export, outreach row, page visit, fake paid event, wrong ledger instruction. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
@@ -56,7 +56,7 @@ function buildOrderUrl(){
 }
 function buildInvoiceRequest(){
   const subject='APF 29 EUR payment destination setup required';
-  const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in qpvPaidEventLedger.`;
+  const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in apfPaidEventLedger.`;
   return 'mailto:'+encodeURIComponent($('contactEmail').value.trim()||'automariu@gmail.com')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 function refresh(){
