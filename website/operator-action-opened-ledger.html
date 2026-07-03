@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Operator Action Opened Ledger — Daily Learning</title>
+<meta name="description" content="Persist and dedupe opened Daily Learning Operator Queue actions as operational workflow events without counting them as revenue.">
+<style>
+:root{--bg:#071019;--card:#101b28;--line:#2c3a4a;--text:#f7fbff;--muted:#afbdcc;--accent:#49f0a0;--warn:#ffd073;--bad:#ff7c8c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#1c2b3f 0,#071019 45%);color:var(--text);font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:linear-gradient(180deg,#132033,#0d1724);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 20px 60px #0007}.muted{color:var(--muted)}.cta{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:10px 12px;margin:6px 6px 0 0;background:var(--accent);color:#03110a;font-weight:900;text-decoration:none;cursor:pointer}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.status{font-family:ui-monospace,Menlo,monospace;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;white-space:pre-wrap;color:#cfe0f4;font-size:12px;overflow:auto}.ok{color:#bdf6d8}.bad{color:#ffc3cb}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi{border:1px solid #31465f;border-radius:15px;padding:12px;background:#0a1420}.kpi b{font-size:24px}@media(max-width:800px){.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">DAILY LEARNING · OPERATOR ACTION OPENED LEDGER · DEDUPED · VERIFIED PAID ONLY · 0 EUR UNTIL PAID</span>
+<h1>Operator action opened ledger</h1>
+<p class="muted">This workflow records when the top Daily Learning Operator Queue action is opened from admin/source KPI routing. Opened actions are measurable workflow events only: they do not count as revenue, cannot replace regression proof, and are deduped by source + task + workflow URL.</p>
+<a class="cta ghost" href="./daily-learning-operator-queue.html?source=operator_action_opened_ledger">Daily learning operator queue</a>
+<a class="cta ghost" href="./source-kpi-admin.html?source=operator_action_opened_ledger">Source KPI admin</a>
+<a class="cta ghost" href="./revenue-command-center.html?source=operator_action_opened_ledger">Revenue command center</a>
+<div class="kpis"><div class="kpi">Queue rows<br><b id="kpiQueueRows">0</b></div><div class="kpi">Opened rows<br><b id="kpiOpenedRows">0</b></div><div class="kpi">Duplicate blocked<br><b id="kpiDuplicateBlocked">0</b></div><div class="kpi">Confirmed EUR<br><b id="kpiRevenue">0</b></div></div>
+</section>
+<section class="card">
+<h2>Open top operator action</h2>
+<p class="muted">Reads <code>dailyLearningOperatorQueue</code>, creates one <code>dailyLearningOperatorActionOpenedLedger</code> row for the highest-priority un-opened action, and routes the operator to the buyer/payment/admin workflow URL. This is fallback execution evidence, not revenue evidence.</p>
+<button class="cta" id="openTopAction">Save opened event + open top action</button>
+<button class="cta ghost" id="copyOpenedLedger">Copy opened ledger export</button>
+<button class="cta ghost" id="downloadOpenedLedger">Download opened ledger JSON</button>
+<p id="msg" class="bad" role="status"></p>
+<div class="status" id="topActionView">No queue rows loaded.</div>
+</section>
+<section class="card">
+<h2>Opened action ledger</h2>
+<p class="muted">Rows remain operational KPIs only. Confirmed EUR stays 0 until a separate manually verified paid/delivered order exists.</p>
+<div class="status" id="openedLedgerView">No opened actions yet.</div>
+</section>
+<section class="card">
+<h2>Rejected weak patterns</h2>
+<p class="muted">Do not count reading, summaries, new policy files, operator queue rows, opened operator action rows, copied exports, workflow links, payment proofs, receipts, or source visits as learning/revenue proof unless a versioned operational rule changed and regression passed. Opened operator action rows are not revenue.</p>
+</section>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),queueKey='dailyLearningOperatorQueue',openedKey='dailyLearningOperatorActionOpenedLedger';
+let latestExport={};
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const raw=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(raw)?raw:[]}catch(error){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
+function sourceOf(row){return clean(row.source||row.utm_source||row.attributionSource||'daily_agent_improvement_v6')}
+function workflowUrlOf(row){return clean(row.workflowUrl||row.workingUrl||row.href||'./daily-learning-operator-queue.html?source=operator_action_opened_ledger')}
+function taskOf(row){return clean(row.task||row.title||row.action||'daily learning fallback action')}
+function openedKeyOf(row){return [sourceOf(row),taskOf(row),workflowUrlOf(row)].join('|')}
+function queueRows(){return readJson(queueKey).map((row,index)=>({rank:Number(row.rank||index+1),source:sourceOf(row),task:taskOf(row),status:clean(row.status||'needs_operator_action'),workflowUrl:workflowUrlOf(row),operatorActionOpenedRevenueEur:0,confirmedRevenueEur:0})).sort((a,b)=>a.rank-b.rank)}
+function openedRows(){return readJson(openedKey)}
+function openedIndex(){return new Set(openedRows().map(openedKeyOf))}
+function topUnopenedAction(){const seen=openedIndex();return queueRows().find(row=>!seen.has(openedKeyOf(row)))||null}
+function render(){const queue=queueRows(),opened=openedRows(),top=topUnopenedAction(),duplicates=Math.max(0,queue.length-opened.filter(row=>queue.some(item=>openedKeyOf(item)===openedKeyOf(row))).length-(top?1:0));latestExport={version:'daily-learning-operator-action-opened-ledger-v1',storageKey:openedKey,source:'operator_action_opened_ledger',queueRowCount:queue.length,openedRowCount:opened.length,topUnopenedAction:top,rule:'Opened operator action rows are measurable fallback workflow events only; they dedupe source/task/workflowUrl and remain 0 EUR until verified paid/delivered evidence exists elsewhere.',confirmedRevenueEur:0,operatorActionOpenedRevenueEur:0,rejectedWeakPatterns:['reading is not learning proof','summary is not learning proof','new policy file without regression is not learning proof','operator queue row is not revenue','opened operator action row is not revenue','workflow URL is not revenue','payment proof is not paid revenue','receipt is not paid revenue'],opened};$('kpiQueueRows').textContent=String(queue.length);$('kpiOpenedRows').textContent=String(opened.length);$('kpiDuplicateBlocked').textContent=String(duplicates);$('kpiRevenue').textContent='0';$('topActionView').textContent=top?JSON.stringify(top,null,2):'No unopened operator action available.';$('openedLedgerView').textContent=opened.length?JSON.stringify(latestExport,null,2):'No opened actions yet.'}
+function setMsg(text,ok=false){$('msg').className=ok?'ok':'bad';$('msg').textContent=text}
+function openTopAction(){const row=topUnopenedAction();if(!row){setMsg('No unopened operator action available, or duplicate blocked.',false);return}const opened={...row,openedAt:new Date().toISOString(),openedSource:'operator_action_opened_ledger',openedStatus:'operator_action_opened',operatorActionOpenedRevenueEur:0,confirmedRevenueEur:0};writeJson(openedKey,[...openedRows(),opened]);setMsg('Opened operator action saved. Revenue remains 0 EUR until verified paid.',true);render();window.location.href=row.workflowUrl}
+async function copyOpenedLedger(){try{await navigator.clipboard.writeText(JSON.stringify(latestExport,null,2));setMsg('Opened operator action ledger copied. Revenue remains 0 EUR until verified paid.',true)}catch(error){setMsg('Clipboard blocked. Use download instead.')}}
+function downloadOpenedLedger(){const blob=new Blob([JSON.stringify(latestExport,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='daily-learning-operator-action-opened-ledger.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);setMsg('Opened operator action ledger export prepared.',true)}
+$('openTopAction').addEventListener('click',openTopAction);$('copyOpenedLedger').addEventListener('click',copyOpenedLedger);$('downloadOpenedLedger').addEventListener('click',downloadOpenedLedger);render();
+</script>
+</body>
+</html>
