@@ -43,7 +43,7 @@ def main() -> None:
         "buyer-ready payable order URL",
         "auto-parts-bank-transfer-order.html?",
         "auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29",
-        "qpvPaidEventLedger",
+        "apfPaidEventLedger",
     ]
     for marker in setup_markers:
         require(marker in setup, f"setup page missing executable marker: {marker}")
@@ -57,6 +57,14 @@ def main() -> None:
     ]
     for marker in zero_revenue_markers:
         require(marker in setup, f"setup page missing zero-revenue guard: {marker}")
+
+    apf_ledger_markers = [
+        "Fulfillment unlocks only after verified paid event exists in apfPaidEventLedger.",
+        "Revenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in apfPaidEventLedger.",
+        "wrong ledger instruction",
+    ]
+    for marker in apf_ledger_markers:
+        require(marker in setup, f"setup page missing APF ledger guard: {marker}")
 
     integration_markers = [
         "localStorage.getItem('apfPaymentDestination')",
@@ -74,12 +82,13 @@ def main() -> None:
         "generated URL is revenue",
         "mailto click is revenue",
         "fake paid",
+        "qpvPaidEventLedger",
     ]
     for pattern in weak_patterns:
         require(pattern not in setup, f"weak/fake revenue pattern must not appear in setup page: {pattern}")
 
     print("PASS auto parts payment destination setup regression")
-    print("checked: seller payment setup, local payment destination storage, buyer-ready payable order URL, invoice fallback, outreach handoff, and zero confirmed revenue until verified paid event")
+    print("checked: seller payment setup, local payment destination storage, buyer-ready payable order URL, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
