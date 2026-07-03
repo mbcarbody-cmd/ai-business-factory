@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — instant payment link checkout</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:980px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,56px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:80px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:430px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF checkout · 29 EUR · payment-link click ledger · APF paid confirmation required · revenue stays 0 EUR until verified</span>
+  <h1>Auto Parts Price Finder — instant 29 € checkout</h1>
+  <p class="muted">Buyer-ready checkout for Stripe Payment Link, Revolut Business, PayPal checkout, or bank-transfer destination passed from setup/order URL. This page moves the buyer to a payable action immediately, stores checkout attempts in <b>apfInstantPaymentCheckoutLedger</b>, and rejects checkout clicks as revenue until a verified APF paid event exists in <b>apfPaidEventLedger</b>.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+      <div><label>Part / OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+      <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
+      <div><label>Payment destination / URL</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or IBAN / Revolut / PayPal link"></div>
+      <div class="full"><label>Notes</label><textarea id="notes" placeholder="Market links, delivery country, condition, target ask price"></textarea></div>
+    </div>
+    <a class="btn ok" id="payNowLink" href="#" target="_blank" rel="noopener" onclick="return startCheckout()">Pay 29 € now</a>
+    <button class="btn secondary" onclick="saveCheckoutIntent()">Save checkout intent</button>
+    <button class="btn secondary" onclick="loadDemo()">Demo Stripe/Revolut link checkout</button>
+    <a class="btn secondary" id="confirmLink" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=instant-payment-link-checkout">Open APF paid confirmation</a>
+    <a class="btn secondary" id="fulfillmentLink" href="./auto-parts-paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=instant-payment-link-checkout">Open APF fulfillment</a>
+    <button class="btn secondary" onclick="exportLedger()">Export checkout ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for payment destination</span><span class="pill ok">APF paid gate required</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
+    <pre class="output" id="output">Paste or pass paymentDestination and paymentMethod in the URL. If paymentDestination is a real https payment URL, Pay 29 now opens it and records a checkout_attempted row. If paymentDestination is IBAN/text, buyer instructions are generated instead. Neither action counts revenue until APF paid confirmation verifies proof into apfPaidEventLedger.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const CONTACT_EMAIL='automariu@gmail.com';
+const LEDGER_KEY='apfInstantPaymentCheckoutLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const PAYMENT_DESTINATION_KEY='apfPaymentDestination';
+const PAYMENT_METHOD_KEY='apfPaymentMethod';
+const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'stripe_payment_link'}
+function readRows(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(rows){localStorage.setItem(LEDGER_KEY,JSON.stringify(rows.slice(0,300)))}
+function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36)||'checkout'}
+function restoreFromUrlOrStorage(){
+  const p=params();
+  const destination=($('paymentDestination').value.trim()||p.get('paymentDestination')||localStorage.getItem(PAYMENT_DESTINATION_KEY)||'').trim();
+  const method=normalizePaymentMethod($('paymentMethod').value||p.get('paymentMethod')||localStorage.getItem(PAYMENT_METHOD_KEY)||'stripe_payment_link');
+  ['buyerEmail','buyerName','vehicle','part','notes'].forEach(id=>{const v=p.get(id); if(!$ (id).value && v){$(id).value=v}});
+  $('paymentMethod').value=method;
+  if(destination){$('paymentDestination').value=destination;localStorage.setItem(PAYMENT_DESTINATION_KEY,destination)}
+  localStorage.setItem(PAYMENT_METHOD_KEY,method);
+  return {paymentMethod:method,paymentDestination:destination};
+}
+function isPaymentUrl(value){return /^https:\/\//i.test(String(value||'').trim())}
+function buildCheckout(){
+  const setup=restoreFromUrlOrStorage();
+  const now=new Date();
+  const checkoutId='APF-CHECKOUT-'+now.getTime()+'-'+safeSlug($('part').value||$('vehicle').value);
+  const paymentReference='APF29-'+checkoutId.slice(-18).toUpperCase();
+  return {checkoutId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'checkout_attempted_not_revenue',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),notes:$('notes').value.trim(),paymentMethod:setup.paymentMethod,paymentDestination:setup.paymentDestination,paidLedgerRequired:PAID_LEDGER_KEY};
+}
+function buildPaidConfirmationUrl(row){
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'instant-payment-link-checkout',checkoutId:row.checkoutId,paymentReference:row.paymentReference,paymentMethod:row.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part});
+  return './auto-parts-paid-confirmation.html?'+q.toString();
+}
+function buildFulfillmentUrl(row){
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'instant-payment-link-checkout',checkoutId:row.checkoutId,paymentReference:row.paymentReference,paymentMethod:row.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part});
+  return './auto-parts-paid-fulfillment.html?'+q.toString();
+}
+function saveCheckoutIntent(){
+  const row=buildCheckout();
+  if(row.paymentDestination.length<8){
+    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill ok">APF confirmation fallback ready</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent='BLOCKER: no Stripe/Revolut/PayPal URL or IBAN destination configured. Fallback executed: buyer can still request invoice/payment details from '+CONTACT_EMAIL+', but no checkout row and no revenue are counted.';
+    return null;
+  }
+  const rows=readRows();
+  if(!rows.some(r=>r.checkoutId===row.checkoutId||r.paymentReference===row.paymentReference)){rows.unshift(row);writeRows(rows)}
+  $('confirmLink').href=buildPaidConfirmationUrl(row);
+  $('fulfillmentLink').href=buildFulfillmentUrl(row);
+  if(isPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}else{$('payNowLink').href='#'}
+  $('state').innerHTML='<span class="pill ok">checkout intent saved</span><span class="pill ok">'+row.paymentMethod+'</span><span class="pill ok">APF paid confirmation wired</span><span class="pill warn">checkout click is not revenue</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`APF 29 EUR INSTANT CHECKOUT\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nPayment method: ${row.paymentMethod}\nPayment destination: ${row.paymentDestination}\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart: ${row.part||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR using payment destination above and reference ${row.paymentReference}.\n2) Email payment proof + checkout ID to ${CONTACT_EMAIL}.\n3) Verify paid proof only through APF paid confirmation: ${buildPaidConfirmationUrl(row)}\n4) Fulfill only after verified paid event exists in ${PAID_LEDGER_KEY}: ${buildFulfillmentUrl(row)}\n\nRevenue rule: checkout_attempted rows, pay-now clicks, payment links, IBAN text, invoice emails, proof text and page visits are rejected weak patterns and count 0 EUR until verified in ${PAID_LEDGER_KEY}.`;
+  return row;
+}
+function startCheckout(){
+  const row=saveCheckoutIntent();
+  if(!row){return false}
+  if(!isPaymentUrl(row.paymentDestination)){
+    $('state').innerHTML='<span class="pill warn">bank/text destination generated</span><span class="pill warn">manual payment required</span><span class="pill warn">revenueCountedEur:0</span>';
+    return false;
+  }
+  return true;
+}
+function exportLedger(){
+  const rows=readRows();
+  const headers=['checkoutId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paidLedgerRequired'];
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-instant-payment-checkout-ledger.csv';a.click();URL.revokeObjectURL(url);
+}
+function loadDemo(){
+  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Toyota Land Cruiser J250 2025';$('part').value='front bumper / 52119-60P40';$('paymentMethod').value='stripe_payment_link';$('paymentDestination').value='https://pay.example.com/apf-29-eur';$('notes').value='Demo checkout link; replace with real Stripe/Revolut/PayPal URL before sending buyer.';saveCheckoutIntent();
+}
+['buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',saveCheckoutIntent));
+restoreFromUrlOrStorage();saveCheckoutIntent();
+</script>
+</body>
+</html>
