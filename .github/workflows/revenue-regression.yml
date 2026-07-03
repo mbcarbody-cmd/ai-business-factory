@@ -48,4 +48,5 @@ jobs:
           python3 scripts/check_auto_parts_buyer_outreach.py
           python3 scripts/check_auto_parts_paid_confirmation.py
           python3 scripts/check_auto_parts_paid_fulfillment.py
+          python3 scripts/check_auto_parts_instant_payment_link_checkout.py
           python3 scripts/check_revenue_regression_ci.py
