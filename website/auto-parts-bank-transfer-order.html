@@ -11,9 +11,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable revenue path · 29 EUR · payable order gate · APF direct verified-paid handoff · APF-specific paid fulfillment handoff · confirmed revenue stays 0 EUR until paid proof is verified</span>
+  <span class="badge">Executable revenue path · 29 EUR · payable order gate · APF direct verified-paid handoff · APF-specific paid fulfillment handoff · payment setup auto-restore · confirmed revenue stays 0 EUR until paid proof is verified</span>
   <h1>Buy Auto Parts Price Finder audit — 29 €</h1>
-  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki realaus mokėjimo metodo, order ID, proof teksto ir APF-specific fulfillment handoff. Tai nėra dashboardas: orderis laikomas mokėtinu tik kai įrašytas IBAN/Revolut/Stripe/PayPal payment destination, o apmokėjimas tvirtinamas tik per APF specialų verified-paid puslapį.</p>
+  <p>Šitas puslapis pirkėją nuveda nuo kainos audito užsakymo iki realaus mokėjimo metodo, order ID, proof teksto ir APF-specific fulfillment handoff. Tai nėra dashboardas: orderis laikomas mokėtinu tik kai įrašytas IBAN/Revolut/Stripe/PayPal payment destination, o apmokėjimas tvirtinamas tik per APF specialų verified-paid puslapį. Jei setup puslapis perdavė mokėjimo metodą ir paskirtį URL arba localStorage, ši forma juos automatiškai atstato.</p>
 
   <section class="cards">
     <div class="card"><strong>29 €</strong><span class="muted">fixed audit price</span></div>
@@ -46,8 +46,8 @@
 
     <div class="panel">
       <h2>Payment + fulfillment handoff</h2>
-      <div id="state"><span class="pill warn">No payable order yet</span><span class="pill warn">payment provider not configured</span><span class="pill ok">APF paid gate wired</span><span class="pill ok">APF fulfillment wired</span></div>
-      <pre id="output" class="output">Create a payable order when a payment destination is configured. If no IBAN/Revolut/Stripe/PayPal destination exists yet, use Request payment invoice: it builds a prefilled buyer email with the order data and keeps revenueCountedEur:0 until a verified paid event exists. Page views, order rows, outreach rows, proof text, generic paid-confirmation links, generic paid-fulfillment links and checkout clicks are rejected weak patterns. This APF order page now hands off directly to auto-parts-paid-confirmation.html and auto-parts-paid-fulfillment.html so 29 EUR revenue can only be counted by the APF duplicate-protected ledgers.</pre>
+      <div id="state"><span class="pill warn">No payable order yet</span><span class="pill warn">payment provider not configured</span><span class="pill ok">APF paid gate wired</span><span class="pill ok">APF fulfillment wired</span><span class="pill ok">payment setup restore wired</span></div>
+      <pre id="output" class="output">Create a payable order when a payment destination is configured. If no IBAN/Revolut/Stripe/PayPal destination exists yet, use Request payment invoice: it builds a prefilled buyer email with the order data and keeps revenueCountedEur:0 until a verified paid event exists. Page views, order rows, outreach rows, proof text, generic paid-confirmation links, generic paid-fulfillment links and checkout clicks are rejected weak patterns. This APF order page now hands off directly to auto-parts-paid-confirmation.html and auto-parts-paid-fulfillment.html so 29 EUR revenue can only be counted by the APF duplicate-protected ledgers. Payment method and destination are restored from setup URL/localStorage before buyer order creation.</pre>
       <div class="cta">
         <a class="btn" id="confirmLink" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payable-order">Open APF paid confirmation</a>
         <a class="btn secondary" id="fulfillmentLink" href="./auto-parts-paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=payable-order">Open APF fulfillment</a>
@@ -66,18 +66,35 @@ const CONTACT_EMAIL='automariu@gmail.com';
 const STORAGE_KEY='apfPayableOrders';
 const APF_PAID_CONFIRMATION_PAGE='./auto-parts-paid-confirmation.html';
 const APF_PAID_FULFILLMENT_PAGE='./auto-parts-paid-fulfillment.html';
+const PAYMENT_DESTINATION_KEY='apfPaymentDestination';
+const PAYMENT_METHOD_KEY='apfPaymentMethod';
+const VALID_PAYMENT_METHODS=['bank_transfer','revolut_business','stripe_payment_link','paypal_checkout'];
 const $=id=>document.getElementById(id);
 const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
 let lastOrder=null;
 function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36)||'order'}
 function readOrders(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
 function writeOrders(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows.slice(0,250)));$('kOrders').textContent=String(rows.length);$('kRevenue').textContent='0 €'}
+function getUrlPaymentValue(name){return new URL(location.href).searchParams.get(name)||''}
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'bank_transfer'}
+function restorePaymentSetup(){
+  const urlDestination=getUrlPaymentValue('paymentDestination');
+  const storedDestination=localStorage.getItem(PAYMENT_DESTINATION_KEY)||'';
+  const restoredDestination=($('paymentDestination').value.trim()||urlDestination||storedDestination).trim();
+  if(restoredDestination){$('paymentDestination').value=restoredDestination;localStorage.setItem(PAYMENT_DESTINATION_KEY,restoredDestination)}
+  const restoredMethod=normalizePaymentMethod($('paymentMethod').value||getUrlPaymentValue('paymentMethod')||localStorage.getItem(PAYMENT_METHOD_KEY)||'bank_transfer');
+  $('paymentMethod').value=restoredMethod;
+  localStorage.setItem(PAYMENT_METHOD_KEY,restoredMethod);
+  return {paymentMethod:restoredMethod,paymentDestination:restoredDestination,source:urlDestination?'setup-url':(storedDestination?'localStorage':'manual')};
+}
+function getPaymentMethod(){return normalizePaymentMethod($('paymentMethod').value||getUrlPaymentValue('paymentMethod')||localStorage.getItem(PAYMENT_METHOD_KEY)||'bank_transfer')}
 function getPaymentDestination(){
-  const url=new URL(location.href);
-  return ($('paymentDestination').value.trim()||url.searchParams.get('paymentDestination')||localStorage.getItem('apfPaymentDestination')||'').trim();
+  restorePaymentSetup();
+  return ($('paymentDestination').value.trim()||getUrlPaymentValue('paymentDestination')||localStorage.getItem(PAYMENT_DESTINATION_KEY)||'').trim();
 }
 function paymentDestinationIsConfigured(){return getPaymentDestination().length>=8}
 function buildOrder(){
+  restorePaymentSetup();
   const now=new Date();
   const buyerEmail=$('buyerEmail').value.trim();
   const vehicle=$('vehicle').value.trim();
@@ -85,11 +102,11 @@ function buildOrder(){
   const paymentDestination=getPaymentDestination();
   const orderId='APF-PAY-'+now.getTime()+'-'+safeSlug(part||vehicle);
   const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
-  return {orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'awaiting_verified_payment',seller:SELLER,contactEmail:CONTACT_EMAIL,paymentMethod:$('paymentMethod').value,paymentDestination,buyerEmail,buyerName:$('buyerName').value.trim(),vehicle,part,oem:$('oem').value.trim(),channel:$('channel').value,notes:$('notes').value.trim()};
+  return {orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'awaiting_verified_payment',seller:SELLER,contactEmail:CONTACT_EMAIL,paymentMethod:getPaymentMethod(),paymentDestination,buyerEmail,buyerName:$('buyerName').value.trim(),vehicle,part,oem:$('oem').value.trim(),channel:$('channel').value,notes:$('notes').value.trim()};
 }
 function buildPaymentRequestMailto(order){
   const subject='APF 29 EUR payment request '+order.paymentReference;
-  const body=`Please issue payment instructions for this 29 EUR Auto Parts Price Finder order.\n\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\nChannel: ${order.channel||'-'}\nNotes: ${order.notes||'-'}\n\nRevenue rule: this invoice request is not revenue. Count 0 EUR until verified paid event exists in apfPaidEventLedger. APF confirmation URL: auto-parts-paid-confirmation.html.`;
+  const body=`Please issue payment instructions for this 29 EUR Auto Parts Price Finder order.\n\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination||'-'}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\nChannel: ${order.channel||'-'}\nNotes: ${order.notes||'-'}\n\nRevenue rule: this invoice request is not revenue. Count 0 EUR until verified paid event exists in apfPaidEventLedger. APF confirmation URL: auto-parts-paid-confirmation.html.`;
   return 'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 function buildApfPaidConfirmationUrl(order){
@@ -101,10 +118,14 @@ function buildApfPaidFulfillmentUrl(order){
   return APF_PAID_FULFILLMENT_PAGE+'?'+params.toString();
 }
 function refreshInvoiceRequest(){
+  const setup=restorePaymentSetup();
   const draft=buildOrder();
   $('invoiceRequestLink').href=buildPaymentRequestMailto(draft);
   $('confirmLink').href=buildApfPaidConfirmationUrl(draft);
   $('fulfillmentLink').href=buildApfPaidFulfillmentUrl(draft);
+  if(setup.paymentDestination){
+    $('state').innerHTML='<span class="pill ok">payment setup restored</span><span class="pill ok">'+setup.paymentMethod+'</span><span class="pill ok">APF paid gate ready</span><span class="pill ok">APF fulfillment ready</span><span class="pill warn">revenueCountedEur:0</span>';
+  }
   return draft;
 }
 function createOrder(){
@@ -115,7 +136,8 @@ function createOrder(){
     return;
   }
   const order=buildOrder();
-  localStorage.setItem('apfPaymentDestination',order.paymentDestination);
+  localStorage.setItem(PAYMENT_DESTINATION_KEY,order.paymentDestination);
+  localStorage.setItem(PAYMENT_METHOD_KEY,order.paymentMethod);
   const rows=readOrders();
   if(rows.some(r=>r.orderId===order.orderId||r.paymentReference===order.paymentReference)){
     $('state').innerHTML='<span class="pill warn">duplicate blocked</span><span class="pill warn">revenueCountedEur:0</span>';
@@ -125,7 +147,7 @@ function createOrder(){
   $('invoiceRequestLink').href=buildPaymentRequestMailto(order);
   $('confirmLink').href=buildApfPaidConfirmationUrl(order);
   $('fulfillmentLink').href=buildApfPaidFulfillmentUrl(order);
-  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill ok">invoice request ready</span><span class="pill ok">APF verified-paid handoff ready</span><span class="pill ok">APF paid fulfillment handoff ready</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('state').innerHTML='<span class="pill ok">payable order row created</span><span class="pill ok">payment setup restored</span><span class="pill ok">invoice request ready</span><span class="pill ok">APF verified-paid handoff ready</span><span class="pill ok">APF paid fulfillment handoff ready</span><span class="pill">29 EUR buyer path</span><span class="pill warn">revenueCountedEur:0</span>';
   $('output').textContent=`AUTO PARTS PRICE FINDER — 29 EUR PAYABLE ORDER\nOrder ID: ${order.orderId}\nPayment reference: ${order.paymentReference}\nPayment method: ${order.paymentMethod}\nPayment destination: ${order.paymentDestination}\nSeller: ${SELLER}\nContact: ${CONTACT_EMAIL}\nBuyer: ${order.buyerName||'-'} <${order.buyerEmail||'-'}>\nVehicle: ${order.vehicle||'-'}\nPart: ${order.part||'-'}\nOEM: ${order.oem||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR to payment destination above using reference: ${order.paymentReference}\n2) Email payment proof + order ID to ${CONTACT_EMAIL}\n3) Open APF paid confirmation link and paste proof details: ${buildApfPaidConfirmationUrl(order)}\n4) After verified payment, open APF paid fulfillment: ${buildApfPaidFulfillmentUrl(order)}\n5) Fulfillment unlocks only after verified paid event in apfPaidEventLedger.\n\nFallback if payment provider is not configured: use Request payment invoice to send order details to ${CONTACT_EMAIL}.\n\nRevenue rule: payable order rows, proof text, payment references, invoice request emails, outreach rows, generic paid-confirmation links, generic paid-fulfillment links and link visits are 0 EUR until verified paid event exists in the APF paid ledger.`;
 }
 function exportOrders(){
@@ -139,8 +161,9 @@ function exportOrders(){
 function loadDemo(){
   $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper';$('oem').value='NY83-15A282-A / MY83-17C870-AB';$('channel').value='direct';$('paymentMethod').value='bank_transfer';$('paymentDestination').value='IBAN_OR_PAYMENT_LINK_REQUIRED';$('notes').value='Need price audit with competitor links and recommended ask/quick-sale price.';refreshInvoiceRequest();
 }
-['buyerEmail','buyerName','vehicle','part','oem','channel','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',refreshInvoiceRequest));
+['buyerEmail','buyerName','vehicle','part','oem','channel','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',()=>{restorePaymentSetup();refreshInvoiceRequest()}));
 writeOrders(readOrders());
+restorePaymentSetup();
 refreshInvoiceRequest();
 </script>
 </body>
