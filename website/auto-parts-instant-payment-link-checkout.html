@@ -10,9 +10,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable APF checkout · 29 EUR · payment-link click ledger · APF paid confirmation required · revenue stays 0 EUR until verified</span>
+  <span class="badge">Executable APF checkout · 29 EUR · payment-link click ledger · buyer checkout pack · APF paid confirmation required · revenue stays 0 EUR until verified</span>
   <h1>Auto Parts Price Finder — instant 29 € checkout</h1>
-  <p class="muted">Buyer-ready checkout for Stripe Payment Link, Revolut Business, PayPal checkout, or bank-transfer destination passed from setup/order URL. This page moves the buyer to a payable action immediately, stores checkout attempts in <b>apfInstantPaymentCheckoutLedger</b>, and rejects checkout clicks as revenue until a verified APF paid event exists in <b>apfPaidEventLedger</b>.</p>
+  <p class="muted">Buyer-ready checkout for Stripe Payment Link, Revolut Business, PayPal checkout, or bank-transfer destination passed from setup/order URL. This page moves the buyer to a payable action immediately, stores checkout attempts in <b>apfInstantPaymentCheckoutLedger</b>, creates a copyable buyer checkout pack, and rejects checkout clicks as revenue until a verified APF paid event exists in <b>apfPaidEventLedger</b>.</p>
 
   <section class="panel">
     <div class="grid">
@@ -26,6 +26,8 @@
     </div>
     <a class="btn ok" id="payNowLink" href="#" target="_blank" rel="noopener" onclick="return startCheckout()">Pay 29 € now</a>
     <button class="btn secondary" onclick="saveCheckoutIntent()">Save checkout intent</button>
+    <button class="btn secondary" onclick="copyBuyerCheckoutPack()">Copy buyer checkout pack</button>
+    <a class="btn secondary" id="paymentProofEmailLink" href="mailto:automariu@gmail.com?subject=APF%2029%20EUR%20payment%20proof">Email payment proof</a>
     <button class="btn secondary" onclick="loadDemo()">Demo Stripe/Revolut link checkout</button>
     <a class="btn secondary" id="confirmLink" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=instant-payment-link-checkout">Open APF paid confirmation</a>
     <a class="btn secondary" id="fulfillmentLink" href="./auto-parts-paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=instant-payment-link-checkout">Open APF fulfillment</a>
@@ -58,7 +60,7 @@ function restoreFromUrlOrStorage(){
   const p=params();
   const destination=($('paymentDestination').value.trim()||p.get('paymentDestination')||localStorage.getItem(PAYMENT_DESTINATION_KEY)||'').trim();
   const method=normalizePaymentMethod($('paymentMethod').value||p.get('paymentMethod')||localStorage.getItem(PAYMENT_METHOD_KEY)||'stripe_payment_link');
-  ['buyerEmail','buyerName','vehicle','part','notes'].forEach(id=>{const v=p.get(id); if(!$ (id).value && v){$(id).value=v}});
+  ['buyerEmail','buyerName','vehicle','part','notes'].forEach(id=>{const v=p.get(id); if(!$(id).value && v){$(id).value=v}});
   $('paymentMethod').value=method;
   if(destination){$('paymentDestination').value=destination;localStorage.setItem(PAYMENT_DESTINATION_KEY,destination)}
   localStorage.setItem(PAYMENT_METHOD_KEY,method);
@@ -80,6 +82,15 @@ function buildFulfillmentUrl(row){
   const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'instant-payment-link-checkout',checkoutId:row.checkoutId,paymentReference:row.paymentReference,paymentMethod:row.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part});
   return './auto-parts-paid-fulfillment.html?'+q.toString();
 }
+function buildPaymentProofMailto(row){
+  const subject='APF 29 EUR payment proof '+row.paymentReference;
+  const body=`I paid 29 EUR for Auto Parts Price Finder.\n\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart: ${row.part||'-'}\nPayment method: ${row.paymentMethod}\n\nAttached/forwarded proof: [add bank/Stripe/Revolut/PayPal proof here]\n\nRevenue rule: payment proof text alone is 0 EUR until APF paid confirmation verifies it into ${PAID_LEDGER_KEY}.`;
+  return 'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function buildBuyerCheckoutPack(row){
+  const paymentAction=isPaymentUrl(row.paymentDestination)?`Pay now: ${row.paymentDestination}`:`Payment destination: ${row.paymentDestination}`;
+  return `AUTO PARTS PRICE FINDER — 29 EUR CHECKOUT PACK\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nPayment method: ${row.paymentMethod}\n${paymentAction}\n\nSteps for buyer:\n1) Pay exactly 29 EUR and use reference ${row.paymentReference}.\n2) Email proof to ${CONTACT_EMAIL} using the payment proof link.\n3) Delivery starts only after verified paid event appears in ${PAID_LEDGER_KEY}.\n\nRejected weak patterns: checkout click, payment link, IBAN text, invoice email, payment proof text, page visit and CSV export are 0 EUR until verified paid confirmation.`;
+}
 function saveCheckoutIntent(){
   const row=buildCheckout();
   if(row.paymentDestination.length<8){
@@ -91,9 +102,10 @@ function saveCheckoutIntent(){
   if(!rows.some(r=>r.checkoutId===row.checkoutId||r.paymentReference===row.paymentReference)){rows.unshift(row);writeRows(rows)}
   $('confirmLink').href=buildPaidConfirmationUrl(row);
   $('fulfillmentLink').href=buildFulfillmentUrl(row);
+  $('paymentProofEmailLink').href=buildPaymentProofMailto(row);
   if(isPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}else{$('payNowLink').href='#'}
-  $('state').innerHTML='<span class="pill ok">checkout intent saved</span><span class="pill ok">'+row.paymentMethod+'</span><span class="pill ok">APF paid confirmation wired</span><span class="pill warn">checkout click is not revenue</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=`APF 29 EUR INSTANT CHECKOUT\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nPayment method: ${row.paymentMethod}\nPayment destination: ${row.paymentDestination}\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart: ${row.part||'-'}\n\nBuyer instruction:\n1) Pay 29 EUR using payment destination above and reference ${row.paymentReference}.\n2) Email payment proof + checkout ID to ${CONTACT_EMAIL}.\n3) Verify paid proof only through APF paid confirmation: ${buildPaidConfirmationUrl(row)}\n4) Fulfill only after verified paid event exists in ${PAID_LEDGER_KEY}: ${buildFulfillmentUrl(row)}\n\nRevenue rule: checkout_attempted rows, pay-now clicks, payment links, IBAN text, invoice emails, proof text and page visits are rejected weak patterns and count 0 EUR until verified in ${PAID_LEDGER_KEY}.`;
+  $('state').innerHTML='<span class="pill ok">checkout intent saved</span><span class="pill ok">'+row.paymentMethod+'</span><span class="pill ok">buyer checkout pack ready</span><span class="pill ok">APF paid confirmation wired</span><span class="pill warn">checkout click is not revenue</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=buildBuyerCheckoutPack(row)+`\n\nAPF paid confirmation URL:\n${buildPaidConfirmationUrl(row)}\n\nAPF fulfillment URL:\n${buildFulfillmentUrl(row)}`;
   return row;
 }
 function startCheckout(){
@@ -103,6 +115,14 @@ function startCheckout(){
     $('state').innerHTML='<span class="pill warn">bank/text destination generated</span><span class="pill warn">manual payment required</span><span class="pill warn">revenueCountedEur:0</span>';
     return false;
   }
+  return true;
+}
+async function copyBuyerCheckoutPack(){
+  const row=saveCheckoutIntent();
+  if(!row){return false}
+  const pack=buildBuyerCheckoutPack(row);
+  try{await navigator.clipboard.writeText(pack);$('state').innerHTML+='<span class="pill ok">buyer checkout pack copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy pack manually</span>'}
+  $('output').textContent=pack;
   return true;
 }
 function exportLedger(){
