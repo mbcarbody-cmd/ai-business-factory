@@ -10,9 +10,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable APF checkout · 29 EUR · payment-link click ledger · buyer checkout pack · buyer checkout email · APF paid confirmation required · revenue stays 0 EUR until verified</span>
+  <span class="badge">Executable APF checkout · 29 EUR · production payment-destination gate · payment-link click ledger · buyer checkout pack · buyer checkout email · APF paid confirmation required · revenue stays 0 EUR until verified</span>
   <h1>Auto Parts Price Finder — instant 29 € checkout</h1>
-  <p class="muted">Buyer-ready checkout for Stripe Payment Link, Revolut Business, PayPal checkout, or bank-transfer destination passed from setup/order URL. This page moves the buyer to a payable action immediately, stores checkout attempts in <b>apfInstantPaymentCheckoutLedger</b>, creates a copyable buyer checkout pack, creates a prefilled buyer checkout email handoff, and rejects checkout clicks as revenue until a verified APF paid event exists in <b>apfPaidEventLedger</b>.</p>
+  <p class="muted">Buyer-ready checkout for Stripe Payment Link, Revolut Business, PayPal checkout, or bank-transfer destination passed from setup/order URL. This page moves the buyer to a payable action immediately only when the destination is production-ready, stores checkout attempts in <b>apfInstantPaymentCheckoutLedger</b>, creates a copyable buyer checkout pack, creates a prefilled buyer checkout email handoff, and rejects checkout clicks as revenue until a verified APF paid event exists in <b>apfPaidEventLedger</b>.</p>
 
   <section class="panel">
     <div class="grid">
@@ -36,8 +36,8 @@
   </section>
 
   <section class="panel">
-    <div id="state"><span class="pill warn">waiting for payment destination</span><span class="pill ok">APF paid gate required</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
-    <pre class="output" id="output">Paste or pass paymentDestination and paymentMethod in the URL. If paymentDestination is a real https payment URL, Pay 29 now opens it and records a checkout_attempted row. If paymentDestination is IBAN/text, buyer instructions are generated instead. Neither action counts revenue until APF paid confirmation verifies proof into apfPaidEventLedger.</pre>
+    <div id="state"><span class="pill warn">waiting for production payment destination</span><span class="pill ok">APF paid gate required</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
+    <pre class="output" id="output">Paste or pass paymentDestination and paymentMethod in the URL. If paymentDestination is a real production https payment URL, Pay 29 now opens it and records a checkout_attempted row. Demo/example/test URLs are blocked from buyer handoff. If paymentDestination is IBAN/text, buyer instructions are generated instead. Neither action counts revenue until APF paid confirmation verifies proof into apfPaidEventLedger.</pre>
   </section>
 </main>
 <script>
@@ -51,6 +51,7 @@ const PAID_LEDGER_KEY='apfPaidEventLedger';
 const PAYMENT_DESTINATION_KEY='apfPaymentDestination';
 const PAYMENT_METHOD_KEY='apfPaymentMethod';
 const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','replace-with-real'];
 const $=id=>document.getElementById(id);
 function params(){return new URL(location.href).searchParams}
 function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'stripe_payment_link'}
@@ -68,12 +69,20 @@ function restoreFromUrlOrStorage(){
   return {paymentMethod:method,paymentDestination:destination};
 }
 function isPaymentUrl(value){return /^https:\/\//i.test(String(value||'').trim())}
+function isDemoDestination(value){const text=String(value||'').trim().toLowerCase();return DEMO_DESTINATION_PATTERNS.some(pattern=>text.includes(pattern))}
+function isProductionReadyDestination(value){const text=String(value||'').trim();return text.length>=8 && !isDemoDestination(text)}
+function readinessBlocker(row){
+  if(row.paymentDestination.length<8){return 'BLOCKER: no Stripe/Revolut/PayPal URL or IBAN destination configured.'}
+  if(isDemoDestination(row.paymentDestination)){return 'BLOCKER: demo/example/test payment destination is not buyer-ready and cannot be sent or counted as revenue.'}
+  return '';
+}
 function buildCheckout(){
   const setup=restoreFromUrlOrStorage();
   const now=new Date();
   const checkoutId='APF-CHECKOUT-'+now.getTime()+'-'+safeSlug($('part').value||$('vehicle').value);
   const paymentReference='APF29-'+checkoutId.slice(-18).toUpperCase();
-  return {checkoutId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'checkout_attempted_not_revenue',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),notes:$('notes').value.trim(),paymentMethod:setup.paymentMethod,paymentDestination:setup.paymentDestination,paidLedgerRequired:PAID_LEDGER_KEY};
+  const paymentReady=isProductionReadyDestination(setup.paymentDestination);
+  return {checkoutId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:paymentReady?'checkout_attempted_not_revenue':'blocked_non_production_payment_destination',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),notes:$('notes').value.trim(),paymentMethod:setup.paymentMethod,paymentDestination:setup.paymentDestination,paymentDestinationReady:paymentReady,paidLedgerRequired:PAID_LEDGER_KEY};
 }
 function buildPaidConfirmationUrl(row){
   const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'instant-payment-link-checkout',checkoutId:row.checkoutId,paymentReference:row.paymentReference,paymentMethod:row.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part});
@@ -96,23 +105,25 @@ function buildBuyerCheckoutEmailMailto(row){
 }
 function buildBuyerCheckoutPack(row){
   const paymentAction=isPaymentUrl(row.paymentDestination)?`Pay now: ${row.paymentDestination}`:`Payment destination: ${row.paymentDestination}`;
-  return `AUTO PARTS PRICE FINDER — 29 EUR CHECKOUT PACK\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nPayment method: ${row.paymentMethod}\n${paymentAction}\n\nSteps for buyer:\n1) Pay exactly 29 EUR and use reference ${row.paymentReference}.\n2) Email proof to ${CONTACT_EMAIL} using the payment proof link.\n3) Delivery starts only after verified paid event appears in ${PAID_LEDGER_KEY}.\n\nRejected weak patterns: checkout click, payment link, IBAN text, invoice email, payment proof text, page visit and CSV export are 0 EUR until verified paid confirmation.`;
+  return `AUTO PARTS PRICE FINDER — 29 EUR CHECKOUT PACK\nCheckout ID: ${row.checkoutId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nPayment method: ${row.paymentMethod}\nProduction payment destination ready: ${row.paymentDestinationReady?'yes':'no'}\n${paymentAction}\n\nSteps for buyer:\n1) Pay exactly 29 EUR and use reference ${row.paymentReference}.\n2) Email proof to ${CONTACT_EMAIL} using the payment proof link.\n3) Delivery starts only after verified paid event appears in ${PAID_LEDGER_KEY}.\n\nRejected weak patterns: checkout click, payment link, IBAN text, invoice email, payment proof text, page visit, demo payment destination and CSV export are 0 EUR until verified paid confirmation.`;
 }
 function saveCheckoutIntent(){
   const row=buildCheckout();
-  if(row.paymentDestination.length<8){
-    $('state').innerHTML='<span class="pill warn">payment destination required</span><span class="pill ok">APF confirmation fallback ready</span><span class="pill warn">revenueCountedEur:0</span>';
-    $('output').textContent='BLOCKER: no Stripe/Revolut/PayPal URL or IBAN destination configured. Fallback executed: buyer can still request invoice/payment details from '+CONTACT_EMAIL+', but no checkout row and no revenue are counted.';
+  const blocker=readinessBlocker(row);
+  $('confirmLink').href=buildPaidConfirmationUrl(row);
+  $('fulfillmentLink').href=buildFulfillmentUrl(row);
+  $('paymentProofEmailLink').href=buildPaymentProofMailto(row);
+  $('buyerCheckoutEmailLink').href=blocker?'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent('APF production payment destination blocker')+'&body='+encodeURIComponent(blocker+'\n\nPaste a real Stripe/Revolut/PayPal URL or IBAN before sending buyer checkout.'):buildBuyerCheckoutEmailMailto(row);
+  if(blocker){
+    $('payNowLink').href='#';
+    $('state').innerHTML='<span class="pill warn">production payment destination blocked</span><span class="pill warn">buyer handoff disabled</span><span class="pill ok">fallback blocker mail ready</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent=blocker+'\n\nFallback executed: do not send buyer checkout yet. Replace demo/example/test destination with a real Stripe/Revolut/PayPal URL or IBAN in setup, then regenerate buyer checkout pack. No checkout row and no revenue are counted.';
     return null;
   }
   const rows=readRows();
   if(!rows.some(r=>r.checkoutId===row.checkoutId||r.paymentReference===row.paymentReference)){rows.unshift(row);writeRows(rows)}
-  $('confirmLink').href=buildPaidConfirmationUrl(row);
-  $('fulfillmentLink').href=buildFulfillmentUrl(row);
-  $('paymentProofEmailLink').href=buildPaymentProofMailto(row);
-  $('buyerCheckoutEmailLink').href=buildBuyerCheckoutEmailMailto(row);
   if(isPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}else{$('payNowLink').href='#'}
-  $('state').innerHTML='<span class="pill ok">checkout intent saved</span><span class="pill ok">'+row.paymentMethod+'</span><span class="pill ok">buyer checkout pack ready</span><span class="pill ok">buyer checkout email ready</span><span class="pill ok">APF paid confirmation wired</span><span class="pill warn">checkout click is not revenue</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('state').innerHTML='<span class="pill ok">production payment destination ready</span><span class="pill ok">checkout intent saved</span><span class="pill ok">'+row.paymentMethod+'</span><span class="pill ok">buyer checkout pack ready</span><span class="pill ok">buyer checkout email ready</span><span class="pill ok">APF paid confirmation wired</span><span class="pill warn">checkout click is not revenue</span><span class="pill warn">revenueCountedEur:0</span>';
   $('output').textContent=buildBuyerCheckoutPack(row)+`\n\nBuyer checkout email:\n${buildBuyerCheckoutEmailMailto(row)}\n\nAPF paid confirmation URL:\n${buildPaidConfirmationUrl(row)}\n\nAPF fulfillment URL:\n${buildFulfillmentUrl(row)}`;
   return row;
 }
@@ -135,12 +146,12 @@ async function copyBuyerCheckoutPack(){
 }
 function exportLedger(){
   const rows=readRows();
-  const headers=['checkoutId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paidLedgerRequired'];
+  const headers=['checkoutId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paymentDestinationReady','paidLedgerRequired'];
   const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
   const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-instant-payment-checkout-ledger.csv';a.click();URL.revokeObjectURL(url);
 }
 function loadDemo(){
-  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Toyota Land Cruiser J250 2025';$('part').value='front bumper / 52119-60P40';$('paymentMethod').value='stripe_payment_link';$('paymentDestination').value='https://pay.example.com/apf-29-eur';$('notes').value='Demo checkout link; replace with real Stripe/Revolut/PayPal URL before sending buyer.';saveCheckoutIntent();
+  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Toyota Land Cruiser J250 2025';$('part').value='front bumper / 52119-60P40';$('paymentMethod').value='stripe_payment_link';$('paymentDestination').value='https://pay.example.com/apf-29-eur';$('notes').value='Demo checkout link intentionally blocked by production payment-destination gate; replace with real Stripe/Revolut/PayPal URL before sending buyer.';saveCheckoutIntent();
 }
 ['buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',saveCheckoutIntent));
 restoreFromUrlOrStorage();saveCheckoutIntent();
