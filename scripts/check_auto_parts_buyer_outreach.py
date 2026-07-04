@@ -4,7 +4,8 @@
 This is a revenue-path check, not a dashboard/audit check. It requires a usable
 outreach workflow that creates concrete lead rows, mailto copy, CSV export, a
 direct buyer close-room handoff, and a fallback 29 EUR order handoff while
-refusing to count outreach as revenue.
+refusing to count outreach as revenue. It also requires a production payment
+preflight so weak/demo destinations never create buyer handoff rows.
 """
 from pathlib import Path
 
@@ -34,6 +35,7 @@ def main() -> None:
     outreach_markers = [
         "Auto Parts Price Finder outreach generator",
         "Executable sales workflow · outreach-ready rows · buyer close-room URLs · 29 EUR offer",
+        "production payment preflight",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const STORAGE_KEY='apfOutreachRows'",
@@ -59,7 +61,9 @@ def main() -> None:
         "Part / offer angle",
         "OEM / codes",
         "Target segment",
-        "Payment destination / URL for close room",
+        "Production payment destination / URL for close room",
+        "Payment method",
+        "Payment gate",
         "Rows to generate",
         "Generate outreach rows",
         "Export CSV",
@@ -74,9 +78,29 @@ def main() -> None:
     for marker in buyer_path_markers:
         require(marker in outreach, f"outreach page missing buyer path marker: {marker}")
 
+    payment_gate_markers = [
+        "const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer']",
+        "const REJECTED_PAYMENT_TOKENS=['example','demo','test','todo','placeholder','your-','sample','fake','localhost']",
+        "function isProductionPaymentDestination(value)",
+        "function preflightPaymentDestination()",
+        "if(!preflightPaymentDestination()) return []",
+        "if(!preflightPaymentDestination()) return false",
+        "BLOCKER: production payment destination required",
+        "outreach rows not generated",
+        "production payment destination verified",
+        "paymentGate:'production-ready'",
+        "paymentGate:'production-ready'",
+        "paymentDestination:row.paymentDestination",
+        "paymentMethod:row.paymentMethod",
+        "demo payment destination",
+        "example checkout URL",
+    ]
+    for marker in payment_gate_markers:
+        require(marker in outreach, f"outreach page missing production payment gate marker: {marker}")
+
     close_room_handoff_markers = [
         "paymentDestination:row.paymentDestination",
-        "paymentMethod:'bank_transfer'",
+        "paymentMethod:row.paymentMethod",
         "Buyer close room: '+row.closeRoomUrl",
         "Fallback order link: '+orderUrl",
         "buyer close-room link as revenue",
@@ -119,7 +143,6 @@ def main() -> None:
         "pipeline value is confirmed EUR",
         "revenueCountedEur:29",
         "confirmedRevenueEur:29",
-        "fake paid event",
         "dashboard-only progress",
         "summary-only",
     ]
@@ -129,7 +152,8 @@ def main() -> None:
     print("PASS auto parts buyer outreach regression")
     print(
         "checked: outreach rows, mailto text, CSV export, buyer close-room URLs, "
-        "29 EUR fallback order handoff, product/order links, and zero confirmed revenue until verified payment"
+        "29 EUR fallback order handoff, production payment preflight, product/order links, "
+        "and zero confirmed revenue until verified payment"
     )
 
 
