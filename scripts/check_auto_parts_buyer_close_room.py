@@ -33,11 +33,16 @@ def main() -> None:
     required_markers = [
         "Auto Parts Price Finder buyer close room",
         "APF close room · buyer-ready 29 EUR offer",
+        "production payment preflight",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const CLOSE_LEDGER_KEY='apfBuyerCloseRoomLedger'",
         "const PAID_LEDGER_KEY='apfPaidEventLedger'",
         "const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer']",
+        "const REJECTED_PAYMENT_TOKENS=['example','demo','test','todo','placeholder','your-','sample','localhost','sandbox']",
+        "function isProductionPaymentDestination(value)",
+        "function preflightPaymentDestination(row)",
+        "function paymentBlockerText()",
         "function buildCloseRoom()",
         "function buildCheckoutUrl(row)",
         "function buildPaidConfirmationUrl(row)",
@@ -70,14 +75,19 @@ def main() -> None:
         "Lead ID",
         "Vehicle",
         "Part / OEM",
-        "Payment method",
-        "Payment destination / URL",
+        "Production payment destination / URL",
+        "Payment gate",
+        "paymentGate:'production-ready'",
+        "paymentGate:row.paymentGate",
         "AUTO PARTS PRICE FINDER — BUYER CLOSE ROOM",
         "Checkout URL:",
         "Paid confirmation URL:",
         "Fulfillment URL after verified paid event:",
         "Pay exactly 29 EUR using reference",
         "Delivery starts only after verified APF paid event exists",
+        "production payment destination required",
+        "production payment destination verified",
+        "demo/example/test destination rejected",
         "buyer close room ready",
         "checkout URL generated",
         "buyer email handoff ready",
@@ -109,9 +119,9 @@ def main() -> None:
 
     print("PASS APF buyer close room regression")
     print(
-        "checked: outreach lead to buyer-ready 29 EUR close room, checkout URL, payment destination, "
-        "buyer email handoff, paid proof mailto, paid confirmation handoff, fulfillment handoff, "
-        "close-room ledger, CSV export and zero confirmed revenue until verified paid proof"
+        "checked: outreach lead to buyer-ready 29 EUR close room, production payment destination "
+        "preflight, checkout URL, buyer email handoff, paid proof mailto, paid confirmation handoff, "
+        "fulfillment handoff, close-room ledger, CSV export and zero confirmed revenue until verified paid proof"
     )
 
 
