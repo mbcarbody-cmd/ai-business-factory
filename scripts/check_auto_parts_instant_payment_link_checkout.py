@@ -3,9 +3,9 @@
 
 This gate requires a buyer-executable checkout page that turns a configured
 Stripe/Revolut/PayPal HTTPS payment destination into a direct Pay 29 EUR action,
-records checkout attempts, creates a copyable buyer checkout pack and proof email,
-and still refuses to count revenue until APF paid confirmation verifies proof in
-the APF paid ledger.
+records checkout attempts, creates a copyable buyer checkout pack, creates a
+prefilled buyer checkout email handoff and proof email, and still refuses to
+count revenue until APF paid confirmation verifies proof in the APF paid ledger.
 """
 from pathlib import Path
 
@@ -33,6 +33,7 @@ def main() -> None:
         "Auto Parts Price Finder — instant 29 € checkout",
         "Executable APF checkout · 29 EUR · payment-link click ledger",
         "buyer checkout pack",
+        "buyer checkout email",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const LEDGER_KEY='apfInstantPaymentCheckoutLedger'",
@@ -46,14 +47,17 @@ def main() -> None:
         "function buildPaidConfirmationUrl(row)",
         "function buildFulfillmentUrl(row)",
         "function buildPaymentProofMailto(row)",
+        "function buildBuyerCheckoutEmailMailto(row)",
         "function buildBuyerCheckoutPack(row)",
         "function copyBuyerCheckoutPack()",
         "function saveCheckoutIntent()",
         "function startCheckout()",
         "id=\"payNowLink\"",
+        "id=\"buyerCheckoutEmailLink\"",
         "id=\"paymentProofEmailLink\"",
         "Pay 29 € now",
         "Copy buyer checkout pack",
+        "Send checkout to buyer",
         "Email payment proof",
         "checkout_attempted_not_revenue",
         "revenueCountedEur:0",
@@ -84,6 +88,8 @@ def main() -> None:
         "payment proof link",
         "Verify paid proof only through APF paid confirmation",
         "Fulfill only after verified paid event exists",
+        "Buyer checkout email:",
+        "MB Marių auto",
     ]
     for marker in buyer_path_markers:
         require(marker in checkout, f"checkout page missing buyer payment path marker: {marker}")
@@ -94,6 +100,8 @@ def main() -> None:
         "return true",
         "bank/text destination generated",
         "mailto:'+encodeURIComponent(CONTACT_EMAIL)",
+        "mailto:'+encodeURIComponent(to)",
+        "$('buyerCheckoutEmailLink').href=buildBuyerCheckoutEmailMailto(row)",
         "navigator.clipboard.writeText(pack)",
     ]
     for marker in url_checkout_markers:
@@ -122,8 +130,9 @@ def main() -> None:
     print(
         "checked: buyer-ready 29 EUR payment-link checkout, URL/localStorage payment setup restore, "
         "checkout attempt ledger, direct Pay 29 link for HTTPS payment destinations, bank/text fallback, "
-        "copyable buyer checkout pack, payment proof mailto fallback, APF paid confirmation handoff, "
-        "APF fulfillment handoff, CSV export, and zero confirmed revenue until verified paid proof"
+        "copyable buyer checkout pack, prefilled buyer checkout email handoff, payment proof mailto fallback, "
+        "APF paid confirmation handoff, APF fulfillment handoff, CSV export, and zero confirmed revenue "
+        "until verified paid proof"
     )
 
 
