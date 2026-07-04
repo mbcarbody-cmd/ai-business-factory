@@ -11,9 +11,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">APF close room · buyer-ready 29 EUR offer · payment URL · proof handoff · fulfillment gate · 0 EUR until verified paid event</span>
+  <span class="badge">APF close room · buyer-ready 29 EUR offer · production payment preflight · proof handoff · fulfillment gate · 0 EUR until verified paid event</span>
   <h1>Auto Parts Price Finder buyer close room</h1>
-  <p class="muted">Vienas uždaromas pirkėjo kambarys iš outreach eilutės: sukuria pirkėjo checkout URL, mailto pasiūlymą, mokėjimo instrukcijas, APF paid-confirmation URL, fulfillment URL ir close-room ledger. Tai nėra summary/audit planas — tai tiesioginis offer → pay → proof → fulfill workflow.</p>
+  <p class="muted">Vienas uždaromas pirkėjo kambarys iš outreach eilutės: sukuria pirkėjo checkout URL, mailto pasiūlymą, mokėjimo instrukcijas, APF paid-confirmation URL, fulfillment URL ir close-room ledger. Close-room kūrimas blokuoja tuščias/demo/test/example paymentDestination reikšmes, kad pirkėjui neišeitų neapmokamas handoff. Tai nėra summary/audit planas — tai tiesioginis offer → pay → proof → fulfill workflow.</p>
 
   <section class="kpis">
     <div class="kpi"><strong>29 €</strong><span class="muted">buyer price</span></div>
@@ -30,7 +30,8 @@
       <div><label>Vehicle</label><input id="vehicle" value="Toyota Land Cruiser J250 2025"></div>
       <div><label>Part / OEM</label><input id="part" value="front bumper / 52119-60P40"></div>
       <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
-      <div class="full"><label>Payment destination / URL</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or Revolut/PayPal link or IBAN"></div>
+      <div class="full"><label>Production payment destination / URL</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or live Revolut/PayPal link or company IBAN"></div>
+      <div class="full"><label>Payment gate</label><input id="paymentGate" value="production payment destination required" readonly></div>
       <div class="full"><label>Offer note</label><textarea id="offerNote">You get fast-sale price, recommended ask price, premium ceiling, fitment/risk notes and listing angle for one auto part.</textarea></div>
     </div>
     <button class="btn ok" onclick="buildCloseRoom()">Build close room</button>
@@ -44,8 +45,8 @@
   </section>
 
   <section class="panel">
-    <div id="state"><span class="pill warn">payment destination required</span><span class="pill ok">paid proof gate required</span><span class="pill warn">revenueCountedEur:0</span></div>
-    <pre class="output" id="output">Pass buyerEmail, buyerName, leadId, vehicle, part, paymentMethod and paymentDestination in the URL or type them here. Close-room creation, email opens, copied packs, payment URL clicks and CSV exports are rejected as revenue until APF paid confirmation verifies proof into apfPaidEventLedger.</pre>
+    <div id="state"><span class="pill warn">production payment destination required</span><span class="pill ok">paid proof gate required</span><span class="pill warn">revenueCountedEur:0</span></div>
+    <pre class="output" id="output">Pass buyerEmail, buyerName, leadId, vehicle, part, paymentMethod and production paymentDestination in the URL or type them here. Close-room creation, email opens, copied packs, payment URL clicks and CSV exports are rejected as revenue until APF paid confirmation verifies proof into apfPaidEventLedger. Demo/example/test/placeholder destinations are blocked before buyer handoff.</pre>
   </section>
 </main>
 <script>
@@ -57,6 +58,7 @@ const CONTACT_EMAIL='automariu@gmail.com';
 const CLOSE_LEDGER_KEY='apfBuyerCloseRoomLedger';
 const PAID_LEDGER_KEY='apfPaidEventLedger';
 const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const REJECTED_PAYMENT_TOKENS=['example','demo','test','todo','placeholder','your-','sample','localhost','sandbox'];
 const $=id=>document.getElementById(id);
 const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
 function params(){return new URL(location.href).searchParams}
@@ -70,15 +72,26 @@ function restoreFromUrl(){
   $('paymentMethod').value=normalizePaymentMethod(p.get('paymentMethod')||$('paymentMethod').value);
 }
 function isPaymentUrl(value){return /^https:\/\//i.test(String(value||'').trim())}
+function isProductionPaymentDestination(value){
+  const v=String(value||'').trim();
+  const lower=v.toLowerCase();
+  if(v.length<8) return false;
+  if(REJECTED_PAYMENT_TOKENS.some(token=>lower.includes(token))) return false;
+  if(/^https:\/\//i.test(v)) return /(stripe\.com|pay\.stripe\.com|revolut|paypal\.com|paypal\.me|wise\.com|paysera|bankera)/i.test(v) || v.length>24;
+  return /^([A-Z]{2}\d{2}[A-Z0-9]{11,30})$/i.test(v.replace(/\s+/g,''));
+}
+function paymentBlockerText(){
+  return 'BLOCKER: production payment destination required before buyer close room is generated. Add a live Stripe/Revolut/PayPal URL or company IBAN; demo/example/test/placeholder destinations are rejected. Fallback executed: no close-room ledger row, buyer email, CSV export, payment click or fulfillment handoff is released; revenueCountedEur remains 0.';
+}
 function buildRow(){
   const now=new Date();
   const leadId=$('leadId').value.trim()||'APF-CLOSE-'+now.getTime()+'-'+safeSlug($('buyerName').value||$('part').value);
   const closeRoomId='APF-CLOSE-'+now.getTime()+'-'+safeSlug(leadId);
   const paymentReference='APF29-'+closeRoomId.slice(-18).toUpperCase();
-  return {closeRoomId,leadId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'close_room_ready_unpaid',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),paymentMethod:normalizePaymentMethod($('paymentMethod').value),paymentDestination:$('paymentDestination').value.trim(),offerNote:$('offerNote').value.trim(),paidLedgerRequired:PAID_LEDGER_KEY};
+  return {closeRoomId,leadId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'close_room_ready_unpaid',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),paymentMethod:normalizePaymentMethod($('paymentMethod').value),paymentDestination:$('paymentDestination').value.trim(),paymentGate:'production-ready',offerNote:$('offerNote').value.trim(),paidLedgerRequired:PAID_LEDGER_KEY};
 }
 function buildCheckoutUrl(row){
-  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'buyer-close-room',buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,paymentMethod:row.paymentMethod,paymentDestination:row.paymentDestination,leadId:row.leadId,closeRoomId:row.closeRoomId});
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'buyer-close-room',buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,paymentMethod:row.paymentMethod,paymentDestination:row.paymentDestination,paymentGate:row.paymentGate,leadId:row.leadId,closeRoomId:row.closeRoomId});
   return './auto-parts-instant-payment-link-checkout.html?'+q.toString();
 }
 function buildPaidConfirmationUrl(row){
@@ -95,19 +108,23 @@ function buildProofMailto(row){
 }
 function buildClosePack(row){
   const paymentAction=isPaymentUrl(row.paymentDestination)?`Pay now: ${row.paymentDestination}`:`Payment destination: ${row.paymentDestination}`;
-  return `AUTO PARTS PRICE FINDER — BUYER CLOSE ROOM\nClose room ID: ${row.closeRoomId}\nLead ID: ${row.leadId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nOffer: ${row.offerNote||'-'}\nPayment method: ${row.paymentMethod}\n${paymentAction}\nCheckout URL: ${buildCheckoutUrl(row)}\nPaid confirmation URL: ${buildPaidConfirmationUrl(row)}\nFulfillment URL after verified paid event: ${buildFulfillmentUrl(row)}\n\nBuyer steps:\n1) Pay exactly 29 EUR using reference ${row.paymentReference}.\n2) Email paid proof to ${CONTACT_EMAIL}.\n3) Delivery starts only after verified APF paid event exists in ${PAID_LEDGER_KEY}.\n\nRejected weak patterns: close room, checkout URL, email open, copied pack, payment URL click, proof email and CSV export are 0 EUR until verified paid confirmation.`;
+  return `AUTO PARTS PRICE FINDER — BUYER CLOSE ROOM\nClose room ID: ${row.closeRoomId}\nLead ID: ${row.leadId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nOffer: ${row.offerNote||'-'}\nPayment method: ${row.paymentMethod}\nPayment gate: ${row.paymentGate}\n${paymentAction}\nCheckout URL: ${buildCheckoutUrl(row)}\nPaid confirmation URL: ${buildPaidConfirmationUrl(row)}\nFulfillment URL after verified paid event: ${buildFulfillmentUrl(row)}\n\nBuyer steps:\n1) Pay exactly 29 EUR using reference ${row.paymentReference}.\n2) Email paid proof to ${CONTACT_EMAIL}.\n3) Delivery starts only after verified APF paid event exists in ${PAID_LEDGER_KEY}.\n\nRejected weak patterns: close room, checkout URL, email open, copied pack, payment URL click, proof email and CSV export are 0 EUR until verified paid confirmation.`;
 }
 function buildBuyerMailto(row){
   const body=`Hi ${row.buyerName||'there'},\n\nI prepared your Auto Parts Price Finder 29 EUR checkout for ${row.vehicle||'your vehicle'} / ${row.part||'requested part'}.\n\n${buildClosePack(row)}\n\nThanks,\nMB Marių auto`;
   return 'mailto:'+encodeURIComponent(row.buyerEmail||'')+'?subject='+encodeURIComponent('Auto Parts Price Finder 29 EUR checkout '+row.paymentReference)+'&body='+encodeURIComponent(body);
 }
+function preflightPaymentDestination(row){
+  if(isProductionPaymentDestination(row.paymentDestination)) return true;
+  $('payLink').href='#';
+  $('buyerEmailLink').href='mailto:?subject=Auto%20Parts%20Price%20Finder%2029%20EUR';
+  $('state').innerHTML='<span class="pill warn">BLOCKER: production payment destination required</span><span class="pill warn">demo/example/test destination rejected</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=paymentBlockerText();
+  return false;
+}
 function buildCloseRoom(){
   const row=buildRow();
-  if(row.paymentDestination.length<8){
-    $('state').innerHTML='<span class="pill warn">BLOCKER: payment destination required</span><span class="pill warn">revenueCountedEur:0</span>';
-    $('output').textContent='BLOCKER: no Stripe/Revolut/PayPal URL or IBAN destination configured. Fallback executed: close-room copy and buyer proof instructions are ready after a destination is added; no revenue counted.';
-    return null;
-  }
+  if(!preflightPaymentDestination(row)) return null;
   const rows=readRooms();
   if(!rows.some(r=>r.closeRoomId===row.closeRoomId||r.paymentReference===row.paymentReference)){rows.unshift(row);writeRooms(rows)}
   $('payLink').href=isPaymentUrl(row.paymentDestination)?row.paymentDestination:'#';
@@ -115,11 +132,11 @@ function buildCloseRoom(){
   $('proofLink').href=buildProofMailto(row);
   $('confirmLink').href=buildPaidConfirmationUrl(row);
   $('fulfillLink').href=buildFulfillmentUrl(row);
-  $('state').innerHTML='<span class="pill ok">buyer close room ready</span><span class="pill ok">checkout URL generated</span><span class="pill ok">buyer email handoff ready</span><span class="pill ok">proof and fulfillment gate wired</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('state').innerHTML='<span class="pill ok">production payment destination verified</span><span class="pill ok">buyer close room ready</span><span class="pill ok">checkout URL generated</span><span class="pill ok">buyer email handoff ready</span><span class="pill ok">proof and fulfillment gate wired</span><span class="pill warn">revenueCountedEur:0</span>';
   $('output').textContent=buildClosePack(row)+'\n\nBuyer email mailto:\n'+buildBuyerMailto(row);
   return row;
 }
-function startPayment(){const row=buildCloseRoom();return Boolean(row&&isPaymentUrl(row.paymentDestination))}
+function startPayment(){const row=buildCloseRoom();return Boolean(row&&isPaymentUrl(row.paymentDestination)&&isProductionPaymentDestination(row.paymentDestination))}
 async function copyClosePack(){
   const row=buildCloseRoom();if(!row)return false;
   const pack=buildClosePack(row);
@@ -127,11 +144,13 @@ async function copyClosePack(){
   $('output').textContent=pack;return true;
 }
 function exportCsv(){
+  const row=buildRow();
+  if(!preflightPaymentDestination(row)) return false;
   if(!readRooms().length) buildCloseRoom();
   const rows=readRooms();
-  const headers=['closeRoomId','leadId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paidLedgerRequired'];
+  const headers=['closeRoomId','leadId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paymentGate','paidLedgerRequired'];
   const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-buyer-close-room-ledger.csv';a.click();URL.revokeObjectURL(url);
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-buyer-close-room-ledger.csv';a.click();URL.revokeObjectURL(url);return true;
 }
 restoreFromUrl();writeRooms(readRooms());
 </script>
