@@ -2,12 +2,15 @@
 """Regression gate for the 29 EUR Auto Parts Price Finder payable order path.
 
 This is a buyer/payment-path gate, not a dashboard or summary gate. It requires
-an executable order form, a real payment destination gate, payment reference,
-CSV export, APF-specific paid-confirmation and APF-specific fulfillment handoff,
-plus a fallback invoice request email when the payment provider destination is
-not configured, while keeping confirmed revenue at 0 EUR until a verified paid
-event exists. It also requires payment setup restoration so the seller's chosen
-payment method/destination survives the setup page -> payable order handoff.
+an executable order form, a real production payment destination gate, payment
+reference, CSV export, APF-specific paid-confirmation and APF-specific
+fulfillment handoff, plus a fallback invoice request email when the payment
+provider destination is not configured, while keeping confirmed revenue at 0 EUR
+until a verified paid event exists. It also requires payment setup restoration
+so the seller's chosen payment method/destination survives the setup page ->
+payable order handoff, and it blocks demo/test/example/fake placeholder payment
+destinations before buyer order rows, CSV exports, paid-confirmation URLs, or
+fulfillment handoff can be treated as executable buyer progress.
 """
 from pathlib import Path
 
@@ -45,6 +48,7 @@ def main() -> None:
     order_markers = [
         "Buy Auto Parts Price Finder audit — 29 €",
         "Executable revenue path · 29 EUR · payable order gate",
+        "production payment destination preflight",
         "APF direct verified-paid handoff",
         "APF-specific paid fulfillment handoff",
         "payment setup auto-restore",
@@ -141,6 +145,8 @@ def main() -> None:
         "Payment destination / URL",
         "IBAN, Revolut link, Stripe Payment Link or PayPal checkout URL",
         "payment destination required",
+        "production payment destination required",
+        "production payment destination ready",
         "No order row is created and no revenue is counted until this is configured",
         "Pay 29 EUR to payment destination above using reference",
         "localStorage.setItem(PAYMENT_DESTINATION_KEY",
@@ -149,6 +155,27 @@ def main() -> None:
     ]
     for marker in payment_gate_markers:
         require(marker in order, f"order page missing payable payment gate marker: {marker}")
+
+    production_payment_preflight_markers = [
+        "const BLOCKED_PAYMENT_DESTINATION_PATTERNS=['demo','example','test','placeholder','sample','fake','todo','tbd','your-'",
+        "function paymentDestinationRejectReason(destination)",
+        "BLOCKED_PAYMENT_DESTINATION_PATTERNS.some(pattern=>lower.includes(pattern))",
+        "IBAN_OR_PAYMENT_LINK_REQUIRED",
+        "production Stripe payment link required",
+        "buy\\.stripe\\.com|checkout\\.stripe\\.com",
+        "production Revolut Business link required",
+        "revolut\\.me|pay\\.revolut\\.com|checkout\\.revolut\\.com",
+        "production PayPal checkout link required",
+        "paypal\\.com",
+        "production bank-transfer IBAN required",
+        "paymentDestinationIsConfigured(){return !paymentDestinationRejectReason(getPaymentDestination())}",
+        "const rejectReason=paymentDestinationRejectReason(getPaymentDestination())",
+        "Empty, demo, test, example, fake, placeholder, todo, tbd and IBAN_OR_PAYMENT_LINK_REQUIRED values are rejected before creating buyer order rows, CSV, paid-confirmation URLs or fulfillment handoff",
+        "demo/test/example/fake/placeholder payment destination",
+        "localStorage.removeItem(PAYMENT_DESTINATION_KEY)",
+    ]
+    for marker in production_payment_preflight_markers:
+        require(marker in order, f"order page missing production-payment preflight marker: {marker}")
 
     invoice_request_markers = [
         "Request payment invoice",
@@ -195,7 +222,7 @@ def main() -> None:
         require(pattern not in order, f"weak/fake revenue pattern must not appear in order page: {pattern}")
 
     print("PASS auto parts payable order regression")
-    print("checked: 29 EUR buyer order form, required payment destination gate, restored setup payment method/destination, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, APF direct paid-fulfillment handoff, proof instructions, CSV export, and zero confirmed revenue until verified paid event")
+    print("checked: 29 EUR buyer order form, production payment destination preflight, blocked demo/test/example/fake placeholder destinations, restored setup payment method/destination, payment reference, invoice-request fallback email, APF direct paid-confirmation handoff, APF direct paid-fulfillment handoff, proof instructions, CSV export, and zero confirmed revenue until verified paid event")
 
 
 if __name__ == "__main__":
