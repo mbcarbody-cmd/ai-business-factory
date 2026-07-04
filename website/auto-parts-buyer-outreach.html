@@ -11,9 +11,9 @@
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Executable sales workflow · outreach-ready rows · buyer close-room URLs · 29 EUR offer · confirmed revenue remains 0 EUR until verified payment</span>
+  <span class="badge">Executable sales workflow · outreach-ready rows · buyer close-room URLs · 29 EUR offer · production payment preflight · confirmed revenue remains 0 EUR until verified payment</span>
   <h1>Auto Parts Price Finder outreach generator</h1>
-  <p>Generuoja konkrečias pirkėjų eilutes, email tekstus, CSV, mailto linkus ir individualius buyer close-room URL 29 € Auto Parts Price Finder auditui. Tai tiesioginis pardavimo kelias: produktas → lead row → buyer close room → payment proof → paid confirmation → fulfillment.</p>
+  <p>Generuoja konkrečias pirkėjų eilutes, email tekstus, CSV, mailto linkus ir individualius buyer close-room URL 29 € Auto Parts Price Finder auditui. Outreach paleidžiamas tik su production-ready mokėjimo destinacija: demo/test/example nuorodos ir tuščias IBAN/URL blokuojami prieš generuojant pirkėjo handoff.</p>
 
   <section class="cards">
     <div class="card"><strong id="kRows">0</strong><span class="muted">outreach rows</span></div>
@@ -32,7 +32,9 @@
         <div><label>Target segment</label><select id="segment"><option>used auto parts sellers</option><option>premium car dismantlers</option><option>body shops</option><option>export buyers</option><option>marketplace sellers</option></select></div>
         <div><label>Country / market</label><input id="market" value="EU / UK / Lithuania"></div>
         <div><label>Rows to generate</label><input id="rowCount" type="number" min="5" max="50" value="25"></div>
-        <div class="full"><label>Payment destination / URL for close room</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or Revolut/PayPal link or IBAN"></div>
+        <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
+        <div><label>Payment gate</label><input id="paymentGate" value="production payment destination required" readonly></div>
+        <div class="full"><label>Production payment destination / URL for close room</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or live Revolut/PayPal link or company IBAN"></div>
         <div class="full"><label>Proof / hook</label><textarea id="hook">I can benchmark OEM/new/used prices and return fast-sale, ask and premium ceiling for one part, with fitment/risk notes.</textarea></div>
       </div>
       <div class="cta">
@@ -46,26 +48,38 @@
 
     <div class="panel">
       <h2>Outreach-ready output</h2>
-      <div id="state"><span class="pill warn">No rows yet</span></div>
-      <pre id="output" class="output">Generate rows. Outreach rows, buyer close-room links, mailto opens, CSV exports and pipeline value are rejected weak patterns for revenue. revenueCountedEur stays 0 until a verified paid event exists.</pre>
+      <div id="state"><span class="pill warn">production payment destination required</span><span class="pill warn">No rows yet</span></div>
+      <pre id="output" class="output">Generate rows only after adding a production Stripe/Revolut/PayPal URL or company IBAN. Outreach rows, buyer close-room links, mailto opens, CSV exports and pipeline value are rejected weak patterns for revenue. revenueCountedEur stays 0 until a verified paid event exists.</pre>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: outreach row as revenue, buyer close-room link as revenue, mailto click as revenue, CSV export as revenue, pipeline value as confirmed EUR, page visit, duplicate leadId, fake paid event. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: outreach row as revenue, buyer close-room link as revenue, mailto click as revenue, CSV export as revenue, pipeline value as confirmed EUR, page visit, duplicate leadId, fake paid event, demo payment destination, example checkout URL. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
 const PRICE_EUR=29;
 const STORAGE_KEY='apfOutreachRows';
 const CONTACT_EMAIL='automariu@gmail.com';
+const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const REJECTED_PAYMENT_TOKENS=['example','demo','test','todo','placeholder','your-','sample','fake','localhost'];
 const $=id=>document.getElementById(id);
 const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
 let lastRows=[];
 function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'lead'}
 function readRows(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
 function writeRows(rows){localStorage.setItem(STORAGE_KEY,JSON.stringify(rows.slice(0,500)));$('kRows').textContent=String(rows.length);$('kPotential').textContent=eur(rows.length*PRICE_EUR);$('kRevenue').textContent='0 €'}
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'bank_transfer'}
+function isProductionPaymentDestination(value){
+  const v=String(value||'').trim();
+  const lower=v.toLowerCase();
+  if(v.length<8) return false;
+  if(REJECTED_PAYMENT_TOKENS.some(token=>lower.includes(token))) return false;
+  if(/^https:\/\//i.test(v)) return /(stripe\.com|pay\.stripe\.com|revolut|paypal\.com|paypal\.me|wise\.com|paysera|bankera)/i.test(v) || v.length>24;
+  return /^([A-Z]{2}\d{2}[A-Z0-9]{11,30})$/i.test(v.replace(/\s+/g,''));
+}
+function paymentBlockerText(){return 'BLOCKER: production payment destination required before outreach rows are generated. Add a live Stripe/Revolut/PayPal URL or company IBAN; demo/example/test/placeholder destinations are rejected. Fallback executed: no buyer handoff rows exported, revenueCountedEur remains 0, next action is to paste a real payment destination.'}
 function buildCloseRoomUrl(row){
   const base=location.origin+location.pathname.replace('auto-parts-buyer-outreach.html','auto-parts-buyer-close-room.html');
-  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'auto-parts-outreach',leadId:row.leadId,buyerName:row.segment,buyerEmail:row.contactEmail,vehicle:row.vehicle,part:(row.part+' / '+row.oem).trim(),paymentMethod:'bank_transfer',paymentDestination:row.paymentDestination});
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'auto-parts-outreach',leadId:row.leadId,buyerName:row.segment,buyerEmail:row.contactEmail,vehicle:row.vehicle,part:(row.part+' / '+row.oem).trim(),paymentMethod:row.paymentMethod,paymentDestination:row.paymentDestination,paymentGate:'production-ready'});
   return base+'?'+q.toString();
 }
 function buildRow(i){
@@ -75,31 +89,46 @@ function buildRow(i){
   const segment=$('segment').value;
   const market=$('market').value.trim();
   const hook=$('hook').value.trim();
+  const paymentMethod=normalizePaymentMethod($('paymentMethod').value);
   const paymentDestination=$('paymentDestination').value.trim();
   const leadId='APF-OUT-'+Date.now()+'-'+String(i+1).padStart(2,'0')+'-'+safeSlug(segment);
-  const orderUrl=location.origin+location.pathname.replace('auto-parts-buyer-outreach.html','auto-parts-bank-transfer-order.html')+'?product='+PRODUCT+'&priceEur='+PRICE_EUR+'&buyer=used-parts-seller&source=auto-parts-outreach&leadId='+encodeURIComponent(leadId);
-  const row={leadId,createdAt:new Date().toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'outreach_ready_unpaid',segment,market,vehicle,part,oem,paymentDestination,contactEmail:CONTACT_EMAIL};
+  const orderUrl=location.origin+location.pathname.replace('auto-parts-buyer-outreach.html','auto-parts-bank-transfer-order.html')+'?product='+PRODUCT+'&priceEur='+PRICE_EUR+'&buyer=used-parts-seller&source=auto-parts-outreach&leadId='+encodeURIComponent(leadId)+'&paymentMethod='+encodeURIComponent(paymentMethod)+'&paymentDestination='+encodeURIComponent(paymentDestination);
+  const row={leadId,createdAt:new Date().toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'outreach_ready_unpaid',paymentGate:'production-ready',segment,market,vehicle,part,oem,paymentMethod,paymentDestination,contactEmail:CONTACT_EMAIL};
   row.closeRoomUrl=buildCloseRoomUrl(row);
   const subject='29 EUR price audit for '+(part||'auto part')+' — '+(vehicle||'vehicle');
-  const body='Hi,\n\nI can prepare a one-part pricing audit for '+(vehicle||'your vehicle')+' / '+(part||'your part')+' ('+(oem||'OEM to confirm')+').\n\nYou get: fast-sale price, recommended ask price, premium ceiling, fitment/risk notes and listing angle.\n\nPrice: 29 EUR.\nBuyer close room: '+row.closeRoomUrl+'\nFallback order link: '+orderUrl+'\n\nProof/hook: '+hook+'\n\nRegards,\nMB Marių auto';
+  const body='Hi,\n\nI can prepare a one-part pricing audit for '+(vehicle||'your vehicle')+' / '+(part||'your part')+' ('+(oem||'OEM to confirm')+').\n\nYou get: fast-sale price, recommended ask price, premium ceiling, fitment/risk notes and listing angle.\n\nPrice: 29 EUR.\nPayment method: '+paymentMethod+'\nBuyer close room: '+row.closeRoomUrl+'\nFallback order link: '+orderUrl+'\n\nProof/hook: '+hook+'\n\nRegards,\nMB Marių auto';
   return {...row,subject,body,orderUrl,mailto:'mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)};
 }
+function preflightPaymentDestination(){
+  const ok=isProductionPaymentDestination($('paymentDestination').value);
+  if(!ok){
+    lastRows=[];
+    $('closeRoomLink').href='./auto-parts-buyer-close-room.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=auto-parts-outreach';
+    $('state').innerHTML='<span class="pill warn">BLOCKER: production payment destination required</span><span class="pill warn">revenueCountedEur:0</span><span class="pill warn">outreach rows not generated</span>';
+    $('output').textContent=paymentBlockerText();
+  }
+  return ok;
+}
 function generateRows(){
+  if(!preflightPaymentDestination()) return [];
   const count=Math.max(5,Math.min(50,Number($('rowCount').value)||25));
   const rows=[];for(let i=0;i<count;i++) rows.push(buildRow(i));
   const existing=readRows();
   const merged=[...rows,...existing].filter((r,idx,arr)=>arr.findIndex(x=>x.leadId===r.leadId)===idx);
   writeRows(merged);lastRows=rows;
   if(rows[0]) $('closeRoomLink').href=rows[0].closeRoomUrl;
-  $('state').innerHTML='<span class="pill ok">outreach rows ready</span><span class="pill ok">buyer close-room URLs ready</span><span class="pill">pipeline '+eur(rows.length*PRICE_EUR)+'</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=rows.map((r,idx)=>'#'+(idx+1)+' '+r.leadId+'\nSegment: '+r.segment+'\nMarket: '+r.market+'\nSubject: '+r.subject+'\nBuyer close room: '+r.closeRoomUrl+'\nFallback order: '+r.orderUrl+'\nMailto: '+r.mailto+'\nBody:\n'+r.body+'\nRevenue rule: revenueCountedEur:'+r.revenueCountedEur).join('\n\n---\n\n');
+  $('state').innerHTML='<span class="pill ok">production payment destination verified</span><span class="pill ok">outreach rows ready</span><span class="pill ok">buyer close-room URLs ready</span><span class="pill">pipeline '+eur(rows.length*PRICE_EUR)+'</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=rows.map((r,idx)=>'#'+(idx+1)+' '+r.leadId+'\nSegment: '+r.segment+'\nMarket: '+r.market+'\nPayment method: '+r.paymentMethod+'\nPayment gate: '+r.paymentGate+'\nSubject: '+r.subject+'\nBuyer close room: '+r.closeRoomUrl+'\nFallback order: '+r.orderUrl+'\nMailto: '+r.mailto+'\nBody:\n'+r.body+'\nRevenue rule: revenueCountedEur:'+r.revenueCountedEur).join('\n\n---\n\n');
+  return rows;
 }
 function exportCsv(){
+  if(!preflightPaymentDestination()) return false;
   if(!readRows().length) generateRows();
   const rows=readRows();
-  const headers=['leadId','createdAt','product','priceEur','revenueCountedEur','status','segment','market','vehicle','part','oem','paymentDestination','closeRoomUrl','orderUrl','subject','body','mailto','contactEmail'];
+  const headers=['leadId','createdAt','product','priceEur','revenueCountedEur','status','paymentGate','segment','market','vehicle','part','oem','paymentMethod','paymentDestination','closeRoomUrl','orderUrl','subject','body','mailto','contactEmail'];
   const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
   const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-price-finder-outreach-rows.csv';a.click();URL.revokeObjectURL(url);
+  return true;
 }
 writeRows(readRows());
 </script>
