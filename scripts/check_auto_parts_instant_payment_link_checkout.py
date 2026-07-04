@@ -4,8 +4,9 @@
 This gate requires a buyer-executable checkout page that turns a configured
 Stripe/Revolut/PayPal HTTPS payment destination into a direct Pay 29 EUR action,
 records checkout attempts, creates a copyable buyer checkout pack, creates a
-prefilled buyer checkout email handoff and proof email, and still refuses to
-count revenue until APF paid confirmation verifies proof in the APF paid ledger.
+prefilled buyer checkout email handoff and proof email, blocks demo/example/test
+payment destinations from buyer handoff, and still refuses to count revenue until
+APF paid confirmation verifies proof in the APF paid ledger.
 """
 from pathlib import Path
 
@@ -31,7 +32,7 @@ def main() -> None:
 
     required_markers = [
         "Auto Parts Price Finder — instant 29 € checkout",
-        "Executable APF checkout · 29 EUR · payment-link click ledger",
+        "Executable APF checkout · 29 EUR · production payment-destination gate",
         "buyer checkout pack",
         "buyer checkout email",
         "const PRODUCT='auto-parts-price-finder'",
@@ -41,8 +42,12 @@ def main() -> None:
         "const PAYMENT_DESTINATION_KEY='apfPaymentDestination'",
         "const PAYMENT_METHOD_KEY='apfPaymentMethod'",
         "const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer']",
+        "const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','replace-with-real']",
         "function restoreFromUrlOrStorage()",
         "function isPaymentUrl(value)",
+        "function isDemoDestination(value)",
+        "function isProductionReadyDestination(value)",
+        "function readinessBlocker(row)",
         "function buildCheckout()",
         "function buildPaidConfirmationUrl(row)",
         "function buildFulfillmentUrl(row)",
@@ -60,6 +65,8 @@ def main() -> None:
         "Send checkout to buyer",
         "Email payment proof",
         "checkout_attempted_not_revenue",
+        "blocked_non_production_payment_destination",
+        "paymentDestinationReady",
         "revenueCountedEur:0",
         "apf-instant-payment-checkout-ledger.csv",
         "auto-parts-paid-confirmation.html?",
@@ -94,6 +101,25 @@ def main() -> None:
     for marker in buyer_path_markers:
         require(marker in checkout, f"checkout page missing buyer payment path marker: {marker}")
 
+    production_gate_markers = [
+        "Demo/example/test URLs are blocked from buyer handoff",
+        "waiting for production payment destination",
+        "production payment destination blocked",
+        "buyer handoff disabled",
+        "fallback blocker mail ready",
+        "BLOCKER: demo/example/test payment destination is not buyer-ready and cannot be sent or counted as revenue.",
+        "do not send buyer checkout yet",
+        "Replace demo/example/test destination with a real Stripe/Revolut/PayPal URL or IBAN",
+        "Production payment destination ready:",
+        "demo payment destination",
+        "paymentDestinationReady?'yes':'no'",
+        "paymentDestinationReady",
+        "https://pay.example.com/apf-29-eur",
+        "intentionally blocked by production payment-destination gate",
+    ]
+    for marker in production_gate_markers:
+        require(marker in checkout, f"checkout page missing production destination gate marker: {marker}")
+
     url_checkout_markers = [
         "if(isPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}",
         "return /^https:\\/\\//i.test",
@@ -101,7 +127,8 @@ def main() -> None:
         "bank/text destination generated",
         "mailto:'+encodeURIComponent(CONTACT_EMAIL)",
         "mailto:'+encodeURIComponent(to)",
-        "$('buyerCheckoutEmailLink').href=buildBuyerCheckoutEmailMailto(row)",
+        "$('buyerCheckoutEmailLink').href=blocker?",
+        "buildBuyerCheckoutEmailMailto(row)",
         "navigator.clipboard.writeText(pack)",
     ]
     for marker in url_checkout_markers:
@@ -110,6 +137,8 @@ def main() -> None:
     rejected_weak_patterns = [
         "checkout click is revenue",
         "payment link is revenue",
+        "demo payment destination is revenue",
+        "example payment destination is revenue",
         "revenueCountedEur:29",
         "confirmedRevenueEur:29",
         "fake paid",
@@ -129,6 +158,7 @@ def main() -> None:
     print("PASS APF instant payment-link checkout regression")
     print(
         "checked: buyer-ready 29 EUR payment-link checkout, URL/localStorage payment setup restore, "
+        "production payment-destination gate blocking demo/example/test destinations from buyer handoff, "
         "checkout attempt ledger, direct Pay 29 link for HTTPS payment destinations, bank/text fallback, "
         "copyable buyer checkout pack, prefilled buyer checkout email handoff, payment proof mailto fallback, "
         "APF paid confirmation handoff, APF fulfillment handoff, CSV export, and zero confirmed revenue "
