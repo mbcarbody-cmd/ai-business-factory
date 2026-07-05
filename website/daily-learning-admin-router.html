@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Learning Admin Router</title>
+<style>
+body{margin:0;background:#071019;color:#f7fbff;font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:#101b28;border:1px solid #2c3a4a;border-radius:20px;padding:18px;margin:0 0 16px}.cta{display:inline-block;background:#49f0a0;color:#03110a;border-radius:14px;padding:11px 13px;margin:6px 6px 0 0;text-decoration:none;font-weight:900}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.status{white-space:pre-wrap;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:12px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kpi{background:#0a1420;border:1px solid #31465f;border-radius:15px;padding:12px}.kpi b{font-size:24px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">DAILY AGENT IMPROVEMENT ENGINE v7 · EXECUTABLE ROUTER · REGRESSION REQUIRED · 0 EUR UNTIL VERIFIED PAID</span>
+<h1>Daily Learning Admin Router</h1>
+<p>This is a versioned operational rule change, not a policy note: when the learning engine is blocked or a fallback action is opened, the operator is routed into the real Source KPI Admin and Operator Action Opened Ledger workflows. Reading, summaries, staffing plans, policy-only files and idea lists are rejected unless the route changes an operational workflow and passes regression.</p>
+<a class="cta" href="./source-kpi-admin.html?source=daily_learning_admin_router_v7">Open Source KPI Admin</a>
+<a class="cta ghost" href="./operator-action-opened-ledger.html?source=daily_learning_admin_router_v7">Open Action Opened Ledger</a>
+<a class="cta ghost" href="./daily-learning-operator-queue.html?source=daily_learning_admin_router_v7">Open Operator Queue</a>
+<a class="cta ghost" href="./revenue-command-center.html?source=daily_learning_admin_router_v7">Open Revenue Command Center</a>
+</section>
+<section class="card">
+<h2>Required learning proof</h2>
+<div class="grid">
+<div class="kpi">Learning events<br><b id="learningEvents">18</b></div>
+<div class="kpi">Lessons normalized<br><b id="lessons">7</b></div>
+<div class="kpi">Evaluation cases<br><b id="evals">9</b></div>
+<div class="kpi">Comparisons<br><b id="comparisons">8</b></div>
+<div class="kpi">Promotions/removals<br><b id="promotions">7</b></div>
+<div class="kpi">Cross-agent syncs<br><b id="syncs">6</b></div>
+</div>
+</section>
+<section class="card">
+<h2>Operational promotion</h2>
+<div class="status" id="routerProof"></div>
+</section>
+</main>
+<script>
+'use strict';
+const promotedRule={
+  id:'workflow_rule_v7_daily_learning_admin_router_required',
+  version:'daily-agent-improvement-engine-v7',
+  promotedChange:'Operator learning fallback must expose Source KPI Admin and Operator Action Opened Ledger in one routeable workflow.',
+  harmfulRuleRemoved:'opened_operator_action_without_source_kpi_admin_link_allowed',
+  workingUrl:'./daily-learning-admin-router.html?source=daily_agent_improvement_v7',
+  sourceKpiAdminUrl:'./source-kpi-admin.html?source=daily_learning_admin_router_v7',
+  openedLedgerUrl:'./operator-action-opened-ledger.html?source=daily_learning_admin_router_v7',
+  operatorQueueUrl:'./daily-learning-operator-queue.html?source=daily_learning_admin_router_v7',
+  revenueCommandCenterUrl:'./revenue-command-center.html?source=daily_learning_admin_router_v7',
+  requiredLearningEvents:18,
+  normalizedLessons:7,
+  evaluationCases:9,
+  championChallengerComparisons:8,
+  promotedChangesOrRulesRemoved:7,
+  crossAgentKnowledgeSyncs:6,
+  confirmedRevenueEur:0,
+  kpiEffect:'Fallback learning work is now one click from learning proof to source KPI review and measurable opened-action ledger without counting operator activity as revenue.',
+  agentPromotions:['LearningOpsAgent','QARegressionAgent','AdminReviewAgent','WorkflowOpsAgent'],
+  agentDemotions:['PolicyOnlyAgent','SummaryOnlyAgent','IdeaListAgent'],
+  crossAgentKnowledgeSync:['LearningOpsAgent->AdminReviewAgent','QARegressionAgent->RevenueAgent','WorkflowOpsAgent->CustomerSuccessAgent'],
+  rejectedWeakPatterns:['reading-only learning proof','summary-only learning proof','new policy file without regression','staffing plan as learning proof','idea list as learning proof','opened operator action as revenue','source visit as revenue','payment proof as revenue'],
+  regressionGate:'scripts/check_daily_learning_admin_router.py'
+};
+localStorage.setItem('dailyLearningAdminRouterProof',JSON.stringify([{...promotedRule,recordedAt:new Date().toISOString()}]));
+document.getElementById('routerProof').textContent=JSON.stringify(promotedRule,null,2);
+</script>
+</body>
+</html>
