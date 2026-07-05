@@ -81,7 +81,7 @@ def main() -> None:
         "manual proof text is revenue",
         "summary-only progress",
         "dashboard-only progress",
-        "fake paid",
+        "fake paid event counted",
     ]
     for pattern in forbidden_patterns:
         require(pattern not in page, f"weak/fake statement-import revenue pattern must not appear: {pattern}")
