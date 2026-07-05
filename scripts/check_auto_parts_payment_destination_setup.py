@@ -5,7 +5,8 @@ This is a revenue-path workflow improvement: it converts the missing live
 IBAN/Revolut/Stripe/PayPal blocker into a seller setup page that stores a real
 payment destination locally, imports it from setup URLs, and generates a buyer-ready
 instant checkout URL plus a payable order fallback while keeping confirmed revenue
-at 0 EUR until verified payment exists.
+at 0 EUR until verified payment exists. It must also block demo/test/example
+placeholders before buyer handoff links become usable.
 """
 from pathlib import Path
 
@@ -32,6 +33,7 @@ def main() -> None:
         "Configure Auto Parts Price Finder payment destination",
         "Seller payment setup · converts manual blocker into instant 29 EUR checkout URL",
         "URL-importable destination",
+        "production preflight blocks demo/test/example placeholders",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
         "const STORAGE_DESTINATION='apfPaymentDestination'",
@@ -50,7 +52,7 @@ def main() -> None:
         "function restoreFromUrlOrStorage()",
         "paymentDestination",
         "paymentMethod",
-        "IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL",
+        "Production IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL",
         "buyer-ready instant checkout URL",
         "payable order fallback",
         "auto-parts-instant-payment-link-checkout.html?",
@@ -60,6 +62,24 @@ def main() -> None:
     ]
     for marker in setup_markers:
         require(marker in setup, f"setup page missing executable marker: {marker}")
+
+    production_gate_markers = [
+        "const BLOCKED_DESTINATION_PATTERNS=['demo','test','example','fake','placeholder','sample','todo','your-iban','your_payment','change-me','lorem','localhost','127.0.0.1'];",
+        "function looksLikeIban(v)",
+        "function looksLikeProductionPaymentUrl(v)",
+        "function productionDestinationStatus(v)",
+        "return {ok:false,reason:'BLOCKER: payment destination is empty or too short for a buyer handoff.'};",
+        "return {ok:false,reason:`BLOCKER: rejected non-production payment destination pattern",
+        "destination must be a production IBAN or https Stripe/Revolut/PayPal payment URL",
+        "function setCheckoutLinksEnabled(enabled)",
+        "aria-disabled",
+        "checkout/order URLs blocked",
+        "Demo/test/example/fake/placeholder destinations are blocked before buyer handoff.",
+        "if(!validDestination(dest)){refresh();return}",
+        "if(validDestination(urlDestination)){",
+    ]
+    for marker in production_gate_markers:
+        require(marker in setup, f"setup page missing production payment gate marker: {marker}")
 
     url_import_markers = [
         "const urlDestination=(p.get('paymentDestination')||'').trim();",
@@ -141,8 +161,9 @@ def main() -> None:
 
     print("PASS auto parts payment destination setup regression")
     print(
-        "checked: seller payment setup, URL/localStorage payment destination restore, buyer-ready instant checkout URL, "
-        "payable order fallback, invoice fallback, outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event"
+        "checked: seller payment setup, production payment destination preflight, demo/test/example/placeholder blocking, "
+        "URL/localStorage payment destination restore, buyer-ready instant checkout URL, payable order fallback, invoice fallback, "
+        "outreach handoff, APF paid-ledger instruction, and zero confirmed revenue until verified paid event"
     )
 
 
