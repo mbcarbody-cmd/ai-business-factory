@@ -1,0 +1,23 @@
+name: video-maker-android-qa
+
+on:
+  push:
+    paths:
+      - 'website/video-maker-android-qa.html'
+      - 'scripts/regression-video-maker-android-qa.js'
+      - '.github/workflows/video-maker-android-qa.yml'
+  pull_request:
+    paths:
+      - 'website/video-maker-android-qa.html'
+      - 'scripts/regression-video-maker-android-qa.js'
+      - '.github/workflows/video-maker-android-qa.yml'
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/regression-video-maker-android-qa.js
