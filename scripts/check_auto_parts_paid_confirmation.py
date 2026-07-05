@@ -3,8 +3,9 @@
 
 This is a revenue-state gate, not a dashboard or idea list. It requires a real
 manual verification workflow that counts APF revenue only after a duplicate-
-protected paid event exists, updates payable order state, and hands the buyer
-order to the APF-specific paid fulfillment page.
+protected paid event exists with a verifiable payment proof URL/hash, updates
+payable order state, and hands the buyer order to the APF-specific paid
+fulfillment page.
 """
 from pathlib import Path
 
@@ -29,6 +30,7 @@ def main() -> None:
     executable_markers = [
         "Auto Parts Price Finder verified payment — 29 €",
         "Executable revenue path · 29 EUR · APF verified paid gate",
+        "required payment proof URL/hash",
         "APF paid fulfillment handoff",
         "const PRODUCT='auto-parts-price-finder'",
         "const PRICE_EUR=29",
@@ -38,6 +40,7 @@ def main() -> None:
         "const DUPE_KEY='apfPaidDuplicateBlocks'",
         "function confirmPaid()",
         "function paidEventId(orderId,ref)",
+        "function proofLooksVerifiable(proof)",
         "function updatePayableOrder(event)",
         "function enqueueFulfillment(event)",
         "function confirmedRevenue()",
@@ -51,10 +54,16 @@ def main() -> None:
     paid_gate_markers = [
         "Mark APF paid once",
         "Payment reference",
+        "Payment proof URL/hash",
         "Admin verification note",
+        "paymentProof",
+        "proofLooksVerifiable(paymentProof)",
+        "blocked: proof URL/hash is not verifiable",
+        "Demo/test/example/fake/placeholder proof is rejected",
         "amount!==PRICE_EUR",
         "exact 29 EUR required",
         "verified_paid",
+        "APF_VERIFIED_PAID_CONFIRMED_WITH_PROOF",
         "revenueCountedEur:PRICE_EUR",
         "29 EUR counted once",
         "ready_for_delivery",
@@ -73,11 +82,12 @@ def main() -> None:
         "NO_REVENUE",
         "order row",
         "payment reference",
-        "proof text",
+        "proof text without paymentProof",
         "invoice request",
         "outreach row",
         "page visit",
         "duplicate click",
+        "demo proof",
     ]
     for marker in duplicate_and_zero_revenue_markers:
         require(marker in page, f"paid confirmation page missing duplicate/zero-revenue marker: {marker}")
@@ -88,7 +98,6 @@ def main() -> None:
         "invoice request is revenue",
         "order intent is revenue",
         "duplicate clicks count revenue",
-        "fake paid event",
         "revenueCountedEur:0 until paid gate is skipped",
         "./paid-fulfillment.html?",
     ]
@@ -101,7 +110,7 @@ def main() -> None:
     )
 
     print("PASS auto parts paid confirmation regression")
-    print("checked: 29 EUR APF verified-paid gate, duplicate protection, payable-order update, APF-specific fulfillment handoff, CSV export, and zero revenue for weak patterns")
+    print("checked: 29 EUR APF verified-paid gate, required proof URL/hash, duplicate protection, payable-order update, APF-specific fulfillment handoff, CSV export, and zero revenue for weak patterns")
 
 
 if __name__ == "__main__":
