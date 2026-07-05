@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — payment launch URL builder</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1020px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,55px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:84px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:460px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF revenue path · 29 EUR · production destination preflight · buyer-ready URL pack · no revenue until verified paid event</span>
+  <h1>APF 29 € payment launch URL builder</h1>
+  <p class="muted">This page turns one real Stripe/Revolut/PayPal payment URL or valid IBAN into a buyer-ready APF launch pack: instant checkout URL, buyer lead URL, payment proof handoff URL, paid confirmation URL and fulfillment URL. It stores launch rows in <b>apfPaymentLaunchUrlLedger</b>, rejects demo/test/fake destinations, and keeps confirmed revenue at <b>0 EUR</b> until <b>apfPaidEventLedger</b> receives a verified paid event.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+      <div><label>Part / OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+      <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
+      <div><label>Production payment destination</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or IBAN"></div>
+      <div class="full"><label>Seller notes</label><textarea id="notes" placeholder="Market links, delivery country, condition, promised SLA"></textarea></div>
+    </div>
+    <button class="btn ok" onclick="buildLaunchPack()">Build buyer-ready 29 € launch pack</button>
+    <button class="btn secondary" onclick="copyLaunchPack()">Copy launch pack</button>
+    <a class="btn secondary" id="buyerMailLink" href="mailto:automariu@gmail.com?subject=APF%2029%20EUR%20payment%20launch%20blocker">Email buyer launch pack</a>
+    <button class="btn secondary" onclick="loadDemo()">Load blocked demo</button>
+    <button class="btn secondary" onclick="exportLedger()">Export launch ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for production destination</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
+    <pre class="output" id="output">Enter a real payment destination and buyer data. Demo/test/example/fake/localhost destinations, unknown HTTPS payment domains, copied links, mailto clicks, lead rows and generated packs are rejected weak patterns and do not count as revenue.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const CONTACT_EMAIL='automariu@gmail.com';
+const LEDGER_KEY='apfPaymentLaunchUrlLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','test','replace-with-real','sample','todo','placeholder','fake','localhost','127.0.0.1'];
+const TRUSTED_PAYMENT_HOSTS=['stripe.com','buy.stripe.com','pay.stripe.com','checkout.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me'];
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function safeSlug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,38)||'apf-launch'}
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'stripe_payment_link'}
+function readRows(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(rows){localStorage.setItem(LEDGER_KEY,JSON.stringify(rows.slice(0,250)))}
+function isPaymentUrl(value){return /^https:\/\//i.test(String(value||'').trim())}
+function isDemoDestination(value){const text=String(value||'').trim().toLowerCase();return DEMO_DESTINATION_PATTERNS.some(pattern=>text.includes(pattern))}
+function looksLikeIban(value){return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(String(value||'').replace(/\s+/g,'').toUpperCase())}
+function isTrustedPaymentUrl(value){
+  const text=String(value||'').trim();
+  if(!isPaymentUrl(text))return false;
+  try{const host=new URL(text).hostname.toLowerCase();return TRUSTED_PAYMENT_HOSTS.some(domain=>host===domain||host.endsWith('.'+domain))}catch(e){return false}
+}
+function productionDestinationStatus(value){
+  const text=String(value||'').trim();
+  if(text.length<8)return {ok:false,reason:'BLOCKER: no production Stripe/Revolut/PayPal URL or valid IBAN destination configured.'};
+  if(isDemoDestination(text))return {ok:false,reason:'BLOCKER: demo/test/example/fake payment destination is not buyer-ready.'};
+  if(looksLikeIban(text)||isTrustedPaymentUrl(text))return {ok:true,reason:'production payment destination accepted'};
+  if(isPaymentUrl(text))return {ok:false,reason:'BLOCKER: unknown HTTPS payment domain. Use Stripe, Revolut, PayPal or valid IBAN before buyer handoff.'};
+  return {ok:false,reason:'BLOCKER: destination must be a valid IBAN or trusted HTTPS Stripe/Revolut/PayPal payment URL.'};
+}
+function restore(){
+  const p=params();
+  ['buyerEmail','buyerName','vehicle','part','paymentDestination','notes'].forEach(id=>{const v=p.get(id);if(v&&!$(id).value)$(id).value=v});
+  $('paymentMethod').value=normalizePaymentMethod(p.get('paymentMethod')||$('paymentMethod').value);
+}
+function launchRow(){
+  restore();
+  const now=new Date();
+  const launchId='APF-LAUNCH-'+now.getTime()+'-'+safeSlug($('part').value||$('vehicle').value);
+  const paymentReference='APF29-'+launchId.slice(-20).toUpperCase();
+  const destination=$('paymentDestination').value.trim();
+  const status=productionDestinationStatus(destination);
+  return {launchId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:status.ok?'buyer_launch_ready_not_revenue':'blocked_non_production_payment_destination',buyer:BUYER,buyerEmail:$('buyerEmail').value.trim(),buyerName:$('buyerName').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),notes:$('notes').value.trim(),paymentMethod:normalizePaymentMethod($('paymentMethod').value),paymentDestination:destination,paymentDestinationReady:status.ok,blocker:status.ok?'':status.reason,paidLedgerRequired:PAID_LEDGER_KEY};
+}
+function urlFor(path,row,extra={}){
+  const q=new URLSearchParams(Object.assign({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'payment-launch-url-builder',launchId:row.launchId,paymentReference:row.paymentReference,paymentMethod:row.paymentMethod,paymentDestination:row.paymentDestination,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part},extra));
+  return path+'?'+q.toString();
+}
+function links(row){return {checkout:urlFor('./auto-parts-instant-payment-link-checkout.html',row),lead:urlFor('./auto-parts-buyer-lead-capture.html',row),proof:urlFor('./auto-parts-payment-proof-handoff.html',row),paid:urlFor('./auto-parts-paid-confirmation.html',row),fulfillment:urlFor('./auto-parts-paid-fulfillment.html',row)}}
+function buildPack(row){
+  const l=links(row);
+  const paymentLine=isTrustedPaymentUrl(row.paymentDestination)?`Direct payment URL: ${row.paymentDestination}`:`Bank/IBAN payment destination: ${row.paymentDestination}`;
+  return `APF 29 EUR BUYER PAYMENT LAUNCH PACK\nLaunch ID: ${row.launchId}\nPayment reference: ${row.paymentReference}\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nPayment method: ${row.paymentMethod}\nProduction destination ready: ${row.paymentDestinationReady?'yes':'no'}\n${paymentLine}\n\nBuyer links:\nInstant checkout: ${l.checkout}\nLead / invoice request: ${l.lead}\nPayment proof handoff: ${l.proof}\nPaid confirmation after proof: ${l.paid}\nFulfillment after verified paid event: ${l.fulfillment}\n\nRevenue rule: confirmed revenue remains 0 EUR until a verified paid event exists in ${PAID_LEDGER_KEY}.\nRejected weak patterns: generated URL, copied pack, mailto click, lead row, checkout click, invoice request, proof text, demo/test/example/fake destination, unknown HTTPS domain and CSV export.`;
+}
+function buildBuyerMailto(row){
+  const subject='Auto Parts Price Finder 29 EUR payment link '+row.paymentReference;
+  const body=`Hi ${row.buyerName||'there'},\n\nHere is the 29 EUR Auto Parts Price Finder payment launch pack. Pay exactly 29 EUR and use reference ${row.paymentReference}.\n\n${buildPack(row)}\n\nThanks,\nMB Marių auto`;
+  return 'mailto:'+encodeURIComponent(row.buyerEmail||CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function buildLaunchPack(){
+  const row=launchRow();
+  if(row.blocker){
+    $('state').innerHTML='<span class="pill warn">production payment destination blocked</span><span class="pill warn">buyer launch disabled</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent=row.blocker+'\n\nFallback executed: no buyer launch row was counted. Add real Stripe/Revolut/PayPal URL or valid IBAN, then rebuild launch pack.';
+    $('buyerMailLink').href='mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent('APF payment launch blocker')+'&body='+encodeURIComponent(row.blocker);
+    return null;
+  }
+  const rows=readRows();
+  if(!rows.some(r=>r.paymentReference===row.paymentReference||r.launchId===row.launchId)){rows.unshift(row);writeRows(rows)}
+  $('buyerMailLink').href=buildBuyerMailto(row);
+  $('state').innerHTML='<span class="pill ok">production destination accepted</span><span class="pill ok">buyer launch pack ready</span><span class="pill ok">checkout/proof/paid/fulfillment URLs wired</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=buildPack(row);
+  return row;
+}
+async function copyLaunchPack(){
+  const row=buildLaunchPack();
+  if(!row)return false;
+  try{await navigator.clipboard.writeText(buildPack(row));$('state').innerHTML+='<span class="pill ok">launch pack copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}
+  return true;
+}
+function exportLedger(){
+  const rows=readRows();
+  const headers=['launchId','paymentReference','createdAt','product','priceEur','revenueCountedEur','status','buyer','buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','paymentDestinationReady','paidLedgerRequired'];
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-payment-launch-url-ledger.csv';a.click();URL.revokeObjectURL(url);
+}
+function loadDemo(){
+  $('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Toyota Land Cruiser J250 2025';$('part').value='front bumper / 52119-60P40';$('paymentMethod').value='stripe_payment_link';$('paymentDestination').value='https://pay.example.com/apf-29-eur';$('notes').value='Demo destination intentionally blocked; replace with real production payment destination.';buildLaunchPack();
+}
+['buyerEmail','buyerName','vehicle','part','paymentMethod','paymentDestination','notes'].forEach(id=>$(id).addEventListener('input',buildLaunchPack));
+restore();buildLaunchPack();
+</script>
+</body>
+</html>
