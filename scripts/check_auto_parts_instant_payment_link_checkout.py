@@ -5,8 +5,8 @@ This gate requires a buyer-executable checkout page that turns a configured
 Stripe/Revolut/PayPal HTTPS payment destination into a direct Pay 29 EUR action,
 records checkout attempts, creates a copyable buyer checkout pack, creates a
 prefilled buyer checkout email handoff and proof email, blocks demo/example/test
-payment destinations from buyer handoff, and still refuses to count revenue until
-APF paid confirmation verifies proof in the APF paid ledger.
+and unknown HTTPS payment destinations from buyer handoff, and still refuses to
+count revenue until APF paid confirmation verifies proof in the APF paid ledger.
 """
 from pathlib import Path
 
@@ -33,6 +33,7 @@ def main() -> None:
     required_markers = [
         "Auto Parts Price Finder — instant 29 € checkout",
         "Executable APF checkout · 29 EUR · production payment-destination gate",
+        "trusted payment-domain/IBAN preflight",
         "buyer checkout pack",
         "buyer checkout email",
         "const PRODUCT='auto-parts-price-finder'",
@@ -42,10 +43,14 @@ def main() -> None:
         "const PAYMENT_DESTINATION_KEY='apfPaymentDestination'",
         "const PAYMENT_METHOD_KEY='apfPaymentMethod'",
         "const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer']",
-        "const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','replace-with-real']",
+        "const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','replace-with-real','sample','todo','placeholder','fake','localhost','127.0.0.1']",
+        "const TRUSTED_PAYMENT_HOSTS=['stripe.com','buy.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me']",
         "function restoreFromUrlOrStorage()",
         "function isPaymentUrl(value)",
         "function isDemoDestination(value)",
+        "function looksLikeIban(value)",
+        "function isTrustedPaymentUrl(value)",
+        "function productionDestinationStatus(value)",
         "function isProductionReadyDestination(value)",
         "function readinessBlocker(row)",
         "function buildCheckout()",
@@ -103,15 +108,21 @@ def main() -> None:
 
     production_gate_markers = [
         "Demo/example/test URLs are blocked from buyer handoff",
+        "unknown HTTPS domains are blocked from buyer handoff",
         "waiting for production payment destination",
         "production payment destination blocked",
         "buyer handoff disabled",
         "fallback blocker mail ready",
         "BLOCKER: demo/example/test payment destination is not buyer-ready and cannot be sent or counted as revenue.",
+        "BLOCKER: unknown HTTPS payment domain is not trusted. Use Stripe, Revolut, PayPal, or a valid IBAN before buyer handoff.",
+        "BLOCKER: destination must be a valid IBAN or trusted HTTPS Stripe/Revolut/PayPal payment URL.",
         "do not send buyer checkout yet",
-        "Replace demo/example/test destination with a real Stripe/Revolut/PayPal URL or IBAN",
+        "Replace demo/example/test/unknown HTTPS destination with a real Stripe/Revolut/PayPal URL or IBAN",
         "Production payment destination ready:",
+        "Trusted payment URL:",
+        "Valid IBAN fallback:",
         "demo payment destination",
+        "unknown HTTPS payment domain",
         "paymentDestinationReady?'yes':'no'",
         "paymentDestinationReady",
         "https://pay.example.com/apf-29-eur",
@@ -121,8 +132,11 @@ def main() -> None:
         require(marker in checkout, f"checkout page missing production destination gate marker: {marker}")
 
     url_checkout_markers = [
-        "if(isPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}",
+        "if(isTrustedPaymentUrl(row.paymentDestination)){$('payNowLink').href=row.paymentDestination}",
         "return /^https:\\/\\//i.test",
+        "new URL(text).hostname.toLowerCase()",
+        "TRUSTED_PAYMENT_HOSTS.some(domain=>host===domain||host.endsWith('.'+domain))",
+        "looksLikeIban(text)||isTrustedPaymentUrl(text)",
         "return true",
         "bank/text destination generated",
         "mailto:'+encodeURIComponent(CONTACT_EMAIL)",
@@ -139,6 +153,7 @@ def main() -> None:
         "payment link is revenue",
         "demo payment destination is revenue",
         "example payment destination is revenue",
+        "unknown HTTPS payment domain is revenue",
         "revenueCountedEur:29",
         "confirmedRevenueEur:29",
         "fake paid",
@@ -158,11 +173,10 @@ def main() -> None:
     print("PASS APF instant payment-link checkout regression")
     print(
         "checked: buyer-ready 29 EUR payment-link checkout, URL/localStorage payment setup restore, "
-        "production payment-destination gate blocking demo/example/test destinations from buyer handoff, "
-        "checkout attempt ledger, direct Pay 29 link for HTTPS payment destinations, bank/text fallback, "
-        "copyable buyer checkout pack, prefilled buyer checkout email handoff, payment proof mailto fallback, "
-        "APF paid confirmation handoff, APF fulfillment handoff, CSV export, and zero confirmed revenue "
-        "until verified paid proof"
+        "production payment-destination gate blocking demo/example/test and unknown HTTPS destinations from buyer handoff, "
+        "trusted payment-domain/IBAN preflight, checkout attempt ledger, direct Pay 29 link only for trusted HTTPS payment destinations, "
+        "bank/text fallback, copyable buyer checkout pack, prefilled buyer checkout email handoff, payment proof mailto fallback, "
+        "APF paid confirmation handoff, APF fulfillment handoff, CSV export, and zero confirmed revenue until verified paid proof"
     )
 
 
