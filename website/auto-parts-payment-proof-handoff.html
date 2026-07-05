@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — payment proof handoff</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,58px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:100px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.btn[aria-disabled="true"]{opacity:.45;pointer-events:none;filter:grayscale(.45)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">APF payment proof handoff · 29 EUR · buyer proof email + paid-confirmation deep link · blocks fake/demo proof · revenueCountedEur:0 until verified paid ledger event</span>
+  <h1>Send APF payment proof — 29 €</h1>
+  <p>This page closes the post-payment gap: after a buyer pays the 29 EUR Auto Parts Price Finder order, it turns the order ID, payment reference, buyer email and real proof URL/hash into a seller-ready proof email plus a prefilled APF paid-confirmation link. It does not count revenue by itself.</p>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Proof details</h2>
+      <div class="row">
+        <div><label>Order ID</label><input id="orderId" placeholder="APF-PAY-..."></div>
+        <div><label>Payment reference</label><input id="paymentReference" placeholder="APF29-..."></div>
+        <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+        <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+        <div><label>Vehicle</label><input id="vehicle" placeholder="Aston Martin DBX 2024 RHD"></div>
+        <div><label>Part / OEM</label><input id="part" placeholder="rear bumper / NY83-15A282-A"></div>
+        <div class="full"><label>Payment proof URL or transaction hash</label><input id="paymentProof" placeholder="https://bank/revolut/stripe/paypal receipt URL or TX hash"></div>
+        <div class="full"><label>Proof note</label><textarea id="proofNote" placeholder="Paid 29 EUR. Attach receipt or paste payment provider proof details."></textarea></div>
+      </div>
+      <button class="btn ok" onclick="buildHandoff()">Build proof handoff</button>
+      <button class="btn secondary" onclick="loadDemo()">Load blocked demo</button>
+      <button class="btn secondary" onclick="copyProofPack()">Copy proof pack</button>
+    </div>
+
+    <div class="panel">
+      <h2>Seller handoff</h2>
+      <div id="state"><span class="pill warn">payment proof missing</span><span class="pill warn">revenueCountedEur:0</span></div>
+      <pre id="output" class="output">Paste a real order ID, APF29 payment reference, buyer email and payment proof URL/hash. Demo/test/example/fake/placeholder proof is blocked before mailto, paid-confirmation URL, fulfillment URL or revenue ledger wording. This page creates proof handoff only; APF revenue remains 0 EUR until auto-parts-paid-confirmation.html validates paymentProof and writes a duplicate-protected paid event.</pre>
+      <a class="btn ok" id="sellerEmailLink" href="#proof" aria-disabled="true">Email proof to seller</a>
+      <a class="btn" id="paidConfirmationLink" href="#proof" aria-disabled="true">Open APF paid confirmation</a>
+      <a class="btn secondary" id="fulfillmentLink" href="#proof" aria-disabled="true">Open APF fulfillment</a>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: page visit, copied proof text, demo/test/example/fake/placeholder proof, missing orderId, missing paymentReference, missing buyerEmail, mailto click, paid-confirmation URL, fulfillment URL, duplicate claim, fake paid event. Buyer/price: used auto-parts seller, 29 EUR.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const CONTACT_EMAIL='automariu@gmail.com';
+const BLOCKED_PROOF_PATTERNS=['demo','test','example','fake','placeholder','sample','todo','tbd','lorem','localhost','127.0.0.1','proof_required'];
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function clean(v){return String(v||'').trim()}
+function paymentProofStatus(value){
+  const proof=clean(value);
+  const lower=proof.toLowerCase();
+  if(proof.length<10)return {ok:false,reason:'BLOCKER: real paymentProof URL/hash is required before seller handoff.'};
+  const blocked=BLOCKED_PROOF_PATTERNS.find(pattern=>lower.includes(pattern));
+  if(blocked)return {ok:false,reason:`BLOCKER: rejected weak paymentProof pattern "${blocked}" before paid handoff.`};
+  if(/^https:\/\//i.test(proof))return {ok:true,reason:'real proof URL accepted'};
+  if(/^[A-F0-9]{16,}$/i.test(proof))return {ok:true,reason:'transaction hash accepted'};
+  return {ok:false,reason:'BLOCKER: paymentProof must be an HTTPS receipt URL or 16+ character transaction hash.'};
+}
+function requiredStatus(){
+  if(!clean($('orderId').value))return {ok:false,reason:'BLOCKER: orderId is required.'};
+  if(!/^APF29-/i.test(clean($('paymentReference').value)))return {ok:false,reason:'BLOCKER: APF29 paymentReference is required.'};
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(clean($('buyerEmail').value)))return {ok:false,reason:'BLOCKER: buyerEmail is required for proof handoff.'};
+  return paymentProofStatus($('paymentProof').value);
+}
+function buildPaidConfirmationUrl(){
+  const p=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-proof-handoff',orderId:clean($('orderId').value),paymentReference:clean($('paymentReference').value),buyerEmail:clean($('buyerEmail').value),buyerName:clean($('buyerName').value),vehicle:clean($('vehicle').value),part:clean($('part').value),paymentProof:clean($('paymentProof').value)});
+  return './auto-parts-paid-confirmation.html?'+p.toString();
+}
+function buildFulfillmentUrl(){
+  const p=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-proof-handoff',orderId:clean($('orderId').value),paymentReference:clean($('paymentReference').value),buyerEmail:clean($('buyerEmail').value),buyerName:clean($('buyerName').value),vehicle:clean($('vehicle').value),part:clean($('part').value)});
+  return './auto-parts-paid-fulfillment.html?'+p.toString();
+}
+function buildSellerMailto(){
+  const subject='APF 29 EUR payment proof '+clean($('paymentReference').value);
+  const body=`APF payment proof received for manual verification.\n\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nOrder ID: ${clean($('orderId').value)}\nPayment reference: ${clean($('paymentReference').value)}\nBuyer: ${clean($('buyerName').value)||'-'} <${clean($('buyerEmail').value)}>\nVehicle: ${clean($('vehicle').value)||'-'}\nPart/OEM: ${clean($('part').value)||'-'}\nPayment proof: ${clean($('paymentProof').value)}\nProof note: ${clean($('proofNote').value)||'-'}\n\nAPF paid confirmation URL:\n${location.origin+location.pathname.replace('auto-parts-payment-proof-handoff.html','')+buildPaidConfirmationUrl().replace('./','')}\n\nRevenue rule: this email/proof handoff is not revenue. Count 0 EUR until auto-parts-paid-confirmation.html validates paymentProof and records a duplicate-protected APF paid event.`;
+  return 'mailto:'+encodeURIComponent(CONTACT_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function setLinks(enabled){
+  ['sellerEmailLink','paidConfirmationLink','fulfillmentLink'].forEach(id=>{$(id).setAttribute('aria-disabled',enabled?'false':'true');$(id).tabIndex=enabled?0:-1;});
+}
+function buildHandoff(){
+  const status=requiredStatus();
+  if(!status.ok){
+    setLinks(false);
+    $('state').innerHTML='<span class="pill warn">'+status.reason+'</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent=status.reason+'\n\nFallback executed: keep buyer in payable-order/instant-checkout flow and request real payment proof. No seller email, paid-confirmation URL, fulfillment URL, ledger event or revenue is generated from weak proof.';
+    return false;
+  }
+  $('sellerEmailLink').href=buildSellerMailto();
+  $('paidConfirmationLink').href=buildPaidConfirmationUrl();
+  $('fulfillmentLink').href=buildFulfillmentUrl();
+  setLinks(true);
+  $('state').innerHTML='<span class="pill ok">payment proof handoff ready</span><span class="pill ok">seller email ready</span><span class="pill ok">APF paid confirmation deep link ready</span><span class="pill ok">fulfillment handoff ready</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=`AUTO PARTS PRICE FINDER — PAYMENT PROOF HANDOFF\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nOrder ID: ${clean($('orderId').value)}\nPayment reference: ${clean($('paymentReference').value)}\nBuyer: ${clean($('buyerName').value)||'-'} <${clean($('buyerEmail').value)}>\nVehicle: ${clean($('vehicle').value)||'-'}\nPart/OEM: ${clean($('part').value)||'-'}\nPayment proof: ${clean($('paymentProof').value)}\n\nNext action:\n1) Email proof to ${CONTACT_EMAIL}.\n2) Open APF paid confirmation URL and validate paymentProof.\n3) Open fulfillment only after duplicate-protected APF paid event exists.\n\nRevenue rule: proof handoff, mailto click, paid-confirmation URL and fulfillment URL are 0 EUR until verified paid event exists in apfPaidEventLedger.`;
+  return true;
+}
+async function copyProofPack(){
+  const ok=buildHandoff();
+  if(!ok)return;
+  try{await navigator.clipboard.writeText($('output').textContent);$('state').innerHTML+='<span class="pill ok">proof pack copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}
+}
+function loadFromUrl(){
+  ['orderId','paymentReference','buyerEmail','buyerName','vehicle','part','paymentProof'].forEach(id=>{const value=params().get(id);if(value)$(id).value=value});
+  buildHandoff();
+}
+function loadDemo(){
+  $('orderId').value='APF-PAY-demo';$('paymentReference').value='APF29-DEMO';$('buyerEmail').value='buyer@example.com';$('buyerName').value='Used parts seller';$('vehicle').value='Aston Martin DBX 2024 RHD';$('part').value='rear bumper / NY83-15A282-A';$('paymentProof').value='proof_required_demo';$('proofNote').value='Demo proof must be blocked.';buildHandoff();
+}
+['orderId','paymentReference','buyerEmail','buyerName','vehicle','part','paymentProof','proofNote'].forEach(id=>$(id).addEventListener('input',buildHandoff));
+loadFromUrl();
+</script>
+</body>
+</html>
