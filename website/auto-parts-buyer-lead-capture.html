@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — buyer lead capture</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1040px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge,.pill{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:94px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.btn[aria-disabled="true"]{opacity:.45;pointer-events:none;filter:grayscale(.45)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:500px;overflow:auto}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:840px){.grid,.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">APF fallback revenue path · buyer lead capture · invoice/payment request handoff · checkout deep link · local lead ledger · CSV export · 0 EUR until paid proof</span>
+  <h1>Capture APF buyer lead before payment destination exists</h1>
+  <p>Use this when the real Stripe/Revolut/PayPal/IBAN destination is still missing. It creates one actionable buyer row, a seller invoice/payment-request email, and deep links into checkout/payment setup. It rejects page visits, copied text, lead rows and invoice requests as revenue.</p>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Buyer lead</h2>
+      <div class="row">
+        <div><label>Buyer email *</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+        <div><label>Buyer / company *</label><input id="buyerName" placeholder="Used parts seller"></div>
+        <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+        <div><label>Part / OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+        <div><label>Country</label><input id="country" placeholder="LT / PL / DE / FR"></div>
+        <div><label>Urgency</label><select id="urgency"><option>today</option><option>24h</option><option>3d</option><option>not urgent</option></select></div>
+        <div class="full"><label>Buyer problem / links</label><textarea id="notes" placeholder="Paste RRR/Allegro/eBay links, part condition, target resale price, delivery needs"></textarea></div>
+      </div>
+      <button class="btn ok" onclick="captureLead()">Capture buyer lead</button>
+      <button class="btn secondary" onclick="copyLeadPack()">Copy buyer-ready lead pack</button>
+      <button class="btn secondary" onclick="exportCsv()">Export lead ledger CSV</button>
+    </div>
+
+    <div class="panel">
+      <h2>Next executable handoff</h2>
+      <div id="state"><span class="pill warn">lead not captured</span><span class="pill warn">revenueCountedEur:0</span></div>
+      <pre id="output" class="output">Fill buyer email and company, then capture. This page moves a warm buyer into an invoice/payment-request workflow when production payment destination is not configured. It does not count 29 EUR revenue until a verified APF paid event exists.</pre>
+      <a class="btn ok" id="invoiceMail" href="mailto:automariu@gmail.com?subject=APF%2029%20EUR%20buyer%20lead" aria-disabled="true">Email seller payment request</a>
+      <a class="btn secondary" id="checkoutLink" href="./auto-parts-instant-payment-link-checkout.html?product=auto-parts-price-finder&priceEur=29&source=buyer-lead-capture" aria-disabled="true">Open checkout with lead</a>
+      <a class="btn secondary" id="setupLink" href="./auto-parts-payment-destination-setup.html?product=auto-parts-price-finder&priceEur=29&source=buyer-lead-capture">Configure payment destination</a>
+      <a class="btn secondary" id="proofLink" href="./auto-parts-payment-proof-handoff.html?product=auto-parts-price-finder&priceEur=29&source=buyer-lead-capture" aria-disabled="true">Open proof handoff</a>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: page visit, empty email, empty company, copied lead pack, CSV export, invoice request email, checkout deep link, payment setup link, proof handoff link, outreach row, duplicate lead row, fake paid event. Buyer/price: used auto-parts seller, 29 EUR. Revenue stays 0 EUR until verified paid event exists in apfPaidEventLedger.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const SELLER_EMAIL='automariu@gmail.com';
+const LEAD_LEDGER_KEY='apfBuyerLeadLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function safe(v){return String(v||'').trim()}
+function safeSlug(v){return safe(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'lead'}
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safe(v))}
+function readRows(){try{return JSON.parse(localStorage.getItem(LEAD_LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(rows){localStorage.setItem(LEAD_LEDGER_KEY,JSON.stringify(rows.slice(0,500)))}
+function restoreFromUrl(){const p=params();['buyerEmail','buyerName','vehicle','part','country','urgency','notes'].forEach(id=>{const v=p.get(id);if(v&&!$(id).value)$(id).value=v})}
+function leadKey(row){return [row.buyerEmail,row.buyerName,row.vehicle,row.part].map(safeSlug).join('|')}
+function buildLead(){restoreFromUrl();const now=new Date();const row={leadId:'APF-LEAD-'+now.getTime()+'-'+safeSlug($('buyerName').value||$('buyerEmail').value),createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'lead_captured_not_revenue',buyer:BUYER,buyerEmail:safe($('buyerEmail').value),buyerName:safe($('buyerName').value),vehicle:safe($('vehicle').value),part:safe($('part').value),country:safe($('country').value),urgency:safe($('urgency').value),notes:safe($('notes').value),paidLedgerRequired:PAID_LEDGER_KEY};row.leadKey=leadKey(row);return row}
+function leadBlocker(row){if(!validEmail(row.buyerEmail))return 'BLOCKER: buyer email must be valid before seller invoice/payment request handoff.';if(row.buyerName.length<2)return 'BLOCKER: buyer/company is required before creating an actionable APF lead.';return ''}
+function csvEscape(v){return '"'+String(v||'').replace(/"/g,'""')+'"'}
+function buildCheckoutUrl(row){const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'buyer-lead-capture',buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,notes:row.notes});return './auto-parts-instant-payment-link-checkout.html?'+q.toString()}
+function buildProofUrl(row){const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'buyer-lead-capture',leadId:row.leadId,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part});return './auto-parts-payment-proof-handoff.html?'+q.toString()}
+function buildInvoiceMailto(row){const subject='APF 29 EUR invoice/payment request '+row.leadId;const body=`Create/send a real 29 EUR payment request for this Auto Parts Price Finder buyer lead.\n\nLead ID: ${row.leadId}\nBuyer: ${row.buyerName} <${row.buyerEmail}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nCountry: ${row.country||'-'}\nUrgency: ${row.urgency||'-'}\nNotes: ${row.notes||'-'}\n\nCheckout deep link: ${location.origin+location.pathname.replace('auto-parts-buyer-lead-capture.html','')+buildCheckoutUrl(row).replace('./','')}\nProof handoff: ${location.origin+location.pathname.replace('auto-parts-buyer-lead-capture.html','')+buildProofUrl(row).replace('./','')}\n\nRevenue rule: lead row, invoice request, email sent, checkout link and proof handoff are 0 EUR until verified paid event exists in ${PAID_LEDGER_KEY}.`;return 'mailto:'+encodeURIComponent(SELLER_EMAIL)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)}
+function buildLeadPack(row){return `AUTO PARTS PRICE FINDER — BUYER LEAD PACK\nLead ID: ${row.leadId}\nProduct: ${row.product}\nPrice to charge: ${row.priceEur} EUR\nRevenue counted now: ${row.revenueCountedEur} EUR\nBuyer: ${row.buyerName} <${row.buyerEmail}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nCountry: ${row.country||'-'}\nUrgency: ${row.urgency||'-'}\nNotes: ${row.notes||'-'}\n\nNext action: send real invoice/payment request, then route buyer to checkout/proof handoff.\nRevenue rule: do not count this lead as paid. Count only verified paid event in ${PAID_LEDGER_KEY}.\nRejected weak patterns: copied lead pack, CSV export, invoice request email, checkout deep link, proof handoff, fake paid event.`}
+function setEnabled(id,enabled){const el=$(id);el.setAttribute('aria-disabled',enabled?'false':'true');el.tabIndex=enabled?0:-1}
+function show(row,message){const ok=!leadBlocker(row);$('invoiceMail').href=ok?buildInvoiceMailto(row):'mailto:'+SELLER_EMAIL+'?subject=APF%2029%20EUR%20buyer%20lead%20blocked';$('checkoutLink').href=ok?buildCheckoutUrl(row):'#lead-blocked';$('proofLink').href=ok?buildProofUrl(row):'#lead-blocked';['invoiceMail','checkoutLink','proofLink'].forEach(id=>setEnabled(id,ok));$('state').innerHTML=ok?'<span class="pill ok">buyer lead captured</span><span class="pill ok">seller payment request ready</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">lead blocked</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=(message?message+'\n\n':'')+(ok?buildLeadPack(row):leadBlocker(row)+'\n\nFallback: enter a valid buyer email and company. No revenue counted.');return ok}
+function captureLead(){const row=buildLead();const blocker=leadBlocker(row);if(blocker){show(row,blocker);return}const rows=readRows();const duplicate=rows.find(existing=>existing.leadKey===row.leadKey);if(duplicate){show(duplicate,'Duplicate APF lead found; existing actionable row reused.');return}rows.unshift(row);writeRows(rows);show(row,'APF buyer lead captured into '+LEAD_LEDGER_KEY+'.')}
+async function copyLeadPack(){const row=buildLead();if(!show(row,''))return;try{await navigator.clipboard.writeText(buildLeadPack(row));$('state').innerHTML+='<span class="pill ok">lead pack copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}}
+function exportCsv(){const rows=readRows();const header=['leadId','createdAt','buyerEmail','buyerName','vehicle','part','country','urgency','priceEur','revenueCountedEur','status','paidLedgerRequired'];const csv=[header.join(',')].concat(rows.map(row=>header.map(key=>csvEscape(row[key])).join(','))).join('\n');const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-buyer-leads.csv';a.click();URL.revokeObjectURL(url);$('state').innerHTML+='<span class="pill warn">CSV export is not revenue</span>'}
+restoreFromUrl();show(buildLead(),'');
+</script>
+</body>
+</html>
