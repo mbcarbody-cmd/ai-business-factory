@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Auto Parts Price Finder — payment setup</title>
   <style>
-    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1040px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:88px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}}
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1040px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:88px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.btn[aria-disabled="true"]{opacity:.45;pointer-events:none;filter:grayscale(.45)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:470px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 <main class="wrap">
-  <span class="badge">Seller payment setup · converts manual blocker into instant 29 EUR checkout URL · URL-importable destination · confirmed revenue remains 0 EUR until verified paid event</span>
+  <span class="badge">Seller payment setup · converts manual blocker into instant 29 EUR checkout URL · URL-importable destination · production preflight blocks demo/test/example placeholders · confirmed revenue remains 0 EUR until verified paid event</span>
   <h1>Configure Auto Parts Price Finder payment destination</h1>
-  <p>This operator page is the fallback for the missing live Stripe/Revolut/IBAN blocker. It stores one real seller payment destination locally, imports a destination from setup URLs, generates a buyer-ready instant checkout URL plus payable order URL, and creates outreach/order copy. It rejects setup clicks, generated URLs and invoice requests as revenue.</p>
+  <p>This operator page is the fallback for the missing live Stripe/Revolut/IBAN blocker. It stores one real seller payment destination locally, imports a destination from setup URLs, generates a buyer-ready instant checkout URL plus payable order URL, and creates outreach/order copy. It rejects setup clicks, generated URLs, invoice requests, demo destinations and placeholder payment values as revenue.</p>
 
   <section class="grid">
     <div class="panel">
@@ -20,7 +20,7 @@
       <div class="row">
         <div><label>Payment method</label><select id="paymentMethod"><option>bank_transfer</option><option>revolut_business</option><option>stripe_payment_link</option><option>paypal_checkout</option></select></div>
         <div><label>29 EUR price</label><input id="priceEur" value="29" readonly></div>
-        <div class="full"><label>IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL</label><input id="paymentDestination" placeholder="Paste real payment destination here"></div>
+        <div class="full"><label>Production IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL</label><input id="paymentDestination" placeholder="Paste production payment destination here"></div>
         <div><label>Seller</label><input id="seller" value="MB Marių auto"></div>
         <div><label>Contact email</label><input id="contactEmail" value="automariu@gmail.com"></div>
         <div class="full"><label>Buyer instruction suffix</label><textarea id="instructionSuffix">Use payment reference from the generated checkout/order. Email payment proof and checkout/order ID to automariu@gmail.com. Fulfillment unlocks only after verified paid event exists in apfPaidEventLedger.</textarea></div>
@@ -33,14 +33,14 @@
     <div class="panel">
       <h2>Buyer-ready output</h2>
       <div id="state"><span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span></div>
-      <pre id="output" class="output">Paste a real IBAN/Revolut/Stripe/PayPal destination, or open this setup page with paymentDestination/paymentMethod query parameters. The generated instant checkout URL pre-fills the 29 EUR Auto Parts Price Finder Pay 29 now page, and the payable order URL remains as a bank/text fallback. Generated URLs, setup saves, invoice requests, mailto clicks and page visits are not revenue.</pre>
+      <pre id="output" class="output">Paste a production IBAN/Revolut/Stripe/PayPal destination, or open this setup page with paymentDestination/paymentMethod query parameters. Demo/test/example/fake/placeholder values are blocked before checkout/order URL generation. The generated instant checkout URL pre-fills the 29 EUR Auto Parts Price Finder Pay 29 now page, and the payable order URL remains as a bank/text fallback. Generated URLs, setup saves, invoice requests, mailto clicks and page visits are not revenue.</pre>
       <a class="btn ok" id="instantCheckoutUrl" href="./auto-parts-instant-payment-link-checkout.html?product=auto-parts-price-finder&priceEur=29&source=payment-destination-setup">Open instant checkout URL</a>
       <a class="btn" id="orderUrl" href="./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&source=payment-destination-setup">Open payable order URL</a>
       <button class="btn secondary" onclick="copyOrderCopy()">Copy buyer payment copy</button>
       <a class="btn secondary" href="./auto-parts-buyer-outreach.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=payment-destination-setup">Open outreach rows</a>
     </div>
   </section>
-  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, instant checkout URL, setup URL import, invoice request, copied buyer text, order intent, checkout attempt, proof text, CSV export, outreach row, page visit, fake paid event, wrong ledger instruction. Buyer/price: used auto-parts seller, 29 EUR.</div>
+  <div class="footer">Rejected weak patterns: setup saved, generated payment URL, instant checkout URL, setup URL import, invoice request, copied buyer text, order intent, checkout attempt, proof text, CSV export, outreach row, page visit, fake paid event, wrong ledger instruction, demo/test/example/fake/placeholder payment destination. Buyer/price: used auto-parts seller, 29 EUR.</div>
 </main>
 <script>
 const PRODUCT='auto-parts-price-finder';
@@ -50,9 +50,27 @@ const STORAGE_METHOD='apfPaymentMethod';
 const STORAGE_SELLER='apfPaymentSeller';
 const STORAGE_CONTACT='apfPaymentContactEmail';
 const VALID_PAYMENT_METHODS=['bank_transfer','revolut_business','stripe_payment_link','paypal_checkout'];
-const $=id=>document.getElementById(id);
-function validDestination(v){return String(v||'').trim().length>=8}
+const BLOCKED_DESTINATION_PATTERNS=['demo','test','example','fake','placeholder','sample','todo','your-iban','your_payment','change-me','lorem','localhost','127.0.0.1'];
+function validDestination(v){return productionDestinationStatus(v).ok}
 function validPaymentMethod(v){return VALID_PAYMENT_METHODS.includes(String(v||'').trim())}
+function looksLikeIban(v){return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(String(v||'').replace(/\s+/g,'').toUpperCase())}
+function looksLikeProductionPaymentUrl(v){
+  const value=String(v||'').trim();
+  if(!/^https:\/\//i.test(value))return false;
+  try{
+    const host=new URL(value).hostname.toLowerCase();
+    return ['stripe.com','buy.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me'].some(domain=>host===domain||host.endsWith('.'+domain));
+  }catch(e){return false}
+}
+function productionDestinationStatus(v){
+  const value=String(v||'').trim();
+  const lower=value.toLowerCase();
+  if(value.length<8)return {ok:false,reason:'BLOCKER: payment destination is empty or too short for a buyer handoff.'};
+  const blocked=BLOCKED_DESTINATION_PATTERNS.find(pattern=>lower.includes(pattern));
+  if(blocked)return {ok:false,reason:`BLOCKER: rejected non-production payment destination pattern "${blocked}" before checkout/order URL generation.`};
+  if(looksLikeIban(value)||looksLikeProductionPaymentUrl(value))return {ok:true,reason:'production payment destination accepted'};
+  return {ok:false,reason:'BLOCKER: destination must be a production IBAN or https Stripe/Revolut/PayPal payment URL.'};
+}
 function params(){return new URL(location.href).searchParams}
 function sharedPaymentParams(){return {product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'payment-destination-setup',paymentMethod:$('paymentMethod').value,paymentDestination:$('paymentDestination').value.trim()}}
 function buildInstantCheckoutUrl(){
@@ -65,17 +83,26 @@ function buildOrderUrl(){
 }
 function buildInvoiceRequest(){
   const subject='APF 29 EUR payment destination setup required';
-  const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in apfPaidEventLedger.`;
+  const body=`Please send a real payment destination for the 29 EUR Auto Parts Price Finder product.\n\nAccepted: production IBAN, Revolut Business link, Stripe Payment Link or PayPal checkout URL.\n\nRevenue rule: setup request and generated URLs are 0 EUR until verified paid event exists in apfPaidEventLedger.`;
   return 'mailto:'+encodeURIComponent($('contactEmail').value.trim()||'automariu@gmail.com')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 function absoluteUrl(relative){return location.origin+location.pathname.replace('auto-parts-payment-destination-setup.html','')+relative.replace('./','')}
+function setCheckoutLinksEnabled(enabled){
+  ['instantCheckoutUrl','orderUrl'].forEach(id=>{
+    const el=$(id);
+    el.setAttribute('aria-disabled',enabled?'false':'true');
+    el.tabIndex=enabled?0:-1;
+  });
+}
 function refresh(){
-  const configured=validDestination($('paymentDestination').value);
-  $('instantCheckoutUrl').href=buildInstantCheckoutUrl();
-  $('orderUrl').href=buildOrderUrl();
+  const status=productionDestinationStatus($('paymentDestination').value);
+  const configured=status.ok;
+  $('instantCheckoutUrl').href=configured?buildInstantCheckoutUrl():'#payment-destination';
+  $('orderUrl').href=configured?buildOrderUrl():'#payment-destination';
   $('invoiceRequestLink').href=buildInvoiceRequest();
-  $('state').innerHTML=configured?'<span class="pill ok">payment destination configured</span><span class="pill ok">instant checkout URL generated</span><span class="pill ok">payable order fallback generated</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">payment destination not configured</span><span class="pill warn">revenueCountedEur:0</span>';
-  $('output').textContent=configured?`AUTO PARTS PRICE FINDER — PAYMENT DESTINATION SET\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nPayment method: ${$('paymentMethod').value}\nPayment destination: ${$('paymentDestination').value.trim()}\nSeller: ${$('seller').value.trim()}\nContact: ${$('contactEmail').value.trim()}\n\nBuyer-ready instant checkout URL:\n${absoluteUrl(buildInstantCheckoutUrl())}\n\nBank/text fallback payable order URL:\n${absoluteUrl(buildOrderUrl())}\n\nBuyer instruction:\nBuy the 29 EUR Auto Parts Price Finder audit using the instant checkout URL first. If the destination is IBAN/text instead of https checkout, use the payable order fallback. ${$('instructionSuffix').value.trim()}\n\nRevenue rule: this setup, setup URL import, generated instant checkout URL, payable order URL and checkout attempt are not revenue. Count 0 EUR until verified paid event exists.`:'BLOCKER: no real payment destination configured yet. Fallback action available: request IBAN/Revolut/Stripe/PayPal destination by email, open setup with paymentDestination/paymentMethod URL parameters, or paste it here to generate a buyer-ready instant checkout URL plus payable order fallback. Revenue remains 0 EUR.';
+  setCheckoutLinksEnabled(configured);
+  $('state').innerHTML=configured?'<span class="pill ok">production payment destination configured</span><span class="pill ok">instant checkout URL generated</span><span class="pill ok">payable order fallback generated</span><span class="pill warn">revenueCountedEur:0</span>':'<span class="pill warn">payment destination not production-ready</span><span class="pill warn">checkout/order URLs blocked</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=configured?`AUTO PARTS PRICE FINDER — PRODUCTION PAYMENT DESTINATION SET\nProduct: ${PRODUCT}\nPrice: ${PRICE_EUR} EUR\nPayment method: ${$('paymentMethod').value}\nPayment destination: ${$('paymentDestination').value.trim()}\nSeller: ${$('seller').value.trim()}\nContact: ${$('contactEmail').value.trim()}\n\nBuyer-ready instant checkout URL:\n${absoluteUrl(buildInstantCheckoutUrl())}\n\nBank/text fallback payable order URL:\n${absoluteUrl(buildOrderUrl())}\n\nBuyer instruction:\nBuy the 29 EUR Auto Parts Price Finder audit using the instant checkout URL first. If the destination is IBAN/text instead of https checkout, use the payable order fallback. ${$('instructionSuffix').value.trim()}\n\nRevenue rule: this setup, setup URL import, generated instant checkout URL, payable order URL and checkout attempt are not revenue. Count 0 EUR until verified paid event exists.`:`${status.reason}\n\nFallback action available: request IBAN/Revolut/Stripe/PayPal destination by email, open setup with paymentDestination/paymentMethod URL parameters, or paste it here to generate a buyer-ready instant checkout URL plus payable order fallback. Revenue remains 0 EUR. Demo/test/example/fake/placeholder destinations are blocked before buyer handoff.`;
 }
 function saveDestination(){
   const dest=$('paymentDestination').value.trim();
