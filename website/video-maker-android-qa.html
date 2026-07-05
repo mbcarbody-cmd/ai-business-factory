@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071014">
+<title>Quick Product Video Android QA</title>
+<style>
+:root{--bg:#071014;--panel:#101a24;--line:#2d4154;--text:#f6fbff;--muted:#9fb0bf;--ok:#4df0a1;--bad:#ff6b7a;--warm:#ffd173}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19304a 0,#071014 48%);color:var(--text);font-family:Inter,Arial,system-ui,sans-serif}.wrap{max-width:960px;margin:auto;padding:18px}.hero{padding:18px 0}.eyebrow{display:inline-flex;border:1px solid #3c5468;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;color:#cbdcea;background:#0a1720}.hero h1{margin:13px 0 8px;font-size:clamp(32px,7vw,58px);line-height:1;letter-spacing:-1.3px}.hero p{margin:0;color:#c4d3df;line-height:1.55;max-width:760px}.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}.panel{background:linear-gradient(180deg,#111d29,#0b131c);border:1px solid var(--line);border-radius:22px;padding:15px;box-shadow:0 18px 40px #0007}.btn{border:0;border-radius:13px;padding:13px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;background:var(--ok);color:#04130c}.btn.secondary{background:#172638;color:#fff;border:1px solid #3d5368}.btn[disabled]{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.status{padding:12px;border:1px solid #33495c;border-radius:15px;background:#09151e}.status.ok{border-color:#28784f}.status.bad{border-color:#8e4050}.bar{height:7px;background:#04080d;border-radius:999px;overflow:hidden;margin-top:9px}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#7cb8ff,var(--ok))}.rows{display:grid;gap:8px;margin-top:12px}.row{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #283b4d;border-radius:12px;background:#0a151e;font-size:13px}.row.ok{border-color:#28784f}.row.bad{border-color:#8e4050}.muted{color:var(--muted)}canvas,video{width:100%;aspect-ratio:9/16;background:#030609;border:1px solid #34495a;border-radius:22px;display:block;object-fit:cover}.proof{white-space:pre-wrap;word-break:break-word;background:#04090e;border:1px solid #2c4052;border-radius:14px;padding:11px;color:#d7e7f2;font-size:12px}.warn{color:var(--warm);font-size:12px;line-height:1.45}.footer{padding:18px 0;color:#8293a2;text-align:center;font-size:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}.preview{order:-1}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="eyebrow">QA GATE · ANDROID CHROME · REAL WEBM</span>
+<h1>Quick Product Video QA proof</h1>
+<p>Vieno mygtuko testas revenue gate įrodymui: sugeneruoja sintetinį 540×960 video kadrą, įrašo realų WEBM per MediaRecorder, patikrina minimalų dydį, playback readiness, download linką ir išsaugo proof JSON telefone.</p>
+</section>
+<section class="grid">
+<div class="panel">
+<h2>Automatinis testas</h2>
+<p class="warn">Šitas puslapis neskaičiuoja pajamų. Jis tik sukuria techninį įrodymą, kad video render/download kelias veikia tame pačiame įrenginyje, kuriame būtų naudojamas produktas.</p>
+<div class="actions"><button id="run" class="btn">Paleisti WEBM QA</button><a id="download" class="btn secondary" download="quick-product-video-qa.webm" hidden>Atsisiųsti QA WEBM</a></div>
+<div id="status" class="status"><b id="statusText">Laukiama testo.</b><div class="bar"><span id="progress"></span></div></div>
+<div id="rows" class="rows"></div>
+<h3>Proof JSON</h3>
+<pre id="proof" class="proof">Dar nėra.</pre>
+</div>
+<div class="panel preview">
+<h2>Rezultatas</h2>
+<canvas id="canvas" width="540" height="960"></canvas>
+<video id="video" controls playsinline hidden></video>
+</div>
+</section>
+<div class="footer">Pass reiškia: naršyklė palaiko captureStream + MediaRecorder, sukurtas non-empty WEBM, video paruoštas playback, download href aktyvus.</div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const canvas=$('canvas');
+const ctx=canvas.getContext('2d',{alpha:false});
+let outputUrl='';
+function setStatus(text,progress,type=''){$('statusText').textContent=text;$('progress').style.width=`${Math.max(0,Math.min(100,progress))}%`;$('status').className=`status ${type}`.trim();}
+function addRows(rows){$('rows').innerHTML=rows.map(row=>`<div class="row ${row.ok?'ok':'bad'}"><b>${row.ok?'✓':'✕'} ${escapeHtml(row.name)}</b><span class="muted">${escapeHtml(row.value)}</span></div>`).join('');}
+function escapeHtml(text){return String(text).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[char]));}
+function drawFrame(progress){
+  const w=canvas.width,h=canvas.height;
+  const gradient=ctx.createLinearGradient(0,0,w,h);
+  gradient.addColorStop(0,`hsl(${190+progress*70} 70% 20%)`);
+  gradient.addColorStop(1,'#05080d');
+  ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);
+  ctx.save();ctx.translate(w/2,h/2);ctx.rotate(progress*Math.PI*2);ctx.fillStyle='rgba(77,240,161,.85)';ctx.fillRect(-155,-155,310,310);ctx.restore();
+  ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(0,h*0.58,w,h*0.42);
+  ctx.fillStyle='#fff';ctx.font='900 54px Arial';ctx.fillText('QA VIDEO',38,655);
+  ctx.font='800 34px Arial';ctx.fillText('Real WEBM render',38,710);
+  ctx.font='500 24px Arial';ctx.fillStyle='rgba(255,255,255,.78)';ctx.fillText(`${Math.round(progress*100)}% · Android proof`,38,756);
+  ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(38,865,464,9);ctx.fillStyle='#fff';ctx.fillRect(38,865,Math.max(18,464*progress),9);
+}
+function supportedMimeType(){return ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(type=>window.MediaRecorder?.isTypeSupported(type))||'';}
+function minimumUsefulBytes(durationSeconds){return Math.max(90000,durationSeconds*30000);}
+function waitVideoReady(video){return new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Video playback readiness timeout')),5000);video.onloadeddata=()=>{clearTimeout(timer);resolve();};video.onerror=()=>{clearTimeout(timer);reject(new Error('Video element could not load WEBM blob'));};});}
+async function runQa(){
+  $('run').disabled=true;$('download').hidden=true;$('proof').textContent='Vyksta…';$('video').hidden=true;canvas.hidden=false;if(outputUrl)URL.revokeObjectURL(outputUrl);
+  const duration=4;const rows=[];
+  try{
+    rows.push({name:'Canvas captureStream',ok:!!canvas.captureStream,value:typeof canvas.captureStream});
+    rows.push({name:'MediaRecorder',ok:!!window.MediaRecorder,value:typeof window.MediaRecorder});
+    const mimeType=supportedMimeType();rows.push({name:'WEBM mime support',ok:!!mimeType,value:mimeType||'browser default'});
+    if(!canvas.captureStream||!window.MediaRecorder)throw new Error('Browser does not support required video APIs. Use current Android Chrome.');
+    const stream=canvas.captureStream(30);const chunks=[];const recorder=mimeType?new MediaRecorder(stream,{mimeType,videoBitsPerSecond:4200000}):new MediaRecorder(stream,{videoBitsPerSecond:4200000});
+    recorder.addEventListener('dataavailable',event=>{if(event.data?.size)chunks.push(event.data);});
+    const stopped=new Promise(resolve=>recorder.addEventListener('stop',resolve,{once:true}));
+    recorder.start(250);const startedAt=performance.now();setStatus('Įrašomas realus WEBM…',5);
+    await new Promise(resolve=>{const tick=now=>{const progress=Math.min(1,(now-startedAt)/1000/duration);drawFrame(progress);setStatus(`Renderis ${Math.round(progress*100)}%`,progress*90);if(progress<1)requestAnimationFrame(tick);else resolve();};requestAnimationFrame(tick);});
+    recorder.stop();await stopped;stream.getTracks().forEach(track=>track.stop());
+    const blob=new Blob(chunks,{type:recorder.mimeType||'video/webm'});const min=minimumUsefulBytes(duration);
+    rows.push({name:'Recorder chunks',ok:chunks.length>0,value:String(chunks.length)});
+    rows.push({name:'Non-empty WEBM gate',ok:blob.size>=min,value:`${blob.size} B / min ${min} B`});
+    if(blob.size<min)throw new Error(`WEBM too small: ${blob.size} B`);
+    outputUrl=URL.createObjectURL(blob);$('video').src=outputUrl;await waitVideoReady($('video'));$('video').hidden=false;canvas.hidden=true;
+    $('download').href=outputUrl;$('download').download=`quick-product-video-qa-${Date.now()}.webm`;$('download').hidden=false;
+    rows.push({name:'Playback readiness',ok:true,value:`readyState ${$('video').readyState}`});
+    rows.push({name:'Download link',ok:$('download').href.startsWith('blob:'),value:'blob URL ready'});
+    const proof={version:'quick-product-video-android-qa-v1',status:'PASS',createdAt:new Date().toISOString(),durationSeconds:duration,bytes:blob.size,mimeType:blob.type||'video/webm',width:canvas.width,height:canvas.height,chunkCount:chunks.length,downloadReady:$('download').href.startsWith('blob:'),videoReadyState:$('video').readyState,userAgent:navigator.userAgent};
+    localStorage.setItem('quickProductVideoAndroidQaProof',JSON.stringify(proof));$('proof').textContent=JSON.stringify(proof,null,2);setStatus('PASS: WEBM sukurtas, playback ir download paruošti.',100,'ok');
+  }catch(error){const proof={version:'quick-product-video-android-qa-v1',status:'FAIL',createdAt:new Date().toISOString(),error:error.message,userAgent:navigator.userAgent};try{localStorage.setItem('quickProductVideoAndroidQaProof',JSON.stringify(proof));}catch(_){}$('proof').textContent=JSON.stringify(proof,null,2);setStatus(`FAIL: ${error.message}`,0,'bad');}
+  addRows(rows);$('run').disabled=false;
+}
+$('run').addEventListener('click',runQa);drawFrame(.04);addRows([{name:'Revenue counter',ok:true,value:'0 EUR until verified paid event'},{name:'QA artifact',ok:true,value:'local proof JSON + downloadable WEBM'}]);
+</script>
+</body>
+</html>
