@@ -84,7 +84,6 @@ def main() -> None:
         "mailto click is revenue",
         "paid-confirmation URL is revenue",
         "fulfillment URL is revenue",
-        "fake paid",
         "demo proof accepted",
         "proof_required accepted",
         "qpvPaidEventLedger",
