@@ -13,5 +13,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - name: Quick Product Video paid order gate regression
         run: node scripts/regression-quick-video-paid-order.js
+      - name: APF payment recovery regression
+        run: python3 scripts/check_auto_parts_payment_recovery.py
