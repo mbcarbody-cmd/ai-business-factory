@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — verified paid router</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,56px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:130px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:520px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF paid router · verified +29 EUR ledger only · receipt + fulfillment deep links · duplicate-safe action ledger · revenueCountedEur never changed by clicks</span>
+  <h1>Auto Parts Price Finder — verified paid router</h1>
+  <p class="muted">This page is the operational handoff after the proof + statement match desk writes a real row into <b>apfPaidEventLedger</b>. It routes exactly verified 29 EUR APF paid events to receipt and fulfillment links, records next-action readiness in <b>apfVerifiedPaidRouterLedger</b>, and rejects page visits, copied rows, opened links, CSV exports, proof screenshots and unmatched statement rows as revenue.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Paid event ID</label><input id="paidEventId" placeholder="APF-PAID-..."></div>
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Payment reference</label><input id="paymentReference" placeholder="APF29-..."></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+      <div><label>Part / OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+      <div><label>Matched amount EUR</label><input id="amountEur" value="29"></div>
+      <div><label>Statement/proof reference</label><input id="proofReference" placeholder="bank statement row id / proof id"></div>
+      <div class="full"><label>Optional verified paid event JSON</label><textarea id="paidEventJson" placeholder='Paste one apfPaidEventLedger row JSON. Must include product auto-parts-price-finder, priceEur/amountEur 29, status verified/paid/matched and paidEventId.'></textarea></div>
+    </div>
+    <button class="btn ok" onclick="routePaidEvent()">Route verified paid event</button>
+    <button class="btn secondary" onclick="copyNextActionPack()">Copy receipt + fulfillment pack</button>
+    <button class="btn secondary" onclick="loadLatestPaidLedgerRow()">Load latest local paid ledger row</button>
+    <button class="btn secondary" onclick="loadDemoBlocked()">Load blocked demo row</button>
+    <a class="btn secondary" id="receiptLink" href="./auto-parts-paid-receipt.html?product=auto-parts-price-finder&priceEur=29&source=verified-paid-router">Open receipt</a>
+    <a class="btn secondary" id="fulfillmentLink" href="./auto-parts-fulfillment-delivery-desk.html?product=auto-parts-price-finder&priceEur=29&source=verified-paid-router">Open fulfillment delivery desk</a>
+    <button class="btn secondary" onclick="exportRouterLedger()">Export router ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for verified APF paid event</span><span class="pill warn">confirmed revenue 0 EUR until ledger match</span></div>
+    <pre class="output" id="output">Paste a verified paid event or load one from apfPaidEventLedger. This router does not create revenue. It only moves a real +29 EUR APF paid event to receipt and fulfillment actions.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const ROUTER_LEDGER_KEY='apfVerifiedPaidRouterLedger';
+const WEAK_PATTERNS=['page visit','copied next-action pack','opened receipt link','opened fulfillment link','CSV export','proof screenshot alone','statement row without exact +29 EUR APF match','fake/demo paid event','manual paid text'];
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function readJson(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,300)))}
+function numberEur(value){const n=Number(String(value??'').replace(',','.').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0}
+function statusLooksPaid(value){return /verified|paid|matched|statement_match/i.test(String(value||''))}
+function safeText(value){return String(value||'').trim()}
+function normalizePaidEvent(raw){
+  return {
+    paidEventId:safeText(raw.paidEventId||raw.id||$('paidEventId').value),
+    product:safeText(raw.product||PRODUCT),
+    priceEur:numberEur(raw.priceEur||raw.amountEur||raw.amount||$('amountEur').value),
+    amountEur:numberEur(raw.amountEur||raw.priceEur||raw.amount||$('amountEur').value),
+    status:safeText(raw.status||raw.paymentStatus||'verified_paid'),
+    buyer:safeText(raw.buyer||BUYER),
+    buyerEmail:safeText(raw.buyerEmail||$('buyerEmail').value),
+    buyerName:safeText(raw.buyerName||raw.company||$('buyerName').value),
+    paymentReference:safeText(raw.paymentReference||raw.reference||$('paymentReference').value),
+    proofReference:safeText(raw.proofReference||raw.statementRowId||raw.statementReference||$('proofReference').value),
+    vehicle:safeText(raw.vehicle||$('vehicle').value),
+    part:safeText(raw.part||raw.oem||$('part').value),
+    source:safeText(raw.source||'verified-paid-router')
+  };
+}
+function readFormPaidEvent(){
+  const text=$('paidEventJson').value.trim();
+  if(text){try{return normalizePaidEvent(JSON.parse(text))}catch(e){return {parseError:'BLOCKER: paid event JSON is invalid. Paste a single valid apfPaidEventLedger row.'}}}
+  return normalizePaidEvent({});
+}
+function paidEventBlocker(row){
+  if(row.parseError)return row.parseError;
+  if(!row.paidEventId||row.paidEventId.length<8)return 'BLOCKER: missing real paidEventId from apfPaidEventLedger.';
+  if(/demo|fake|sample|test|example/i.test(row.paidEventId+' '+row.proofReference))return 'BLOCKER: demo/fake/test paid event cannot be routed or counted.';
+  if(row.product!==PRODUCT)return 'BLOCKER: paid event product must be '+PRODUCT+'.';
+  if(row.priceEur!==PRICE_EUR&&row.amountEur!==PRICE_EUR)return 'BLOCKER: paid event must be exact +29 EUR.';
+  if(!statusLooksPaid(row.status))return 'BLOCKER: status must be verified/paid/matched from proof + statement match.';
+  if(!row.paymentReference||!row.proofReference)return 'BLOCKER: paymentReference and statement/proof reference are required before receipt/fulfillment.';
+  return '';
+}
+function buildReceiptUrl(row){
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'verified-paid-router',paidEventId:row.paidEventId,paymentReference:row.paymentReference,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,proofReference:row.proofReference});
+  return './auto-parts-paid-receipt.html?'+q.toString();
+}
+function buildFulfillmentUrl(row){
+  const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'verified-paid-router',paidEventId:row.paidEventId,paymentReference:row.paymentReference,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,proofReference:row.proofReference});
+  return './auto-parts-fulfillment-delivery-desk.html?'+q.toString();
+}
+function buildNextActionPack(row){
+  return `APF VERIFIED PAID NEXT-ACTION PACK\nPaid event ID: ${row.paidEventId}\nProduct: ${PRODUCT}\nVerified amount: ${PRICE_EUR} EUR\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\nPayment reference: ${row.paymentReference}\nStatement/proof reference: ${row.proofReference}\n\n1) Send receipt: ${buildReceiptUrl(row)}\n2) Fulfill delivery pack: ${buildFulfillmentUrl(row)}\n\nRevenue rule: this router never increments revenue. Revenue remains counted only by the existing verified row in ${PAID_LEDGER_KEY}.\nRejected weak patterns: ${WEAK_PATTERNS.join(', ')}.`;
+}
+function routePaidEvent(){
+  const row=readFormPaidEvent();
+  const blocker=paidEventBlocker(row);
+  if(blocker){
+    $('state').innerHTML='<span class="pill warn">NO_ROUTE</span><span class="pill warn">revenueCountedEur:0</span><span class="pill ok">fallback: return to proof + statement match</span>';
+    $('output').textContent=blocker+'\n\nFallback executed: open proof + statement match, paste buyer proof plus exact +29 EUR EUR statement row, then return here with the generated apfPaidEventLedger row. Rejected weak patterns: '+WEAK_PATTERNS.join(', ')+'.';
+    return null;
+  }
+  const action={...row,routedAt:new Date().toISOString(),receiptUrl:buildReceiptUrl(row),fulfillmentUrl:buildFulfillmentUrl(row),routerStatus:'verified_paid_routed_to_receipt_and_fulfillment',revenueCountedEur:0,revenueSource:'existing apfPaidEventLedger row only'};
+  const rows=readJson(ROUTER_LEDGER_KEY);
+  if(!rows.some(r=>r.paidEventId===action.paidEventId)){rows.unshift(action);writeJson(ROUTER_LEDGER_KEY,rows)}
+  $('receiptLink').href=action.receiptUrl;
+  $('fulfillmentLink').href=action.fulfillmentUrl;
+  $('state').innerHTML='<span class="pill ok">verified paid event accepted</span><span class="pill ok">receipt link ready</span><span class="pill ok">fulfillment link ready</span><span class="pill warn">router revenueCountedEur:0</span>';
+  $('output').textContent=buildNextActionPack(action);
+  return action;
+}
+async function copyNextActionPack(){
+  const row=routePaidEvent();
+  if(!row)return false;
+  const pack=buildNextActionPack(row);
+  try{await navigator.clipboard.writeText(pack);$('state').innerHTML+='<span class="pill ok">pack copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}
+  return true;
+}
+function loadLatestPaidLedgerRow(){
+  const rows=readJson(PAID_LEDGER_KEY);
+  if(!rows.length){$('output').textContent='BLOCKER: no local apfPaidEventLedger rows found. Fallback: open proof + statement match and create one from exact +29 EUR paid proof + statement match.';return null}
+  const row=normalizePaidEvent(rows[0]);
+  $('paidEventJson').value=JSON.stringify(row,null,2);
+  ['paidEventId','buyerEmail','buyerName','paymentReference','vehicle','part','amountEur','proofReference'].forEach(id=>{if($(id)&&row[id]!==undefined)$(id).value=row[id]});
+  return routePaidEvent();
+}
+function loadDemoBlocked(){
+  $('paidEventJson').value=JSON.stringify({paidEventId:'DEMO-APF-PAID-123',product:PRODUCT,priceEur:29,status:'paid',paymentReference:'APF29-DEMO',proofReference:'demo-proof',buyerEmail:'buyer@example.com',buyerName:'Used parts seller',vehicle:'Toyota Land Cruiser J250 2025',part:'front bumper / 52119-60P40'},null,2);
+  routePaidEvent();
+}
+function exportRouterLedger(){
+  const rows=readJson(ROUTER_LEDGER_KEY);
+  const headers=['paidEventId','routedAt','product','priceEur','amountEur','status','buyerEmail','buyerName','vehicle','part','paymentReference','proofReference','receiptUrl','fulfillmentUrl','routerStatus','revenueCountedEur','revenueSource'];
+  const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-verified-paid-router-ledger.csv';a.click();URL.revokeObjectURL(url);
+}
+function restoreFromUrl(){
+  const p=params();
+  ['paidEventId','buyerEmail','buyerName','paymentReference','vehicle','part','proofReference'].forEach(id=>{const v=p.get(id);if(v)$(id).value=v});
+  if(p.get('amountEur')||p.get('priceEur'))$('amountEur').value=p.get('amountEur')||p.get('priceEur');
+}
+restoreFromUrl();
+</script>
+</body>
+</html>
