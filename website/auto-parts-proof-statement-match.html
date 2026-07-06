@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — proof statement match desk</title>
+  <meta name="description" content="Match a buyer payment proof against a real bank/Revolut/Stripe/PayPal statement row before writing a duplicate-safe 29 EUR APF paid event.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1140px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.97fr 1.03fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:145px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:560px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}.muted{color:var(--muted)}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue gate · buyer proof + statement match · 29 EUR counted once</span>
+  <h1>Payment proof + statement row → verified APF paid event</h1>
+  <p>This desk closes the gap between buyer proof and accounting evidence. A screenshot, copied proof text, mailto, page visit, or request row is never revenue. The app writes to <code>apfPaidEventLedger</code> only when exactly one real +29 EUR statement row contains the APF/order reference and the buyer proof text contains the same reference.</p>
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">required amount</span></div>
+    <div class="card"><strong id="matchCount">0</strong><span class="muted">statement matches</span></div>
+    <div class="card"><strong id="paidCount">0</strong><span class="muted">verified paid events</span></div>
+    <div class="card"><strong id="revenueCount">0 €</strong><span class="muted">confirmed APF revenue</span></div>
+  </section>
+  <section class="grid">
+    <div class="panel">
+      <h2>Buyer proof + statement evidence</h2>
+      <div class="row">
+        <div><label>Order ID / APF reference</label><input id="orderId" placeholder="APF-BANK-20260706-001"></div>
+        <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+        <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+        <div><label>Payment method</label><select id="paymentMethod"><option>bank_statement_import</option><option>revolut_statement_import</option><option>stripe_statement_import</option><option>paypal_statement_import</option></select></div>
+        <div><label>Vehicle</label><input id="vehicle" placeholder="Hyundai Tucson NX4e 2024"></div>
+        <div><label>Part / OEM</label><input id="part" placeholder="fuel door lock / OEM"></div>
+        <div class="full"><label>Buyer payment proof text</label><textarea id="proofText" placeholder="Paste buyer proof details. Must include the APF/order reference and payment destination/source details. Screenshot text alone is not enough without statement match."></textarea></div>
+        <div class="full"><label>Bank/Revolut/Stripe/PayPal statement rows</label><textarea id="statementRows" placeholder="Date,Description,Reference,Amount,Currency&#10;2026-07-06,Auto Parts Price Finder APF-BANK-20260706-001,APF-BANK-20260706-001,29.00,EUR"></textarea></div>
+        <div class="full"><label>Admin verification note</label><textarea id="adminNote" placeholder="State where the statement export came from, export date, payer/reference and why this is the real payment."></textarea></div>
+      </div>
+      <button class="btn ok" onclick="verifyProofStatementMatch()">Verify proof + statement and count 29 €</button>
+      <button class="btn secondary" onclick="exportMatchLedger()">Export match ledger</button>
+      <a class="btn secondary" href="./auto-parts-bank-transfer-payment-request.html">Create payment request</a>
+      <a class="btn secondary" href="./auto-parts-paid-fulfillment.html">Fulfillment</a>
+    </div>
+    <div class="panel">
+      <h2>Verification output</h2>
+      <div id="state"><span class="pill warn">No verified proof + statement match</span><span class="pill warn">revenue is 0 until exact +29 EUR statement match</span></div>
+      <pre id="output" class="output">Hard rule: payment proof, screenshot, copied proof, mailto, exported ledger, request row, order reference alone, or pasted statement without exact +29 EUR EUR match is not revenue. Only a proof-confirmed statement match writes a duplicate-safe apfPaidEventLedger event.</pre>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const SELLER='MB Marių auto';
+const CONTACT_EMAIL='automariu@gmail.com';
+const PAID_KEY='apfPaidEventLedger';
+const MATCH_KEY='apfProofStatementMatchLedger';
+const FULFILLMENT_KEY='apfFulfillmentQueue';
+const DUPE_KEY='apfPaidDuplicateBlocks';
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function parseAmount(text){const m=String(text||'').replace(/,/g,'.').match(/(?:^|[^\d-])([+-]?\d+(?:\.\d{1,2})?)(?:\s*)(?:EUR|€|,|;|\t|\s|$)/i);return m?Number(m[1]):NaN}
+function hasEurCurrency(text){return /\bEUR\b|€/i.test(String(text||''))}
+function simpleHash(text){let h=2166136261;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(16).padStart(8,'0')}
+function paidEventId(orderId,proofHash,statementHash){return clean(orderId).toUpperCase()+'::PROOF_STATEMENT::'+proofHash+'::'+statementHash}
+function confirmedRevenue(){return readJson(PAID_KEY).reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0)}
+function renderKpis(matches){$('matchCount').textContent=String(matches||0);$('paidCount').textContent=String(readJson(PAID_KEY).length);$('revenueCount').textContent=eur(confirmedRevenue())}
+function proofMatchesOrder(orderId,proofText){const proof=clean(proofText).toUpperCase(),ref=clean(orderId).toUpperCase();return ref.length>=6&&proof.includes(ref)&&/(paid|payment|transfer|bank|revolut|stripe|paypal|mokėj|mokej|apmok)/i.test(proofText)}
+function statementMatches(orderId){const ref=clean(orderId).toUpperCase();return clean($('statementRows').value).split(/\r?\n/).map(clean).filter(Boolean).filter(row=>row.toUpperCase().includes(ref)&&hasEurCurrency(row)&&parseAmount(row)===PRICE_EUR)}
+function enqueueFulfillment(event){const rows=readJson(FULFILLMENT_KEY);if(rows.some(row=>row.paidEventId===event.paidEventId))return false;rows.unshift({queueId:'APF-FULFILL-'+Date.now(),product:PRODUCT,orderId:event.orderId,paidEventId:event.paidEventId,paymentProof:event.paymentProof,buyerEmail:event.buyerEmail,buyerName:event.buyerName,vehicle:event.vehicle,part:event.part,priceEur:event.amountEur,status:'ready_for_delivery',source:'auto-parts-proof-statement-match',createdAt:new Date().toISOString()});writeJson(FULFILLMENT_KEY,rows);return true}
+function verifyProofStatementMatch(){const orderId=clean($('orderId').value),proofText=clean($('proofText').value),adminNote=clean($('adminNote').value);if(!orderId||!proofText||!adminNote){$('state').innerHTML='<span class="pill bad">blocked: orderId, buyer proof and admin note required</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=JSON.stringify({NO_REVENUE:'missing required proof-statement verification fields',rejectedWeakPatterns:['proof screenshot alone','copied proof text','page visit','request row','manual paid claim']},null,2);renderKpis(0);return}
+  if(!proofMatchesOrder(orderId,proofText)){$('state').innerHTML='<span class="pill bad">blocked: proof does not contain APF reference/payment wording</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=JSON.stringify({NO_REVENUE:'buyer proof did not match APF/order reference and payment wording',rejectedWeakPatterns:['screenshot text without APF reference','payment proof without statement row','manual paid claim without reference']},null,2);renderKpis(0);return}
+  const matches=statementMatches(orderId);renderKpis(matches.length);if(matches.length!==1){$('state').innerHTML='<span class="pill bad">blocked: expected exactly one +29 EUR statement row with APF reference</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=JSON.stringify({NO_REVENUE:'statement evidence did not produce exactly one APF +29 EUR EUR match',matchedRows:matches,rejectedWeakPatterns:['statement pasted','order reference alone','amount without APF reference','non-EUR row','multiple ambiguous rows','proof without accounting match']},null,2);return}
+  const matchedRow=matches[0],proofHash=simpleHash(proofText),statementHash=simpleHash(matchedRow),eventId=paidEventId(orderId,proofHash,statementHash),paidRows=readJson(PAID_KEY);if(paidRows.some(row=>row.paidEventId===eventId)){const dupes=readJson(DUPE_KEY);dupes.unshift({paidEventId:eventId,orderId,paymentReference:'proof-statement:'+statementHash,paymentProof:'proof-hash:'+proofHash+' statement-hash:'+statementHash,blockedAt:new Date().toISOString(),reason:'duplicate_proof_statement_match_not_counted',revenueCountedEur:0});writeJson(DUPE_KEY,dupes);$('state').innerHTML='<span class="pill bad">duplicate paid match blocked</span><span class="pill warn">revenue unchanged</span>';$('output').textContent='DUPLICATE_BLOCKED: '+eventId+' already exists. Duplicate proof/statement matches are stored with revenueCountedEur:0.';renderKpis(matches.length);return}
+  const paidAt=new Date().toISOString();const event={paidEventId:eventId,orderId,paymentReference:'proof-statement:'+statementHash,paymentProof:'proof-hash:'+proofHash+' statement-hash:'+statementHash,product:PRODUCT,seller:SELLER,contactEmail:CONTACT_EMAIL,amountEur:PRICE_EUR,revenueCountedEur:PRICE_EUR,paymentMethod:$('paymentMethod').value,buyerEmail:clean($('buyerEmail').value),buyerName:clean($('buyerName').value),vehicle:clean($('vehicle').value),part:clean($('part').value),adminNote,proofHash,statementHash,matchedStatementRow:matchedRow,paidAt,status:'verified_paid',source:'auto-parts-proof-statement-match'};paidRows.unshift(event);writeJson(PAID_KEY,paidRows);const ledger=readJson(MATCH_KEY);ledger.unshift({matchId:'APF-PROOF-STATEMENT-'+Date.now(),orderId,proofHash,statementHash,matchedRows:1,paymentReference:event.paymentReference,paymentProof:event.paymentProof,revenueCountedEur:PRICE_EUR,matchedAt:paidAt,source:'auto-parts-proof-statement-match'});writeJson(MATCH_KEY,ledger);const fulfillmentQueued=enqueueFulfillment(event);$('state').innerHTML='<span class="pill ok">buyer proof matched APF reference</span><span class="pill ok">statement row matched</span><span class="pill ok">29 EUR counted once</span><span class="pill ok">fulfillment '+(fulfillmentQueued?'queued':'already queued')+'</span>';$('output').textContent=JSON.stringify({SHIP:'APF_PROOF_STATEMENT_MATCH_VERIFIED_PAID_EVENT',confirmedRevenueEur:confirmedRevenue(),event,fulfillmentQueued,rejectedWeakPatterns:['proof screenshot alone','copied proof','mailto opened','request row','statement pasted without exact match','duplicate paid match','fake paid event']},null,2);renderKpis(matches.length)}
+function exportMatchLedger(){const rows=readJson(MATCH_KEY);const headers=['matchId','orderId','proofHash','statementHash','matchedRows','paymentReference','paymentProof','revenueCountedEur','matchedAt','source'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apf-proof-statement-match-ledger.csv';a.click();URL.revokeObjectURL(url);$('state').innerHTML='<span class="pill warn">match ledger exported</span><span class="pill warn">export action is not revenue</span>'}
+(function loadFromUrl(){const p=new URLSearchParams(location.search);['orderId','buyerEmail','buyerName','vehicle','part'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)});if(!clean($('adminNote').value))$('adminNote').value='Verify buyer proof against exact +29 EUR statement row before counting revenue.';renderKpis(0)})();
+</script>
+</body>
+</html>
