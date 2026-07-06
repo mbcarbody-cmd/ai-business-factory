@@ -1,0 +1,17 @@
+name: apf-paid-delivery-desk-regression
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  apf-paid-delivery-desk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: APF paid fulfillment delivery desk regression
+        run: python3 scripts/check_auto_parts_paid_delivery_desk.py
