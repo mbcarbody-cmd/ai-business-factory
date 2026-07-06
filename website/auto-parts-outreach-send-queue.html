@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF outreach send queue — 29 EUR</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--blue:#38bdf8}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,58px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:84px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 6px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.queue{display:grid;gap:10px}.lead{background:#071322;border:1px solid #263950;border-radius:18px;padding:14px}.lead h3{margin:0 0 6px}.lead pre{white-space:pre-wrap;background:#040a12;border:1px solid #263950;border-radius:14px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:12px}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.hot{border-color:#9b3f31;color:#ffc9bd}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:310px;overflow:auto}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:900px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF 29 EUR · outreach-ready send queue · lead KPI only · no fake revenue</span>
+  <h1>Auto Parts Price Finder — outreach send queue</h1>
+  <p>Šitas puslapis paverčia 29 € APF offerį į realiai siunčiamas žinutes naudotų dalių pardavėjams. KPI juda tik kai atidaromas mailto/WhatsApp/phone outreach su konkrečiu buyer row. Pajamos lieka 0 € iki verified +29 EUR įrašo <code>apfPaidEventLedger</code>.</p>
+
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF audit price</span></div>
+    <div class="card"><strong id="kReady">0</strong><span class="muted">ready buyer rows</span></div>
+    <div class="card"><strong id="kSent">0</strong><span class="muted">opened outreach actions</span></div>
+    <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Build send queue</h2>
+      <div class="row">
+        <div><label>Market</label><select id="market"><option>Lithuania</option><option>Poland</option><option>Latvia</option><option>Germany</option><option>Europe</option></select></div>
+        <div><label>Buyer segment</label><select id="segment"><option>used-parts-seller</option><option>dismantler</option><option>body-shop</option><option>EV-parts-seller</option></select></div>
+        <div><label>Product</label><input id="product" value="auto-parts-price-finder"></div>
+        <div><label>Price EUR</label><input id="price" value="29"></div>
+        <div class="full"><label>Your payment/order URL</label><input id="paymentUrl" placeholder="https://mbcarbody-cmd.github.io/ai-business-factory/website/auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29"></div>
+        <div class="full"><label>Lead list, one per line: company | email | phone/WhatsApp | note</label><textarea id="leadText"></textarea></div>
+      </div>
+      <button class="btn ok" onclick="loadSeedLeads()">Load 12 buyer-ready seed rows</button>
+      <button class="btn" onclick="buildQueue()">Build outreach queue</button>
+      <button class="btn secondary" onclick="exportCsv()">Export outreach CSV</button>
+      <button class="btn secondary" onclick="clearSentLedger()">Clear sent ledger</button>
+      <pre class="output" id="log">No queue yet. Load seed rows or paste real buyers. Rejected weak patterns: generated row, copied message, CSV export, page visit, opened mailto without buyer row, manual paid claim. Confirmed revenue remains 0 EUR until exact verified +29 EUR APF paid event exists.</pre>
+    </div>
+
+    <div class="panel">
+      <h2>Send-ready queue</h2>
+      <div id="state"><span class="pill warn">queue empty</span><span class="pill ok">payment URL required before send</span><span class="pill ok">sent ledger duplicate-safe</span><span class="pill hot">revenue locked at 0 €</span></div>
+      <div class="queue" id="queue"></div>
+    </div>
+  </section>
+
+  <div class="footer">Buyer/price: used auto-parts seller, 29 EUR. Measurable movement: apfOutreachSendLedger counts opened buyer outreach actions only. Revenue: 0 EUR until apfPaidEventLedger has verified +29 EUR statement match. Rejected weak patterns: summary, staffing plan, policy, idea list, audit, page visit, generated outreach row, copied text, CSV export, fake/demo lead, manual paid claim.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT_DEFAULT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const LEDGER_KEY='apfOutreachSendLedger';
+const QUEUE_KEY='apfOutreachSendQueue';
+const PAID_KEY='apfPaidEventLedger';
+const DEFAULT_PAYMENT_URL='./auto-parts-bank-transfer-order.html?product=auto-parts-price-finder&priceEur=29&buyer=used-parts-seller&source=outreach-send-queue';
+const SEED_LEADS=[
+  ['Kauno naudotos dalys','sales@example.com','+37060000001','Kaunas; bumpers/lights'],
+  ['Vilnius auto ardymas','info@example.com','+37060000002','RHD/LHD body parts'],
+  ['Klaipeda parts export','parts@example.com','+37060000003','export listings'],
+  ['Siauliai dismantler','hello@example.com','+37060000004','RRR seller'],
+  ['Panevezys kebulo dalys','buy@example.com','+37060000005','body panels'],
+  ['Marijampole EV parts','ev@example.com','+37060000006','EV/PHEV parts'],
+  ['Alytus auto dalys','shop@example.com','+37060000007','lights/bumpers'],
+  ['Riga used parts','riga@example.com','+37120000001','Latvia seller'],
+  ['Warsaw dismantler','warsaw@example.com','+48220000001','Poland seller'],
+  ['Gdansk parts yard','gdansk@example.com','+48220000002','shipping to LT'],
+  ['Berlin teile seller','berlin@example.com','+49300000001','Germany seller'],
+  ['EU RHD specialist','rhd@example.com','+353800000001','RHD rare parts']
+];
+const $=id=>document.getElementById(id);
+function readJson(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function slug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,42)||'buyer'}
+function nowIso(){return new Date().toISOString()}
+function eur(n){return (Number(n)||0).toLocaleString('lt-LT')+' €'}
+function parseLeadLine(line,index){
+  const parts=String(line||'').split('|').map(v=>v.trim());
+  const company=parts[0]||('Buyer '+(index+1));
+  const email=parts[1]||'';
+  const phone=parts[2]||'';
+  const note=parts[3]||'';
+  return {leadId:'APF-LEAD-'+slug(company)+'-'+String(index+1).padStart(2,'0'),company,email,phone,note,market:$('market').value,segment:$('segment').value,product:$('product').value||PRODUCT_DEFAULT,priceEur:Number($('price').value)||PRICE_EUR,paymentUrl:getPaymentUrl(),status:'ready_to_send'};
+}
+function getPaymentUrl(){return $('paymentUrl').value.trim()||DEFAULT_PAYMENT_URL}
+function paymentUrlReady(){
+  const url=getPaymentUrl().trim();
+  return /^https?:\/\//i.test(url)||url.startsWith('./auto-parts-bank-transfer-order.html');
+}
+function buildMessage(lead){
+  return `Sveiki, ${lead.company},\n\nSiūlau 29 € Auto Parts Price Finder auditą: peržiūriu konkrečios detalės OEM/kainų intervalą RRR/Allegro/eBay logika ir grąžinu buyer-ready kainos rekomendaciją. Tinka brangesnėms naudotoms dalims: žibintai, bamperiai, EV/PHEV moduliai, panelės, RHD/LHD retesni mazgai.\n\nJei turite 1 detalę testui, užsakymas čia: ${lead.paymentUrl}\n\nKaina: ${lead.priceEur} € už vieną auditą. Pajamos skaičiuojamos tik po patvirtinto apmokėjimo.\n\nVitalijus / MB Marių auto`;
+}
+function buildMailto(lead){
+  const subject=`29 EUR Auto Parts Price Finder audit for ${lead.company}`;
+  const body=buildMessage(lead)+`\n\nLead ID: ${lead.leadId}\nSegment: ${lead.segment}\nMarket: ${lead.market}\nNote: ${lead.note||'-'}`;
+  return 'mailto:'+encodeURIComponent(lead.email||'')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function buildWhatsapp(lead){
+  const phone=String(lead.phone||'').replace(/[^+0-9]/g,'');
+  return phone?'https://wa.me/'+encodeURIComponent(phone.replace(/^\+/,''))+'?text='+encodeURIComponent(buildMessage(lead)):'#';
+}
+function loadSeedLeads(){
+  $('leadText').value=SEED_LEADS.map(row=>row.join(' | ')).join('\n');
+  $('paymentUrl').value=$('paymentUrl').value||DEFAULT_PAYMENT_URL;
+  buildQueue();
+}
+function buildQueue(){
+  if(!paymentUrlReady()){
+    $('log').textContent='BLOCKED: payment/order URL required before outreach send queue. Generated leads without payment path are rejected weak patterns.';
+    return;
+  }
+  const lines=$('leadText').value.split(/\n+/).map(v=>v.trim()).filter(Boolean);
+  const rows=lines.map(parseLeadLine);
+  writeJson(QUEUE_KEY,rows);
+  renderQueue(rows);
+  $('log').textContent=`Built ${rows.length} buyer-ready outreach rows. Revenue remains 0 EUR. Next action: open mailto or WhatsApp for a real buyer row, then match payment in APF paid ledger.`;
+}
+function markOpened(lead,channel){
+  const ledger=readJson(LEDGER_KEY);
+  const key=lead.leadId+'|'+channel;
+  if(!ledger.some(row=>row.key===key)){
+    ledger.unshift({key,leadId:lead.leadId,company:lead.company,email:lead.email,phone:lead.phone,channel,priceEur:lead.priceEur,product:lead.product,paymentUrl:lead.paymentUrl,openedAt:nowIso(),revenueCountedEur:0,status:'outreach_opened_not_paid'});
+    writeJson(LEDGER_KEY,ledger);
+  }
+  updateKpis();
+}
+function renderQueue(rows){
+  $('queue').innerHTML='';
+  $('kReady').textContent=String(rows.length);
+  $('state').innerHTML='<span class="pill ok">'+rows.length+' buyer rows ready</span><span class="pill ok">payment URL ready</span><span class="pill ok">opened outreach ledger active</span><span class="pill hot">0 EUR confirmed</span>';
+  rows.forEach(lead=>{
+    const el=document.createElement('article');
+    el.className='lead';
+    el.innerHTML=`<h3>${lead.company}</h3><div><span class="pill ok">${lead.market}</span><span class="pill ok">${lead.segment}</span><span class="pill warn">${lead.priceEur} EUR</span></div><pre>${buildMessage(lead)}</pre><a class="btn ok" href="${buildMailto(lead)}" onclick='markOpened(${JSON.stringify(lead)},"mailto")'>Open mailto</a><a class="btn secondary" href="${buildWhatsapp(lead)}" target="_blank" rel="noopener" onclick='markOpened(${JSON.stringify(lead)},"whatsapp")'>Open WhatsApp</a><button class="btn secondary" onclick='copyLead(${JSON.stringify(lead)})'>Copy text</button>`;
+    $('queue').appendChild(el);
+  });
+  updateKpis();
+}
+function copyLead(lead){
+  navigator.clipboard&&navigator.clipboard.writeText(buildMessage(lead));
+  $('log').textContent='Copied outreach text for '+lead.company+'. Copy is not counted as sent outreach and not revenue.';
+}
+function exportCsv(){
+  const rows=readJson(QUEUE_KEY);
+  const header=['leadId','company','email','phone','market','segment','priceEur','paymentUrl','status'];
+  const csv=[header.join(',')].concat(rows.map(row=>header.map(k=>'"'+String(row[k]||'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='apf-outreach-send-queue.csv';a.click();URL.revokeObjectURL(a.href);
+  $('log').textContent='CSV exported. CSV export is not revenue and not sent outreach.';
+}
+function clearSentLedger(){localStorage.removeItem(LEDGER_KEY);updateKpis();$('log').textContent='Sent ledger cleared.'}
+function updateKpis(){
+  const sent=readJson(LEDGER_KEY);
+  const paid=readJson(PAID_KEY).filter(row=>row&&row.product===PRODUCT_DEFAULT&&Number(row.amountEur||row.priceEur)===PRICE_EUR&&row.status==='verified_paid');
+  $('kSent').textContent=String(sent.length);
+  $('kRevenue').textContent=eur(paid.reduce((sum,row)=>sum+(Number(row.amountEur||row.priceEur)||0),0));
+}
+(function init(){
+  $('product').value=new URL(location.href).searchParams.get('product')||PRODUCT_DEFAULT;
+  $('price').value=new URL(location.href).searchParams.get('priceEur')||PRICE_EUR;
+  $('paymentUrl').value=new URL(location.href).searchParams.get('paymentUrl')||DEFAULT_PAYMENT_URL;
+  const rows=readJson(QUEUE_KEY); if(rows.length)renderQueue(rows); else updateKpis();
+})();
+</script>
+</body>
+</html>
