@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — quote-to-payment close room</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,56px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:120px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:560px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF close room · quote → 29 EUR payment request · outreach-ready row · proof-return link · revenueCountedEur stays 0 until statement match</span>
+  <h1>Auto Parts Price Finder — quote-to-payment close room</h1>
+  <p class="muted">This page turns one qualified used-parts buyer into a buyer-ready APF offer: vehicle/part scope, 29 EUR price, payment request copy, proof-return URL, statement-match URL and a duplicate-safe <b>apfQuoteToPaymentCloseLedger</b>. It rejects summaries, idea lists, page visits, copied messages and unpaid quote rows as revenue.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Lead ID</label><input id="leadId" placeholder="APF-LEAD-..."></div>
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Buyer segment</label><select id="buyerSegment"><option>used-parts-seller</option><option>bodyshop</option><option>dismantler</option><option>export-buyer</option></select></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+      <div><label>Part / OEM target</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+      <div><label>Payment reference</label><input id="paymentReference" placeholder="APF29-..."></div>
+      <div><label>Payment destination label</label><input id="paymentDestination" placeholder="Revolut/IBAN/PayPal configured outside this page"></div>
+      <div class="full"><label>Optional lead JSON</label><textarea id="leadJson" placeholder='Paste one qualified lead row JSON. Must include leadId, buyerEmail, vehicle and part.'></textarea></div>
+    </div>
+    <button class="btn ok" onclick="createClosePack()">Create 29 EUR close pack</button>
+    <button class="btn secondary" onclick="copyBuyerMessage()">Copy buyer payment message</button>
+    <button class="btn secondary" onclick="loadDemoLead()">Load demo lead</button>
+    <a class="btn secondary" id="paymentRequestLink" href="./auto-parts-bank-transfer-payment-request.html?product=auto-parts-price-finder&priceEur=29&source=quote-to-payment-close-room">Open payment request</a>
+    <a class="btn secondary" id="proofLink" href="./auto-parts-payment-proof-handoff.html?product=auto-parts-price-finder&priceEur=29&source=quote-to-payment-close-room">Open proof return</a>
+    <a class="btn secondary" id="statementMatchLink" href="./auto-parts-proof-statement-match.html?product=auto-parts-price-finder&priceEur=29&source=quote-to-payment-close-room">Open statement match</a>
+    <button class="btn secondary" onclick="exportCloseLedger()">Export close ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for qualified buyer lead</span><span class="pill warn">revenueCountedEur:0</span></div>
+    <pre class="output" id="output">Enter a qualified buyer lead. This page creates an outreach-ready close row and 29 EUR payment message, but never counts revenue until an exact paid statement match creates apfPaidEventLedger.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const LEDGER_KEY='apfQuoteToPaymentCloseLedger';
+const WEAK_PATTERNS=['summary','staffing plan','policy','idea list','audit','page visit','copied buyer message','exported CSV','unpaid quote row','manual paid claim','fake/demo lead'];
+const $=id=>document.getElementById(id);
+function readJson(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,300)))}
+function safeText(value){return String(value||'').trim()}
+function slug(value){return safeText(value).replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80)}
+function normalLead(raw){return {leadId:safeText(raw.leadId||raw.id||$('leadId').value),buyerEmail:safeText(raw.buyerEmail||raw.email||$('buyerEmail').value),buyerName:safeText(raw.buyerName||raw.company||$('buyerName').value),buyerSegment:safeText(raw.buyerSegment||$('buyerSegment').value||'used-parts-seller'),vehicle:safeText(raw.vehicle||$('vehicle').value),part:safeText(raw.part||raw.oem||$('part').value),paymentReference:safeText(raw.paymentReference||$('paymentReference').value),paymentDestination:safeText(raw.paymentDestination||$('paymentDestination').value)}}
+function readLead(){const text=$('leadJson').value.trim();if(text){try{return normalLead(JSON.parse(text))}catch(e){return {parseError:'BLOCKER: lead JSON is invalid. Paste a single qualified buyer lead row.'}}}return normalLead({})}
+function blocker(row){if(row.parseError)return row.parseError;if(!row.leadId||row.leadId.length<8)return 'BLOCKER: missing qualified leadId.';if(/demo|fake|sample|test|example/i.test(row.leadId+' '+row.buyerEmail))return 'BLOCKER: demo/fake/test lead cannot be counted as outreach-ready pipeline.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.buyerEmail))return 'BLOCKER: buyerEmail must be valid before outreach.';if(!row.vehicle||!row.part)return 'BLOCKER: vehicle and part/OEM scope are required before asking for 29 EUR.';return ''}
+function ensureReference(row){return row.paymentReference||('APF29-'+slug(row.leadId||row.buyerEmail)+'-'+new Date().toISOString().slice(0,10).replaceAll('-',''))}
+function buildPaymentRequestUrl(row){const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),source:'quote-to-payment-close-room',leadId:row.leadId,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,paymentReference:row.paymentReference,paymentDestination:row.paymentDestination});return './auto-parts-bank-transfer-payment-request.html?'+q.toString()}
+function buildProofUrl(row){const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),source:'quote-to-payment-close-room',leadId:row.leadId,buyerEmail:row.buyerEmail,paymentReference:row.paymentReference});return './auto-parts-payment-proof-handoff.html?'+q.toString()}
+function buildStatementUrl(row){const q=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),source:'quote-to-payment-close-room',leadId:row.leadId,paymentReference:row.paymentReference});return './auto-parts-proof-statement-match.html?'+q.toString()}
+function buyerMessage(row){return `Hi ${row.buyerName||'there'},\n\nI can prepare an Auto Parts Price Finder result pack for:\nVehicle: ${row.vehicle}\nPart/OEM: ${row.part}\n\nPrice: ${PRICE_EUR} EUR one-off.\nPayment reference: ${row.paymentReference}\nPayment destination: ${row.paymentDestination||'send IBAN/Revolut/PayPal destination before sending'}\n\nAfter payment, send proof here: ${buildProofUrl(row)}\nI will match it against the bank statement and send receipt + fulfillment pack.\n\nNote: quote/message/proof screenshot alone is not counted as paid. Delivery starts only after exact +29 EUR statement match.\n`;}
+function createClosePack(){let row=readLead();const b=blocker(row);if(b){$('state').innerHTML='<span class="pill warn">NO_CLOSE_PACK</span><span class="pill warn">revenueCountedEur:0</span><span class="pill ok">fallback: qualify one real buyer lead</span>';$('output').textContent=b+'\n\nFallback executed: qualify one real buyer email with vehicle and part/OEM, then create the 29 EUR close pack. Rejected weak patterns: '+WEAK_PATTERNS.join(', ')+'.';return null}row={...row,paymentReference:ensureReference(row)};const action={...row,product:PRODUCT,priceEur:PRICE_EUR,createdAt:new Date().toISOString(),paymentRequestUrl:buildPaymentRequestUrl(row),proofReturnUrl:buildProofUrl(row),statementMatchUrl:buildStatementUrl(row),buyerMessage:buyerMessage(row),pipelineStatus:'outreach_ready_payment_request_created',revenueCountedEur:0,revenueSource:'none until exact +29 EUR statement match creates apfPaidEventLedger'};const rows=readJson(LEDGER_KEY);if(!rows.some(r=>r.leadId===action.leadId&&r.paymentReference===action.paymentReference)){rows.unshift(action);writeJson(LEDGER_KEY,rows)}$('paymentRequestLink').href=action.paymentRequestUrl;$('proofLink').href=action.proofReturnUrl;$('statementMatchLink').href=action.statementMatchUrl;$('state').innerHTML='<span class="pill ok">outreach-ready row created</span><span class="pill ok">29 EUR payment request ready</span><span class="pill ok">proof + statement links ready</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent='APF QUOTE-TO-PAYMENT CLOSE PACK\n\n'+action.buyerMessage+'\nPayment request: '+action.paymentRequestUrl+'\nStatement match: '+action.statementMatchUrl+'\n\nRejected weak patterns: '+WEAK_PATTERNS.join(', ')+'.';return action}
+async function copyBuyerMessage(){const row=createClosePack();if(!row)return false;try{await navigator.clipboard.writeText(row.buyerMessage);$('state').innerHTML+='<span class="pill ok">buyer message copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}return true}
+function loadDemoLead(){$('leadJson').value=JSON.stringify({leadId:'DEMO-APF-LEAD-123',buyerEmail:'buyer@example.com',buyerName:'Used parts seller',vehicle:'Toyota Land Cruiser J250 2025',part:'front bumper / 52119-60P40'},null,2);createClosePack()}
+function exportCloseLedger(){const rows=readJson(LEDGER_KEY);const headers=['leadId','createdAt','product','priceEur','buyerEmail','buyerName','buyerSegment','vehicle','part','paymentReference','paymentDestination','paymentRequestUrl','proofReturnUrl','statementMatchUrl','pipelineStatus','revenueCountedEur','revenueSource'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-quote-to-payment-close-ledger.csv';a.click();URL.revokeObjectURL(url)}
+</script>
+</body>
+</html>
