@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — paid receipt desk</title>
+  <meta name="description" content="Buyer-ready 29 EUR APF paid receipt generated only from verified paid ledger rows with payment proof and paidEventId match.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--bad:#ff8da1;--blue:#66d9ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17345a,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1050px;margin:auto;padding:28px 16px}h1{font-size:clamp(30px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:90px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--blue);color:#041019}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.receipt{background:#fff;color:#172033;border-radius:16px;padding:22px;margin-top:12px}.receipt h2{color:#0b1728;margin:0 0 10px}.receipt .muted{color:#526175}.line{border-top:1px solid #d9e2ee;margin:14px 0}.kv{display:grid;grid-template-columns:180px 1fr;gap:8px;margin:5px 0}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:420px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF paid receipt · requires verified paid ledger row · 29 EUR</span>
+  <h1>Auto Parts Price Finder paid receipt desk — 29 €</h1>
+  <p>Šitas puslapis sugeneruoja pirkėjui paruoštą receipt tik tada, kai localStorage <b>apfPaidEventLedger</b> turi verified paid event su tuo pačiu paidEventId ir paymentProof. Receipt kopijavimas, spausdinimas, mailto ar puslapio atidarymas nėra pajamos.</p>
+  <section class="grid">
+    <div class="panel">
+      <h2>Load verified paid event</h2>
+      <label>Paid Event ID</label><input id="paidEventId" placeholder="ORDER::PAYMENTREF">
+      <label>Order ID</label><input id="orderId" placeholder="APF-PAY-...">
+      <label>Payment reference</label><input id="paymentReference" placeholder="APF29-...">
+      <label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com">
+      <label>Delivery/result URL</label><input id="deliveryUrl" placeholder="https://... result pack URL">
+      <label>Seller note</label><textarea id="sellerNote" placeholder="Paid receipt + delivery note for buyer"></textarea>
+      <button class="btn ok" onclick="loadReceipt()">Generate receipt from verified paid event</button>
+      <button class="btn secondary" onclick="loadFromUrl()">Load URL params</button>
+      <button class="btn secondary" onclick="copyReceipt()">Copy buyer receipt</button>
+      <button class="btn secondary" onclick="exportReceiptJson()">Export receipt JSON</button>
+      <a class="btn secondary" id="mailtoLink" href="mailto:automariu@gmail.com">Open buyer email</a>
+    </div>
+    <div class="panel">
+      <h2>Receipt state</h2>
+      <div id="state"><span class="pill warn">No verified paid event loaded</span><span class="pill warn">revenue remains 0 until paid ledger event exists</span></div>
+      <pre id="output" class="output">Hard rule: receipt generated, copied receipt, exported JSON, opened mailto, delivery URL, page visit and pasted text are rejected weak patterns. APF revenue is counted only from apfPaidEventLedger rows created by the paid confirmation gate.</pre>
+      <div id="receipt" class="receipt" hidden></div>
+    </div>
+  </section>
+  <div class="footer">Buyer/price: used auto-parts seller, 29 EUR. Rejected weak patterns: receipt page visit, copied receipt, exported JSON, opened mailto, delivery link, manual text, fake/demo paidEventId, missing paymentProof, non-ledger order row.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const PAID_KEY='apfPaidEventLedger';
+const RECEIPT_KEY='apfPaidReceiptLedger';
+const SELLER='MB Marių auto';
+const CONTACT_EMAIL='automariu@gmail.com';
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function loadFromUrl(){const p=new URLSearchParams(location.search);['paidEventId','orderId','paymentReference','buyerEmail','deliveryUrl'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)});if(!clean($('sellerNote').value))$('sellerNote').value='Thank you — verified paid APF order receipt and delivery handoff.'}
+function findPaidEvent(){const paidEventId=clean($('paidEventId').value);const orderId=clean($('orderId').value);const ref=clean($('paymentReference').value);return readJson(PAID_KEY).find(row=>(paidEventId&&row.paidEventId===paidEventId)||(orderId&&ref&&row.orderId===orderId&&row.paymentReference===ref))}
+function receiptHtml(r){return `<h2>Receipt: Auto Parts Price Finder</h2><p class="muted">Verified paid buyer receipt. Revenue source: ${PAID_KEY}. Receipt actions do not create revenue.</p><div class="line"></div><div class="kv"><b>Seller</b><span>${SELLER} · ${CONTACT_EMAIL}</span></div><div class="kv"><b>Product</b><span>${PRODUCT}</span></div><div class="kv"><b>Amount paid</b><span>${eur(r.amountEur||PRICE_EUR)}</span></div><div class="kv"><b>Paid event</b><span>${r.paidEventId}</span></div><div class="kv"><b>Order</b><span>${r.orderId}</span></div><div class="kv"><b>Payment ref</b><span>${r.paymentReference}</span></div><div class="kv"><b>Payment proof</b><span>${r.paymentProof}</span></div><div class="kv"><b>Buyer</b><span>${r.buyerName||'used auto-parts seller'} · ${r.buyerEmail||clean($('buyerEmail').value)||'email missing'}</span></div><div class="kv"><b>Part request</b><span>${r.vehicle||''} ${r.part||''}</span></div><div class="kv"><b>Delivery URL</b><span>${clean($('deliveryUrl').value)||'pending / attach APF result pack'}</span></div><div class="line"></div><p>${clean($('sellerNote').value)||'Paid APF result pack ready for buyer delivery.'}</p>`}
+function buildReceiptPayload(event){return {receiptId:'APF-RECEIPT-'+Date.now(),product:PRODUCT,paidEventId:event.paidEventId,orderId:event.orderId,paymentReference:event.paymentReference,paymentProof:event.paymentProof,buyerEmail:event.buyerEmail||clean($('buyerEmail').value),buyerName:event.buyerName,amountEur:PRICE_EUR,revenueCountedEur:0,source:'auto-parts-paid-receipt',deliveryUrl:clean($('deliveryUrl').value),createdAt:new Date().toISOString(),sellerNote:clean($('sellerNote').value),rejectedWeakPatterns:['receipt page visit','copied receipt','exported JSON','opened mailto','delivery link','manual text','fake/demo paidEventId','missing paymentProof','non-ledger order row']}}
+function loadReceipt(){const event=findPaidEvent();if(!event){$('receipt').hidden=true;$('state').innerHTML='<span class="pill bad">NO_REVENUE: verified paid ledger row not found</span><span class="pill warn">fallback: open paid confirmation and verify 29 EUR payment first</span>';$('output').textContent='NO_SHIP_REVENUE: cannot create buyer receipt from order row, URL params, payment text, or page visit. Missing matching row in '+PAID_KEY+'.';return}if(event.product!==PRODUCT||Number(event.amountEur)!==PRICE_EUR||Number(event.revenueCountedEur)!==PRICE_EUR||!clean(event.paymentProof)||event.status!=='verified_paid'){$('receipt').hidden=true;$('state').innerHTML='<span class="pill bad">NO_REVENUE: paid event failed APF receipt gate</span><span class="pill warn">requires product, exact 29 EUR, proof, verified_paid status</span>';$('output').textContent=JSON.stringify({blocked:true,event,revenueCountedEur:0,reason:'paid event is not buyer-receipt eligible'},null,2);return}const payload=buildReceiptPayload(event);const rows=readJson(RECEIPT_KEY);if(!rows.some(row=>row.paidEventId===payload.paidEventId))rows.unshift(payload);writeJson(RECEIPT_KEY,rows);$('receipt').innerHTML=receiptHtml({...event,buyerEmail:payload.buyerEmail});$('receipt').hidden=false;$('mailtoLink').href='mailto:'+(payload.buyerEmail||CONTACT_EMAIL)+'?subject='+encodeURIComponent('Auto Parts Price Finder receipt '+event.orderId)+'&body='+encodeURIComponent($('receipt').innerText);$('state').innerHTML='<span class="pill ok">buyer-ready receipt generated from verified paid ledger</span><span class="pill warn">receipt revenueCountedEur:0</span><span class="pill ok">original APF revenue already counted once in paid ledger</span>';$('output').textContent=JSON.stringify({SHIP:'APF_BUYER_READY_PAID_RECEIPT',revenueStatus:'0 EUR new revenue; receipt uses existing verified paid event only',confirmedPaidEvent:event.paidEventId,receipt:payload},null,2)}
+function copyReceipt(){if($('receipt').hidden){$('output').textContent='NO_REVENUE: copied receipt blocked because no verified receipt is loaded.';return}navigator.clipboard&&navigator.clipboard.writeText($('receipt').innerText);$('output').textContent+='\nCOPIED_RECEIPT: buyer delivery action only; revenueCountedEur:0.'}
+function exportReceiptJson(){const rows=readJson(RECEIPT_KEY);const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='auto-parts-paid-receipts.json';a.click();URL.revokeObjectURL(url);$('output').textContent+='\nEXPORTED_RECEIPT_JSON: export action only; revenueCountedEur:0.'}
+loadFromUrl();
+</script>
+</body>
+</html>
