@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — bank transfer payment request</title>
+  <meta name="description" content="Create a buyer-ready 29 EUR bank transfer payment request for Auto Parts Price Finder orders, with proof-return URL and zero revenue until verified statement import.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0,#19375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,54px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.96fr 1.04fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:116px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:560px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}.muted{color:var(--muted)}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · 29 EUR · bank transfer request · revenue stays 0 until statement match</span>
+  <h1>Unpaid APF order → buyer-ready bank transfer request</h1>
+  <p>This closes the manual-payment fallback: generate a precise 29 EUR payment instruction, buyer message, proof-return link, and import link. Copying/sending/opening the request is not revenue. Revenue is counted only later by a matching +29 EUR statement row in <code>apfPaidEventLedger</code>.</p>
+
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF price</span></div>
+    <div class="card"><strong id="requestCount">0</strong><span class="muted">payment requests</span></div>
+    <div class="card"><strong id="paidCount">0</strong><span class="muted">verified paid events</span></div>
+    <div class="card"><strong id="revenueCount">0 €</strong><span class="muted">confirmed APF revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Order + bank details</h2>
+      <div class="row">
+        <div><label>Order ID / APF reference</label><input id="orderId" placeholder="APF-BANK-20260706-001"></div>
+        <div><label>Buyer email</label><input id="buyerEmail" placeholder="buyer@example.com"></div>
+        <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+        <div><label>Seller name</label><input id="sellerName" value="MB Marių auto"></div>
+        <div><label>Seller email</label><input id="sellerEmail" value="automariu@gmail.com"></div>
+        <div><label>Amount</label><input id="amount" value="29 EUR"></div>
+        <div class="full"><label>Production bank / IBAN instruction</label><textarea id="bankInstruction" placeholder="Paste real company IBAN / Revolut Business / bank transfer destination. Demo/test/example values are blocked."></textarea></div>
+        <div><label>Vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+        <div><label>Part / OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+        <div class="full"><label>Buyer note</label><textarea id="buyerNote" placeholder="After payment, reply with payment proof or use the proof link. Delivery is sent after statement verification."></textarea></div>
+      </div>
+      <button class="btn ok" onclick="createPaymentRequest()">Create 29 € payment request</button>
+      <button class="btn secondary" onclick="copyBuyerMessage()">Copy buyer message</button>
+      <button class="btn secondary" onclick="exportRequests()">Export request ledger</button>
+      <a class="btn secondary" href="./auto-parts-bank-statement-import.html">Statement import</a>
+      <a class="btn secondary" href="./auto-parts-payment-proof-handoff.html">Proof handoff</a>
+    </div>
+
+    <div class="panel">
+      <h2>Buyer-ready output</h2>
+      <div id="state"><span class="pill warn">No payment request generated</span><span class="pill warn">0 EUR until verified statement import</span></div>
+      <pre id="output" class="output">Hard rule: a payment request, copied buyer message, opened mailto, proof-return URL, or exported ledger is not revenue. Only a later verified statement import can create a paid event with revenueCountedEur:29.</pre>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const REQUEST_KEY='apfBankTransferPaymentRequests';
+const PAID_KEY='apfPaidEventLedger';
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function confirmedRevenue(){return readJson(PAID_KEY).reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0)}
+function renderKpis(){ $('requestCount').textContent=String(readJson(REQUEST_KEY).length); $('paidCount').textContent=String(readJson(PAID_KEY).length); $('revenueCount').textContent=eur(confirmedRevenue()) }
+function isProductionBankInstruction(text){const value=clean(text); if(value.length<18)return false; if(/demo|test|example|fake|placeholder|sample|iban here|your iban|xxx|123456/i.test(value))return false; return /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b|revolut|stripe|paypal|bank transfer|swift|bic/i.test(value)}
+function proofUrl(orderId){return new URL('./auto-parts-payment-proof-handoff.html?orderId='+encodeURIComponent(orderId)+'&amount=29&product=auto-parts-price-finder', location.href).href}
+function importUrl(orderId){return new URL('./auto-parts-bank-statement-import.html?orderId='+encodeURIComponent(orderId), location.href).href}
+function requestId(orderId){return clean(orderId).toUpperCase()+'::BANK_REQUEST'}
+function buildMessage(row){return `Sveiki,\n\nAuto Parts Price Finder užsakymas paruoštas. Kaina: 29 EUR.\n\nOrder / payment reference: ${row.orderId}\nMokėjimo paskirtis: ${row.orderId}\nGavėjas: ${row.sellerName}\nMokėjimo instrukcija: ${row.bankInstruction}\n\nPo mokėjimo įkelkite/atsiųskite įrodymą čia:\n${row.proofReturnUrl}\n\nPristatymas siunčiamas tik po to, kai +29 EUR įplauka sutampa su reference banko/Revolut/Stripe/PayPal statement importe.\n\n${row.buyerNote || ''}`}
+function createPaymentRequest(){const orderId=clean($('orderId').value),bankInstruction=clean($('bankInstruction').value); if(!orderId||!isProductionBankInstruction(bankInstruction)){ $('state').innerHTML='<span class="pill bad">blocked: real production bank/IBAN/payment destination required</span><span class="pill warn">revenueCountedEur:0</span>'; $('output').textContent=JSON.stringify({NO_REVENUE:'blocked before buyer request',reason:'missing APF order ID or production bank transfer instruction',rejectedWeakPatterns:['demo IBAN','test/example/fake destination','payment request counted as sale','copied message counted as revenue','manual proof without statement match']},null,2); renderKpis(); return }
+  const id=requestId(orderId),rows=readJson(REQUEST_KEY); let duplicate=false; if(rows.some(r=>r.requestId===id)) duplicate=true; const row={requestId:id,product:PRODUCT,orderId,amountEur:PRICE_EUR,revenueCountedEur:0,buyerEmail:clean($('buyerEmail').value),buyerName:clean($('buyerName').value),sellerName:clean($('sellerName').value),sellerEmail:clean($('sellerEmail').value),bankInstruction,vehicle:clean($('vehicle').value),part:clean($('part').value),buyerNote:clean($('buyerNote').value),proofReturnUrl:proofUrl(orderId),statementImportUrl:importUrl(orderId),status:duplicate?'duplicate_request_not_revenue':'payment_request_created_not_revenue',createdAt:new Date().toISOString(),source:'auto-parts-bank-transfer-payment-request'}; if(!duplicate){rows.unshift(row);writeJson(REQUEST_KEY,rows)} $('state').innerHTML='<span class="pill ok">buyer-ready payment request created</span><span class="pill warn">request is not revenue</span><span class="pill warn">wait for statement import</span>'; $('output').textContent=JSON.stringify({SHIP:'APF_BANK_TRANSFER_PAYMENT_REQUEST_CREATED',confirmedRevenueEur:confirmedRevenue(),request:row,buyerMessage:buildMessage(row),rejectedWeakPatterns:['payment request','copied buyer message','opened mailto','proof-return URL','request ledger export','duplicate request','manual paid claim without statement row']},null,2); renderKpis() }
+function latestRequest(){return readJson(REQUEST_KEY)[0]}
+async function copyBuyerMessage(){const row=latestRequest(); if(!row){$('state').innerHTML='<span class="pill bad">blocked: create request first</span>';return} await navigator.clipboard.writeText(buildMessage(row)); $('state').innerHTML='<span class="pill warn">buyer message copied</span><span class="pill warn">copy action is not revenue</span>'}
+function exportRequests(){const rows=readJson(REQUEST_KEY); const headers=['requestId','orderId','amountEur','revenueCountedEur','buyerEmail','buyerName','sellerName','bankInstruction','proofReturnUrl','statementImportUrl','status','createdAt','source']; const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n'); const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='apf-bank-transfer-payment-requests.csv'; a.click(); URL.revokeObjectURL(url); $('state').innerHTML='<span class="pill warn">request ledger exported</span><span class="pill warn">export action is not revenue</span>'}
+(function loadFromUrl(){const p=new URLSearchParams(location.search); ['orderId','buyerEmail','buyerName','vehicle','part'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)}); if(!clean($('buyerNote').value))$('buyerNote').value='Send payment proof after transfer. Delivery after verified statement match.'; renderKpis()})();
+</script>
+</body>
+</html>
