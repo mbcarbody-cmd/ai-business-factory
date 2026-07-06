@@ -59,4 +59,5 @@ jobs:
           python3 scripts/check_auto_parts_buyer_lead_capture.py
           python3 scripts/check_auto_parts_payment_launch_url_builder.py
           python3 scripts/check_auto_parts_root_checkout_launcher.py
+          python3 scripts/check_auto_parts_bank_transfer_payment_request.py
           python3 scripts/check_revenue_regression_ci.py
