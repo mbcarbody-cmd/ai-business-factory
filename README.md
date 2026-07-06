@@ -24,6 +24,7 @@ A mobile browser app that creates a real vertical product video from uploaded ph
 https://mbcarbody-cmd.github.io/ai-business-factory/website/video-maker.html
 https://mbcarbody-cmd.github.io/ai-business-factory/website/android.html
 https://mbcarbody-cmd.github.io/ai-business-factory/website/video-maker-android-qa.html
+https://mbcarbody-cmd.github.io/ai-business-factory/website/quick-video-qa-proof-intake.html
 ```
 
 ## Rejected product
@@ -42,17 +43,20 @@ Quick Product Video is not sell-ready until a real Android Chrome test proves al
 
 The Android QA proof harness at `website/video-maker-android-qa.html` is the buyer/revenue-gate workflow for collecting that evidence. It creates a synthetic local WEBM, checks playback/download readiness, and stores proof JSON without counting revenue.
 
+The QA proof intake at `website/quick-video-qa-proof-intake.html` is the first revenue-path handoff after that evidence. It accepts buyer details plus Android QA PASS proof JSON, rejects demo/fake/weak proof, unlocks payment and video-maker links only after the proof gate, and still records `0 EUR` until a separate verified paid event exists.
+
 No outreach, payment request, domain purchase or paid-pilot claim is allowed before that evidence exists.
 
 ## Repo structure
 
 ```text
-website/video-maker.html            Current functional P0
-website/android.html                Android PWA wrapper
-website/video-maker-android-qa.html Android Chrome WEBM proof harness
-website/manifest.webmanifest        Install metadata
-website/sw.js                       Offline app shell
-OPS/product_gates/                  Product decisions and revenue gates
-OPS/qa/                             QA verdicts and proof
-scripts/                            OPS audit and validation tools
+website/video-maker.html                    Current functional P0
+website/android.html                        Android PWA wrapper
+website/video-maker-android-qa.html         Android Chrome WEBM proof harness
+website/quick-video-qa-proof-intake.html    QA PASS intake before payment/outreach
+website/manifest.webmanifest                Install metadata
+website/sw.js                               Offline app shell
+OPS/product_gates/                          Product decisions and revenue gates
+OPS/qa/                                     QA verdicts and proof
+scripts/                                    OPS audit and validation tools
 ```
