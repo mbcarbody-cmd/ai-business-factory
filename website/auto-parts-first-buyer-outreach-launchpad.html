@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF first buyer outreach launchpad</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#173052,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:28px 16px}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}h1{font-size:clamp(31px,5vw,55px);line-height:1;margin:12px 0}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:84px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:520px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}th,td{border-bottom:1px solid #22344e;padding:9px;text-align:left;vertical-align:top}th{color:#bcd4f0}@media(max-width:820px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF revenue path · first-buyer outreach rows · 29 EUR · no fake revenue</span>
+  <h1>APF first buyer outreach launchpad</h1>
+  <p class="muted">Generates outreach-ready rows for the Auto Parts Price Finder 29 € offer: buyer niche, pain, opener, CTA, payment launch URL, proof handoff URL and follow-up. Rows are stored in <b>apfFirstBuyerOutreachLedger</b>. Outreach rows, copied messages, CSV exports and opened mailto links are rejected weak patterns and never count as revenue. Confirmed revenue stays <b>0 EUR</b> until <b>apfPaidEventLedger</b> has a verified paid event.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Seller email</label><input id="sellerEmail" value="automariu@gmail.com"></div>
+      <div><label>Production payment destination</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or IBAN"></div>
+      <div><label>Country / channel</label><input id="market" value="LT / EU used parts sellers"></div>
+      <div><label>Vehicle focus</label><input id="vehicle" value="Toyota Land Cruiser J250 / Tucson NX4e / EV parts"></div>
+      <div><label>Part focus</label><input id="part" value="bumper, lamp, inverter, ECU, rare OEM"></div>
+      <div><label>Daily KPI target</label><input id="kpiTarget" value="10 outreach rows, 3 replies, 1 paid proof"></div>
+      <div class="full"><label>Extra proof / hook</label><textarea id="hook">I compare OEM, RRR/Allegro/eBay signals and return a buyer-ready target price, not a generic estimate.</textarea></div>
+    </div>
+    <button class="btn ok" onclick="generateRows()">Generate 10 outreach-ready rows</button>
+    <button class="btn secondary" onclick="copyAll()">Copy all messages</button>
+    <button class="btn secondary" onclick="exportCsv()">Export outreach CSV</button>
+    <button class="btn secondary" onclick="loadBlockedDemo()">Load blocked demo destination</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for production payment destination</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
+    <pre class="output" id="output">Enter a real Stripe/Revolut/PayPal URL or valid IBAN, then generate outreach rows. Demo/test/example/fake destinations are blocked.</pre>
+    <div id="table"></div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const LEDGER_KEY='apfFirstBuyerOutreachLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const DEMO_DESTINATION_PATTERNS=['example.com','pay.example','demo','test_checkout','test','replace-with-real','sample','todo','placeholder','fake','localhost','127.0.0.1'];
+const TRUSTED_PAYMENT_HOSTS=['stripe.com','buy.stripe.com','pay.stripe.com','checkout.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me'];
+const BUYER_SEGMENTS=[
+  ['Kaunas used parts seller','slow pricing of rare Toyota/Kia/Hyundai parts','local seller wants faster quote before listing'],
+  ['RRR.lt dismantler','expensive OEM parts sitting without market proof','RRR seller needs confidence before discounting'],
+  ['eBay parts exporter','EU price mismatch on RHD/LHD rare parts','exporter needs a quick benchmark for cross-border listing'],
+  ['Bodyshop buyer','needs fast used-vs-new comparison before repair quote','bodyshop wants a paid one-part decision today'],
+  ['Hybrid/EV breaker','inverter/ECU/lamp prices are hard to compare','EV breaker needs rare part price confidence'],
+  ['Small scrapyard owner','no time to check Allegro/eBay/RRR one by one','owner wants one target sell price'],
+  ['Facebook parts seller','buyers keep asking for discounts without proof','seller wants a proof-backed asking price'],
+  ['Insurance repair reseller','needs quick salvage part resale estimate','reseller wants one paid decision before buying donor'],
+  ['Lithuania/Poland broker','OEM codes differ across markets','broker needs an EU price snapshot'],
+  ['Premium SUV parts seller','Land Cruiser/DBX/Genesis parts have thin comps','seller wants a buyer-ready price anchor']
+];
+const $=id=>document.getElementById(id);
+function safe(v){return String(v||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+function readRows(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(rows){localStorage.setItem(LEDGER_KEY,JSON.stringify(rows.slice(0,500)))}
+function isPaymentUrl(value){return /^https:\/\//i.test(String(value||'').trim())}
+function isDemoDestination(value){const text=String(value||'').trim().toLowerCase();return DEMO_DESTINATION_PATTERNS.some(pattern=>text.includes(pattern))}
+function looksLikeIban(value){return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(String(value||'').replace(/\s+/g,'').toUpperCase())}
+function isTrustedPaymentUrl(value){const text=String(value||'').trim();if(!isPaymentUrl(text))return false;try{const host=new URL(text).hostname.toLowerCase();return TRUSTED_PAYMENT_HOSTS.some(domain=>host===domain||host.endsWith('.'+domain))}catch(e){return false}}
+function productionDestinationStatus(value){const text=String(value||'').trim();if(text.length<8)return {ok:false,reason:'BLOCKER: no production Stripe/Revolut/PayPal URL or valid IBAN destination configured.'};if(isDemoDestination(text))return {ok:false,reason:'BLOCKER: demo/test/example/fake payment destination is not buyer-ready.'};if(looksLikeIban(text)||isTrustedPaymentUrl(text))return {ok:true,reason:'production payment destination accepted'};if(isPaymentUrl(text))return {ok:false,reason:'BLOCKER: unknown HTTPS payment domain. Use Stripe, Revolut, PayPal or valid IBAN.'};return {ok:false,reason:'BLOCKER: destination must be a valid IBAN or trusted HTTPS Stripe/Revolut/PayPal payment URL.'}}
+function urlFor(path,row,extra={}){const q=new URLSearchParams(Object.assign({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,source:'first-buyer-outreach-launchpad',outreachId:row.outreachId,paymentReference:row.paymentReference,paymentDestination:row.paymentDestination,buyerSegment:row.segment,vehicle:row.vehicle,part:row.part},extra));return path+'?'+q.toString()}
+function messageFor(row){return `Hi, I can price-check one hard used auto part for ${PRICE_EUR} EUR today.\n\nYou sell: ${row.segment}\nProblem: ${row.pain}\nPart focus: ${row.part}\nVehicle focus: ${row.vehicle}\n\nI return a buyer-ready target price using OEM + marketplace signals, so you can list or negotiate without guessing.\n\nPay exactly ${PRICE_EUR} EUR with reference ${row.paymentReference}:\n${row.checkoutUrl}\n\nAfter payment, send proof here:\n${row.proofUrl}\n\nRevenue is counted only after verified paid event, not from this message.`}
+function buildRows(){const now=new Date();const destination=$('paymentDestination').value.trim();return BUYER_SEGMENTS.map((s,i)=>{const outreachId='APF-OUTREACH-'+now.getTime()+'-'+String(i+1).padStart(2,'0');const paymentReference='APF29-'+outreachId.slice(-16).toUpperCase();const row={outreachId,createdAt:now.toISOString(),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'outreach_ready_not_revenue',buyer:BUYER,segment:s[0],pain:s[1],angle:s[2],sellerEmail:$('sellerEmail').value.trim(),market:$('market').value.trim(),vehicle:$('vehicle').value.trim(),part:$('part').value.trim(),hook:$('hook').value.trim(),kpiTarget:$('kpiTarget').value.trim(),paymentDestination:destination,paymentReference,paidLedgerRequired:PAID_LEDGER_KEY};row.checkoutUrl=urlFor('./auto-parts-payment-launch-url-builder.html',row);row.proofUrl=urlFor('./auto-parts-payment-proof-handoff.html',row);row.mailto='mailto:?subject='+encodeURIComponent('29 EUR Auto Parts Price Finder '+paymentReference)+'&body='+encodeURIComponent(messageFor(row));row.message=messageFor(row);return row})}
+function generateRows(){const status=productionDestinationStatus($('paymentDestination').value);if(!status.ok){$('state').innerHTML='<span class="pill warn">production destination blocked</span><span class="pill warn">outreach disabled</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=status.reason+'\n\nFallback executed: no outreach row was counted. Add real Stripe/Revolut/PayPal URL or valid IBAN, then regenerate rows.';$('table').innerHTML='';return []}const rows=buildRows();const ledger=readRows();rows.reverse().forEach(row=>{if(!ledger.some(r=>r.outreachId===row.outreachId||r.paymentReference===row.paymentReference))ledger.unshift(row)});writeRows(ledger);$('state').innerHTML='<span class="pill ok">10 outreach-ready rows generated</span><span class="pill ok">payment/proof URLs wired</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=rows.reverse().map(messageFor).join('\n\n---\n\n')+'\n\nRejected weak patterns: outreach row, copied message, exported CSV, opened mailto, page visit and payment link click are not revenue. Only verified paid event in '+PAID_LEDGER_KEY+' counts.';$('table').innerHTML='<table><thead><tr><th>Buyer segment</th><th>Pain</th><th>CTA</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${safe(r.segment)}</td><td>${safe(r.pain)}</td><td><a class="btn secondary" href="${safe(r.mailto)}">Open email</a></td></tr>`).join('')+'</tbody></table>';return rows}
+async function copyAll(){const rows=generateRows();if(!rows.length)return false;try{await navigator.clipboard.writeText(rows.map(messageFor).join('\n\n---\n\n'));$('state').innerHTML+='<span class="pill ok">messages copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}return true}
+function exportCsv(){const rows=readRows();const headers=['outreachId','createdAt','product','priceEur','revenueCountedEur','status','segment','pain','angle','market','vehicle','part','paymentReference','checkoutUrl','proofUrl','paidLedgerRequired'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-first-buyer-outreach-ledger.csv';a.click();URL.revokeObjectURL(url)}
+function loadBlockedDemo(){$('paymentDestination').value='https://pay.example.com/apf-29-eur';generateRows()}
+$('paymentDestination').addEventListener('input',()=>productionDestinationStatus($('paymentDestination').value).ok&&generateRows());
+</script>
+</body>
+</html>
