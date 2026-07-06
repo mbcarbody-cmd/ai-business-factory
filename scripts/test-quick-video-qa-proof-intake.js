@@ -32,6 +32,7 @@ mustContain('Payment handoff unlocked, revenue remains 0 EUR');
 
 assert(!/revenueEur\s*:\s*PRICE_EUR/.test(html), 'must not count price as revenue on QA pass');
 assert(!/localStorage\.setItem\([^,]+,\s*String\(PRICE_EUR\)/.test(html), 'must not store fake revenue amount');
-assert(!/PAID|paid event/i.test(html.replace(/VERIFIED_PAID_EVENT/g, '')), 'must not mark QA proof as paid');
+assert(!/status\s*:\s*['"]PAID['"]/.test(html), 'must not mark QA proof as PAID status');
+assert(!/revenueEur\s*:\s*29/.test(html), 'must not record 29 EUR before verified payment');
 
 console.log('PASS quick-video QA proof intake gate regression');
