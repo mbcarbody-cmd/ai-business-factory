@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — payment recovery</title>
+  <meta name="description" content="Recover unpaid 29 EUR Auto Parts Price Finder buyer leads into payment-ready follow-up rows without counting outreach as revenue.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 22px 50px #0008}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:500px;overflow:auto}.row{border-top:1px solid #25384e;padding:10px 0}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:74px}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:850px){.grid,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · 29 EUR · APF warm lead recovery · outreach-ready payment follow-ups</span>
+  <h1>Recover unpaid APF buyers</h1>
+  <p>This workflow reads buyer leads/orders already created by the APF checkout path, removes verified paid buyers, and generates buyer-ready follow-up rows with the 29 EUR payment link/proof link. Follow-up rows, exports, copied messages and mailto clicks stay 0 EUR until <code>apfPaidEventLedger</code> has a verified paid event.</p>
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF price</span></div>
+    <div class="card"><strong id="candidateCount">0</strong><span class="muted">unpaid candidates</span></div>
+    <div class="card"><strong id="recoveryCount">0</strong><span class="muted">recovery rows</span></div>
+    <div class="card"><strong id="confirmedRevenue">0 €</strong><span class="muted">verified APF revenue</span></div>
+  </section>
+  <section class="grid">
+    <div class="panel">
+      <h2>Recovery controls</h2>
+      <label>Production payment destination / checkout URL</label>
+      <input id="paymentDestination" placeholder="https://buy.stripe.com/... or https://revolut.me/... or PayPal/IBAN instruction URL">
+      <label>Optional follow-up note</label>
+      <textarea id="extraNote" placeholder="Short urgency/benefit line for used auto-parts sellers"></textarea>
+      <button class="btn ok" id="buildRows">Build recovery rows</button>
+      <button class="btn secondary" id="copyFirst">Copy first message</button>
+      <button class="btn secondary" id="exportCsv">Export recovery CSV</button>
+      <a class="btn secondary" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&source=auto-parts-payment-recovery">Paid confirmation gate</a>
+      <p id="msg" class="muted">Waiting for warm APF leads/orders.</p>
+    </div>
+    <div class="panel">
+      <h2>Recovery integrity state</h2>
+      <div id="state"><span class="pill warn">recovery rows are not revenue</span></div>
+      <pre id="qa" class="output">QA pending.</pre>
+    </div>
+  </section>
+  <section class="panel"><h2>Buyer-ready recovery rows</h2><div id="rows" class="muted">No recovery rows generated yet.</div></section>
+  <section class="panel"><h2>Rejected weak patterns</h2><p class="muted">Do not count warm lead, recovery row, CSV export, copied follow-up, opened mailto, payment link click, proof link click, page visit, duplicate candidate or payment destination as revenue. APF revenue remains 0 until a duplicate-protected verified paid event exists in <code>apfPaidEventLedger</code>.</p></section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const LEAD_KEY='apfBuyerLeads';
+const ORDER_KEY='apfPayableOrders';
+const LAUNCH_KEY='apfPaymentLaunchRows';
+const PAID_KEY='apfPaidEventLedger';
+const RECOVERY_KEY='apfPaymentRecoveryRows';
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readRows(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeRows(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function isProdDestination(v){const s=clean(v);if(!s)return false;if(/\b(test|demo|example|fake|placeholder|localhost|127\.0\.0\.1)\b/i.test(s))return false;if(/^https:\/\/(buy\.stripe\.com|checkout\.stripe\.com|revolut\.me|paypal\.me|www\.paypal\.com)\//i.test(s))return true;if(/^IBAN\s+[A-Z]{2}[0-9A-Z]{13,32}/i.test(s))return true;return false}
+function candidateId(row){return clean(row.orderId)||clean(row.leadId)||clean(row.paymentReference)||clean(row.buyerEmail)+'::'+clean(row.company||row.buyerName)}
+function paidIds(){const ids=new Set();readRows(PAID_KEY).filter(row=>row.product===PRODUCT&&row.status==='verified_paid'&&Number(row.revenueCountedEur)===PRICE_EUR).forEach(row=>{[row.orderId,row.paymentReference,row.buyerEmail].map(clean).filter(Boolean).forEach(v=>ids.add(v.toLowerCase()))});return ids}
+function normalize(row,source){return {source,product:PRODUCT,orderId:clean(row.orderId),leadId:clean(row.leadId),paymentReference:clean(row.paymentReference),buyerEmail:clean(row.buyerEmail||row.email),buyerName:clean(row.buyerName||row.company||row.name),vehicle:clean(row.vehicle),part:clean(row.part||row.oem||row.partName),createdAt:clean(row.createdAt||row.requestedAt||row.launchedAt)}}
+function warmCandidates(){const paid=paidIds();const raw=[...readRows(LEAD_KEY).map(r=>normalize(r,LEAD_KEY)),...readRows(ORDER_KEY).map(r=>normalize(r,ORDER_KEY)),...readRows(LAUNCH_KEY).map(r=>normalize(r,LAUNCH_KEY))];const byId=new Map();raw.filter(r=>r.product===PRODUCT||!r.product).forEach(row=>{const ids=[row.orderId,row.paymentReference,row.buyerEmail].map(clean).filter(Boolean).map(v=>v.toLowerCase());if(!ids.length)return;if(ids.some(v=>paid.has(v)))return;const id=candidateId(row).toLowerCase();if(!byId.has(id))byId.set(id,row)});return Array.from(byId.values()).slice(0,25)}
+function paymentLink(dest,row){const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',orderId:row.orderId||'',buyerEmail:row.buyerEmail||'',source:'auto-parts-payment-recovery'});if(/^IBAN\s+/i.test(dest))return './auto-parts-bank-transfer-order.html?'+params.toString()+'&paymentDestination='+encodeURIComponent(dest);return dest+(dest.includes('?')?'&':'?')+params.toString()}
+function followup(row,dest){const buyer=row.buyerName||'Hi';const pay=paymentLink(dest,row);const proof='./auto-parts-payment-proof-handoff.html?product='+encodeURIComponent(PRODUCT)+'&priceEur=29&orderId='+encodeURIComponent(row.orderId||'')+'&buyerEmail='+encodeURIComponent(row.buyerEmail||'')+'&source=auto-parts-payment-recovery';const note=clean($('extraNote').value)||'I can deliver the used auto-parts price audit after verified 29 EUR payment.';return `${buyer}, quick follow-up on Auto Parts Price Finder.\n\n${note}\n\nPrice: 29 EUR\nVehicle: ${row.vehicle||'not supplied'}\nPart/OEM: ${row.part||'not supplied'}\nPay here: ${pay}\nAfter payment, send proof here: ${proof}\n\nRevenue note: this follow-up is not counted as paid until the verified paid gate confirms the transaction.`}
+function buildRows(){const dest=clean($('paymentDestination').value);if(!isProdDestination(dest)){$('msg').textContent='NO_SHIP_REVENUE: production Stripe/Revolut/PayPal URL or IBAN instruction is required. Demo/test/example/fake/localhost destinations are blocked.';$('state').innerHTML='<span class="pill bad">blocked: no production payment destination</span><span class="pill warn">revenueCountedEur:0</span>';render();return}const candidates=warmCandidates();const rows=candidates.map((row,i)=>({recoveryId:'APF-RECOVERY-'+Date.now()+'-'+i,product:PRODUCT,priceEur:PRICE_EUR,buyerEmail:row.buyerEmail,buyerName:row.buyerName,orderId:row.orderId,leadId:row.leadId,paymentReference:row.paymentReference,vehicle:row.vehicle,part:row.part,paymentDestination:dest,paymentUrl:paymentLink(dest,row),proofUrl:'./auto-parts-payment-proof-handoff.html?product='+PRODUCT+'&priceEur=29&orderId='+encodeURIComponent(row.orderId||'')+'&source=auto-parts-payment-recovery',followupMessage:followup(row,dest),status:'recovery_ready_not_paid',revenueCountedEur:0,source:'auto-parts-payment-recovery',createdAt:new Date().toISOString()}));writeRows(RECOVERY_KEY,rows);$('msg').textContent=rows.length?'Built '+rows.length+' APF payment recovery rows. Send manually; rows are not revenue.':'No unpaid warm APF candidates found. Fallback: create a buyer lead/order first, then rerun recovery.';$('state').innerHTML=rows.length?'<span class="pill ok">buyer-ready recovery rows built</span><span class="pill warn">revenue remains 0 until paid gate</span>':'<span class="pill warn">no unpaid warm candidates</span>';render()}
+async function copyFirst(){const rows=readRows(RECOVERY_KEY);if(!rows.length){$('msg').textContent='No recovery row to copy.';return}try{await navigator.clipboard.writeText(rows[0].followupMessage);$('msg').textContent='Copied first recovery message. Copy action is not revenue.'}catch(e){$('msg').textContent='Clipboard blocked; select text or export CSV.'}}
+function exportCsv(){const rows=readRows(RECOVERY_KEY);const headers=['recoveryId','buyerEmail','buyerName','orderId','vehicle','part','priceEur','paymentUrl','proofUrl','status','revenueCountedEur','createdAt'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='auto-parts-payment-recovery.csv';a.click();URL.revokeObjectURL(url);$('msg').textContent='Recovery CSV exported. Export action is not revenue.'}
+function render(){const candidates=warmCandidates(),recovery=readRows(RECOVERY_KEY),confirmed=readRows(PAID_KEY).filter(row=>row.product===PRODUCT&&row.status==='verified_paid').reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0);$('candidateCount').textContent=String(candidates.length);$('recoveryCount').textContent=String(recovery.length);$('confirmedRevenue').textContent=eur(confirmed);$('rows').innerHTML=recovery.length?recovery.map(row=>`<div class="row"><b>${clean(row.buyerEmail)||clean(row.buyerName)||'buyer missing'}</b><br><span class="muted">${clean(row.vehicle)||'vehicle missing'} · ${clean(row.part)||'part missing'} · ${row.status} · revenueCountedEur=${row.revenueCountedEur}</span><pre class="output">${row.followupMessage}</pre><a class="btn secondary" href="mailto:${encodeURIComponent(row.buyerEmail||'')}?subject=${encodeURIComponent('Auto Parts Price Finder 29 EUR')}&body=${encodeURIComponent(row.followupMessage)}">Open mailto</a></div>`).join(''):'No recovery rows generated yet.';$('qa').textContent=JSON.stringify({product:PRODUCT,priceEur:PRICE_EUR,leadLedger:LEAD_KEY,orderLedger:ORDER_KEY,launchLedger:LAUNCH_KEY,paidLedger:PAID_KEY,recoveryLedger:RECOVERY_KEY,unpaidCandidates:candidates.length,recoveryRows:recovery.length,confirmedRevenueEur:confirmed,revenueFromRecoveryRowsEur:0,revenueFromCsvExportEur:0,revenueFromCopyEur:0,revenueFromMailtoEur:0,rules:['remove buyers already present in verified paid ledger','require production payment destination','generate buyer-ready follow-up with payment and proof links','write recovery rows with revenueCountedEur 0','count revenue only through apfPaidEventLedger verified_paid rows'],rejectedWeakPatterns:['warm lead','recovery row','CSV export','copied follow-up','opened mailto','payment link click','proof link click','page visit','duplicate candidate','payment destination alone','demo/test/example/fake/localhost destination']},null,2)}
+$('buildRows').addEventListener('click',buildRows);$('copyFirst').addEventListener('click',copyFirst);$('exportCsv').addEventListener('click',exportCsv);render();
+</script>
+</body>
+</html>
