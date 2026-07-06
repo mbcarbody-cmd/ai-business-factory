@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071014">
+<title>Quick Product Video QA Proof Intake</title>
+<style>
+:root{--bg:#071014;--panel:#101a24;--line:#304557;--text:#f6fbff;--muted:#9fb0bf;--ok:#4df0a1;--bad:#ff6b7a;--warm:#ffd173}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0,#18304a 0,#071014 52%);color:var(--text);font-family:Inter,Arial,system-ui,sans-serif}.wrap{max-width:980px;margin:auto;padding:18px}.hero{padding:22px 0}.eyebrow{display:inline-flex;border:1px solid #3c5468;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;color:#cbdcea;background:#0a1720}.hero h1{margin:13px 0 8px;font-size:clamp(32px,7vw,58px);line-height:1;letter-spacing:-1.2px}.hero p{margin:0;color:#c4d3df;line-height:1.55;max-width:780px}.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}.panel{background:linear-gradient(180deg,#111d29,#0b131c);border:1px solid var(--line);border-radius:22px;padding:15px;box-shadow:0 18px 40px #0007}label{display:block;margin:12px 0 6px;font-weight:900;font-size:13px}input,textarea{width:100%;border:1px solid #3a5064;border-radius:13px;background:#060d14;color:#fff;padding:12px;font:inherit}textarea{min-height:170px}.btn{border:0;border-radius:13px;padding:13px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;background:var(--ok);color:#04130c}.btn.secondary{background:#172638;color:#fff;border:1px solid #3d5368}.btn[disabled]{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.status{padding:12px;border:1px solid #33495c;border-radius:15px;background:#09151e}.status.ok{border-color:#28784f}.status.bad{border-color:#8e4050}.rows{display:grid;gap:8px;margin-top:12px}.row{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #283b4d;border-radius:12px;background:#0a151e;font-size:13px}.row.ok{border-color:#28784f}.row.bad{border-color:#8e4050}.muted{color:var(--muted)}.proof{white-space:pre-wrap;word-break:break-word;background:#04090e;border:1px solid #2c4052;border-radius:14px;padding:11px;color:#d7e7f2;font-size:12px}.warn{color:var(--warm);font-size:12px;line-height:1.45}.locked{color:var(--bad);font-weight:900}.unlocked{color:var(--ok);font-weight:900}.footer{padding:18px 0;color:#8293a2;text-align:center;font-size:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="eyebrow">REVENUE GATE · QA PASS REQUIRED · 0 EUR UNTIL PAID EVENT</span>
+<h1>Quick Product Video QA proof intake</h1>
+<p>Šitas puslapis priima Android QA proof JSON iš <code>video-maker-android-qa.html</code>. Payment/outreach handoff atrakinamas tik tada, kai proof yra PASS, turi realų WEBM dydį, downloadReady, playback readyState ir nėra demo/test/fake žymių.</p>
+</section>
+<section class="grid">
+<div class="panel">
+<h2>1. Įklijuok QA proof JSON</h2>
+<p class="warn">Revenue lieka 0 EUR. Šitas gate tik leidžia pradėti mokėjimo užklausą po techninio produkto įrodymo.</p>
+<label>Buyer email</label><input id="email" placeholder="buyer@example.com" autocomplete="email">
+<label>Company / buyer</label><input id="company" placeholder="Auto parts seller">
+<label>QA proof JSON</label><textarea id="proofInput" placeholder='{"status":"PASS","bytes":123456,"downloadReady":true,"videoReadyState":4,...}'></textarea>
+<div class="actions"><button id="validate" class="btn">Validate QA proof</button><button id="loadLocal" class="btn secondary">Load local proof</button></div>
+<div id="status" class="status"><b id="statusText">Locked: QA proof required.</b></div>
+<div id="rows" class="rows"></div>
+</div>
+<div class="panel">
+<h2>2. Buyer-ready handoff</h2>
+<p id="gateState" class="locked">LOCKED</p>
+<div class="actions"><a id="checkout" class="btn" aria-disabled="true">Payment request</a><a id="studio" class="btn secondary" aria-disabled="true">Open video maker</a></div>
+<h3>Ledger event</h3><pre id="ledger" class="proof">No verified QA pass yet.</pre>
+</div>
+</section>
+<div class="footer">Rejected weak patterns: page visit, pasted text without PASS proof, fake/demo proof, localStorage revenue, payment click counted as sale.</div>
+</main>
+<script>
+'use strict';
+const PRICE_EUR=29;
+const PAYMENT_URL='quick-video-paid-order.html';
+const STUDIO_URL='video-maker.html';
+const QA_VERSION='quick-product-video-android-qa-v1';
+const $=id=>document.getElementById(id);
+function escapeHtml(text){return String(text).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));}
+function emailOk(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v).trim());}
+function weakText(v){return /demo|test-only|example|fake|placeholder|lorem|localhost/i.test(String(v));}
+function setRows(rows){$('rows').innerHTML=rows.map(r=>`<div class="row ${r.ok?'ok':'bad'}"><b>${r.ok?'✓':'✕'} ${escapeHtml(r.name)}</b><span class="muted">${escapeHtml(r.value)}</span></div>`).join('');}
+function parseProof(raw){try{return JSON.parse(raw)}catch(e){return {parseError:e.message}}}
+function validateProof(proof,email,company){
+ const rows=[];
+ rows.push({name:'Buyer email',ok:emailOk(email),value:email||'missing'});
+ rows.push({name:'Buyer/company',ok:String(company).trim().length>=2&&!weakText(company),value:company||'missing'});
+ rows.push({name:'JSON parse',ok:!proof.parseError,value:proof.parseError||'ok'});
+ rows.push({name:'QA version',ok:proof.version===QA_VERSION,value:proof.version||'missing'});
+ rows.push({name:'PASS status',ok:proof.status==='PASS',value:proof.status||'missing'});
+ rows.push({name:'WEBM bytes',ok:Number(proof.bytes)>=90000,value:String(proof.bytes||0)});
+ rows.push({name:'Download ready',ok:proof.downloadReady===true,value:String(proof.downloadReady)});
+ rows.push({name:'Playback ready',ok:Number(proof.videoReadyState)>=2,value:String(proof.videoReadyState||0)});
+ rows.push({name:'Real dimensions',ok:Number(proof.width)>=540&&Number(proof.height)>=900,value:`${proof.width||0}x${proof.height||0}`});
+ rows.push({name:'No weak proof text',ok:!weakText(JSON.stringify(proof)),value:weakText(JSON.stringify(proof))?'blocked':'clean'});
+ return {ok:rows.every(r=>r.ok),rows};
+}
+function buildLedger(proof,email,company){return {event:'QA_PASS_REVENUE_GATE_UNLOCKED',product:'Quick Product Video',priceEur:PRICE_EUR,revenueEur:0,buyerEmail:email.trim(),buyerCompany:company.trim(),proofBytes:proof.bytes,proofCreatedAt:proof.createdAt||null,createdAt:new Date().toISOString(),nextRequiredEvent:'VERIFIED_PAID_EVENT'};}
+function unlock(ledger){
+ const q=new URLSearchParams({product:'quick-product-video',price:String(PRICE_EUR),buyer:ledger.buyerEmail,company:ledger.buyerCompany});
+ $('checkout').href=`${PAYMENT_URL}?${q.toString()}`;$('checkout').removeAttribute('aria-disabled');
+ $('studio').href=`${STUDIO_URL}?brand=${encodeURIComponent(ledger.buyerCompany)}&headline=${encodeURIComponent('Product video order')}&cta=${encodeURIComponent('Contact seller')}`;$('studio').removeAttribute('aria-disabled');
+ $('gateState').textContent='UNLOCKED: payment request allowed, revenue still 0 EUR';$('gateState').className='unlocked';
+ $('ledger').textContent=JSON.stringify(ledger,null,2);localStorage.setItem('quickProductVideoQaRevenueGate',JSON.stringify(ledger));
+}
+function lock(reason){$('checkout').removeAttribute('href');$('studio').removeAttribute('href');$('checkout').setAttribute('aria-disabled','true');$('studio').setAttribute('aria-disabled','true');$('gateState').textContent='LOCKED';$('gateState').className='locked';$('ledger').textContent=reason;}
+function run(){const proof=parseProof($('proofInput').value);const email=$('email').value;const company=$('company').value;const verdict=validateProof(proof,email,company);setRows(verdict.rows);if(verdict.ok){const ledger=buildLedger(proof,email,company);$('status').className='status ok';$('statusText').textContent='PASS: QA proof accepted. Payment handoff unlocked, revenue remains 0 EUR.';unlock(ledger);}else{$('status').className='status bad';$('statusText').textContent='LOCKED: proof or buyer data failed validation.';lock('No verified QA pass. Revenue remains 0 EUR.');}}
+$('validate').addEventListener('click',run);
+$('loadLocal').addEventListener('click',()=>{const local=localStorage.getItem('quickProductVideoAndroidQaProof')||'';$('proofInput').value=local;run();});
+setRows([{name:'Revenue counter',ok:true,value:'0 EUR until verified paid event'},{name:'Required gate',ok:true,value:'Android QA PASS proof'}]);
+</script>
+</body>
+</html>
