@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — paid fulfillment delivery desk</title>
+  <meta name="description" content="Turn verified 29 EUR APF paid events into buyer-ready fulfillment delivery packs with duplicate-safe delivery status and zero extra revenue until a verified paid event exists.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17375f,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;margin:0 0 16px;box-shadow:0 22px 50px #0008}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:520px;overflow:auto}.row{border-top:1px solid #25384e;padding:10px 0}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:74px}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:850px){.grid,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue product · 29 EUR · APF paid fulfillment · buyer delivery pack after verified payment</span>
+  <h1>Deliver paid APF orders</h1>
+  <p>This workflow is the post-payment revenue protection desk. It reads <code>apfPaidEventLedger</code> and <code>apfFulfillmentQueue</code>, accepts only verified 29 EUR paid APF events, builds a buyer-ready delivery pack, stores duplicate-safe delivery status, and keeps delivery/copy/download/mailto actions at 0 EUR because revenue was already counted only by the verified paid gate.</p>
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF paid price</span></div>
+    <div class="card"><strong id="paidCount">0</strong><span class="muted">verified paid events</span></div>
+    <div class="card"><strong id="readyCount">0</strong><span class="muted">ready deliveries</span></div>
+    <div class="card"><strong id="confirmedRevenue">0 €</strong><span class="muted">confirmed APF revenue</span></div>
+  </section>
+  <section class="grid">
+    <div class="panel">
+      <h2>Fulfillment controls</h2>
+      <label>Default delivery note</label>
+      <textarea id="deliveryNote">Attached is your Auto Parts Price Finder result. This delivery was created only after the 29 EUR payment was verified.</textarea>
+      <label>Optional result URL / file path</label>
+      <input id="resultUrl" placeholder="https://docs.google.com/... or local APF report path">
+      <button class="btn ok" id="buildDeliveries">Build delivery packs</button>
+      <button class="btn secondary" id="copyFirst">Copy first delivery email</button>
+      <button class="btn secondary" id="exportJson">Export delivery JSON</button>
+      <a class="btn secondary" href="./auto-parts-paid-confirmation.html?product=auto-parts-price-finder&priceEur=29&source=auto-parts-fulfillment-delivery-desk">Back to paid gate</a>
+      <p id="msg" class="muted">Waiting for verified APF paid events.</p>
+    </div>
+    <div class="panel">
+      <h2>Delivery integrity state</h2>
+      <div id="state"><span class="pill warn">delivery is not extra revenue</span></div>
+      <pre id="qa" class="output">QA pending.</pre>
+    </div>
+  </section>
+  <section class="panel"><h2>Buyer-ready delivery packs</h2><div id="rows" class="muted">No paid delivery packs generated yet.</div></section>
+  <section class="panel"><h2>Rejected weak patterns</h2><p class="muted">Do not count delivery pack, copied email, exported JSON, mailto click, result URL, fulfillment queue row, page visit, or duplicate delivery as revenue. APF revenue remains tied to duplicate-protected <code>apfPaidEventLedger</code> rows with <code>status: verified_paid</code> and <code>revenueCountedEur: 29</code>.</p></section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const PAID_KEY='apfPaidEventLedger';
+const FULFILLMENT_KEY='apfFulfillmentQueue';
+const DELIVERY_KEY='apfPaidDeliveryLedger';
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readRows(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeRows(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function verifiedPaidEvents(){const paid=readRows(PAID_KEY).filter(row=>row.product===PRODUCT&&row.status==='verified_paid'&&Number(row.revenueCountedEur)===PRICE_EUR&&clean(row.paidEventId));const byId=new Map();paid.forEach(row=>{if(!byId.has(row.paidEventId))byId.set(row.paidEventId,row)});return Array.from(byId.values())}
+function fulfillmentByPaidId(){const map=new Map();readRows(FULFILLMENT_KEY).filter(row=>row.product===PRODUCT&&clean(row.paidEventId)).forEach(row=>map.set(row.paidEventId,row));return map}
+function deliveryEmail(event,task){const result=clean($('resultUrl').value)||'APF result file/report will be attached before sending.';const note=clean($('deliveryNote').value)||'Your APF report is ready.';return `Hi ${event.buyerName||'there'},\n\n${note}\n\nProduct: Auto Parts Price Finder\nPrice paid: 29 EUR\nOrder ID: ${event.orderId||task.orderId||'missing'}\nVehicle: ${event.vehicle||task.vehicle||'not supplied'}\nPart/OEM: ${event.part||task.part||'not supplied'}\nPayment proof: ${event.paymentProof||task.paymentProof||'verified internally'}\nResult: ${result}\n\nRevenue note: this delivery email is not extra revenue. The 29 EUR was counted once by the verified paid gate.\n\nThanks,\nMB Marių auto`}
+function buildDeliveries(){const paid=verifiedPaidEvents();const fulfillment=fulfillmentByPaidId();const existing=new Set(readRows(DELIVERY_KEY).map(row=>row.paidEventId));const rows=readRows(DELIVERY_KEY);let added=0;paid.forEach(event=>{if(existing.has(event.paidEventId))return;const task=fulfillment.get(event.paidEventId)||{};rows.unshift({deliveryId:'APF-DELIVERY-'+Date.now()+'-'+added,product:PRODUCT,priceEur:PRICE_EUR,paidEventId:event.paidEventId,orderId:event.orderId||task.orderId,buyerEmail:event.buyerEmail||task.buyerEmail,buyerName:event.buyerName||task.buyerName,vehicle:event.vehicle||task.vehicle,part:event.part||task.part,paymentProof:event.paymentProof||task.paymentProof,resultUrl:clean($('resultUrl').value),deliveryEmail:deliveryEmail(event,task),status:'ready_to_send_after_paid_verification',revenueCountedEur:0,source:'auto-parts-fulfillment-delivery-desk',createdAt:new Date().toISOString()});added++});writeRows(DELIVERY_KEY,rows);$('msg').textContent=added?`Built ${added} buyer-ready APF paid delivery packs. Sending/delivery is not extra revenue.`:'No new verified paid APF events found. Fallback: confirm a real 29 EUR payment in the paid gate first.';$('state').innerHTML=added?'<span class="pill ok">paid buyer delivery packs built</span><span class="pill warn">delivery revenue remains 0</span>':'<span class="pill warn">no new verified paid events</span>';render()}
+async function copyFirst(){const rows=readRows(DELIVERY_KEY);if(!rows.length){$('msg').textContent='No paid delivery email to copy.';return}try{await navigator.clipboard.writeText(rows[0].deliveryEmail);$('msg').textContent='Copied first paid delivery email. Copy action is not revenue.'}catch(e){$('msg').textContent='Clipboard blocked; select text or export JSON.'}}
+function exportJson(){const rows=readRows(DELIVERY_KEY);const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='auto-parts-paid-deliveries.json';a.click();URL.revokeObjectURL(url);$('msg').textContent='Delivery JSON exported. Export action is not revenue.'}
+function render(){const paid=verifiedPaidEvents(),delivery=readRows(DELIVERY_KEY),confirmed=paid.reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0);$('paidCount').textContent=String(paid.length);$('readyCount').textContent=String(delivery.length);$('confirmedRevenue').textContent=eur(confirmed);$('rows').innerHTML=delivery.length?delivery.map(row=>`<div class="row"><b>${clean(row.buyerEmail)||clean(row.buyerName)||'buyer missing'}</b><br><span class="muted">${clean(row.vehicle)||'vehicle missing'} · ${clean(row.part)||'part missing'} · ${row.status} · revenueCountedEur=${row.revenueCountedEur}</span><pre class="output">${row.deliveryEmail}</pre><a class="btn secondary" href="mailto:${encodeURIComponent(row.buyerEmail||'')}?subject=${encodeURIComponent('Your Auto Parts Price Finder result')}&body=${encodeURIComponent(row.deliveryEmail)}">Open delivery mailto</a></div>`).join(''):'No paid delivery packs generated yet.';$('qa').textContent=JSON.stringify({product:PRODUCT,priceEur:PRICE_EUR,paidLedger:PAID_KEY,fulfillmentQueue:FULFILLMENT_KEY,deliveryLedger:DELIVERY_KEY,verifiedPaidEvents:paid.length,deliveryPacks:delivery.length,confirmedRevenueEur:confirmed,revenueFromDeliveryPackEur:0,revenueFromCopiedEmailEur:0,revenueFromExportJsonEur:0,revenueFromMailtoEur:0,rules:['read only verified_paid APF events with revenueCountedEur 29','dedupe deliveries by paidEventId','create buyer-ready delivery email and JSON pack','write delivery rows with revenueCountedEur 0','count revenue only through apfPaidEventLedger verified_paid rows'],rejectedWeakPatterns:['delivery pack','copied email','exported JSON','opened mailto','result URL','fulfillment queue row','page visit','duplicate delivery','fake paid event','delivery is revenue']},null,2)}
+$('buildDeliveries').addEventListener('click',buildDeliveries);$('copyFirst').addEventListener('click',copyFirst);$('exportJson').addEventListener('click',exportJson);render();
+</script>
+</body>
+</html>
