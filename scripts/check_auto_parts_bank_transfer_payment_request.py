@@ -2,6 +2,7 @@ from pathlib import Path
 
 PAGE = Path('website/auto-parts-bank-transfer-payment-request.html')
 text = PAGE.read_text(encoding='utf-8')
+lower_text = text.lower()
 
 required = [
     'APF_BANK_TRANSFER_PAYMENT_REQUEST_CREATED',
@@ -28,7 +29,7 @@ if 'confirmedRevenue(){return readJson(PAID_KEY).reduce' not in text:
 if 'writeJson(REQUEST_KEY,rows)' not in text:
     raise SystemExit('Payment request ledger write is missing')
 
-if 'revenue is counted only later by a matching +29 EUR statement row' not in text.lower():
+if 'revenue is counted only later by a matching +29 eur statement row' not in lower_text:
     raise SystemExit('Page must explicitly reject counting requests as revenue')
 
 print('OK: APF bank transfer payment request desk blocks fake revenue and routes buyer to proof + statement import.')
