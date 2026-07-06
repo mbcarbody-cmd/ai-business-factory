@@ -1,0 +1,23 @@
+name: quick-video-qa-proof-intake
+
+on:
+  push:
+    paths:
+      - 'website/quick-video-qa-proof-intake.html'
+      - 'scripts/test-quick-video-qa-proof-intake.js'
+      - '.github/workflows/quick-video-qa-proof-intake.yml'
+  pull_request:
+    paths:
+      - 'website/quick-video-qa-proof-intake.html'
+      - 'scripts/test-quick-video-qa-proof-intake.js'
+      - '.github/workflows/quick-video-qa-proof-intake.yml'
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/test-quick-video-qa-proof-intake.js
