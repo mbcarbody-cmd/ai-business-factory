@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Learning Promotion Receipt Ledger</title>
+<style>
+body{margin:0;background:#071019;color:#f7fbff;font-family:Arial,system-ui,sans-serif;line-height:1.5}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:#101b28;border:1px solid #2c3a4a;border-radius:20px;padding:18px;margin:0 0 16px}.cta{display:inline-block;background:#49f0a0;color:#03110a;border-radius:14px;padding:11px 13px;margin:6px 6px 0 0;text-decoration:none;font-weight:900}.ghost{background:#192638;color:#fff;border:1px solid #3a5069}.status{white-space:pre-wrap;background:#08111d;border:1px solid #2b3b50;border-radius:14px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:12px}.badge{display:inline-block;border:1px solid #38516e;border-radius:999px;padding:7px 11px;color:#dce9f7;font-size:12px;font-weight:900}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.kpi{background:#0a1420;border:1px solid #31465f;border-radius:15px;padding:12px}.kpi b{font-size:24px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<span class="badge">DAILY AGENT IMPROVEMENT ENGINE v9 · PROMOTION RECEIPT LEDGER · DEDUPED WORKFLOW PROOF · 0 EUR UNTIL VERIFIED PAID</span>
+<h1>Daily Learning Promotion Receipt Ledger</h1>
+<p>This is a versioned operational rule change: promoted learning improvements must be recorded as deduped workflow receipts with source attribution, regression evidence, Source KPI route, operator ledger route and 0 EUR revenue until a verified paid/delivered buyer row exists. Reading, summaries and new policy files are rejected unless they changed a workflow and passed regression.</p>
+<a class="cta" href="./source-kpi-admin.html?source=daily_learning_promotion_receipt_v9">Open Source KPI Admin</a>
+<a class="cta ghost" href="./daily-learning-admin-router.html?source=daily_learning_promotion_receipt_v9">Open Learning Admin Router</a>
+<a class="cta ghost" href="./operator-action-opened-ledger.html?source=daily_learning_promotion_receipt_v9">Open Action Opened Ledger</a>
+<a class="cta ghost" href="./revenue-command-center.html?source=daily_learning_promotion_receipt_v9">Open Revenue Command Center</a>
+</section>
+<section class="card">
+<h2>Verified learning proof</h2>
+<div class="grid">
+<div class="kpi">Learning events<br><b id="learningEvents">19</b></div>
+<div class="kpi">Lessons normalized<br><b id="lessons">8</b></div>
+<div class="kpi">Evaluation cases<br><b id="evals">10</b></div>
+<div class="kpi">Comparisons<br><b id="comparisons">9</b></div>
+<div class="kpi">Promotions/removals<br><b id="promotions">9</b></div>
+<div class="kpi">Cross-agent syncs<br><b id="syncs">8</b></div>
+</div>
+</section>
+<section class="card">
+<h2>Promotion receipt</h2>
+<button class="cta" id="recordReceipt">Record deduped promotion receipt</button>
+<button class="cta ghost" id="copyReceipt">Copy receipt ledger</button>
+<div class="status" id="receiptView">No receipt rendered yet.</div>
+</section>
+<section class="card">
+<h2>Rejected weak patterns</h2>
+<div class="status" id="rejectedView"></div>
+</section>
+</main>
+<script>
+'use strict';
+const ledgerKey='dailyLearningPromotionReceiptLedger';
+const receiptKey='workflow_rule_v9_daily_learning_promotion_receipt_ledger_required';
+const receipt={
+  id:receiptKey,
+  version:'daily-agent-improvement-engine-v9',
+  promotedChange:'Promotion proof must be stored as a deduped operational receipt that routes to Source KPI Admin, Learning Admin Router, Operator Action Opened Ledger and Revenue Command Center.',
+  harmfulRuleRemoved:'promotion_without_deduped_workflow_receipt_allowed',
+  source:'daily_learning_promotion_receipt_v9',
+  sourceKpiAdminUrl:'./source-kpi-admin.html?source=daily_learning_promotion_receipt_v9',
+  learningAdminRouterUrl:'./daily-learning-admin-router.html?source=daily_learning_promotion_receipt_v9',
+  openedLedgerUrl:'./operator-action-opened-ledger.html?source=daily_learning_promotion_receipt_v9',
+  revenueCommandCenterUrl:'./revenue-command-center.html?source=daily_learning_promotion_receipt_v9',
+  regressionGate:'scripts/check_daily_learning_promotion_receipt_ledger.py',
+  requiredLearningEvents:19,
+  normalizedLessons:8,
+  evaluationCases:10,
+  championChallengerComparisons:9,
+  promotedChangesOrRulesRemoved:9,
+  crossAgentKnowledgeSyncs:8,
+  confirmedRevenueEur:0,
+  promotionReceiptRevenueEur:0,
+  kpiEffect:'Learning promotions become deduped measurable workflow receipts routed into buyer/payment/admin views; no promotion receipt, source route or operator action can count as revenue.',
+  agentPromotions:['LearningOpsAgent','QARegressionAgent','AdminReviewAgent','WorkflowOpsAgent','RevenueAgent'],
+  agentDemotions:['PolicyOnlyAgent','SummaryOnlyAgent','IdeaListAgent','StaffingPlanAgent'],
+  crossAgentKnowledgeSync:['LearningOpsAgent->QARegressionAgent','QARegressionAgent->RevenueAgent','AdminReviewAgent->SourceKpiAdminWorkflow','WorkflowOpsAgent->OperatorActionLedger','RevenueAgent->RevenueCommandCenter'],
+  rejectedWeakPatterns:['reading-only learning proof','summary-only learning proof','new policy file without regression','staffing plan as learning proof','idea list as learning proof','promotion receipt as revenue','operator action as revenue','source visit as revenue','payment proof as revenue','promotion without deduped workflow receipt']
+};
+function readLedger(){try{const rows=JSON.parse(localStorage.getItem(ledgerKey)||'[]');return Array.isArray(rows)?rows:[]}catch(error){return[]}}
+function writeLedger(rows){localStorage.setItem(ledgerKey,JSON.stringify(rows))}
+function receiptIndex(rows){return new Set(rows.map(row=>row.id+'|'+row.version+'|'+row.regressionGate))}
+function buildReceipt(){return {...receipt,recordedAt:new Date().toISOString()}}
+function render(){const rows=readLedger();document.getElementById('receiptView').textContent=JSON.stringify({ledger:ledgerKey,rowCount:rows.length,rule:'Promotion receipts are operational learning proof only and never revenue.',confirmedRevenueEur:0,promotionReceiptRevenueEur:0,rows},null,2);document.getElementById('rejectedView').textContent=JSON.stringify({rejectedWeakPatterns:receipt.rejectedWeakPatterns,confirmedRevenueEur:0,promotionReceiptRevenueEur:0},null,2)}
+function recordReceipt(){const rows=readLedger(),seen=receiptIndex(rows),candidate=buildReceipt(),key=candidate.id+'|'+candidate.version+'|'+candidate.regressionGate;if(!seen.has(key)){writeLedger([...rows,candidate])}render()}
+async function copyReceipt(){await navigator.clipboard.writeText(document.getElementById('receiptView').textContent)}
+document.getElementById('recordReceipt').addEventListener('click',recordReceipt);
+document.getElementById('copyReceipt').addEventListener('click',copyReceipt);
+writeLedger(readLedger().length?readLedger():[buildReceipt()]);
+render();
+</script>
+</body>
+</html>
