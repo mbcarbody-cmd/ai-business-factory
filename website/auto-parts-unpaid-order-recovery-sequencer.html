@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF unpaid order recovery sequencer</title>
+  <meta name="description" content="Recover unpaid 29 EUR Auto Parts Price Finder orders with duplicate-safe buyer follow-up messages, payment URL handoff, and revenue locked until an exact +29 EUR paid event is matched.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2b3d58;--txt:#eef7ff;--muted:#9db1cb;--ok:#35e58b;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 0,#183960,#07111f 58%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.96fr 1.04fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:118px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:560px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}.muted{color:var(--muted)}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF unpaid order recovery sequencer · 29 EUR · not revenue until exact +29 EUR</span>
+  <h1>Unpaid APF order → recovery messages → payment handoff</h1>
+  <p>This workflow turns a real unpaid Auto Parts Price Finder order into a duplicate-safe 3-step buyer recovery sequence. It creates mailto/WhatsApp-ready payment messages, stores them in <code>apfUnpaidOrderRecoveryLedger</code>, and keeps <code>revenueCountedEur:0</code> until a verified exact <code>+29 EUR</code> event exists in <code>apfPaidEventLedger</code>.</p>
+
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">offer price</span></div>
+    <div class="card"><strong id="sequenceCount">0</strong><span class="muted">recovery sequences</span></div>
+    <div class="card"><strong id="messageCount">0</strong><span class="muted">buyer messages ready</span></div>
+    <div class="card"><strong id="revenueCount">0 €</strong><span class="muted">confirmed APF revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Recover unpaid order</h2>
+      <div class="row">
+        <div><label>Order ID / APF reference</label><input id="orderId" placeholder="APF-PAY-..." required></div>
+        <div><label>Buyer email</label><input id="buyerEmail" placeholder="real@buyer-company.com"></div>
+        <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+        <div><label>Buyer phone / WhatsApp</label><input id="buyerPhone" placeholder="+370..."></div>
+        <div><label>Vehicle / niche</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 / Aston Martin DBX"></div>
+        <div><label>Part / OEM</label><input id="part" placeholder="front camera / 8646C-60120"></div>
+        <div class="full"><label>Payment URL or IBAN instruction</label><input id="paymentDestination" placeholder="https://checkout.stripe.com/... or Revolut/PayPal/IBAN instruction"></div>
+        <div class="full"><label>Buyer need / original quote</label><textarea id="buyerNeed" placeholder="What the buyer asked for, OEM, vehicle, delivery market, urgency"></textarea></div>
+      </div>
+      <button class="btn ok" onclick="buildRecoverySequence()">Build recovery sequence</button>
+      <button class="btn secondary" onclick="loadFromUrl()">Load URL data</button>
+      <button class="btn secondary" onclick="exportRecoveryLedger()">Export recovery ledger</button>
+      <a class="btn secondary" href="./auto-parts-paid-order-link-generator.html">Paid order link</a>
+      <a class="btn secondary" href="./auto-parts-bank-statement-import.html">Statement import</a>
+    </div>
+
+    <div class="panel">
+      <h2>Recovery output</h2>
+      <div id="state"><span class="pill warn">No recovery sequence created yet</span><span class="pill warn">generated recovery is not revenue</span></div>
+      <pre id="output" class="output">Hard rule: recovery sequence, copied message, mailto click, WhatsApp click, checkout visit, promise to pay, screenshot, CSV export, or manual paid claim = 0 EUR. APF revenue is counted only by exact +29 EUR verified paid event in apfPaidEventLedger.</pre>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const RECOVERY_KEY='apfUnpaidOrderRecoveryLedger';
+const PAID_KEY='apfPaidEventLedger';
+const BLOCK_KEY='apfRecoveryWeakPatternBlocks';
+const TRUSTED_PAYMENT_HOSTS=['stripe.com','checkout.stripe.com','revolut.com','revolut.me','paypal.com','paypal.me'];
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function confirmedRevenue(){return readJson(PAID_KEY).reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0)}
+function renderKpis(){const rows=readJson(RECOVERY_KEY);$('sequenceCount').textContent=String(rows.length);$('messageCount').textContent=String(rows.reduce((sum,row)=>sum+(row.messages||[]).length,0));$('revenueCount').textContent=eur(confirmedRevenue())}
+function weakPattern(value){return /(^|\b)(demo|test|example|fake|placeholder|buyer@example\.com|lorem|sample)(\b|$)/i.test(String(value||''))}
+function looksLikeIbanInstruction(value){return /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/i.test(String(value||''))}
+function trustedPaymentDestination(value){try{const u=new URL(String(value));return TRUSTED_PAYMENT_HOSTS.some(host=>u.hostname.toLowerCase()===host||u.hostname.toLowerCase().endsWith('.'+host))}catch(e){return looksLikeIbanInstruction(value)||/\b(iban|bank transfer|revolut|paypal)\b/i.test(String(value||''))}}
+function orderAlreadyPaid(orderId){return readJson(PAID_KEY).some(row=>String(row.orderId||'').toUpperCase()===String(orderId||'').toUpperCase()&&Number(row.revenueCountedEur)===PRICE_EUR)}
+function recoveryId(orderId,buyerEmail){return String(orderId).toUpperCase()+'::RECOVERY::'+String(buyerEmail||'no-email').toLowerCase()}
+function loadFromUrl(){const p=new URLSearchParams(location.search);['orderId','buyerEmail','buyerName','buyerPhone','vehicle','part','paymentDestination','buyerNeed'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)});renderKpis()}
+function buildMessages(row){const payLine='Pay 29 EUR here: '+row.paymentDestination;const proofLine='After payment, reply with payment proof/reference; delivery starts only after exact +29 EUR statement match.';return [
+  {step:1,channel:'email_or_whatsapp',subject:'Auto Parts Price Finder ready — 29 EUR',body:`Hi ${row.buyerName||'there'}, I prepared the APF price check for ${row.vehicle||'your vehicle'} / ${row.part||'requested part'}. ${payLine}. ${proofLine}`},
+  {step:2,channel:'email_or_whatsapp',subject:'Still need this part price checked?',body:`Quick reminder: your APF order ${row.orderId} is still unpaid. The 29 EUR payment link is here: ${row.paymentDestination}. I will mark it paid only after exact +29 EUR is matched.`},
+  {step:3,channel:'email_or_whatsapp',subject:'Closing unpaid APF order',body:`Last follow-up on ${row.orderId}. If you still want the buyer-ready price check, pay 29 EUR here: ${row.paymentDestination}. No payment = no delivery; message/click/screenshot is not revenue.`}
+]}
+function buildRecoverySequence(){const row={recoveryId:recoveryId(clean($('orderId').value),clean($('buyerEmail').value)),orderId:clean($('orderId').value),buyerEmail:clean($('buyerEmail').value),buyerName:clean($('buyerName').value),buyerPhone:clean($('buyerPhone').value),vehicle:clean($('vehicle').value),part:clean($('part').value),buyerNeed:clean($('buyerNeed').value),paymentDestination:clean($('paymentDestination').value),priceEur:PRICE_EUR,product:PRODUCT,revenueCountedEur:0,status:'recovery_sequence_ready',source:'auto-parts-unpaid-order-recovery-sequencer',createdAt:new Date().toISOString()};const joined=Object.values(row).join(' ');if(!row.orderId||(!row.buyerEmail&&!row.buyerPhone)||!row.paymentDestination){$('state').innerHTML='<span class="pill bad">blocked: orderId, buyer contact and payment destination required</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent='NO_REVENUE: missing executable recovery fields. Fallback: add real buyer contact and payment destination.';renderKpis();return}if(weakPattern(joined)||!trustedPaymentDestination(row.paymentDestination)){const blocks=readJson(BLOCK_KEY);blocks.unshift({orderId:row.orderId,buyerEmail:row.buyerEmail,paymentDestination:row.paymentDestination,blockedAt:new Date().toISOString(),reason:'weak_or_untrusted_recovery_input_not_sent',revenueCountedEur:0});writeJson(BLOCK_KEY,blocks);$('state').innerHTML='<span class="pill bad">blocked weak/demo/untrusted payment input</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=JSON.stringify({NO_REVENUE:'weak recovery pattern blocked',rejectedWeakPatterns:['demo','test','example','fake','placeholder','buyer@example.com','untrusted payment destination','manual paid claim']},null,2);renderKpis();return}if(orderAlreadyPaid(row.orderId)){$('state').innerHTML='<span class="pill ok">order already has exact +29 EUR paid event</span><span class="pill warn">no duplicate recovery revenue counted</span>';$('output').textContent='DUPLICATE_REVENUE_BLOCKED: existing +29 EUR paid event found in apfPaidEventLedger.';renderKpis();return}const rows=readJson(RECOVERY_KEY);const prior=rows.find(item=>item.recoveryId===row.recoveryId);if(prior){$('state').innerHTML='<span class="pill warn">duplicate recovery sequence reused</span><span class="pill warn">revenue remains 0 EUR</span>';$('output').textContent=JSON.stringify(prior,null,2);renderKpis();return}row.messages=buildMessages(row);row.mailtoLinks=row.messages.map(msg=>'mailto:'+encodeURIComponent(row.buyerEmail)+'?subject='+encodeURIComponent(msg.subject)+'&body='+encodeURIComponent(msg.body));row.whatsappLinks=row.buyerPhone?row.messages.map(msg=>'https://wa.me/'+row.buyerPhone.replace(/\D/g,'')+'?text='+encodeURIComponent(msg.body)):[];row.nextPaidMatchUrl='./auto-parts-bank-statement-import.html?orderId='+encodeURIComponent(row.orderId)+'&buyerEmail='+encodeURIComponent(row.buyerEmail)+'&buyerName='+encodeURIComponent(row.buyerName)+'&vehicle='+encodeURIComponent(row.vehicle)+'&part='+encodeURIComponent(row.part);rows.unshift(row);writeJson(RECOVERY_KEY,rows);$('state').innerHTML='<span class="pill ok">3 recovery messages ready</span><span class="pill ok">payment handoff attached</span><span class="pill warn">revenue locked until exact +29 EUR</span>';$('output').textContent=JSON.stringify({SHIP:'APF_UNPAID_ORDER_RECOVERY_SEQUENCE_READY',sequence:row,confirmedRevenueEur:confirmedRevenue(),rejectedWeakPatterns:['summary','staffing plan','policy','idea list','audit','copied message','mailto click','WhatsApp click','checkout visit','promise to pay','proof screenshot','manual paid claim']},null,2);renderKpis()}
+function exportRecoveryLedger(){const rows=readJson(RECOVERY_KEY);const headers=['recoveryId','orderId','buyerEmail','buyerName','buyerPhone','vehicle','part','paymentDestination','priceEur','revenueCountedEur','status','createdAt','source'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apf-unpaid-order-recovery-ledger.csv';a.click();URL.revokeObjectURL(url);$('state').innerHTML='<span class="pill warn">recovery ledger exported</span><span class="pill warn">export is not revenue</span>'}
+loadFromUrl();
+</script>
+</body>
+</html>
