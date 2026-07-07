@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF buyer reply triage — 29 EUR close path</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#17345b,#07111f 56%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    .wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(30px,5vw,54px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.hot{border-color:#a94732;color:#ffc4b7}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.three{grid-template-columns:repeat(3,1fr)}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:112px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:460px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.kpi{font-size:30px;font-weight:950}@media(max-width:820px){.grid,.three{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">APF buyer reply triage · reply → 29 EUR close room · lead score · exact +29 EUR paid ledger required</span>
+  <h1>Auto Parts Price Finder — buyer reply triage</h1>
+  <p class="muted">This workflow converts real replies from outreach into a buyer-ready 29 € close URL and payment-request handoff. It stores qualification rows in <b>apfBuyerReplyTriageLedger</b>, but revenue remains <b>0 EUR</b> until a verified paid event exists in <b>apfPaidEventLedger</b> with an exact <b>+29 EUR</b> match.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="seller@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Hyundai Tucson NX4e 2021"></div>
+      <div><label>Part / OEM need</label><input id="part" placeholder="battery / headlight / inverter / bumper"></div>
+      <div><label>Reply intent</label><select id="intent"><option>wants_price</option><option>wants_invoice</option><option>wants_sample</option><option>not_interested</option><option>wrong_contact</option></select></div>
+      <div><label>Reply source</label><select id="source"><option>email_reply</option><option>whatsapp_reply</option><option>manual_call</option><option>rrr_message</option></select></div>
+      <div class="full"><label>Buyer reply text</label><textarea id="replyText" placeholder="Paste the buyer reply here. Example: send invoice / can you check Tucson inverter prices?"></textarea></div>
+    </div>
+    <button class="btn ok" onclick="triageReply()">Triage reply and create 29 € close handoff</button>
+    <button class="btn secondary" onclick="copyCloseMessage()">Copy close message</button>
+    <a class="btn secondary" id="closeRoomLink" href="./auto-parts-buyer-close-room.html">Open close room</a>
+    <a class="btn secondary" id="firstPaidLink" href="./auto-parts-first-paid-order-cockpit.html">Open first paid order cockpit</a>
+    <a class="btn secondary" id="proofLink" href="./auto-parts-proof-statement-match.html">Open proof + statement match</a>
+    <button class="btn secondary" onclick="loadQualifiedDemo()">Load qualified demo</button>
+    <button class="btn secondary" onclick="exportLedger()">Export triage CSV</button>
+  </section>
+
+  <section class="panel">
+    <div class="grid three">
+      <div><div class="muted">Reply rows</div><div class="kpi" id="kpiRows">0</div></div>
+      <div><div class="muted">Qualified close handoffs</div><div class="kpi" id="kpiQualified">0</div></div>
+      <div><div class="muted">Confirmed revenue</div><div class="kpi" id="kpiRevenue">0 €</div></div>
+    </div>
+    <div id="state" style="margin-top:10px"><span class="pill warn">waiting for buyer reply</span><span class="pill ok">close-room handoff ready after qualification</span><span class="pill hot">reply is not revenue</span></div>
+    <pre class="output" id="output">Paste a real buyer reply. Qualified replies create a close-room URL and a first-paid-order cockpit URL. Rejected weak patterns: summary, staffing plan, policy, idea list, audit, page visit, copied close message, CSV export, demo reply, not-interested reply, manual paid claim. Revenue stays 0 EUR until exact +29 EUR paid event is in apfPaidEventLedger.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const LEDGER_KEY='apfBuyerReplyTriageLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const QUALIFIED_INTENTS=['wants_price','wants_invoice','wants_sample'];
+const STRONG_TERMS=['invoice','pay','payment','price','quote','check','send','sample','parts','oem','kaina','saskaita','apmok'];
+const WEAK_PATTERNS=['summary','staffing plan','policy','idea list','audit','page visit','copied close message','CSV export','demo reply','manual paid claim'];
+const $=id=>document.getElementById(id);
+function safe(v){return String(v||'').trim()}
+function slug(v){return safe(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,28)||'reply'}
+function rows(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return[]}}
+function paidRows(){try{return JSON.parse(localStorage.getItem(PAID_LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(v){localStorage.setItem(LEDGER_KEY,JSON.stringify(v.slice(0,500)))}
+function scoreReply(intent,text){
+  const lower=safe(text).toLowerCase();
+  let score=QUALIFIED_INTENTS.includes(intent)?55:0;
+  STRONG_TERMS.forEach(term=>{if(lower.includes(term))score+=8});
+  if(/@|\+\d{6,}/.test(text))score+=8;
+  if(lower.length>35)score+=10;
+  if(intent==='not_interested'||intent==='wrong_contact')score=0;
+  return Math.min(score,100);
+}
+function buildRow(){
+  const now=new Date();
+  const intent=safe($('intent').value), replyText=safe($('replyText').value), score=scoreReply(intent,replyText);
+  const orderId='APF-REPLY-'+now.getTime()+'-'+slug($('part').value||$('vehicle').value);
+  const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
+  const qualified=score>=65;
+  return {createdAt:now.toISOString(),orderId,paymentReference,product:PRODUCT,buyer:BUYER,priceEur:PRICE_EUR,revenueCountedEur:0,paidLedgerRequired:PAID_LEDGER_KEY,exactStatementMatchRequired:'+29 EUR',status:qualified?'qualified_close_handoff_not_revenue':'unqualified_reply_not_revenue',score,buyerEmail:safe($('buyerEmail').value),buyerName:safe($('buyerName').value),vehicle:safe($('vehicle').value),part:safe($('part').value),intent,source:safe($('source').value),replyText};
+}
+function params(row){return new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,orderId:row.orderId,paymentReference:row.paymentReference,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,source:'buyer-reply-triage'}).toString()}
+function closeRoomUrl(row){return './auto-parts-buyer-close-room.html?'+params(row)}
+function firstPaidUrl(row){return './auto-parts-first-paid-order-cockpit.html?'+params(row)}
+function proofUrl(row){return './auto-parts-proof-statement-match.html?'+params(row)+'&requiredStatementMatch=%2B29%20EUR'}
+function closeMessage(row){return `AUTO PARTS PRICE FINDER — 29 EUR CLOSE HANDOFF\nBuyer reply score: ${row.score}/100\nStatus: ${row.status}\nOrder ID: ${row.orderId}\nPayment reference: ${row.paymentReference}\nBuyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>\nVehicle: ${row.vehicle||'-'}\nPart/OEM: ${row.part||'-'}\n\nNext step: open close room and send the 29 EUR payment request:\n${closeRoomUrl(row)}\n\nFirst paid order cockpit:\n${firstPaidUrl(row)}\nProof + exact +29 EUR statement match:\n${proofUrl(row)}\n\nRevenue rule: buyer reply, copied close message, opened close room, CSV export, demo reply, or manual paid claim = 0 EUR. Count revenue only after exact +29 EUR paid event exists in ${PAID_LEDGER_KEY}.`;}
+function refresh(row){
+  const all=rows(), paid=paidRows().filter(r=>Number(r.priceEur)===PRICE_EUR||Number(r.amountEur)===PRICE_EUR), current=row||all[0];
+  $('kpiRows').textContent=String(all.length);
+  $('kpiQualified').textContent=String(all.filter(r=>r.status==='qualified_close_handoff_not_revenue').length);
+  $('kpiRevenue').textContent=String(paid.length*PRICE_EUR)+' €';
+  if(!current)return;
+  $('closeRoomLink').href=closeRoomUrl(current); $('firstPaidLink').href=firstPaidUrl(current); $('proofLink').href=proofUrl(current);
+  $('state').innerHTML=current.status==='qualified_close_handoff_not_revenue'?'<span class="pill ok">qualified buyer reply</span><span class="pill ok">29 EUR close handoff ready</span><span class="pill warn">0 EUR until exact +29 EUR match</span>':'<span class="pill warn">unqualified reply</span><span class="pill hot">do not send payment request yet</span><span class="pill warn">0 EUR</span>';
+  $('output').textContent=JSON.stringify(current,null,2)+'\n\n'+closeMessage(current);
+}
+function triageReply(){const row=buildRow(), all=rows(); if(!all.some(r=>r.paymentReference===row.paymentReference))all.unshift(row); writeRows(all); refresh(row); return row}
+function copyCloseMessage(){const row=triageReply(); navigator.clipboard&&navigator.clipboard.writeText(closeMessage(row));}
+function exportLedger(){const all=rows(), cols=['createdAt','orderId','paymentReference','buyerEmail','buyerName','vehicle','part','intent','source','score','priceEur','revenueCountedEur','status']; const csv=[cols.join(',')].concat(all.map(r=>cols.map(c=>JSON.stringify(r[c]||'')).join(','))).join('\n'); const blob=new Blob([csv],{type:'text/csv'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='apf-buyer-reply-triage-ledger.csv'; a.click(); URL.revokeObjectURL(a.href)}
+function loadQualifiedDemo(){ $('buyerEmail').value='buyer@example.com'; $('buyerName').value='Example seller'; $('vehicle').value='Hyundai Tucson NX4e 2021'; $('part').value='inverter / hybrid battery'; $('intent').value='wants_invoice'; $('source').value='email_reply'; $('replyText').value='Can you check Tucson inverter prices and send invoice/payment link?'; triageReply(); }
+(function init(){refresh();})();
+</script>
+</body>
+</html>
