@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — first paid KPI capture</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--blue:#53c7ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#17365f,#07111f 56%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,55px);line-height:1;margin:12px 0}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}p{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:92px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:540px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.hot{border-color:#a64732;color:#ffd0c7}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">APF first paid KPI capture · exact +29 EUR statement row only · duplicate-safe apfPaidEventLedger · receipt + fulfillment handoff · fake proof blocked</span>
+  <h1>Capture the first verified 29 € Auto Parts sale</h1>
+  <p>This page is not a report. It turns one real buyer/order plus one bank/Revolut/PayPal statement row into a locked KPI event. Revenue is counted only when the statement text has an exact +29 EUR APF match, a real buyer contact, a real order id and no demo/test/fake placeholders.</p>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Paid event evidence</h2>
+      <div class="row">
+        <div><label>Buyer name/company</label><input id="buyer" placeholder="Real used parts seller / company"></div>
+        <div><label>Buyer contact</label><input id="buyerContact" placeholder="real email, phone or marketplace profile"></div>
+        <div><label>APF order id</label><input id="orderId" placeholder="APF-ORDER-20260707-001"></div>
+        <div><label>Payment reference</label><input id="paymentReference" placeholder="APF-ORDER-20260707-001"></div>
+        <div class="full"><label>Statement row text</label><textarea id="statementRow" placeholder="2026-07-07 +29 EUR APF-ORDER-20260707-001 Auto Parts Price Finder buyer@email.lt"></textarea></div>
+        <div class="full"><label>Delivery note</label><textarea id="deliveryNote">Send paid receipt and fulfillment URL only after verified_paid_event exists in apfPaidEventLedger.</textarea></div>
+      </div>
+      <button class="btn ok" onclick="capturePaidKpi()">Capture verified paid KPI</button>
+      <button class="btn secondary" onclick="loadLedger()">Load local paid ledger</button>
+      <button class="btn secondary" onclick="clearForm()">Clear form</button>
+    </div>
+
+    <div class="panel">
+      <h2>KPI result</h2>
+      <div id="state"><span class="pill warn">confirmedRevenueEur:0</span><span class="pill warn">verifiedPaidEvents:0</span></div>
+      <pre id="output" class="output">Paste one real buyer/order and one statement row. The only revenue-counting pattern is exact +29 EUR with APF/order reference and no demo/test/fake markers. Page visits, copied text, proof screenshots, promises to pay and manual paid claims remain 0 EUR.</pre>
+      <a class="btn ok" id="receiptUrl" href="./auto-parts-paid-receipt.html?product=auto-parts-price-finder&priceEur=29&source=first-paid-kpi-capture">Open paid receipt</a>
+      <a class="btn secondary" id="fulfillmentUrl" href="./auto-parts-paid-fulfillment.html?product=auto-parts-price-finder&priceEur=29&source=first-paid-kpi-capture">Open fulfillment</a>
+      <button class="btn secondary" onclick="copyKpiPack()">Copy KPI evidence pack</button>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: summary, staffing plan, policy, idea list, audit, page visit, copied KPI pack, proof screenshot, payment promise, manual paid claim, generated checkout URL, checkout attempt, wrong amount, non-APF reference, duplicate statement row, demo/test/example/fake/placeholder buyer or payment evidence. Buyer/price: used auto-parts seller, 29 EUR.</div>
+</main>
+<script>
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const LEDGER_KEY='apfPaidEventLedger';
+const BLOCKED_PATTERNS=['demo','test','example','fake','placeholder','sample','todo','lorem','manual paid','promise to pay','screenshot only'];
+function $(id){return document.getElementById(id)}
+function norm(v){return String(v||'').trim()}
+function badPattern(value){const lower=String(value||'').toLowerCase();return BLOCKED_PATTERNS.find(pattern=>lower.includes(pattern))||''}
+function hasExactPlus29(statement){return /(^|[^0-9])\+\s*29([,.]00)?\s*EUR([^0-9]|$)/i.test(statement)}
+function hasApfReference(statement,orderId,reference){const s=statement.toLowerCase();return s.includes('apf')&&(s.includes(orderId.toLowerCase())||s.includes(reference.toLowerCase())||s.includes('auto parts price finder'))}
+function paidEventId(orderId,statement){let hash=0;const raw=(orderId+'|'+statement).toLowerCase();for(let i=0;i<raw.length;i++){hash=((hash<<5)-hash)+raw.charCodeAt(i);hash|=0}return 'apf_paid_'+Math.abs(hash)}
+function readLedger(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return []}}
+function writeLedger(rows){localStorage.setItem(LEDGER_KEY,JSON.stringify(rows,null,2))}
+function validatePaidEvidence(){
+  const buyer=norm($('buyer').value), buyerContact=norm($('buyerContact').value), orderId=norm($('orderId').value), paymentReference=norm($('paymentReference').value), statementRow=norm($('statementRow').value);
+  const combined=[buyer,buyerContact,orderId,paymentReference,statementRow].join(' ');
+  const blocked=badPattern(combined);
+  if(blocked)return {ok:false,reason:`BLOCKER: rejected weak/fake paid evidence pattern "${blocked}".`};
+  if(buyer.length<3||buyerContact.length<5)return {ok:false,reason:'BLOCKER: real buyer and buyer contact are required before KPI capture.'};
+  if(!/^APF[-_A-Z0-9]{6,}$/i.test(orderId))return {ok:false,reason:'BLOCKER: APF order id is required and must start with APF.'};
+  if(paymentReference.length<6)return {ok:false,reason:'BLOCKER: payment reference is too short for statement reconciliation.'};
+  if(!hasExactPlus29(statementRow))return {ok:false,reason:'BLOCKER: statement row must contain exact +29 EUR. Wrong amount is 0 EUR.'};
+  if(!hasApfReference(statementRow,orderId,paymentReference))return {ok:false,reason:'BLOCKER: statement row must contain APF plus order/reference/product evidence.'};
+  return {ok:true,buyer,buyerContact,orderId,paymentReference,statementRow};
+}
+function buildUrl(page,eventId){const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'first-paid-kpi-capture',verifiedPaidEvent:eventId});return './'+page+'?'+params.toString()}
+function capturePaidKpi(){
+  const validation=validatePaidEvidence();
+  if(!validation.ok){$('state').innerHTML='<span class="pill hot">NO_REVENUE</span><span class="pill warn">confirmedRevenueEur:0</span>';$('output').textContent=validation.reason+'\n\nFallback action: fix buyer/order/statement evidence or send payment-ready order again. Do not count screenshots, promises, checkout visits or manual paid claims.';return}
+  const eventId=paidEventId(validation.orderId,validation.statementRow);
+  const ledger=readLedger();
+  if(ledger.some(row=>row.eventId===eventId||row.statementRow===validation.statementRow)){$('state').innerHTML='<span class="pill hot">DUPLICATE_BLOCKED</span><span class="pill warn">incrementalRevenueEur:0</span>';$('output').textContent='BLOCKER: duplicate statement row already exists in apfPaidEventLedger. Incremental revenue remains 0 EUR.';return}
+  const event={eventId,product:PRODUCT,buyer:validation.buyer,buyerContact:validation.buyerContact,orderId:validation.orderId,paymentReference:validation.paymentReference,statementRow:validation.statementRow,amountEur:PRICE_EUR,currency:'EUR',status:'verified_paid_event',capturedAt:new Date().toISOString(),receiptUrl:buildUrl('auto-parts-paid-receipt.html',eventId),fulfillmentUrl:buildUrl('auto-parts-paid-fulfillment.html',eventId)};
+  ledger.push(event);writeLedger(ledger);
+  $('receiptUrl').href=event.receiptUrl;$('fulfillmentUrl').href=event.fulfillmentUrl;
+  $('state').innerHTML=`<span class="pill ok">verified_paid_event</span><span class="pill ok">confirmedRevenueEur:${PRICE_EUR}</span><span class="pill ok">verifiedPaidEvents:${ledger.length}</span>`;
+  $('output').textContent=`APF FIRST PAID KPI CAPTURED\nEvent: ${event.eventId}\nProduct: ${event.product}\nBuyer: ${event.buyer}\nContact: ${event.buyerContact}\nOrder: ${event.orderId}\nAmount: +${event.amountEur} ${event.currency}\nStatus: ${event.status}\n\nReceipt URL: ${location.origin+location.pathname.replace('auto-parts-first-paid-kpi-capture.html','')+event.receiptUrl.replace('./','')}\nFulfillment URL: ${location.origin+location.pathname.replace('auto-parts-first-paid-kpi-capture.html','')+event.fulfillmentUrl.replace('./','')}\n\nRevenue status: confirmed +29 EUR only because exact +29 EUR APF statement row was matched. Rejected weak patterns remain 0 EUR.`;
+}
+function loadLedger(){const ledger=readLedger();const total=ledger.reduce((sum,row)=>sum+(Number(row.amountEur)||0),0);$('state').innerHTML=`<span class="pill ok">ledgerLoaded</span><span class="pill ok">confirmedRevenueEur:${total}</span><span class="pill ok">verifiedPaidEvents:${ledger.length}</span>`;$('output').textContent=JSON.stringify(ledger,null,2)||'[]'}
+function clearForm(){['buyer','buyerContact','orderId','paymentReference','statementRow'].forEach(id=>$(id).value='');$('state').innerHTML='<span class="pill warn">confirmedRevenueEur:0</span><span class="pill warn">verifiedPaidEvents:0</span>';$('output').textContent='Form cleared. Existing apfPaidEventLedger is unchanged.'}
+async function copyKpiPack(){try{await navigator.clipboard.writeText($('output').textContent);$('state').innerHTML+='<span class="pill warn">copied KPI pack is not revenue</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}}
+</script>
+</body>
+</html>
