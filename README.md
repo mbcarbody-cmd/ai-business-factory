@@ -25,6 +25,8 @@ https://mbcarbody-cmd.github.io/ai-business-factory/website/video-maker.html
 https://mbcarbody-cmd.github.io/ai-business-factory/website/android.html
 https://mbcarbody-cmd.github.io/ai-business-factory/website/video-maker-android-qa.html
 https://mbcarbody-cmd.github.io/ai-business-factory/website/quick-video-qa-proof-intake.html
+https://mbcarbody-cmd.github.io/ai-business-factory/website/quick-video-paid-order.html
+https://mbcarbody-cmd.github.io/ai-business-factory/website/quick-video-paid-event-verifier.html
 ```
 
 ## Rejected product
@@ -45,18 +47,24 @@ The Android QA proof harness at `website/video-maker-android-qa.html` is the buy
 
 The QA proof intake at `website/quick-video-qa-proof-intake.html` is the first revenue-path handoff after that evidence. It accepts buyer details plus Android QA PASS proof JSON, rejects demo/fake/weak proof, unlocks payment and video-maker links only after the proof gate, and still records `0 EUR` until a separate verified paid event exists.
 
-No outreach, payment request, domain purchase or paid-pilot claim is allowed before that evidence exists.
+The paid order gate at `website/quick-video-paid-order.html` captures a 29 EUR buyer-ready order and production payment destination without counting revenue.
+
+The paid event verifier at `website/quick-video-paid-event-verifier.html` counts revenue only after an exact real `+29 EUR` statement row matches a real QPV order and creates a duplicate-safe `verified_paid_event` ledger entry.
+
+No outreach, payment request, domain purchase or paid-pilot claim is allowed before that evidence exists. No revenue may be counted from screenshots, checkout visits, promises to pay, manual claims, summaries, staffing plans, policies, idea lists, or audits.
 
 ## Repo structure
 
 ```text
-website/video-maker.html                    Current functional P0
-website/android.html                        Android PWA wrapper
-website/video-maker-android-qa.html         Android Chrome WEBM proof harness
-website/quick-video-qa-proof-intake.html    QA PASS intake before payment/outreach
-website/manifest.webmanifest                Install metadata
-website/sw.js                               Offline app shell
-OPS/product_gates/                          Product decisions and revenue gates
-OPS/qa/                                     QA verdicts and proof
-scripts/                                    OPS audit and validation tools
+website/video-maker.html                         Current functional P0
+website/android.html                             Android PWA wrapper
+website/video-maker-android-qa.html              Android Chrome WEBM proof harness
+website/quick-video-qa-proof-intake.html         QA PASS intake before payment/outreach
+website/quick-video-paid-order.html              29 EUR buyer-ready paid order gate
+website/quick-video-paid-event-verifier.html     Exact +29 EUR paid event verifier
+website/manifest.webmanifest                     Install metadata
+website/sw.js                                    Offline app shell
+OPS/product_gates/                               Product decisions and revenue gates
+OPS/qa/                                          QA verdicts and proof
+scripts/                                         OPS audit and validation tools
 ```
