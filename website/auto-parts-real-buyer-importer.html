@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auto Parts Price Finder — real buyer importer</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#18345a,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(30px,5vw,54px);line-height:1;margin:12px 0}.badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:148px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:480px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.row{border:1px solid #273850;border-radius:16px;padding:12px;margin:10px 0;background:#071322}.row strong{color:#fff}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable APF revenue path · real buyer rows only · 29 EUR payment-ready outreach · confirmed revenue locked to paid ledger</span>
+  <h1>APF real buyer importer</h1>
+  <p class="muted">Paste real buyer rows from RRR/Ovoko/shops/CRM and this page converts valid contacts into duplicate-safe <b>29 EUR</b> outreach rows with payment launch links. It stores rows in <b>apfRealBuyerImportLedger</b>, rejects demo/test/example/fake contacts, and keeps confirmed revenue at <b>0 EUR</b> until <b>apfPaidEventLedger</b> has an exact verified +29 EUR paid event.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
+      <div><label>Production payment destination</label><input id="paymentDestination" placeholder="https://pay.stripe.com/... or IBAN"></div>
+      <div><label>Default vehicle</label><input id="vehicle" placeholder="Toyota Land Cruiser J250 2025"></div>
+      <div><label>Default part/OEM</label><input id="part" placeholder="front bumper / 52119-60P40"></div>
+      <div class="full"><label>Real buyer rows</label><textarea id="rows" placeholder="One buyer per line: email, company, sourceUrl, vehicle, part\nparts@example-shop.lt, UAB Parts, https://shop.lt/contact, Lexus LS 600h, inverter"></textarea></div>
+    </div>
+    <button class="btn ok" onclick="importBuyers()">Import real buyers into 29 € outreach queue</button>
+    <button class="btn secondary" onclick="copyQueue()">Copy outreach queue</button>
+    <button class="btn secondary" onclick="loadBlockedDemo()">Load blocked demo rows</button>
+    <button class="btn secondary" onclick="exportLedger()">Export real buyer ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div id="state"><span class="pill warn">waiting for real buyer rows</span><span class="pill warn">confirmed revenue 0 EUR</span></div>
+    <pre class="output" id="output">Paste real buyer emails or phone/WhatsApp rows. Example/test/demo/fake/localhost rows, copied queues, CSV exports and mailto clicks are rejected weak patterns and do not count as revenue.</pre>
+    <div id="cards"></div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const LEDGER_KEY='apfRealBuyerImportLedger';
+const OUTREACH_LEDGER_KEY='apfOutreachSendLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const BLOCKED_PATTERNS=['example','demo','test','fake','placeholder','sample','todo','localhost','127.0.0.1','your-email','buyer@example'];
+const TRUSTED_PAYMENT_HOSTS=['stripe.com','buy.stripe.com','pay.stripe.com','checkout.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me'];
+const $=id=>document.getElementById(id);
+function params(){return new URL(location.href).searchParams}
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'stripe_payment_link'}
+function looksLikeEmail(value){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value||'').trim())}
+function looksLikePhone(value){return /^\+?[0-9 ()-]{7,20}$/.test(String(value||'').trim())}
+function looksLikeIban(value){return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(String(value||'').replace(/\s+/g,'').toUpperCase())}
+function isTrustedPaymentUrl(value){try{const u=new URL(String(value||'').trim());if(u.protocol!=='https:')return false;const host=u.hostname.toLowerCase();return TRUSTED_PAYMENT_HOSTS.some(d=>host===d||host.endsWith('.'+d))}catch(e){return false}}
+function isBlocked(text){const v=String(text||'').toLowerCase();return BLOCKED_PATTERNS.some(p=>v.includes(p))}
+function destinationStatus(){const dest=$('paymentDestination').value.trim();if(dest.length<8)return {ok:false,reason:'BLOCKER: no production Stripe/Revolut/PayPal URL or valid IBAN configured.'};if(isBlocked(dest))return {ok:false,reason:'BLOCKER: demo/test/example/fake payment destination rejected.'};if(looksLikeIban(dest)||isTrustedPaymentUrl(dest))return {ok:true,reason:'production payment destination accepted'};return {ok:false,reason:'BLOCKER: destination must be valid IBAN or trusted Stripe/Revolut/PayPal HTTPS URL.'}}
+function restore(){const p=params();['paymentDestination','vehicle','part','rows'].forEach(id=>{const v=p.get(id);if(v&&!$(id).value)$(id).value=v});$('paymentMethod').value=normalizePaymentMethod(p.get('paymentMethod')||$('paymentMethod').value)}
+function readRows(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function writeRows(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function slug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,36)||'buyer'}
+function parseLine(line){const cells=line.split(',').map(x=>x.trim()).filter(Boolean);const joined=line.trim();const contact=cells.find(looksLikeEmail)||cells.find(looksLikePhone)||'';const company=cells.find(c=>c!==contact&&!/^https?:\/\//i.test(c))||'';const sourceUrl=cells.find(c=>/^https?:\/\//i.test(c))||'';return {contact,company,sourceUrl,vehicle:cells[3]||$('vehicle').value.trim(),part:cells[4]||$('part').value.trim(),raw:joined}}
+function validBuyer(row){if(!row.raw||isBlocked(row.raw))return {ok:false,reason:'blocked demo/test/example/fake buyer row'};if(!looksLikeEmail(row.contact)&&!looksLikePhone(row.contact))return {ok:false,reason:'missing real email or phone/WhatsApp contact'};if(row.sourceUrl&&isBlocked(row.sourceUrl))return {ok:false,reason:'blocked non-real source URL'};return {ok:true,reason:'real buyer contact accepted'}}
+function paymentReference(row,index){return 'APF29-'+slug(row.company||row.contact).toUpperCase()+'-'+String(index+1).padStart(2,'0')}
+function urlFor(path,row,extra={}){const q=new URLSearchParams(Object.assign({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:'used-parts-seller',source:'real-buyer-importer',paymentMethod:normalizePaymentMethod($('paymentMethod').value),paymentDestination:$('paymentDestination').value.trim(),buyerEmail:looksLikeEmail(row.contact)?row.contact:'',buyerPhone:looksLikePhone(row.contact)?row.contact:'',buyerName:row.company,vehicle:row.vehicle,part:row.part,paymentReference:row.paymentReference},extra));return path+'?'+q.toString()}
+function buyerMessage(row){const checkout=urlFor('./auto-parts-payment-launch-url-builder.html',row);const proof=urlFor('./auto-parts-payment-proof-handoff.html',row);return `Hi ${row.company||'there'},\n\nI can prepare Auto Parts Price Finder price proof for ${row.part||'your part'} (${row.vehicle||'vehicle'}). Price is ${PRICE_EUR} EUR.\n\nPay exactly ${PRICE_EUR} EUR with reference ${row.paymentReference}.\nPayment launch: ${checkout}\nAfter payment, upload proof here: ${proof}\n\nRevenue is counted only after exact +29 EUR is verified in ${PAID_LEDGER_KEY}.`}
+function importBuyers(){restore();const dest=destinationStatus();if(!dest.ok){$('state').innerHTML='<span class="pill warn">payment destination blocked</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent=dest.reason+'\nFallback executed: no buyer rows imported until production payment destination is added.';return []}const lines=$('rows').value.split(/\n+/).map(x=>x.trim()).filter(Boolean);const accepted=[];const rejected=[];lines.forEach((line,i)=>{const parsed=parseLine(line);const ok=validBuyer(parsed);if(!ok.ok){rejected.push({line,reason:ok.reason});return}const row=Object.assign(parsed,{importId:'APF-BUYER-'+Date.now()+'-'+i,paymentReference:paymentReference(parsed,i),product:PRODUCT,priceEur:PRICE_EUR,revenueCountedEur:0,status:'real_buyer_imported_not_revenue',paidLedgerRequired:PAID_LEDGER_KEY,createdAt:new Date().toISOString(),paymentDestinationReady:true});accepted.push(row)});const existing=readRows(LEDGER_KEY);const fresh=accepted.filter(r=>!existing.some(e=>e.contact===r.contact&&e.part===r.part));writeRows(LEDGER_KEY,[...fresh,...existing]);const outreach=readRows(OUTREACH_LEDGER_KEY);writeRows(OUTREACH_LEDGER_KEY,[...fresh.map(r=>Object.assign({},r,{outreachStatus:'ready_to_send_not_revenue',message:buyerMessage(r)})),...outreach]);render(fresh,rejected);return fresh}
+function render(rows,rejected){$('state').innerHTML='<span class="pill ok">'+rows.length+' real buyer rows accepted</span><span class="pill ok">payment-ready outreach generated</span><span class="pill warn">revenueCountedEur:0</span><span class="pill warn">'+rejected.length+' rejected</span>';$('output').textContent=(rows.length?rows.map(buyerMessage).join('\n\n---\n\n'):'No accepted rows')+'\n\nRejected weak patterns: generated row, copied queue, CSV export, mailto/WhatsApp click, demo/test/example/fake row, manual paid claim. Revenue remains 0 EUR until exact +29 EUR verified paid event exists in '+PAID_LEDGER_KEY+'.';$('cards').innerHTML=rows.map(r=>`<div class="row"><strong>${r.company||r.contact}</strong><br>${r.part||'-'} · ${r.vehicle||'-'} · ${r.paymentReference}<br><a class="btn secondary" href="mailto:${encodeURIComponent(looksLikeEmail(r.contact)?r.contact:'automariu@gmail.com')}?subject=${encodeURIComponent('APF 29 EUR '+r.paymentReference)}&body=${encodeURIComponent(buyerMessage(r))}">Open email</a><a class="btn secondary" href="https://wa.me/${encodeURIComponent(looksLikePhone(r.contact)?r.contact.replace(/[^0-9]/g,''):'')}?text=${encodeURIComponent(buyerMessage(r))}">Open WhatsApp</a></div>`).join('')}
+async function copyQueue(){const rows=importBuyers();if(!rows.length)return false;try{await navigator.clipboard.writeText(rows.map(buyerMessage).join('\n\n---\n\n'));$('state').innerHTML+='<span class="pill ok">queue copied</span>'}catch(e){$('state').innerHTML+='<span class="pill warn">copy manually</span>'}return true}
+function exportLedger(){const rows=readRows(LEDGER_KEY);const headers=['importId','contact','company','sourceUrl','vehicle','part','paymentReference','product','priceEur','revenueCountedEur','status','paidLedgerRequired','createdAt'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-real-buyer-import-ledger.csv';a.click();URL.revokeObjectURL(url)}
+function loadBlockedDemo(){$('paymentDestination').value='https://pay.example.com/apf-29';$('rows').value='buyer@example.com, Demo buyer, https://example.com/contact, Toyota, bumper\nfake@test.com, Fake shop, https://localhost/demo, BMW, headlight';importBuyers()}
+restore();
+</script>
+</body>
+</html>
