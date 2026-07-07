@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF statement paid event matcher</title>
+  <meta name="description" content="Match real statement rows to APF 29 EUR payment-ready orders and write duplicate-safe verified paid events only for exact +29 EUR matches.">
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2b3d58;--txt:#eef7ff;--muted:#9db1cb;--ok:#35e58b;--warn:#ffbd59;--hot:#ff7859;--bad:#ff8da1}*{box-sizing:border-box}body{margin:0;background:#07111f;color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:28px 16px}h1{font-size:clamp(31px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.panel{background:#101b2c;border:1px solid var(--line);border-radius:22px;padding:18px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit;min-height:170px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;margin:8px 8px 0 0;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:560px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.bad{border-color:#a4455a;color:#ffd0d8}.muted{color:var(--muted)}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF statement paid event matcher · exact +29 EUR · duplicate-safe verified paid event</span>
+  <h1>Bank statement row → verified 29 € APF revenue event</h1>
+  <p>Paste APF payment-ready order rows and real bank/Stripe/Revolut/PayPal statement rows. This matcher writes into <code>apfPaidEventLedger</code> only when the statement has an exact <code>+29 EUR</code> amount and matches order ID, buyer email, buyer name/company, or payment reference. Everything else stays <code>0 EUR</code>.</p>
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">required exact amount</span></div>
+    <div class="card"><strong id="matchedCount">0</strong><span class="muted">verified paid events</span></div>
+    <div class="card"><strong id="blockedCount">0</strong><span class="muted">statement rows blocked</span></div>
+    <div class="card"><strong id="revenueCount">0 €</strong><span class="muted">confirmed APF revenue</span></div>
+  </section>
+  <section class="grid">
+    <div class="panel">
+      <h2>Match statement</h2>
+      <div class="row">
+        <div class="full"><label>Payment-ready order ledger JSON or CSV</label><textarea id="orderRows" placeholder='orderId,email,name,company,priceEur,status,paymentReference&#10;APF-BATCH-123,real@buyer.lt,Jonas,UAB Parts,29,payment_ready_outreach_row,APF-BATCH-123'></textarea></div>
+        <div class="full"><label>Real statement rows JSON or CSV</label><textarea id="statementRows" placeholder='date,amount,currency,description,reference,payerEmail&#10;2026-07-07,29,EUR,"APF-BATCH-123 UAB Parts",APF-BATCH-123,real@buyer.lt'></textarea></div>
+      </div>
+      <button class="btn ok" onclick="matchPaidEvents()">Match exact +29 EUR events</button>
+      <button class="btn secondary" onclick="loadFromUrl()">Load URL data</button>
+      <button class="btn secondary" onclick="exportPaidLedger()">Export paid ledger</button>
+      <a class="btn secondary" href="./auto-parts-buyer-batch-payment-runner.html">Batch payment runner</a>
+      <a class="btn secondary" href="./auto-parts-paid-fulfillment.html">Paid fulfillment</a>
+      <a class="btn secondary" href="./auto-parts-paid-receipt.html">Paid receipt</a>
+    </div>
+    <div class="panel">
+      <h2>Matcher output</h2>
+      <div id="state"><span class="pill warn">No verified paid event yet</span><span class="pill warn">manual paid claim = 0 EUR</span></div>
+      <pre id="output" class="output">Hard rule: summary, staffing plan, policy, idea list, audit, copied message, CSV export, checkout visit, promise to pay, proof screenshot, or manual paid claim = 0 EUR. Count APF revenue only when exact +29 EUR statement row matches a real APF order.</pre>
+    </div>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const PAID_KEY='apfPaidEventLedger';
+const BLOCK_KEY='apfStatementPaidEventMatcherBlocks';
+const MATCH_KEY='apfStatementPaidEventMatcherRuns';
+const ORDER_SOURCES=['apfBuyerBatchPaymentRunLedger','apfPaidOrderLinkLedger','apfFirstPaidOrderCockpitLedger'];
+const $=id=>document.getElementById(id);
+function clean(v){return String(v||'').trim()}
+function readJson(key){try{const rows=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(rows)?rows:[]}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,1000)))}
+function eur(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('lt-LT')+' €'}
+function confirmedRevenue(){return readJson(PAID_KEY).reduce((sum,row)=>sum+Number(row.revenueCountedEur||0),0)}
+function renderKpis(){const paid=readJson(PAID_KEY),blocks=readJson(BLOCK_KEY);$('matchedCount').textContent=String(paid.filter(r=>r.source==='auto-parts-statement-paid-event-matcher').length);$('blockedCount').textContent=String(blocks.length);$('revenueCount').textContent=eur(confirmedRevenue())}
+function weakPattern(value){return /(^|\b)(demo|test|example|fake|placeholder|buyer@example\.com|lorem|sample)(\b|$)/i.test(String(value||''))}
+function simpleHash(text){let h=2166136261;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(16).padStart(8,'0')}
+function parseCsvLine(line){const out=[];let cur='',q=false;for(const ch of String(line)){if(ch==='"'){q=!q;continue}if(ch===','&&!q){out.push(clean(cur));cur='';continue}cur+=ch}out.push(clean(cur));return out}
+function parseRows(text,type){const raw=clean(text);if(!raw)return [];try{const parsed=JSON.parse(raw);return Array.isArray(parsed)?parsed:[]}catch(e){}const lines=raw.split(/\r?\n/).map(clean).filter(Boolean);if(!lines.length)return [];const headers=parseCsvLine(lines[0]).map(h=>h.toLowerCase());const hasHeader=headers.some(h=>['orderid','email','amount','currency','description','reference'].includes(h));const data=hasHeader?lines.slice(1):lines;return data.map(line=>{const cols=parseCsvLine(line);if(type==='order'&&!hasHeader){const [orderId,email,name,company,priceEur,status,paymentReference]=cols;return {orderId,email,name,company,priceEur,status,paymentReference}}if(type==='statement'&&!hasHeader){const [date,amount,currency,description,reference,payerEmail]=cols;return {date,amount,currency,description,reference,payerEmail}}const row={};headers.forEach((h,i)=>row[h.replace(/[^a-z0-9]/g,'')]=cols[i]);return row})}
+function loadStoredOrders(){return ORDER_SOURCES.flatMap(key=>readJson(key).map(row=>({...row,storedSource:key})))}
+function normalizedOrder(row){return {orderId:clean(row.orderId||row.orderid||row.id),email:clean(row.email||row.buyerEmail||row.buyeremail),name:clean(row.name||row.buyerName||row.buyername),company:clean(row.company||row.buyerCompany||row.buyercompany),priceEur:Number(row.priceEur||row.priceeur||row.amount||PRICE_EUR),status:clean(row.status),paymentReference:clean(row.paymentReference||row.paymentreference||row.reference||row.orderId||row.orderid),raw:row}}
+function normalizedStatement(row){return {date:clean(row.date||row.bookingDate||row.bookingdate),amount:Number(String(row.amount||row.value||row.credit||'').replace('+','').replace(',','.')),currency:clean(row.currency||row.ccy||'EUR').toUpperCase(),description:clean(row.description||row.details||row.memo||row.name),reference:clean(row.reference||row.ref||row.paymentReference||row.paymentreference),payerEmail:clean(row.payerEmail||row.payeremail||row.email),raw:row}}
+function exactPaidAmount(stmt){return stmt.amount===PRICE_EUR&&stmt.currency==='EUR'}
+function matchScore(order,stmt){const hay=[stmt.description,stmt.reference,stmt.payerEmail].join(' ').toLowerCase();let score=0;if(order.orderId&&hay.includes(order.orderId.toLowerCase()))score+=70;if(order.paymentReference&&hay.includes(order.paymentReference.toLowerCase()))score+=60;if(order.email&&hay.includes(order.email.toLowerCase()))score+=50;if(order.company&&hay.includes(order.company.toLowerCase()))score+=30;if(order.name&&hay.includes(order.name.toLowerCase()))score+=20;return score}
+function paidEventId(order,stmt){return 'APF-PAID-'+simpleHash([order.orderId,order.email,stmt.date,stmt.amount,stmt.currency,stmt.reference,stmt.description].join('|')).toUpperCase()}
+function fulfillmentUrl(event){return './auto-parts-paid-fulfillment.html?'+new URLSearchParams({paidEventId:event.paidEventId,orderId:event.orderId,buyerEmail:event.buyerEmail,priceEur:String(PRICE_EUR),source:'auto-parts-statement-paid-event-matcher'}).toString()}
+function receiptUrl(event){return './auto-parts-paid-receipt.html?'+new URLSearchParams({paidEventId:event.paidEventId,orderId:event.orderId,buyerEmail:event.buyerEmail,amountEur:String(PRICE_EUR),source:'auto-parts-statement-paid-event-matcher'}).toString()}
+function blockStatement(stmt,reason){const blocks=readJson(BLOCK_KEY);blocks.unshift({reason,statement:stmt,blockedAt:new Date().toISOString(),revenueCountedEur:0,source:'auto-parts-statement-paid-event-matcher'});writeJson(BLOCK_KEY,blocks)}
+function matchPaidEvents(){const manualOrders=parseRows($('orderRows').value,'order').map(normalizedOrder);const storedOrders=loadStoredOrders().map(normalizedOrder);const orders=[...manualOrders,...storedOrders].filter(o=>o.orderId&&o.email&&!weakPattern([o.orderId,o.email,o.company,o.name].join(' ')));const statements=parseRows($('statementRows').value,'statement').map(normalizedStatement);if(!orders.length||!statements.length){$('state').innerHTML='<span class="pill bad">blocked: real APF order rows and real statement rows required</span><span class="pill warn">revenueCountedEur:0</span>';$('output').textContent='NO_REVENUE: paste payment-ready order rows and statement rows. Manual claim is not enough.';renderKpis();return}const paid=readJson(PAID_KEY),existing=new Set(paid.map(row=>row.paidEventId));const created=[],blocked=[];statements.forEach(stmt=>{if(weakPattern([stmt.description,stmt.reference,stmt.payerEmail].join(' '))||!exactPaidAmount(stmt)){blockStatement(stmt,'not_exact_real_29_eur_statement_row');blocked.push(stmt);return}const ranked=orders.map(order=>({order,score:matchScore(order,stmt)})).sort((a,b)=>b.score-a.score);if(!ranked[0]||ranked[0].score<50){blockStatement(stmt,'no_real_order_match_for_exact_29_eur_statement_row');blocked.push(stmt);return}const order=ranked[0].order;const paidEventId=paidEventIdFor(order,stmt);if(existing.has(paidEventId))return;const event={paidEventId,orderId:order.orderId,product:PRODUCT,buyerEmail:order.email,buyerName:order.name,buyerCompany:order.company,amountEur:stmt.amount,currency:stmt.currency,revenueCountedEur:PRICE_EUR,status:'verified_paid_event',statementDate:stmt.date,statementReference:stmt.reference,statementDescription:stmt.description,matchScore:ranked[0].score,source:'auto-parts-statement-paid-event-matcher',createdAt:new Date().toISOString()};event.fulfillmentUrl=fulfillmentUrl(event);event.receiptUrl=receiptUrl(event);created.push(event);existing.add(paidEventId)});writeJson(PAID_KEY,[...created,...paid]);writeJson(MATCH_KEY,[{createdAt:new Date().toISOString(),verifiedPaidEvents:created.length,blockedStatements:blocked.length,revenueCountedEur:created.reduce((s,e)=>s+e.revenueCountedEur,0),source:'auto-parts-statement-paid-event-matcher'},...readJson(MATCH_KEY)]);$('state').innerHTML='<span class="pill ok">'+created.length+' verified paid events</span><span class="pill ok">fulfillment + receipt URLs attached</span><span class="pill warn">'+blocked.length+' blocked rows</span>';$('output').textContent=JSON.stringify({SHIP:'APF_STATEMENT_PAID_EVENT_MATCHER_RUN',verifiedPaidEvents:created,blockedStatements:blocked.length,confirmedRevenueEur:confirmedRevenue(),rejectedWeakPatterns:['summary','staffing plan','policy','idea list','audit','copied message','CSV export','checkout visit','promise to pay','proof screenshot','manual paid claim','demo/test/fake/placeholder rows']},null,2);renderKpis()}
+function paidEventIdFor(order,stmt){return paidEventId(order,stmt)}
+function exportPaidLedger(){const rows=readJson(PAID_KEY);const headers=['paidEventId','orderId','buyerEmail','buyerName','buyerCompany','amountEur','currency','revenueCountedEur','status','statementDate','statementReference','fulfillmentUrl','receiptUrl','createdAt','source'];const csv=[headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='apf-paid-event-ledger.csv';a.click();URL.revokeObjectURL(url);$('state').innerHTML='<span class="pill warn">paid ledger exported</span><span class="pill warn">export alone is not revenue</span>'}
+function loadFromUrl(){const p=new URLSearchParams(location.search);if(p.get('orderId'))$('orderRows').value=['orderId,email,name,company,priceEur,status,paymentReference',[p.get('orderId'),p.get('buyerEmail')||'',p.get('buyerName')||'',p.get('buyerCompany')||'',PRICE_EUR,'payment_ready_outreach_row',p.get('paymentReference')||p.get('orderId')].join(',')].join('\n');renderKpis()}
+loadFromUrl();
+</script>
+</body>
+</html>
