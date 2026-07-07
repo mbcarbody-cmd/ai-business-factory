@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070913">
+<title>Quick Product Video · Paid Event Verifier</title>
+<style>
+:root{--bg:#070913;--panel:#101827;--line:#2c3a54;--text:#f5f7ff;--muted:#9eabc0;--accent:#4df0a1;--danger:#ff6b7a;--warm:#ffcf70}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#1d2740 0,#070913 46%);color:var(--text);font-family:Inter,Arial,system-ui,sans-serif}.wrap{max-width:1040px;margin:auto;padding:18px}.hero{padding:22px 0}.eyebrow{display:inline-flex;border:1px solid #3d4b66;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;color:#cbd7ea;background:#0b1220}.hero h1{margin:14px 0 8px;font-size:clamp(34px,7vw,58px);line-height:.98;letter-spacing:-1.2px}.hero p{margin:0;max-width:820px;color:#c2cee0;line-height:1.55;font-size:17px}.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}.panel{background:linear-gradient(180deg,#121c2d,#0d1422);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 20px 50px #0006}label{display:block;margin:12px 0 6px;font-size:13px;font-weight:900;color:#dce5f3}textarea,input{width:100%;border:1px solid #364760;background:#070b15;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:180px;resize:vertical}.btn{border:0;border-radius:13px;padding:12px 15px;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;background:#1a263b;color:#fff;border:1px solid #3a4b68}.btn.primary{background:var(--accent);color:#04130c;border-color:transparent}.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.status{margin-top:12px;padding:12px;border:1px solid #2b3b57;border-radius:14px;background:#09111f;color:#c9d5e7;line-height:1.45}.status.ok{border-color:#2e8c61}.status.bad{border-color:#9b4450}.rows{display:grid;gap:8px;margin-top:12px}.row{display:flex;justify-content:space-between;gap:10px;padding:10px;border:1px solid #283b4d;border-radius:12px;background:#0a1220;font-size:13px}.row.ok{border-color:#28784f}.row.bad{border-color:#8e4050}.muted{color:var(--muted);font-size:13px}.proof{white-space:pre-wrap;word-break:break-word;background:#04090e;border:1px solid #2c4052;border-radius:14px;padding:11px;color:#d7e7f2;font-size:12px}.price{font-size:42px;font-weight:1000;margin:4px 0}.footer{padding:20px 0;color:#77869e;text-align:center;font-size:12px}@media(max-width:820px){.grid{grid-template-columns:1fr}.hero h1{font-size:42px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero">
+<span class="eyebrow">QPV VERIFIED PAID EVENT · EXACT +29 EUR ONLY · NO MANUAL CLAIMS</span>
+<h1>Quick Product Video paid event verifier</h1>
+<p>Šitas įrankis sujungia realų <code>quickVideoPaidOrderLeads</code> užsakymą su banko/Revolut/PayPal išrašo eilute. Pajamos skaičiuojamos tik kai yra tikslus <b>+29 EUR</b>, realus order match ir duplicate-safe paid ledger event.</p>
+</section>
+<section class="grid">
+<div class="panel">
+<h2>1. Statement row JSON</h2>
+<p class="muted">Reikalingi laukai: amount, currency, payer, reference arba description, bookedAt. Payment proof screenshot, checkout visit, promise to pay, mailto/WhatsApp click ar manual paid claim = 0 EUR.</p>
+<label>Bank/Revolut/PayPal statement row</label>
+<textarea id="statement" placeholder='{"amount":29,"currency":"EUR","payer":"Buyer company","reference":"QPV-1234567890","description":"Quick Product Video QPV-1234567890","bookedAt":"2026-07-08"}'></textarea>
+<label>Optional order JSON jeigu localStorage tuščias</label>
+<textarea id="orderJson" placeholder='{"orderId":"QPV-...","buyerEmail":"buyer@company.com","buyerName":"Company","headline":"Product video order","priceEur":29}'></textarea>
+<div class="actions"><button id="verify" class="btn primary">Verify exact +29 EUR paid event</button><button id="loadLead" class="btn">Load latest local order</button></div>
+<div id="status" class="status">Locked: waiting for exact real +29 EUR statement row.</div>
+<div id="rows" class="rows"></div>
+</div>
+<aside class="panel">
+<h2>Revenue</h2>
+<div class="price"><span id="revenue">0</span> €</div>
+<p class="muted">Buyer: naudotų autodalių / smulkaus e-commerce pardavėjas. Price: 29 EUR už Quick Product Video.</p>
+<div class="actions"><a id="receipt" class="btn" aria-disabled="true">Receipt URL</a><a id="fulfillment" class="btn" aria-disabled="true">Fulfillment URL</a></div>
+<h3>Verified paid event ledger</h3>
+<pre id="ledger" class="proof">No verified_paid_event yet.</pre>
+</aside>
+</section>
+<div class="footer">Rejected weak patterns: summary, staffing plan, policy, idea list, audit, demo, test, example, fake, placeholder, buyer@example.com, screenshot proof, checkout visit, manual paid claim.</div>
+</main>
+<script>
+'use strict';
+const PRICE_EUR=29;
+const WEAK=/(demo|test|example|fake|placeholder|sample|todo|localhost|127\.0\.0\.1|buyer@example\.com)/i;
+const $=id=>document.getElementById(id);
+function esc(v){return String(v||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));}
+function parseJson(raw){try{return JSON.parse(String(raw||'').trim())}catch(e){return {parseError:e.message}}}
+function rows(items){$('rows').innerHTML=items.map(r=>`<div class="row ${r.ok?'ok':'bad'}"><b>${r.ok?'✓':'✕'} ${esc(r.name)}</b><span class="muted">${esc(r.value)}</span></div>`).join('');}
+function setStatus(msg,ok=false){$('status').className=`status ${ok?'ok':'bad'}`;$('status').innerHTML=msg;}
+function loadOrders(){try{return JSON.parse(localStorage.getItem('quickVideoPaidOrderLeads')||'[]')}catch(_){return []}}
+function orderFromInput(){const raw=$('orderJson').value.trim();if(!raw)return null;return parseJson(raw)}
+function normalizeText(v){return String(v||'').toLowerCase().replace(/[^a-z0-9@.]+/g,' ')}
+function exactPaidRow(stmt){return Number(stmt.amount)===PRICE_EUR&&String(stmt.currency||'').toUpperCase()==='EUR'&&!WEAK.test(JSON.stringify(stmt));}
+function orderOk(order){return order&&!order.parseError&&String(order.orderId||'').startsWith('QPV-')&&Number(order.priceEur)===PRICE_EUR&&!WEAK.test(JSON.stringify(order))&&String(order.buyerEmail||'').includes('@');}
+function scoreMatch(stmt,order){const hay=normalizeText(`${stmt.reference||''} ${stmt.description||''} ${stmt.payer||''}`);let score=0;if(hay.includes(normalizeText(order.orderId)))score+=70;if(order.buyerEmail&&hay.includes(normalizeText(order.buyerEmail)))score+=15;if(order.buyerName&&hay.includes(normalizeText(order.buyerName)))score+=15;return score;}
+function paidLedger(){try{return JSON.parse(localStorage.getItem('quickVideoPaidEventLedger')||'[]')}catch(_){return []}}
+function savePaidEvent(event){const ledger=paidLedger();const existing=new Set(ledger.map(e=>e.paidEventId));if(existing.has(event.paidEventId))return {duplicate:true,ledger};ledger.push(event);localStorage.setItem('quickVideoPaidEventLedger',JSON.stringify(ledger));return {duplicate:false,ledger};}
+function receiptUrl(event){return `quick-video-paid-event-verifier.html?receipt=${encodeURIComponent(event.paidEventId)}`;}
+function fulfillmentUrl(order){const q=new URLSearchParams({orderId:order.orderId,brand:order.brand||order.buyerName||'Quick Video',headline:order.headline||'Product video order',subline:order.subline||'Paid order ready for render',cta:order.cta||'Contact seller'});return `video-maker.html?${q.toString()}`;}
+function verify(){
+ const stmt=parseJson($('statement').value);const manual=orderFromInput();const orders=[manual,...loadOrders()].filter(Boolean);const checked=[];
+ checked.push({name:'JSON parse',ok:!stmt.parseError,value:stmt.parseError||'ok'});
+ checked.push({name:'Exact +29 EUR',ok:exactPaidRow(stmt),value:`${stmt.amount||0} ${stmt.currency||''}`});
+ checked.push({name:'No weak statement text',ok:!WEAK.test(JSON.stringify(stmt)),value:WEAK.test(JSON.stringify(stmt))?'blocked':'clean'});
+ const ranked=orders.filter(orderOk).map(order=>({order,score:scoreMatch(stmt,order)})).sort((a,b)=>b.score-a.score);
+ checked.push({name:'Real QPV order available',ok:ranked.length>0,value:String(ranked.length)});
+ checked.push({name:'Order match score',ok:ranked[0]?.score>=70,value:String(ranked[0]?.score||0)});
+ rows(checked);
+ if(!checked.every(r=>r.ok)){setStatus('NO_PAID_EVENT: not_exact_real_29_eur_statement_row or no_real_order_match. Revenue remains 0 EUR.');$('revenue').textContent='0';return;}
+ const order=ranked[0].order;const ref=stmt.reference||stmt.description||stmt.bookedAt||'';const paidEventId=`QPV-PAID-${order.orderId}-${String(ref).replace(/[^a-zA-Z0-9-]/g,'').slice(0,48)}`;
+ const event={event:'verified_paid_event',product:'Quick Product Video',paidEventId,orderId:order.orderId,buyerEmail:order.buyerEmail,buyerName:order.buyerName,priceEur:PRICE_EUR,revenueCountedEur:PRICE_EUR,currency:'EUR',statementReference:ref,statementPayer:stmt.payer||'',bookedAt:stmt.bookedAt||null,matchScore:ranked[0].score,createdAt:new Date().toISOString(),receiptUrl:receiptUrl({paidEventId}),fulfillmentUrl:fulfillmentUrl(order)};
+ const saved=savePaidEvent(event);if(saved.duplicate){setStatus('DUPLICATE_BLOCKED: paid event already exists. No second revenue count.');$('revenue').textContent='0';return;}
+ $('ledger').textContent=JSON.stringify(event,null,2);$('revenue').textContent=String(PRICE_EUR);$('receipt').href=event.receiptUrl;$('receipt').setAttribute('aria-disabled','false');$('fulfillment').href=event.fulfillmentUrl;$('fulfillment').setAttribute('aria-disabled','false');setStatus(`VERIFIED_PAID_EVENT: ${esc(order.orderId)} counted exactly once as <b>29 EUR</b>.`,true);
+}
+$('verify').addEventListener('click',verify);
+$('loadLead').addEventListener('click',()=>{const leads=loadOrders();$('orderJson').value=JSON.stringify(leads[leads.length-1]||{},null,2);});
+window.__QPV_PAID_EVENT_VERIFIER__={PRICE_EUR,WEAK,exactPaidRow,orderOk,scoreMatch};
+rows([{name:'Revenue rule',ok:true,value:'0 EUR until verified_paid_event'},{name:'Required statement',ok:true,value:'exact +29 EUR'}]);
+</script>
+</body>
+</html>
