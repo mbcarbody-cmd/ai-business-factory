@@ -14,6 +14,7 @@ REQUIRED_CHECKS = [
     "scripts/check_daily_learning_operator_queue.py",
     "scripts/check_daily_operator_action_opened_ledger.py",
     "scripts/check_daily_learning_admin_router.py",
+    "scripts/check_daily_learning_promotion_receipt_ledger.py",
     "scripts/check_qpv_source_kpi_admin.py",
     "scripts/check_qpv_root_offer_cta.py",
     "scripts/check_qpv_offer_checkout_handoff.py",
@@ -73,7 +74,7 @@ def main() -> None:
         require(weak not in text, f"CI workflow contains rejected weak pattern: {weak}")
 
     print("PASS revenue regression CI wiring")
-    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, operator action opened ledger gate, daily learning admin router gate, auto parts bank-transfer order gate, auto parts payment setup gate, auto parts buyer outreach gate, auto parts first buyer outreach launchpad gate, auto parts paid confirmation gate, auto parts paid fulfillment gate, auto parts instant payment-link checkout gate, auto parts bank statement import gate, auto parts root checkout launcher gate, auto parts verified paid router gate, auto parts quote-to-payment close room gate, recovery revenue reconciliation gate, and all QPV revenue regression scripts executed")
+    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, operator action opened ledger gate, daily learning admin router gate, daily learning promotion receipt ledger gate, auto parts bank-transfer order gate, auto parts payment setup gate, auto parts buyer outreach gate, auto parts first buyer outreach launchpad gate, auto parts paid confirmation gate, auto parts paid fulfillment gate, auto parts instant payment-link checkout gate, auto parts bank statement import gate, auto parts root checkout launcher gate, auto parts verified paid router gate, auto parts quote-to-payment close room gate, recovery revenue reconciliation gate, and all QPV revenue regression scripts executed")
 
 
 if __name__ == "__main__":
