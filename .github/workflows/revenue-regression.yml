@@ -64,4 +64,5 @@ jobs:
           python3 scripts/check_auto_parts_bank_transfer_payment_request.py
           python3 scripts/check_auto_parts_verified_paid_router.py
           python3 scripts/check_auto_parts_quote_to_payment_close_room.py
+          python3 scripts/check_auto_parts_first_paid_order_cockpit.py
           python3 scripts/check_revenue_regression_ci.py
