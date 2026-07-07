@@ -26,6 +26,7 @@ REQUIRED_CHECKS = [
     "scripts/check_qpv_recovery_revenue_reconciliation.py",
     "scripts/check_qpv_order_admin_revenue_nav.py",
     "scripts/check_qpv_outreach_lead_pipeline.py",
+    "scripts/check_qpv_paid_event_verifier.py",
     "scripts/check_auto_parts_price_finder_product.py",
     "scripts/check_auto_parts_bank_transfer_order.py",
     "scripts/check_auto_parts_payment_destination_setup.py",
@@ -77,7 +78,7 @@ def main() -> None:
         require(weak not in text, f"CI workflow contains rejected weak pattern: {weak}")
 
     print("PASS revenue regression CI wiring")
-    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, operator queue gate, operator action opened ledger gate, daily learning admin router gate, daily learning promotion receipt ledger gate, auto parts bank-transfer order gate, auto parts payment setup gate, auto parts buyer outreach gate, auto parts first buyer outreach launchpad gate, auto parts buyer batch payment runner gate, auto parts statement paid event matcher gate, auto parts first paid KPI capture gate, auto parts paid confirmation gate, auto parts paid fulfillment gate, auto parts instant payment-link checkout gate, auto parts bank statement import gate, auto parts root checkout launcher gate, auto parts verified paid router gate, auto parts quote-to-payment close room gate, recovery revenue reconciliation gate, and all QPV revenue regression scripts executed")
+    print("checked: push/PR workflow, manual fallback, hard-fail shell, daily learning gates, QPV paid event verifier, auto parts statement paid event matcher gate, auto parts first paid KPI capture gate, and all revenue regression scripts executed")
 
 
 if __name__ == "__main__":
