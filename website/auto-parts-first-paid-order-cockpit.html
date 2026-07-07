@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF first paid order cockpit — 29 EUR</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    .wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(30px,5vw,54px);line-height:1;margin:12px 0}
+    .badge,.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:#cfe3fb;background:#0b1728;font-size:13px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.hot{border-color:#a94732;color:#ffc4b7}
+    .panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008;margin:14px 0}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.three{grid-template-columns:repeat(3,1fr)}.full{grid-column:1/-1}
+    label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,select,textarea{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:92px}
+    .btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}
+    .output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:460px;overflow:auto}.muted{color:var(--muted);line-height:1.55}.kpi{font-size:30px;font-weight:950}
+    @media(max-width:820px){.grid,.three{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">APF close-and-fulfill cockpit · 29 EUR · buyer-ready payment request · exact +29 EUR statement-match handoff · duplicate-safe ledgers · revenue locked until verified paid event</span>
+  <h1>Auto Parts Price Finder — first paid order cockpit</h1>
+  <p class="muted">This page converts a qualified used-parts buyer into one payable 29 € request, sends the buyer to a trusted Stripe/Revolut/PayPal/IBAN payment destination, then routes proof and fulfillment through existing APF verification pages. It records payment-request and fulfillment-intent rows in <b>apfCloseAndFulfillCockpitLedger</b>, but confirmed revenue remains <b>0 EUR</b> until an exact <b>+29 EUR</b> match exists in <b>apfPaidEventLedger</b>.</p>
+
+  <section class="panel">
+    <div class="grid">
+      <div><label>Buyer email</label><input id="buyerEmail" placeholder="seller@example.com"></div>
+      <div><label>Buyer / company</label><input id="buyerName" placeholder="Used parts seller"></div>
+      <div><label>Vehicle</label><input id="vehicle" placeholder="Hyundai Tucson NX4e 2021"></div>
+      <div><label>Part / OEM need</label><input id="part" placeholder="hybrid battery / inverter / headlight"></div>
+      <div><label>Payment method</label><select id="paymentMethod"><option>stripe_payment_link</option><option>revolut_business</option><option>paypal_checkout</option><option>bank_transfer</option></select></div>
+      <div><label>Payment destination URL or IBAN</label><input id="paymentDestination" placeholder="https://buy.stripe.com/... or LTxx.... IBAN"></div>
+      <div class="full"><label>Offer / delivery notes</label><textarea id="notes" placeholder="What buyer receives: 3 price comps, target resale price, parts demand check, fulfillment email after payment"></textarea></div>
+    </div>
+    <button class="btn ok" onclick="savePaymentRequest()">Create buyer-ready 29 € request</button>
+    <a class="btn" id="payLink" href="#" target="_blank" rel="noopener" onclick="return openPayment()">Open payment destination</a>
+    <button class="btn secondary" onclick="copyPaymentRequest()">Copy payment request</button>
+    <a class="btn secondary" id="emailLink" href="mailto:?subject=Auto%20Parts%20Price%20Finder%2029%20EUR">Email buyer</a>
+    <a class="btn secondary" id="proofLink" href="./auto-parts-proof-statement-match.html">Open proof + statement match</a>
+    <a class="btn secondary" id="routerLink" href="./auto-parts-verified-paid-router.html">Open verified paid router</a>
+    <button class="btn secondary" onclick="loadDemoBlocked()">Load blocked demo</button>
+    <button class="btn secondary" onclick="exportLedger()">Export cockpit ledger CSV</button>
+  </section>
+
+  <section class="panel">
+    <div class="grid three">
+      <div><div class="muted">Payment requests</div><div class="kpi" id="kpiRequests">0</div></div>
+      <div><div class="muted">Ready to send</div><div class="kpi" id="kpiReady">0</div></div>
+      <div><div class="muted">Confirmed revenue</div><div class="kpi" id="kpiRevenue">0 €</div></div>
+    </div>
+    <div id="state" style="margin-top:10px"><span class="pill warn">waiting for production payment destination</span><span class="pill ok">verified paid ledger required</span><span class="pill hot">manual claim rejected</span></div>
+    <pre class="output" id="output">Fill buyer + trusted payment destination. This cockpit creates one 29 EUR close pack and handoff links. It rejects summaries, page visits, copied text, CSV export, demo URL, fake lead, and manual paid claim as revenue.</pre>
+  </section>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const BUYER='used-parts-seller';
+const CONTACT_EMAIL='automariu@gmail.com';
+const LEDGER_KEY='apfCloseAndFulfillCockpitLedger';
+const PAID_LEDGER_KEY='apfPaidEventLedger';
+const TRUSTED_PAYMENT_HOSTS=['stripe.com','buy.stripe.com','revolut.com','revolut.me','paypal.com','www.paypal.com','paypal.me'];
+const DEMO_PATTERNS=['example.com','demo','test','fake','placeholder','todo','localhost','127.0.0.1'];
+const $=id=>document.getElementById(id);
+function rows(){try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||'[]')}catch(e){return[]}}
+function writeRows(v){localStorage.setItem(LEDGER_KEY,JSON.stringify(v.slice(0,500)))}
+function paidRows(){try{return JSON.parse(localStorage.getItem(PAID_LEDGER_KEY)||'[]')}catch(e){return[]}}
+function safe(v){return String(v||'').trim()}
+function slug(v){return safe(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,28)||'order'}
+function isDemo(value){const t=safe(value).toLowerCase();return DEMO_PATTERNS.some(p=>t.includes(p))}
+function looksLikeIban(value){return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(safe(value).replace(/\s+/g,'').toUpperCase())}
+function isTrustedUrl(value){
+  const t=safe(value); if(!/^https:\/\//i.test(t))return false;
+  try{const host=new URL(t).hostname.toLowerCase();return TRUSTED_PAYMENT_HOSTS.some(d=>host===d||host.endsWith('.'+d))}catch(e){return false}
+}
+function destinationStatus(value){
+  const t=safe(value);
+  if(t.length<8)return {ok:false,reason:'BLOCKER: missing production Stripe/Revolut/PayPal URL or IBAN.'};
+  if(isDemo(t))return {ok:false,reason:'BLOCKER: demo/test/fake payment destination is not buyer-ready.'};
+  if(isTrustedUrl(t)||looksLikeIban(t))return {ok:true,reason:'production payment destination accepted'};
+  if(/^https:\/\//i.test(t))return {ok:false,reason:'BLOCKER: unknown payment domain. Use Stripe, Revolut, PayPal, or valid IBAN.'};
+  return {ok:false,reason:'BLOCKER: destination must be trusted payment URL or valid IBAN.'};
+}
+function buildOrder(){
+  const now=new Date();
+  const orderId='APF-FIRST-PAID-'+now.getTime()+'-'+slug($('part').value||$('vehicle').value);
+  const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
+  const paymentDestination=safe($('paymentDestination').value);
+  const status=destinationStatus(paymentDestination);
+  return {
+    orderId,paymentReference,createdAt:now.toISOString(),product:PRODUCT,buyer:BUYER,priceEur:PRICE_EUR,
+    revenueCountedEur:0,status:status.ok?'payment_request_ready_not_revenue':'blocked_payment_destination',
+    blocker:status.ok?'':status.reason, paidLedgerRequired:PAID_LEDGER_KEY, exactStatementMatchRequired:'+29 EUR',
+    buyerEmail:safe($('buyerEmail').value),buyerName:safe($('buyerName').value),vehicle:safe($('vehicle').value),part:safe($('part').value),
+    paymentMethod:safe($('paymentMethod').value),paymentDestination,notes:safe($('notes').value)
+  };
+}
+function proofUrl(row){
+  return './auto-parts-proof-statement-match.html?'+new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,orderId:row.orderId,paymentReference:row.paymentReference,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part,requiredStatementMatch:'+29 EUR'}).toString();
+}
+function routerUrl(row){
+  return './auto-parts-verified-paid-router.html?'+new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),buyer:BUYER,orderId:row.orderId,paymentReference:row.paymentReference,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle,part:row.part}).toString();
+}
+function paymentAction(row){return isTrustedUrl(row.paymentDestination)?`Pay 29 EUR now: ${row.paymentDestination}`:`Bank transfer destination: ${row.paymentDestination}\nAmount: 29 EUR\nReference: ${row.paymentReference}`}
+function closePack(row){
+  return `AUTO PARTS PRICE FINDER — 29 EUR PAID ORDER REQUEST
+Order ID: ${row.orderId}
+Payment reference: ${row.paymentReference}
+Buyer: ${row.buyerName||'-'} <${row.buyerEmail||'-'}>
+Vehicle: ${row.vehicle||'-'}
+Part/OEM: ${row.part||'-'}
+${paymentAction(row)}
+
+Buyer receives: price comps, target sell price, and part-demand check after payment verification.
+Proof + statement match: ${proofUrl(row)}
+Verified paid router / receipt + fulfillment: ${routerUrl(row)}
+
+Revenue rule: copied request, sent email, page visit, CSV export, proof screenshot, or manual paid claim = 0 EUR. Count revenue only after exact +29 EUR paid event exists in ${PAID_LEDGER_KEY}.`;
+}
+function refresh(row){
+  const all=rows(), paid=paidRows().filter(r=>Number(r.priceEur)===PRICE_EUR||Number(r.amountEur)===PRICE_EUR);
+  $('kpiRequests').textContent=String(all.length);
+  $('kpiReady').textContent=String(all.filter(r=>r.status==='payment_request_ready_not_revenue').length);
+  $('kpiRevenue').textContent=String(paid.length*PRICE_EUR)+' €';
+  const current=row||all[0]; if(!current)return;
+  $('payLink').href=isTrustedUrl(current.paymentDestination)?current.paymentDestination:'#';
+  $('proofLink').href=proofUrl(current);
+  $('routerLink').href=routerUrl(current);
+  $('emailLink').href='mailto:'+encodeURIComponent(current.buyerEmail)+'?subject='+encodeURIComponent('Auto Parts Price Finder 29 EUR '+current.paymentReference)+'&body='+encodeURIComponent(closePack(current));
+  $('state').innerHTML=current.status==='payment_request_ready_not_revenue'
+    ? '<span class="pill ok">buyer-ready payment request</span><span class="pill warn">0 EUR until exact +29 EUR match</span><span class="pill ok">fulfillment router prepared</span>'
+    : '<span class="pill hot">'+current.blocker+'</span><span class="pill warn">no buyer handoff</span><span class="pill warn">0 EUR</span>';
+  $('output').textContent=JSON.stringify(current,null,2)+'\n\n'+closePack(current);
+}
+function savePaymentRequest(){
+  const row=buildOrder(), all=rows();
+  if(!all.some(r=>r.paymentReference===row.paymentReference))all.unshift(row);
+  writeRows(all); refresh(row); return row;
+}
+function copyPaymentRequest(){const row=savePaymentRequest();navigator.clipboard&&navigator.clipboard.writeText(closePack(row));}
+function openPayment(){const row=savePaymentRequest();if(row.status!=='payment_request_ready_not_revenue'){alert(row.blocker);return false}return isTrustedUrl(row.paymentDestination)}
+function exportLedger(){
+  const all=rows(); const cols=['createdAt','orderId','paymentReference','buyerEmail','buyerName','vehicle','part','priceEur','revenueCountedEur','status','blocker','paymentMethod','paymentDestination'];
+  const csv=[cols.join(',')].concat(all.map(r=>cols.map(c=>JSON.stringify(r[c]||'')).join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}), a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='apf-close-and-fulfill-cockpit-ledger.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+function loadDemoBlocked(){
+  $('buyerEmail').value='blocked@example.com';$('buyerName').value='Demo seller';$('vehicle').value='Toyota Land Cruiser J250';$('part').value='front bumper 52119-60P40';$('paymentDestination').value='https://example.com/demo-checkout';$('notes').value='Demo stays blocked and 0 EUR.';savePaymentRequest();
+}
+(function init(){
+  const p=new URL(location.href).searchParams;
+  ['buyerEmail','buyerName','vehicle','part','paymentDestination','notes'].forEach(id=>{if(p.get(id))$(id).value=p.get(id)});
+  if(p.get('paymentMethod'))$('paymentMethod').value=p.get('paymentMethod');
+  refresh(rows()[0]);
+})();
+</script>
+</body>
+</html>
