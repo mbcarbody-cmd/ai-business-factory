@@ -37,7 +37,7 @@ jobs:
           python3 scripts/check_qpv_checkout_flow.py
           python3 scripts/check_qpv_order_status_flow.py
           python3 scripts/check_qpv_completed_order_status.py
-          python3 scripts/check_qpv_fulfilled_order_kpi.py
+          python3 scripts/check_qpv_fulfilled_order_status.py
           python3 scripts/check_qpv_revenue_command_center.py
           python3 scripts/check_qpv_recovery_revenue_reconciliation.py
           python3 scripts/check_qpv_recovery_revenue_command_launchpad.py
@@ -71,4 +71,6 @@ jobs:
           python3 scripts/check_auto_parts_paid_order_link_generator.py
           python3 scripts/check_auto_parts_unpaid_order_recovery_sequencer.py
           python3 scripts/check_auto_parts_buyer_batch_payment_runner.py
+          python3 scripts/check_auto_parts_statement_paid_event_matcher.py
+          python3 scripts/check_auto_parts_first_paid_kpi_capture.py
           python3 scripts/check_revenue_regression_ci.py
