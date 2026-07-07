@@ -70,4 +70,5 @@ jobs:
           python3 scripts/check_auto_parts_first_paid_order_cockpit.py
           python3 scripts/check_auto_parts_paid_order_link_generator.py
           python3 scripts/check_auto_parts_unpaid_order_recovery_sequencer.py
+          python3 scripts/check_auto_parts_buyer_batch_payment_runner.py
           python3 scripts/check_revenue_regression_ci.py
