@@ -75,4 +75,5 @@ jobs:
           python3 scripts/check_auto_parts_buyer_batch_payment_runner.py
           python3 scripts/check_auto_parts_statement_paid_event_matcher.py
           python3 scripts/check_auto_parts_first_paid_kpi_capture.py
+          python3 scripts/check_auto_parts_payment_request_sendroom.py
           python3 scripts/check_revenue_regression_ci.py
