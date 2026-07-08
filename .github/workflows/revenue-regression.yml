@@ -49,6 +49,7 @@ jobs:
           python3 scripts/check_auto_parts_price_finder_product.py
           python3 scripts/check_auto_parts_bank_transfer_order.py
           python3 scripts/check_auto_parts_payment_destination_setup.py
+          python3 scripts/check_auto_parts_production_payment_destination_guard.py
           python3 scripts/check_auto_parts_buyer_outreach.py
           python3 scripts/check_auto_parts_first_buyer_outreach_launchpad.py
           python3 scripts/check_auto_parts_outreach_send_queue.py
