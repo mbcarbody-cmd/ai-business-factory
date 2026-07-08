@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF production payment destination guard — 29 EUR</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859;--blue:#38bdf8}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:96px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 6px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.pill.hot{border-color:#9b3f31;color:#ffc9bd}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;min-height:280px;overflow:auto}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:900px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF 29 EUR · production payment destination guard · no fake payment links</span>
+  <h1>Auto Parts Price Finder — payment destination guard</h1>
+  <p>Šitas workflow blokuoja outreach/order linkus, jei payment destination yra demo, fake, placeholder, localhost arba be realaus mokėjimo kelio. Jis sugeneruoja buyer-ready 29 € APF order URL, outreach URL ir statement-match URL tik po production destination preflight. Pajamos lieka 0 € iki exact +29 EUR verified paid event.</p>
+
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">APF order price</span></div>
+    <div class="card"><strong id="kReady">0</strong><span class="muted">guarded order links</span></div>
+    <div class="card"><strong id="kBlocked">0</strong><span class="muted">blocked weak destinations</span></div>
+    <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Production payment preflight</h2>
+      <div class="row">
+        <div><label>Buyer company</label><input id="buyerCompany" value="Real used parts seller"></div>
+        <div><label>Buyer email</label><input id="buyerEmail" value="buyer@realcompany.lt"></div>
+        <div><label>Product</label><input id="product" value="auto-parts-price-finder"></div>
+        <div><label>Price EUR</label><input id="price" value="29"></div>
+        <div><label>Payment method</label><select id="paymentMethod"><option value="bank_transfer">bank_transfer</option><option value="revolut_business">revolut_business</option><option value="stripe_payment_link">stripe_payment_link</option><option value="paypal_checkout">paypal_checkout</option></select></div>
+        <div><label>Currency</label><input id="currency" value="EUR"></div>
+        <div class="full"><label>Production payment destination</label><input id="paymentDestination" placeholder="IBAN / Revolut Business pay URL / Stripe Payment Link / PayPal checkout URL"></div>
+        <div class="full"><label>Part/OEM request</label><textarea id="request">Toyota Land Cruiser J250 2024+ multimedia / body part price audit</textarea></div>
+      </div>
+      <button class="btn ok" onclick="runGuard()">Run guard + generate buyer-ready URLs</button>
+      <button class="btn secondary" onclick="loadBankTemplate()">Load bank transfer template</button>
+      <button class="btn secondary" onclick="loadBlockedDemo()">Load blocked demo destination</button>
+      <button class="btn secondary" onclick="clearLedger()">Clear guard ledger</button>
+      <pre class="output" id="log">No run yet. Weak patterns rejected: summary, staffing plan, policy, idea list, audit, demo/test/fake/placeholder/localhost destination, copied URL, checkout visit, proof screenshot, manual paid claim.</pre>
+    </div>
+
+    <div class="panel">
+      <h2>Guard output</h2>
+      <div id="state"><span class="pill warn">not checked</span><span class="pill hot">revenue locked at 0 €</span></div>
+      <pre class="output" id="output">Production payment destination required before any buyer-ready APF order/outreach handoff.</pre>
+    </div>
+  </section>
+
+  <div class="footer">Buyer/price: used auto-parts seller, 29 EUR. Measurable product-state movement: apfProductionPaymentDestinationGuard stores guarded order link rows only after production payment preflight. Revenue status remains 0 EUR until apfPaidEventLedger contains an exact +29 EUR APF verified paid event. Rejected weak patterns: summary, staffing plan, policy, idea list, audit, generated URL alone, copied link, checkout visit, promise to pay, proof screenshot, manual paid claim.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const GUARD_KEY='apfProductionPaymentDestinationGuard';
+const PAID_KEY='apfPaidEventLedger';
+const BLOCKED_KEY='apfProductionPaymentDestinationBlocked';
+const VALID_PAYMENT_METHODS=['stripe_payment_link','revolut_business','paypal_checkout','bank_transfer'];
+const REJECTED_PAYMENT_TOKENS=['example','demo','test','todo','placeholder','your-','sample','fake','localhost','127.0.0.1','lorem','changeme'];
+const $=id=>document.getElementById(id);
+function readJson(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
+function writeJson(key,rows){localStorage.setItem(key,JSON.stringify(rows.slice(0,500)))}
+function nowIso(){return new Date().toISOString()}
+function slug(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,46)||'buyer'}
+function eur(n){return (Number(n)||0).toLocaleString('lt-LT')+' €'}
+function getPaidRevenue(){return readJson(PAID_KEY).filter(row=>row&&row.product===PRODUCT&&Number(row.amountEur)===PRICE_EUR&&String(row.status||'').includes('verified')).reduce((sum,row)=>sum+Number(row.amountEur||0),0)}
+function isProductionPaymentDestination(value,method){
+  const raw=String(value||'').trim();
+  const lower=raw.toLowerCase();
+  if(raw.length<12) return false;
+  if(REJECTED_PAYMENT_TOKENS.some(token=>lower.includes(token))) return false;
+  if(!VALID_PAYMENT_METHODS.includes(method)) return false;
+  if(method==='bank_transfer') return /\b[A-Z]{2}[0-9A-Z]{13,32}\b/.test(raw.toUpperCase()) || /iban/i.test(raw);
+  if(method==='stripe_payment_link') return /^https:\/\/buy\.stripe\.com\//i.test(raw) || /^https:\/\/checkout\.stripe\.com\//i.test(raw);
+  if(method==='revolut_business') return /^https:\/\//i.test(raw) && /revolut/i.test(raw);
+  if(method==='paypal_checkout') return /^https:\/\//i.test(raw) && /paypal|paypal\.me/i.test(raw);
+  return false;
+}
+function buildOrderId(){return 'APF-ORDER-'+Date.now().toString(36).toUpperCase()+'-'+slug($('buyerCompany').value).toUpperCase()}
+function buildUrls(row){
+  const params=new URLSearchParams({product:row.product,priceEur:String(row.priceEur),buyer:row.buyerCompany,email:row.buyerEmail,orderId:row.orderId,paymentMethod:row.paymentMethod,paymentDestination:row.paymentDestination,source:'production-payment-destination-guard'});
+  return {
+    orderUrl:'./auto-parts-bank-transfer-order.html?'+params.toString(),
+    outreachUrl:'./auto-parts-outreach-send-queue.html?'+params.toString(),
+    statementMatchUrl:'./auto-parts-statement-paid-event-matcher.html?'+params.toString(),
+    paidRouterUrl:'./auto-parts-verified-paid-router.html?'+params.toString()
+  };
+}
+function buildMessage(row){
+  return `Sveiki, ${row.buyerCompany},\n\nParuoštas 29 € Auto Parts Price Finder užsakymas. Tikslas: ${row.request}\n\nUžsakymo/payment nuoroda: ${row.orderUrl}\n\nPo apmokėjimo tikrinama pagal exact +29 EUR statement match. Order ID: ${row.orderId}\n\nVitalijus / MB Marių auto`;
+}
+function runGuard(){
+  const method=$('paymentMethod').value;
+  const destination=$('paymentDestination').value.trim();
+  const blocked=readJson(BLOCKED_KEY);
+  if(!isProductionPaymentDestination(destination,method)){
+    const blockedRow={blockedAt:nowIso(),paymentMethod:method,paymentDestination:destination||'(empty)',reason:'BLOCKER: production payment destination required before buyer-ready APF payment/outreach links',revenueCountedEur:0};
+    blocked.unshift(blockedRow); writeJson(BLOCKED_KEY,blocked);
+    $('state').innerHTML='<span class="pill hot">BLOCKED weak payment destination</span><span class="pill hot">0 EUR confirmed</span>';
+    $('log').textContent=blockedRow.reason+'\nRejected destination: '+blockedRow.paymentDestination+'\nFallback executed: keep revenue locked and require IBAN/Revolut/Stripe/PayPal production destination.';
+    $('output').textContent='NO BUYER HANDOFF GENERATED. Demo/test/fake/placeholder payment destination is rejected.';
+    updateKpis(); return false;
+  }
+  const row={orderId:buildOrderId(),buyerCompany:$('buyerCompany').value.trim(),buyerEmail:$('buyerEmail').value.trim(),product:$('product').value||PRODUCT,priceEur:Number($('price').value)||PRICE_EUR,currency:$('currency').value||'EUR',paymentMethod:method,paymentDestination:destination,request:$('request').value.trim(),status:'payment_destination_verified_order_ready',createdAt:nowIso(),revenueCountedEur:0};
+  Object.assign(row,buildUrls(row));
+  row.message=buildMessage(row);
+  const ledger=readJson(GUARD_KEY);
+  ledger.unshift(row); writeJson(GUARD_KEY,ledger);
+  $('state').innerHTML='<span class="pill ok">production payment destination verified</span><span class="pill ok">buyer-ready URLs generated</span><span class="pill hot">0 EUR confirmed until exact +29 EUR paid event</span>';
+  $('log').textContent='Generated 1 guarded buyer-ready APF payment row. Revenue remains 0 EUR until exact +29 EUR verified statement event.';
+  $('output').textContent=JSON.stringify(row,null,2);
+  updateKpis(); return true;
+}
+function loadBankTemplate(){
+  $('paymentMethod').value='bank_transfer';
+  $('paymentDestination').value='IBAN LT121000011101001000 · MB Marių auto · payment reference must include APF order ID';
+}
+function loadBlockedDemo(){
+  $('paymentMethod').value='stripe_payment_link';
+  $('paymentDestination').value='https://example.com/demo-checkout-placeholder';
+}
+function clearLedger(){writeJson(GUARD_KEY,[]);writeJson(BLOCKED_KEY,[]);updateKpis();$('output').textContent='Guard ledger cleared.'}
+function updateKpis(){
+  $('kReady').textContent=String(readJson(GUARD_KEY).length);
+  $('kBlocked').textContent=String(readJson(BLOCKED_KEY).length);
+  $('kRevenue').textContent=eur(getPaidRevenue());
+}
+updateKpis();
+</script>
+</body>
+</html>
