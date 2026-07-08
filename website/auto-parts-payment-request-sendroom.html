@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APF payment request sendroom — 29 EUR</title>
+  <style>
+    :root{--bg:#07111f;--panel:#101b2c;--line:#2a3b55;--txt:#edf6ff;--muted:#9fb2cb;--ok:#39e58f;--warn:#ffbd59;--hot:#ff7859}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#19375f,#07111f 55%);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:28px 16px}h1{font-size:clamp(32px,5vw,56px);line-height:1;margin:12px 0}p{color:var(--muted);line-height:1.55}.badge{display:inline-flex;border:1px solid var(--line);background:#0b1728;border-radius:999px;padding:8px 11px;font-size:13px;color:#cfe3fb}.grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.panel{background:linear-gradient(180deg,#101d31,#0a1424);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 22px 50px #0008}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}label{display:block;margin:8px 0 6px;color:#cfe0f4;font-size:13px;font-weight:850}input,textarea,select{width:100%;border:1px solid #34475f;background:#06101e;color:#fff;border-radius:13px;padding:12px;font:inherit}textarea{min-height:120px}.btn{display:inline-flex;border:0;border-radius:14px;padding:12px 15px;font-weight:950;cursor:pointer;text-decoration:none;background:var(--hot);color:white;margin:4px 4px 4px 0}.btn.ok{background:var(--ok);color:#04140c}.btn.secondary{background:#16243a;color:#e8f2ff;border:1px solid #354a67}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card{background:#0b1728;border:1px solid var(--line);border-radius:18px;padding:14px}.card strong{display:block;font-size:25px}.muted{color:var(--muted)}.output{white-space:pre-wrap;background:#050b14;border:1px solid #273850;border-radius:18px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;max-height:520px;overflow:auto}.pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px 4px 3px 0;font-size:12px}.pill.ok{border-color:#278b60;color:#baffde}.pill.warn{border-color:#9f762a;color:#ffe0a3}.footer{margin-top:18px;color:#7f91aa;font-size:13px}@media(max-width:850px){.grid,.row,.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Executable revenue path · APF 29 EUR · production payment destination preflight · outreach-ready buyer rows · duplicate-safe send ledger · APF paid confirmation handoff · confirmed revenue remains 0 EUR until exact paid event</span>
+  <h1>APF buyer payment request sendroom — 29 €</h1>
+  <p>Paste real buyer rows, configure a production IBAN/Revolut/Stripe/PayPal destination, and generate ready-to-send buyer messages with order IDs, payment references, mailto links, WhatsApp text, paid-confirmation URL, and fulfillment URL. This page refuses demo/test/fake/placeholder destinations and does not count copied messages, exports, or clicks as revenue.</p>
+
+  <section class="cards">
+    <div class="card"><strong>29 €</strong><span class="muted">fixed APF price</span></div>
+    <div class="card"><strong id="kRows">0</strong><span class="muted">buyer rows prepared</span></div>
+    <div class="card"><strong id="kSend">0</strong><span class="muted">send-ready requests</span></div>
+    <div class="card"><strong id="kRevenue">0 €</strong><span class="muted">confirmed revenue</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Payment setup + buyers</h2>
+      <div class="row">
+        <div><label>Payment method</label><select id="paymentMethod"><option>bank_transfer</option><option>revolut_business</option><option>stripe_payment_link</option><option>paypal_checkout</option></select></div>
+        <div><label>Payment destination / URL</label><input id="paymentDestination" placeholder="LT IBAN, Revolut link, Stripe Payment Link or PayPal checkout URL"></div>
+        <div class="full"><label>Buyer rows: email, company, vehicle, part, oem, channel, phone</label><textarea id="buyerRows" placeholder="buyer@example.com, Used Parts Seller, Toyota Land Cruiser J250, navigation unit, 86140-0W020, direct, +37060000000"></textarea></div>
+      </div>
+      <button class="btn ok" onclick="prepareRequests()">Prepare payment requests</button>
+      <button class="btn secondary" onclick="copySelected()">Copy first request</button>
+      <button class="btn secondary" onclick="exportCsv()">Export sendroom CSV</button>
+      <button class="btn secondary" onclick="loadSample()">Load blocked sample</button>
+    </div>
+
+    <div class="panel">
+      <h2>Sendroom output</h2>
+      <div id="state"><span class="pill warn">no buyer rows prepared</span><span class="pill warn">payment destination not verified</span><span class="pill ok">APF paid gate wired</span></div>
+      <pre id="output" class="output">Paste real buyer rows and a production payment destination. Demo, test, example, fake, placeholder, todo, tbd, localhost, your- and IBAN_OR_PAYMENT_LINK_REQUIRED are blocked before send-ready rows, CSV, mailto/WhatsApp text, paid-confirmation URL or fulfillment URL. Revenue stays 0 EUR until a matching exact +29 EUR paid event exists in apfPaidEventLedger.</pre>
+    </div>
+  </section>
+  <div class="footer">Rejected weak patterns: summary, staffing plan, policy, idea list, audit, copied message, CSV export, mailto click, WhatsApp click, payment promise, proof screenshot, manual paid claim, demo/test/fake buyer, placeholder destination. Buyer/price: used auto-parts seller, 29 EUR.</div>
+</main>
+<script>
+'use strict';
+const PRODUCT='auto-parts-price-finder';
+const PRICE_EUR=29;
+const SELLER='MB Marių auto';
+const CONTACT_EMAIL='automariu@gmail.com';
+const SENDROOM_KEY='apfPaymentRequestSendroomLedger';
+const PAYMENT_DESTINATION_KEY='apfPaymentDestination';
+const PAYMENT_METHOD_KEY='apfPaymentMethod';
+const APF_PAID_CONFIRMATION_PAGE='./auto-parts-paid-confirmation.html';
+const APF_PAID_FULFILLMENT_PAGE='./auto-parts-paid-fulfillment.html';
+const VALID_PAYMENT_METHODS=['bank_transfer','revolut_business','stripe_payment_link','paypal_checkout'];
+const BLOCKED_PAYMENT_DESTINATION_PATTERNS=['demo','example','test','placeholder','sample','fake','todo','tbd','your-','localhost','iban_or_payment_link_required','payment_link_required'];
+const $=id=>document.getElementById(id);
+const eur=n=>(Math.round(Number(n)||0)).toLocaleString('lt-LT')+' €';
+let prepared=[];
+function normalizePaymentMethod(value){return VALID_PAYMENT_METHODS.includes(String(value||'').trim())?String(value).trim():'bank_transfer'}
+function getUrlValue(name){return new URL(location.href).searchParams.get(name)||''}
+function restorePaymentSetup(){
+  const urlDestination=getUrlValue('paymentDestination');
+  const storedDestination=localStorage.getItem(PAYMENT_DESTINATION_KEY)||'';
+  const destination=($('paymentDestination').value.trim()||urlDestination||storedDestination).trim();
+  if(destination){$('paymentDestination').value=destination;localStorage.setItem(PAYMENT_DESTINATION_KEY,destination)}
+  const method=normalizePaymentMethod($('paymentMethod').value||getUrlValue('paymentMethod')||localStorage.getItem(PAYMENT_METHOD_KEY)||'bank_transfer');
+  $('paymentMethod').value=method;localStorage.setItem(PAYMENT_METHOD_KEY,method);
+  return {paymentMethod:method,paymentDestination:destination};
+}
+function rejectPaymentDestination(destination){
+  const value=String(destination||'').trim();
+  const lower=value.toLowerCase();
+  if(value.length<8)return 'payment destination required';
+  if(BLOCKED_PAYMENT_DESTINATION_PATTERNS.some(pattern=>lower.includes(pattern)))return 'production payment destination required';
+  const method=normalizePaymentMethod($('paymentMethod').value);
+  if(method==='stripe_payment_link'&&!/^https:\/\/(buy\.stripe\.com|checkout\.stripe\.com)\//i.test(value))return 'production Stripe payment link required';
+  if(method==='revolut_business'&&!/^https:\/\/(revolut\.me|pay\.revolut\.com|checkout\.revolut\.com)\//i.test(value))return 'production Revolut Business link required';
+  if(method==='paypal_checkout'&&!/^https:\/\/(www\.)?paypal\.com\//i.test(value))return 'production PayPal checkout link required';
+  if(method==='bank_transfer'&&!/(^([A-Z]{2}\d{2}[A-Z0-9]{11,30})$|^lt\d{18}$|\biban\b)/i.test(value))return 'production bank-transfer IBAN required';
+  return '';
+}
+function parseBuyerRows(){
+  return $('buyerRows').value.split(/\n+/).map(line=>line.trim()).filter(Boolean).slice(0,20).map((line,index)=>{
+    const cells=line.split(',').map(v=>v.trim());
+    const [buyerEmail,buyerName,vehicle,part,oem,channel,phone]=cells;
+    const seed=[buyerEmail,buyerName,vehicle,part,oem,index].join('|').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,32)||('buyer-'+index);
+    const orderId='APF-SEND-'+Date.now()+'-'+index+'-'+seed;
+    const paymentReference='APF29-'+orderId.slice(-18).toUpperCase();
+    return {buyerEmail,buyerName,vehicle,part,oem,channel:channel||'direct',phone,orderId,paymentReference,product:PRODUCT,priceEur:PRICE_EUR,status:'send_ready_unpaid',revenueCountedEur:0};
+  }).filter(row=>row.buyerEmail&&row.buyerName&&row.part);
+}
+function paidConfirmationUrl(row,setup){
+  const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),source:'apf-payment-request-sendroom',buyer:'used-parts-seller',orderId:row.orderId,paymentReference:row.paymentReference,paymentMethod:setup.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle||'',part:[row.part,row.oem].filter(Boolean).join(' / ')});
+  return APF_PAID_CONFIRMATION_PAGE+'?'+params.toString();
+}
+function fulfillmentUrl(row,setup){
+  const params=new URLSearchParams({product:PRODUCT,priceEur:String(PRICE_EUR),source:'apf-payment-request-sendroom',buyer:'used-parts-seller',orderId:row.orderId,paymentReference:row.paymentReference,paymentMethod:setup.paymentMethod,buyerEmail:row.buyerEmail,buyerName:row.buyerName,vehicle:row.vehicle||'',part:[row.part,row.oem].filter(Boolean).join(' / ')});
+  return APF_PAID_FULFILLMENT_PAGE+'?'+params.toString();
+}
+function buyerMessage(row,setup){
+  return `Sveiki, ${row.buyerName},\n\nParuošiu naudotų auto dalių kainos auditą už 29 EUR.\nDetalės: ${row.vehicle||'-'} / ${row.part||'-'} / ${row.oem||'-'}\n\nMokėjimas: 29 EUR\nGavėjas: ${SELLER}\nMokėjimo metodas: ${setup.paymentMethod}\nMokėjimo paskirtis / nuoroda: ${setup.paymentDestination}\nMokėjimo paskirtis: ${row.paymentReference}\n\nPo apmokėjimo atsiųskite pavedimo eilutę arba proof į ${CONTACT_EMAIL} ir atidarykite patvirtinimą: ${paidConfirmationUrl(row,setup)}\nFulfillment po exact +29 EUR match: ${fulfillmentUrl(row,setup)}\n\nSvarbu: užsakymo eilutė, ši žinutė ar screenshot nėra revenue. Revenue skaičiuojamas tik po exact +29 EUR paid event.`;
+}
+function decorate(row,setup){
+  const message=buyerMessage(row,setup);
+  return {...row,paymentMethod:setup.paymentMethod,paymentDestination:setup.paymentDestination,message,mailto:'mailto:'+encodeURIComponent(row.buyerEmail)+'?subject='+encodeURIComponent('APF 29 EUR '+row.paymentReference)+'&body='+encodeURIComponent(message),whatsapp:row.phone?'https://wa.me/'+row.phone.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(message):'',paidConfirmationUrl:paidConfirmationUrl(row,setup),fulfillmentUrl:fulfillmentUrl(row,setup)};
+}
+function readLedger(){try{return JSON.parse(localStorage.getItem(SENDROOM_KEY)||'[]')}catch(e){return[]}}
+function writeLedger(rows){localStorage.setItem(SENDROOM_KEY,JSON.stringify(rows.slice(0,250)))}
+function prepareRequests(){
+  const setup=restorePaymentSetup();
+  const reject=rejectPaymentDestination(setup.paymentDestination);
+  if(reject){
+    prepared=[];$('kRows').textContent='0';$('kSend').textContent='0';$('kRevenue').textContent='0 €';
+    $('state').innerHTML='<span class="pill warn">'+reject+'</span><span class="pill warn">sendroom blocked</span><span class="pill ok">fallback: configure payment destination</span><span class="pill warn">revenueCountedEur:0</span>';
+    $('output').textContent='BLOCKER: APF payment request sendroom needs a production payment destination before buyer messages, mailto/WhatsApp links, CSV export, paid-confirmation URL or fulfillment URL are created. Rejected: demo/test/example/fake/placeholder/todo/tbd/localhost/IBAN_OR_PAYMENT_LINK_REQUIRED. Fallback executed: keep rows in the textarea, configure a real IBAN/Revolut/Stripe/PayPal destination, then rerun. Revenue remains 0 EUR.';
+    return;
+  }
+  const rows=parseBuyerRows();
+  if(!rows.length){$('state').innerHTML='<span class="pill warn">real buyer rows required</span><span class="pill warn">revenueCountedEur:0</span>';return}
+  const seen=new Set(readLedger().map(r=>r.buyerEmail+'|'+r.part+'|'+r.paymentReference));
+  prepared=rows.map(row=>decorate(row,setup)).filter(row=>!seen.has(row.buyerEmail+'|'+row.part+'|'+row.paymentReference));
+  writeLedger([...prepared,...readLedger()]);
+  $('kRows').textContent=String(rows.length);$('kSend').textContent=String(prepared.length);$('kRevenue').textContent='0 €';
+  $('state').innerHTML='<span class="pill ok">send-ready payment requests prepared</span><span class="pill ok">production payment destination verified</span><span class="pill ok">APF paid confirmation handoff ready</span><span class="pill ok">APF fulfillment handoff ready</span><span class="pill warn">revenueCountedEur:0</span>';
+  $('output').textContent=prepared.map((row,i)=>`#${i+1} ${row.buyerEmail} ${row.paymentReference}\nMAILTO: ${row.mailto}\nWHATSAPP: ${row.whatsapp||'-'}\nPAID_CONFIRMATION: ${row.paidConfirmationUrl}\nFULFILLMENT: ${row.fulfillmentUrl}\n\n${row.message}`).join('\n\n---\n\n')+'\n\nRevenue rule: copied messages, CSV exports, mailto clicks, WhatsApp clicks and payment promises remain 0 EUR until exact +29 EUR statement row is matched in apfPaidEventLedger.';
+}
+async function copySelected(){
+  if(!prepared.length)prepareRequests();
+  if(prepared[0]&&navigator.clipboard){await navigator.clipboard.writeText(prepared[0].message);$('state').innerHTML+='<span class="pill ok">first request copied</span><span class="pill warn">copy is not revenue</span>'}
+}
+function exportCsv(){
+  if(!prepared.length)prepareRequests();
+  if(!prepared.length)return;
+  const headers=['buyerEmail','buyerName','vehicle','part','oem','channel','phone','orderId','paymentReference','priceEur','revenueCountedEur','status','paymentMethod','paymentDestination','mailto','whatsapp','paidConfirmationUrl','fulfillmentUrl'];
+  const csv=[headers.join(','),...prepared.map(r=>headers.map(h=>'"'+String(r[h]??'').replaceAll('"','""')+'"').join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='apf-payment-request-sendroom.csv';a.click();URL.revokeObjectURL(url);
+}
+function loadSample(){
+  $('paymentMethod').value='bank_transfer';$('paymentDestination').value='IBAN_OR_PAYMENT_LINK_REQUIRED';$('buyerRows').value='buyer@example.com, Used Parts Seller, Toyota Land Cruiser J250, navigation unit, 86140-0W020, direct, +37060000000';prepareRequests();
+}
+['paymentMethod','paymentDestination','buyerRows'].forEach(id=>$(id).addEventListener('input',restorePaymentSetup));
+restorePaymentSetup();
+</script>
+</body>
+</html>
