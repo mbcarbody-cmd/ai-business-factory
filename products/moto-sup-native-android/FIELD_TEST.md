@@ -9,5 +9,6 @@
 7. On a closed course, remain below 2 km/h for at least one second before an acceleration attempt.
 8. Compare 0–100 km/h against video or a reference GPS device.
 9. Repeat at least five times and record the spread between results.
+10. Save the APK build number together with every field-test result.
 
 Do not perform acceleration or braking tests on public roads.
