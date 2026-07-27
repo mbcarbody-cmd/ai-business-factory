@@ -15,6 +15,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PowerManager
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,7 +25,9 @@ import kotlin.math.max
 class TrackingService : Service(), LocationListener {
     private lateinit var locationManager: LocationManager
     private lateinit var prefs: android.content.SharedPreferences
+    private val performanceEngine = PerformanceEngine()
 
+    private var wakeLock: PowerManager.WakeLock? = null
     private var sessionId = ""
     private var mode = "MOTO"
     private var profile = "Yamaha FJR1300A 2019"
@@ -34,20 +37,8 @@ class TrackingService : Service(), LocationListener {
     private var totalDistanceMeters = 0.0
     private var pointCount = 0
     private var maxSpeedMps = 0.0
-
-    private var previousPerfSpeedKmh: Double? = null
-    private var previousPerfNs: Long? = null
-    private var stoppedSinceNs = 0L
-    private var accelArmed = false
-    private var accelStartNs: Long? = null
-    private var accelDistanceM = 0.0
-    private var accel100Done = false
-    private var quarterDone = false
-    private var roll80StartNs: Long? = null
-    private var rollCooldown = false
-    private var brakingArmed = false
-    private var brakingStartNs: Long? = null
-    private var brakingPeakKmh = 0.0
+    private var sampleRateHz = 0.0
+    private var explicitStop = false
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +49,8 @@ class TrackingService : Service(), LocationListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            if (sessionId.isEmpty()) recoverSession()
+            explicitStop = true
             stopTracking()
             return START_NOT_STICKY
         }
@@ -66,16 +59,22 @@ class TrackingService : Service(), LocationListener {
 
         val recovered = recoverSession()
         if (!recovered && intent?.action != ACTION_START) {
+            prefs.edit().putBoolean("recording", false).apply()
             stopSelf()
             return START_NOT_STICKY
         }
+
         if (!recovered) {
             mode = intent?.getStringExtra(EXTRA_MODE) ?: "MOTO"
             profile = intent?.getStringExtra(EXTRA_PROFILE) ?: "Yamaha FJR1300A 2019"
             startNewSession()
+        } else {
+            performanceEngine.reset()
+            prefs.edit().putString("attempt_status", "Įrašymas atkurtas; pradėtas bandymas nunulintas").apply()
         }
 
         startForeground(NOTIFICATION_ID, buildNotification("Laukiama GPS"))
+        acquireWakeLock()
         startLocationUpdates()
         return START_STICKY
     }
@@ -88,27 +87,41 @@ class TrackingService : Service(), LocationListener {
         totalDistanceMeters = 0.0
         pointCount = 0
         maxSpeedMps = 0.0
-        resetPerformanceState()
+        sampleRateHz = 0.0
+        lastLocation = null
+        lastSpeedMps = 0.0
+        performanceEngine.reset()
 
         csvFile().writeText(
-            "time_iso,session_id,mode,profile,lat,lon,accuracy_m,speed_accuracy_kmh,speed_mps,speed_kmh,accel_ms2,total_distance_m,altitude_m,bearing_deg\n"
+            "time_iso,session_id,mode,profile,lat,lon,accuracy_m,speed_accuracy_kmh,sample_hz,speed_mps,speed_kmh,accel_ms2,total_distance_m,altitude_m,bearing_deg\n"
         )
         gpxFile().writeText(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<gpx version=\"1.1\" creator=\"Mariu Ride Lab\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
-                "<metadata><name>$sessionId</name></metadata><trk><name>$profile</name><trkseg>\n"
+                "<metadata><name>$sessionId</name></metadata><trk><name>${xmlEscape(profile)}</name><trkseg>\n"
         )
         currentSessionFile().writeText(listOf(sessionId, mode, profile, startedAt).joinToString("|"))
+
         prefs.edit()
             .putBoolean("recording", true)
             .putString("session_id", sessionId)
             .putString("mode", mode)
             .putString("profile", profile)
+            .putString("attempt_status", "Palauk gero GPS ir visiškai sustok")
+            .putString("gps_quality", "LAUKIAMA")
             .putFloat("speed_kmh", 0f)
             .putFloat("distance_m", 0f)
             .putFloat("max_speed_kmh", 0f)
+            .putFloat("sample_hz", 0f)
+            .putFloat("accuracy_m", -1f)
+            .putFloat("speed_accuracy_kmh", -1f)
             .putInt("point_count", 0)
             .putLong("duration_ms", 0L)
+            .putLong("last_update_ms", 0L)
+            .remove("last_0_100_s")
+            .remove("last_80_120_s")
+            .remove("last_100_0_s")
+            .remove("last_402m_s")
             .apply()
     }
 
@@ -117,6 +130,7 @@ class TrackingService : Service(), LocationListener {
         if (!file.exists()) return false
         val parts = runCatching { file.readText().split('|') }.getOrNull() ?: return false
         if (parts.size < 4) return false
+
         sessionId = parts[0]
         mode = parts[1]
         profile = parts[2]
@@ -124,17 +138,29 @@ class TrackingService : Service(), LocationListener {
         totalDistanceMeters = prefs.getFloat("distance_m", 0f).toDouble()
         pointCount = prefs.getInt("point_count", 0)
         maxSpeedMps = prefs.getFloat("max_speed_kmh", 0f).toDouble() / 3.6
-        prefs.edit().putBoolean("recording", true).apply()
-        return csvFile().exists() && gpxFile().exists()
+        sampleRateHz = prefs.getFloat("sample_hz", 0f).toDouble()
+
+        val valid = sessionId.isNotBlank() && csvFile().exists() && gpxFile().exists()
+        prefs.edit().putBoolean("recording", valid).apply()
+        if (!valid) {
+            currentSessionFile().delete()
+            sessionId = ""
+        }
+        return valid
     }
 
     private fun startLocationUpdates() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            prefs.edit().putBoolean("recording", false).putString("gps_quality", "NĖRA LEIDIMO").apply()
+            prefs.edit()
+                .putBoolean("recording", false)
+                .putString("gps_quality", "NĖRA LEIDIMO")
+                .putString("attempt_status", "Suteik tikslios vietos leidimą")
+                .apply()
             stopSelf()
             return
         }
-        val minTimeMs = if (mode == "MOTO") 200L else 1000L
+
+        val minTimeMs = if (mode == "MOTO") 100L else 1000L
         try {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -143,7 +169,11 @@ class TrackingService : Service(), LocationListener {
                 this
             )
         } catch (e: Exception) {
-            prefs.edit().putBoolean("recording", false).putString("gps_quality", "GPS KLAIDA").apply()
+            prefs.edit()
+                .putBoolean("recording", false)
+                .putString("gps_quality", "GPS KLAIDA")
+                .putString("attempt_status", e.message ?: "Nepavyko paleisti GPS")
+                .apply()
             stopSelf()
         }
     }
@@ -152,12 +182,31 @@ class TrackingService : Service(), LocationListener {
         val nowNs = location.elapsedRealtimeNanos
         val previous = lastLocation
         val step = if (previous != null) previous.distanceTo(location).toDouble() else 0.0
-        val dtSec = if (previous != null) max(0.05, (nowNs - previous.elapsedRealtimeNanos) / 1_000_000_000.0) else 0.0
-        val rawSpeedMps = if (location.hasSpeed()) location.speed.toDouble()
-        else if (dtSec > 0.0) step / dtSec else 0.0
+        val dtSec = if (previous != null) {
+            max(0.05, (nowNs - previous.elapsedRealtimeNanos) / 1_000_000_000.0)
+        } else {
+            0.0
+        }
+
+        if (dtSec > 0.0) {
+            val instantHz = (1.0 / dtSec).coerceIn(0.0, 20.0)
+            sampleRateHz = if (sampleRateHz <= 0.0) instantHz else sampleRateHz * 0.8 + instantHz * 0.2
+        }
+
+        val rawSpeedMps = if (location.hasSpeed()) {
+            location.speed.toDouble()
+        } else if (dtSec > 0.0) {
+            step / dtSec
+        } else {
+            0.0
+        }
         val speedMps = rawSpeedMps.coerceIn(0.0, 110.0)
         val accel = if (previous != null && dtSec > 0.0) (speedMps - lastSpeedMps) / dtSec else 0.0
-        val speedAccuracyKmh = if (location.hasSpeedAccuracy()) location.speedAccuracyMetersPerSecond * 3.6f else -1f
+        val speedAccuracyKmh = if (location.hasSpeedAccuracy()) {
+            location.speedAccuracyMetersPerSecond * 3.6f
+        } else {
+            -1f
+        }
         val accepted = acceptRoutePoint(location, step, speedMps)
 
         if (accepted) {
@@ -167,15 +216,27 @@ class TrackingService : Service(), LocationListener {
             appendCsv(location, speedMps, speedAccuracyKmh, accel)
             appendGpx(location)
 
-            if (mode == "MOTO" && performancePointReliable(location, speedAccuracyKmh)) {
-                processPerformance(speedMps * 3.6, nowNs, step, location.accuracy.toDouble())
+            if (mode == "MOTO") {
+                if (performancePointReliable(location, speedAccuracyKmh)) {
+                    val results = performanceEngine.addSample(
+                        speedKmh = speedMps * 3.6,
+                        elapsedRealtimeNs = nowNs,
+                        stepDistanceM = step,
+                        accuracyM = location.accuracy.toDouble()
+                    )
+                    results.forEach(::recordResult)
+                    if (results.isEmpty()) updateAttemptStatus(speedMps * 3.6)
+                } else {
+                    performanceEngine.reset()
+                    prefs.edit().putString("attempt_status", "GPS per silpnas tiksliam matavimui").apply()
+                }
             }
 
             lastLocation = location
             lastSpeedMps = speedMps
         }
 
-        val quality = gpsQuality(location.accuracy, speedAccuracyKmh)
+        val quality = gpsQuality(location.accuracy, speedAccuracyKmh, location.hasSpeed())
         saveLiveState(speedMps * 3.6, location.accuracy, speedAccuracyKmh, quality)
         updateNotification(speedMps * 3.6, quality)
     }
@@ -189,119 +250,36 @@ class TrackingService : Service(), LocationListener {
     }
 
     private fun performancePointReliable(location: Location, speedAccuracyKmh: Float): Boolean {
-        if (location.accuracy > 25f) return false
-        if (speedAccuracyKmh >= 0f && speedAccuracyKmh > 9f) return false
+        if (!location.hasSpeed()) return false
+        if (location.accuracy > 20f) return false
+        if (speedAccuracyKmh >= 0f && speedAccuracyKmh > 7f) return false
         return true
     }
 
-    private fun processPerformance(speedKmh: Double, nowNs: Long, stepM: Double, accuracyM: Double) {
-        val prevSpeed = previousPerfSpeedKmh
-        val prevNs = previousPerfNs
-        if (prevSpeed == null || prevNs == null || nowNs <= prevNs) {
-            previousPerfSpeedKmh = speedKmh
-            previousPerfNs = nowNs
-            return
+    private fun updateAttemptStatus(speedKmh: Double) {
+        val status = when {
+            speedKmh <= 1.5 -> "Stovi — laikmatis ruošiamas"
+            speedKmh < 80.0 -> "Važiavimas įrašomas"
+            speedKmh < 100.0 -> "Galimas 80–120 arba 0–100 bandymas"
+            else -> "Greitis virš 100 km/h"
         }
-
-        if (speedKmh <= 2.0) {
-            if (stoppedSinceNs == 0L) stoppedSinceNs = nowNs
-            if (nowNs - stoppedSinceNs >= 1_000_000_000L) accelArmed = true
-        } else {
-            stoppedSinceNs = 0L
-        }
-
-        if (accelArmed && accelStartNs == null && prevSpeed <= 3.0 && speedKmh > 3.0) {
-            accelStartNs = if (prevSpeed <= 1.0) prevNs else crossingNs(prevSpeed, speedKmh, 3.0, prevNs, nowNs)
-            accelDistanceM = 0.0
-            accel100Done = false
-            quarterDone = false
-            accelArmed = false
-        }
-
-        accelStartNs?.let { startNs ->
-            val previousDistance = accelDistanceM
-            accelDistanceM += stepM
-
-            if (!accel100Done && prevSpeed < 100.0 && speedKmh >= 100.0) {
-                val finishNs = crossingNs(prevSpeed, speedKmh, 100.0, prevNs, nowNs)
-                val seconds = secondsBetween(startNs, finishNs)
-                if (seconds in 1.0..30.0) recordResult("0-100 km/h", seconds, accuracyM, "last_0_100_s")
-                accel100Done = true
-            }
-
-            if (!quarterDone && previousDistance < QUARTER_MILE_M && accelDistanceM >= QUARTER_MILE_M) {
-                val fraction = ((QUARTER_MILE_M - previousDistance) / max(0.01, accelDistanceM - previousDistance)).coerceIn(0.0, 1.0)
-                val finishNs = prevNs + ((nowNs - prevNs) * fraction).toLong()
-                val seconds = secondsBetween(startNs, finishNs)
-                if (seconds in 3.0..60.0) recordResult("0-402 m", seconds, accuracyM, "last_402m_s")
-                quarterDone = true
-            }
-
-            if (speedKmh <= 2.0 && nowNs - startNs > 2_000_000_000L) {
-                accelStartNs = null
-                accelDistanceM = 0.0
-            } else if (accel100Done && quarterDone) {
-                accelStartNs = null
-                accelDistanceM = 0.0
-            }
-        }
-
-        if (!rollCooldown && roll80StartNs == null && prevSpeed < 80.0 && speedKmh >= 80.0) {
-            roll80StartNs = crossingNs(prevSpeed, speedKmh, 80.0, prevNs, nowNs)
-        }
-        roll80StartNs?.let { startNs ->
-            if (prevSpeed < 120.0 && speedKmh >= 120.0) {
-                val finishNs = crossingNs(prevSpeed, speedKmh, 120.0, prevNs, nowNs)
-                val seconds = secondsBetween(startNs, finishNs)
-                if (seconds in 0.5..30.0) recordResult("80-120 km/h", seconds, accuracyM, "last_80_120_s")
-                roll80StartNs = null
-                rollCooldown = true
-            } else if (speedKmh < 70.0 || nowNs - startNs > 60_000_000_000L) {
-                roll80StartNs = null
-            }
-        }
-        if (speedKmh < 70.0) rollCooldown = false
-
-        if (speedKmh >= 100.0) {
-            brakingArmed = true
-            brakingPeakKmh = max(brakingPeakKmh, speedKmh)
-        }
-        if (brakingArmed && brakingStartNs == null && prevSpeed >= 100.0 && speedKmh < 100.0) {
-            brakingStartNs = crossingNs(prevSpeed, speedKmh, 100.0, prevNs, nowNs)
-        }
-        brakingStartNs?.let { startNs ->
-            if (speedKmh <= 3.0) {
-                val seconds = secondsBetween(startNs, nowNs)
-                if (seconds in 0.5..30.0) recordResult("100-0 km/h", seconds, accuracyM, "last_100_0_s")
-                brakingStartNs = null
-                brakingArmed = false
-                brakingPeakKmh = 0.0
-            } else if (speedKmh > brakingPeakKmh + 5.0 || nowNs - startNs > 30_000_000_000L) {
-                brakingStartNs = null
-                brakingArmed = speedKmh >= 100.0
-            }
-        }
-
-        previousPerfSpeedKmh = speedKmh
-        previousPerfNs = nowNs
+        prefs.edit().putString("attempt_status", status).apply()
     }
 
-    private fun crossingNs(prevSpeed: Double, speed: Double, threshold: Double, prevNs: Long, nowNs: Long): Long {
-        val delta = speed - prevSpeed
-        if (kotlin.math.abs(delta) < 0.0001) return nowNs
-        val fraction = ((threshold - prevSpeed) / delta).coerceIn(0.0, 1.0)
-        return prevNs + ((nowNs - prevNs) * fraction).toLong()
-    }
-
-    private fun secondsBetween(startNs: Long, finishNs: Long): Double = (finishNs - startNs) / 1_000_000_000.0
-
-    private fun recordResult(type: String, seconds: Double, accuracyM: Double, prefKey: String) {
+    private fun recordResult(result: PerformanceResult) {
         val file = File(filesDir, RESULTS_FILE)
         if (!file.exists()) file.writeText("time_iso,session_id,profile,type,value,unit,gps_accuracy_m\n")
-        val value = String.format(Locale.US, "%.3f", seconds)
-        val accuracy = String.format(Locale.US, "%.1f", accuracyM)
-        file.appendText("${iso(System.currentTimeMillis())},$sessionId,$profile,$type,$value,s,$accuracy\n")
-        prefs.edit().putFloat(prefKey, seconds.toFloat()).apply()
+        val value = String.format(Locale.US, "%.3f", result.seconds)
+        val accuracy = String.format(Locale.US, "%.1f", result.accuracyM)
+        file.appendText("${iso(System.currentTimeMillis())},$sessionId,$profile,${result.type},$value,s,$accuracy\n")
+
+        val bestKey = result.prefKey.replace("last_", "best_")
+        val oldBest = prefs.getFloat(bestKey, -1f)
+        val editor = prefs.edit()
+            .putFloat(result.prefKey, result.seconds.toFloat())
+            .putString("attempt_status", "Užfiksuota ${result.type}: ${String.format(Locale.US, "%.2f", result.seconds)} s")
+        if (oldBest <= 0f || result.seconds < oldBest) editor.putFloat(bestKey, result.seconds.toFloat())
+        editor.apply()
     }
 
     private fun appendCsv(location: Location, speedMps: Double, speedAccuracyKmh: Float, accel: Double) {
@@ -314,6 +292,7 @@ class TrackingService : Service(), LocationListener {
             location.longitude.toString(),
             location.accuracy.toString(),
             if (speedAccuracyKmh >= 0f) String.format(Locale.US, "%.2f", speedAccuracyKmh) else "",
+            String.format(Locale.US, "%.2f", sampleRateHz),
             String.format(Locale.US, "%.3f", speedMps),
             String.format(Locale.US, "%.1f", speedMps * 3.6),
             String.format(Locale.US, "%.3f", accel),
@@ -325,7 +304,11 @@ class TrackingService : Service(), LocationListener {
     }
 
     private fun appendGpx(location: Location) {
-        val elevation = if (location.hasAltitude()) "<ele>${String.format(Locale.US, "%.2f", location.altitude)}</ele>" else ""
+        val elevation = if (location.hasAltitude()) {
+            "<ele>${String.format(Locale.US, "%.2f", location.altitude)}</ele>"
+        } else {
+            ""
+        }
         gpxFile().appendText(
             "<trkpt lat=\"${location.latitude}\" lon=\"${location.longitude}\">$elevation<time>${isoUtc(location.time)}</time></trkpt>\n"
         )
@@ -338,24 +321,28 @@ class TrackingService : Service(), LocationListener {
             .putFloat("speed_kmh", speedKmh.toFloat())
             .putFloat("accuracy_m", accuracyM)
             .putFloat("speed_accuracy_kmh", speedAccuracyKmh)
+            .putFloat("sample_hz", sampleRateHz.toFloat())
             .putString("gps_quality", quality)
             .putFloat("distance_m", totalDistanceMeters.toFloat())
             .putFloat("max_speed_kmh", (maxSpeedMps * 3.6).toFloat())
             .putInt("point_count", pointCount)
             .putLong("duration_ms", max(0L, System.currentTimeMillis() - startedAt))
+            .putLong("last_update_ms", System.currentTimeMillis())
             .apply()
     }
 
-    private fun gpsQuality(accuracyM: Float, speedAccuracyKmh: Float): String {
+    private fun gpsQuality(accuracyM: Float, speedAccuracyKmh: Float, hasGpsSpeed: Boolean): String {
         return when {
-            accuracyM <= 10f && (speedAccuracyKmh < 0f || speedAccuracyKmh <= 5.5f) -> "GERAS"
-            accuracyM <= 25f && (speedAccuracyKmh < 0f || speedAccuracyKmh <= 9f) -> "TINKAMAS"
+            hasGpsSpeed && accuracyM <= 8f && (speedAccuracyKmh < 0f || speedAccuracyKmh <= 4f) -> "GERAS"
+            hasGpsSpeed && accuracyM <= 20f && (speedAccuracyKmh < 0f || speedAccuracyKmh <= 7f) -> "TINKAMAS"
             else -> "SILPNAS"
         }
     }
 
     private fun updateNotification(speedKmh: Double, quality: String) {
-        val text = "$mode • ${String.format(Locale.US, "%.0f", speedKmh)} km/h • ${String.format(Locale.US, "%.2f", totalDistanceMeters / 1000.0)} km • GPS $quality"
+        val text = "$mode • ${String.format(Locale.US, "%.0f", speedKmh)} km/h • " +
+            "${String.format(Locale.US, "%.2f", totalDistanceMeters / 1000.0)} km • " +
+            "${String.format(Locale.US, "%.1f", sampleRateHz)} Hz • GPS $quality"
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(NOTIFICATION_ID, buildNotification(text))
     }
@@ -370,13 +357,16 @@ class TrackingService : Service(), LocationListener {
         )
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification.Builder(this, CHANNEL_ID)
-        } else Notification.Builder(this)
+        } else {
+            Notification.Builder(this)
+        }
         return builder
             .setContentTitle("Marių Ride Lab įrašinėja")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pending)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .build()
     }
 
@@ -389,14 +379,38 @@ class TrackingService : Service(), LocationListener {
         }
     }
 
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:ride-tracking").apply {
+            setReferenceCounted(false)
+            acquire(MAX_WAKE_LOCK_MS)
+        }
+    }
+
+    private fun releaseWakeLock() {
+        val lock = wakeLock
+        if (lock?.isHeld == true) runCatching { lock.release() }
+        wakeLock = null
+    }
+
     private fun stopTracking() {
-        try { locationManager.removeUpdates(this) } catch (_: Exception) {}
-        if (sessionId.isNotEmpty()) closeGpx()
+        try {
+            locationManager.removeUpdates(this)
+        } catch (_: Exception) {
+        }
+
+        if (sessionId.isNotEmpty()) {
+            closeGpx()
+            prefs.edit().putString("last_session_id", sessionId).apply()
+        }
         currentSessionFile().delete()
         prefs.edit()
             .putBoolean("recording", false)
             .putFloat("speed_kmh", 0f)
+            .putString("attempt_status", "Kelionė išsaugota")
             .apply()
+        releaseWakeLock()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         sessionId = ""
@@ -405,28 +419,19 @@ class TrackingService : Service(), LocationListener {
     private fun closeGpx() {
         val file = gpxFile()
         if (!file.exists()) return
-        val tail = runCatching { file.readText().takeLast(32) }.getOrDefault("")
+        val tail = runCatching { file.readText().takeLast(64) }.getOrDefault("")
         if (!tail.contains("</gpx>")) file.appendText("</trkseg></trk></gpx>\n")
     }
 
-    private fun resetPerformanceState() {
-        previousPerfSpeedKmh = null
-        previousPerfNs = null
-        stoppedSinceNs = 0L
-        accelArmed = false
-        accelStartNs = null
-        accelDistanceM = 0.0
-        accel100Done = false
-        quarterDone = false
-        roll80StartNs = null
-        rollCooldown = false
-        brakingArmed = false
-        brakingStartNs = null
-        brakingPeakKmh = 0.0
-    }
-
     override fun onDestroy() {
-        try { locationManager.removeUpdates(this) } catch (_: Exception) {}
+        try {
+            locationManager.removeUpdates(this)
+        } catch (_: Exception) {
+        }
+        releaseWakeLock()
+        if (!explicitStop && sessionId.isNotEmpty()) {
+            prefs.edit().putString("attempt_status", "Android perkrovė GPS tarnybą").apply()
+        }
         super.onDestroy()
     }
 
@@ -438,11 +443,21 @@ class TrackingService : Service(), LocationListener {
     private fun isoUtc(timeMs: Long): String = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
         timeZone = java.util.TimeZone.getTimeZone("UTC")
     }.format(Date(timeMs))
+    private fun xmlEscape(value: String): String = value
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&apos;")
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
     override fun onProviderEnabled(provider: String) {}
     override fun onProviderDisabled(provider: String) {
-        prefs.edit().putString("gps_quality", "GPS IŠJUNGTAS").apply()
+        performanceEngine.reset()
+        prefs.edit()
+            .putString("gps_quality", "GPS IŠJUNGTAS")
+            .putString("attempt_status", "Įjunk GPS")
+            .apply()
     }
 
     companion object {
@@ -454,6 +469,6 @@ class TrackingService : Service(), LocationListener {
         const val RESULTS_FILE = "performance_results.csv"
         private const val CHANNEL_ID = "gps_recording"
         private const val NOTIFICATION_ID = 42
-        private const val QUARTER_MILE_M = 402.336
+        private const val MAX_WAKE_LOCK_MS = 8 * 60 * 60 * 1000L
     }
 }
