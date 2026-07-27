@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-  build-debug-apk:
+  test-and-build-debug-apk:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -40,13 +40,25 @@ jobs:
         with:
           gradle-version: "8.10.2"
 
+      - name: Run timing engine unit tests
+        run: gradle --no-daemon --stacktrace :app:testDebugUnitTest
+
       - name: Compile debug APK
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: mariu-ride-lab-debug-apk
+          name: mariu-ride-lab-rc1-apk
           path: products/moto-sup-native-android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mariu-ride-lab-unit-test-report
+          path: products/moto-sup-native-android/app/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore
           retention-days: 14
