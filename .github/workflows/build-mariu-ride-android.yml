@@ -47,7 +47,7 @@ jobs:
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
       - name: Upload installable APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mariu-ride-lab-rc1-apk
           path: products/moto-sup-native-android/app/build/outputs/apk/debug/app-debug.apk
@@ -56,7 +56,7 @@ jobs:
 
       - name: Upload unit test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mariu-ride-lab-unit-test-report
           path: products/moto-sup-native-android/app/build/reports/tests/testDebugUnitTest
