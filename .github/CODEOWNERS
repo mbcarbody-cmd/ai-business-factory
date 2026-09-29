@@ -1,0 +1,9 @@
+# Security-sensitive paths require owner review.
+/.github/ @mbcarbody-cmd
+/OPS/security/ @mbcarbody-cmd
+/AGENTS.md @mbcarbody-cmd
+/package.json @mbcarbody-cmd
+/package-lock.json @mbcarbody-cmd
+/requirements*.txt @mbcarbody-cmd
+/products/moto-sup-native-android/*.gradle @mbcarbody-cmd
+/products/moto-sup-native-android/app/*.gradle @mbcarbody-cmd
