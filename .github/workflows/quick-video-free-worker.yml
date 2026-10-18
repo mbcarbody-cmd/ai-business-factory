@@ -1,0 +1,43 @@
+name: Free video production worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 7 * * *'
+  pull_request:
+    paths:
+      - 'scripts/quick_video_free_worker.cjs'
+      - '.github/workflows/quick-video-free-worker.yml'
+      - 'website/video-maker.html'
+      - 'website/video-studio.js'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: free-video-worker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  create-and-test-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install free browser tooling
+        run: |
+          npm install --no-save playwright@1.64.1
+          npx playwright install --with-deps chromium
+      - name: Generate a real synthetic WEBM and test download
+        run: node scripts/quick_video_free_worker.cjs
+      - name: Keep proof and playable demo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-worker-proof-${{ github.run_number }}
+          path: runtime/free-video-worker/
+          retention-days: 7
+          if-no-files-found: warn
