@@ -1,0 +1,7 @@
+vendor,sku,oem,title,quantity,price_eur
+DemoVendor,A001,SAMPLE001,Mercedes-Benz E-Class 2012 rear left lamp,2,149.00
+DemoVendor,A002,SAMPLE002,VW Golf 2018 driver door trim,1,55.50
+DemoVendor,A003,,Toyota Corolla 2022 alternator,1,120
+DemoVendor,A002,SAMPLE004,BMW 3 Series 2017 front right airbag,1,210
+DemoVendor,A005,SAMPLE005,Unknown brand used auto part,1,25
+DemoVendor,A006,SAMPLE006,Audi A4 2013 2014 instrument cluster,2,95
