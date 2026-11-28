@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+SELF_REL_PATH = Path("scripts/security/check_repo_hygiene.py")
 
 SKIP_DIRS = {
     ".git",
@@ -95,6 +96,11 @@ def allowlisted(line: str) -> bool:
     return any(word in lower for word in ALLOWLIST_WORDS)
 
 
+def should_skip_risky_text_scan(rel: Path) -> bool:
+    """Avoid self-scan false positives from the scanner's own marker list."""
+    return rel == SELF_REL_PATH
+
+
 def iter_repo_files():
     for dirpath, dirnames, filenames in os.walk(ROOT):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
@@ -112,7 +118,7 @@ def main() -> int:
         if name in FORBIDDEN_NAMES or path.suffix.lower() in FORBIDDEN_SUFFIXES:
             findings.append(f"Forbidden sensitive file: {rel}")
 
-        if not should_scan(path):
+        if not should_scan(path) or should_skip_risky_text_scan(rel):
             continue
 
         try:
